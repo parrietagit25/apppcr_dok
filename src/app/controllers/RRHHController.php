@@ -50,8 +50,8 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
     Telefono: '.$_POST['telefono'].' <br>
     Direccion: '.$_POST['direccion'].' <br>
     Comentarios del colaborador: '.$_POST['dato_adicional'].' <br> ';
-
-    $copia = ["pedro.arrieta@grupopcr.com.pa", "abi.pineda@grupopcr.com.pa"];
+    //, "abi.pineda@grupopcr.com.pa"
+    $copia = ["pedro.arrieta@grupopcr.com.pa"];
 
     $class->enviar_correo("rrhhgpcr@grupopcr.com.pa", $copia, "Actualizacion de Datos", $mensaje);
     echo "<div class='alert alert-success'>Solicitud de actualizacion de datos enviada.</div>";
