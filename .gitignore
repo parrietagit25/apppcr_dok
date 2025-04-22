@@ -1,0 +1,4 @@
+.env
+*.key
+*config.php
+src/prueba_mail.php
