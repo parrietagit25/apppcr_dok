@@ -2,6 +2,11 @@
 
 // app/core/Bootstrap.php
 
+if ($_SERVER["REQUEST_METHOD"] === "POST") {
+    var_dump($_POST);
+    exit;
+}
+
 // Cargar Configuración Global
 require_once __DIR__ . '/../../config/config.php';
 
