@@ -43,7 +43,7 @@ include __DIR__ . '/header.php'; ?>
             echo 'Telefono: <b> '.$value['telefono1'].' </b> <br>';
             echo 'Direccion: <b> '.$value['direccion1'].' </b> <br>';
             echo 'Fecha de ingreso: <b> '.$value['fecha_ingreso'].' </b> <br>';
-            echo 'Ultimo Pago: <b> '.$value['ultimo_dia_pagado'].' </b> <br>';
+            //echo 'Ultimo Pago: <b> '.$value['ultimo_dia_pagado'].' </b> <br>';
 
         } ?>
     <br>
