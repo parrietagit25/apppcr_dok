@@ -1,0 +1,133 @@
+- Minuta de la reunión del dia 14/02/2025
+
+Se llego a la conclusión que se hará una exportación de reporte con los datos solicitados 
+cliente | Documento | NumDocumento | ImporteDocumento | FormaPago | Monto1 | Articulo | Cantidad | Precio | CentroCosto
+
+el reporte tendrá la opción de entregarse de 2 formas diferentes, reporte global y reporte detallado
+el detallado tendrá la opción de seleccionar el cliente y poder exportarlo por cliente, será detallado
+por unidad, traerá la sumatoria de cada unidad que tenga el cliente.
+el global traerá la sumatoria de todas la unidades que tenga el cliente, 
+
+el reporte se exportara de la siguiente forma, si tomamos el caso de global, 
+por cada cliente tendrá 2 registros, 
+- el campo cliente para los 2 registro traerá el mismo valor
+- el campo Documneto traerá el mismo valor
+- el campo NumDocumento traerá el mismo valor
+- el campo ImporteDocumento traerá el mismo valor que será el monto, este será la suma de los 2 registros de campo Monto1
+- el campo FormaPago1 trae el mismo valor
+- el campo Referencia1 trae el valor 0 para ambos registros
+- el campo Monto1 el primer registro trae el monto, el segundo registro se saca el 10% mas 7% en base al primer registo
+- el campo Articulo trae en el primer registro APPCONSUM el segundo registro ADM PPAS, los artículos pueden variar según el caso
+- el campo Precio el primer registro trae el monto, el segundo registro se saca el 10% mas 7% en base al primer registo
+- el campo CentroCosto traerá el mismo valor. 
+
+Para el caso detallado
+
+es el mismo procedimiento pero traera el detalle por unidad, anexara un campo llamado placa/unidad
+
+
+804647759
+Chicho1787$$$
+ShL79@7979
+
+bodega_shl@outlook.com
+
+
+Bienvenido a la aplicacion APP PCR
+en este video tutorial, le mostraremos el 
+uso basico de la aplicacion e informacion de la misma
+
+para poder registarnos y poder ingresar a la aplicacion 
+
+pedido a las 10 am
+
+
+
+
+001519
+002486
+001744
+2505
+001046
+2582
+001326
+001969 
+002586
+002541
+
+
+Aspectos generales:
+
+• Al ingresar a la app, inicialmente marcó que no estaba configurada, pero luego permitió el acceso.
+esto ya fue ajustado
+• La información personal no está actualizada: dirección de residencia y tipo de sangre (B+).
+esto esta pendiente en revision 
+• Para salir de la app es necesario forzar el cierre.
+ya fue ajustado
+• Se sugiere incluir el cronograma de actividades internas y de la fundación.
+
+• Agregar actividades próximas como el desayuno mensual con su tema correspondiente.
+• Incluir opción para registrarse como voluntario en actividades de la empresa.
+• Crear sección "Conoce tu auto" con información de la flota, para que todos puedan ser promotores de venta y alquiler.
+• Consulta si el App podrá descargarse en el celular o si siempre se debe acceder desde un enlace.
+Módulo de RRHH:
+• Datos personales: falta incluir la posición del colaborador y el contacto autorizado en caso de emergencia.
+• Vacaciones:
+ - Debería permitir la solicitud desde ese mismo módulo.
+ - Incluir calendario para planificar vacaciones, seleccionando fechas desde-hasta.
+ - Que calcule los días y alerte si se exceden los disponibles (tipo sistema de reservas).
+ - La opción de jefe inmediato es poco amigable; debería asignarse automáticamente desde la base de datos.
+ - Las solicitudes no se reflejan en pantalla.
+ - Debe tener log de seguimiento con semáforo (rojo: rechazada, amarillo: pendiente, verde: aprobada).
+ - Enviar notificaciones al jefe inmediato sobre solicitudes pendientes.
+• Corregir error tipográfico en el mensaje de confirmación: dice "vanaciones" en lugar de "vacaciones".
+Capacitación:
+• Incluir módulo con cursos, seminarios y capacitaciones tomadas.
+• Mostrar capacitaciones asignadas y pendientes del colaborador.
+
+
+--- ver chat con abii -- listo
+--- modulo de permisos no esta gruardando,adaptar como el fom que tiene abi -- listo  
+--- colocar a fecha de las vacaciones segun los dias disponibles y mostrar el alendario -- listo
+--- incapacidad que llegue una copia a el jefe encargado y a rrhh
+--- acomodar el catnet, sange, colocar cargo, quitar No -- listo 
+--- linea de apoyo 63796524 -- listo
+--- no esta registrando nada  -.-! -- listo
+--- agregar calamidad domestica, es una solicitud -- listo
+
+--- agregar en carnet, el carnet de poliza
+
+
+// pedir el correo a RRHH para setiar las notificaciones, solicitud de permisos ETC
+// preguntar si la calamidad es un tipo de solicitud o es una area sola // listo
+// colocar los dias disponibles en las vacaciones // listo
+// hablar con Hernan o cesar para agregar una carpeta compartida en el proyecto para las imagenes
+/// dar la ruta a Hernan
+C:\inetpub\wwwroot\apppcr\apppcr\images\imagen_carnet
+
+rrhh
+009999
+123123
+
+regular
+008888
+123123
+
+admin
+002475
+123123
+
+gerente 
+002374
+123123
+
+-mantenimineto carta e trabajo
+solo RRHH, enviar un correo al solicitara
+
+
+
+
+
+
+
+
