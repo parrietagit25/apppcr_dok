@@ -2,8 +2,8 @@ const CACHE_NAME = 'pcr-cache-v1';
 const urlsToCache = [
   '/',
   '/index.php',
-  '/icons/ico-192.png',
-  '/icons/ico-512.png',
+  '/icons/ico-192_v2.png',
+  '/icons/ico-512_v2.png',
   '/manifest.json'
 ];
 
