@@ -99,7 +99,7 @@ function enviarCorreoRecuperacion($emailDestino, $codigoRecuperacion) {
         $mail->Host = 'smtp-mail.outlook.com'; // Cambia esto según tu proveedor
         $mail->SMTPAuth = true;
         $mail->Username = 'notificaciones@grupopcr.com.pa';
-        $mail->Password = 'R>xv7A=u[3WnJ{rDg;#S';
+        $mail->Password = EMAIL_GLOBAL;
         $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
         $mail->Port = 587;
 

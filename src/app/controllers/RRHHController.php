@@ -365,7 +365,7 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
                 $mail->Host = 'smtp-mail.outlook.com'; // Cambia esto según tu proveedor
                 $mail->SMTPAuth = true;
                 $mail->Username = 'notificaciones@grupopcr.com.pa';
-                $mail->Password = 'ghhpsqstqbfyscpc';
+                $mail->Password = EMAIL_GLOBAL;
                 $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
                 $mail->Port = 587;
 
