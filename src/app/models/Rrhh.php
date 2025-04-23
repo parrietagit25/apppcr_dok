@@ -28,21 +28,50 @@ class Rrhh {
         if (!isset($_SESSION['code'])) {
             die("Error: No hay sesión iniciada.");
         }
-
+    
         $code = $_SESSION['code'];
-        
-        // ✅ Usar `$this->pdo` en lugar de `$pdo`
+    
+        // Lista local de colaboradores
+        $colaboradores = [
+            "00111111" => ["nombre" => "César", "apellido" => "Durufour"],
+            "00111112" => ["nombre" => "Ricardo", "apellido" => "De La Guardia"],
+            "00111122" => ["nombre" => "Marilin", "apellido" => "Santos"],
+            "00111113" => ["nombre" => "Oscar", "apellido" => "Castillo"],
+            "001142"    => ["nombre" => "Michelle", "apellido" => "de la Guardia"],
+            "002015"    => ["nombre" => "Ivette", "apellido" => "Romero"],
+            "001082"    => ["nombre" => "Jorge", "apellido" => "Juan De La Guardia"],
+            "00111114"  => ["nombre" => "Daska", "apellido" => "Vaz"],
+            "00111115"  => ["nombre" => "Herminda", "apellido" => "Sánchez"],
+            "00111116"  => ["nombre" => "David", "apellido" => "Jordan"],
+            "00111117"  => ["nombre" => "Luis", "apellido" => "Pinilla"],
+            "00111118"  => ["nombre" => "Rigoberto", "apellido" => "López"],
+            "00111119"  => ["nombre" => "Jaime", "apellido" => "Cedeño"],
+            "00111110"  => ["nombre" => "Diana", "apellido" => "Rico"],
+            "00111120"  => ["nombre" => "Giovanni", "apellido" => "Colucci"],
+        ];
+    
+        // Si está en la lista local, devolver datos simulados
+        if (array_key_exists($code, $colaboradores)) {
+            return [
+                [
+                    "codigo_empleado" => $code,
+                    "nombre" => $colaboradores[$code]["nombre"],
+                    "apellido" => $colaboradores[$code]["apellido"]
+                ]
+            ];
+        }
+    
+        // Si no está, consultar en la base de datos
         $stmt = $this->pdo->prepare("SELECT * FROM empleados WHERE codigo_empleado = :code");
-        $stmt->bindParam(':code', $code, PDO::PARAM_INT);
+        $stmt->bindParam(':code', $code, PDO::PARAM_STR);
         $stmt->execute();
-
-        // ✅ Inicializar `$array_datos` antes de usarlo
+    
         $array_datos = [];
-
+    
         while ($list_code = $stmt->fetch(PDO::FETCH_ASSOC)) {
             $array_datos[] = $list_code;
         }
-
+    
         return $array_datos;
     }
 
