@@ -2,10 +2,10 @@
 header('Content-Type: application/json');
 ob_start(); // Capturar cualquier salida inesperada
 
-define('DB_HOST', 'localhost');
-define('DB_NAME', 'parrietapcr_apppcr');
-define('DB_USER', 'parrietapcr_parrietapcr');
-define('DB_PASS', 'Chicho1787$$$'); 
+define('DB_HOST', 'db');
+define('DB_NAME', 'apppcr');
+define('DB_USER', 'appuser');
+define('DB_PASS', 'apppass'); 
 
 $conn = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
 

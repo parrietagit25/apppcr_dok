@@ -99,7 +99,7 @@ function enviarCorreoRecuperacion($emailDestino, $codigoRecuperacion) {
         $mail->Host = 'smtp-mail.outlook.com'; // Cambia esto según tu proveedor
         $mail->SMTPAuth = true;
         $mail->Username = 'notificaciones@grupopcr.com.pa';
-        $mail->Password = 'ghhpsqstqbfyscpc';
+        $mail->Password = 'R>xv7A=u[3WnJ{rDg;#S';
         $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
         $mail->Port = 587;
 
@@ -108,7 +108,7 @@ function enviarCorreoRecuperacion($emailDestino, $codigoRecuperacion) {
 
         $mail->isHTML(true);
         $mail->Subject = 'Recuperación de contraseña';
-        $mail->Body = '<h3>Ingrese en el siguiente link para poder restablecer su contraseña <a href="http://10.10.2.6/apppcr/pcrapp/app/controllers/RegcolaController.php?restablecer_password='.$codigoRecuperacion.'" target="_blank">Restablecer</a> </h3>';
+        $mail->Body = '<h3>Ingrese en el siguiente link para poder restablecer su contraseña <a href="https://apppcr.net/app/controllers/RegcolaController.php?restablecer_password='.$codigoRecuperacion.'" target="_blank">Restablecer</a> </h3>';
 
         $mail->send();
         return 'Correo enviado correctamente';
