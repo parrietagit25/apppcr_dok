@@ -84,7 +84,7 @@ class User {
 
         if ($list_code = $stmt->fetch(PDO::FETCH_ASSOC)) {
 
-            if ($list_code['contar'] == 1) {
+            if ($list_code['contar'] >= 1) {
                 return 1;
             }else{
                 return 0;
