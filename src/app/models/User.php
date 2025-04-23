@@ -114,14 +114,11 @@ class User {
     }
 
     public function actualizar_colaborador($pass, $code) {
-        // Hashear la contraseña antes de guardarla en la base de datos
         $hashedPass = password_hash($pass, PASSWORD_DEFAULT);
     
-        // Preparar la consulta SQL para actualizar la contraseña
         $sql = "UPDATE empleado_log SET pass = ? WHERE codigo = ?";
         $stmt = $this->pdo->prepare($sql);
         
-        // Ejecutar la consulta con los valores proporcionados
         if ($stmt->execute([$hashedPass, $code])) {
             return true; // Éxito
         } else {

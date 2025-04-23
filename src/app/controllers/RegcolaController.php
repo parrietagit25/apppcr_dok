@@ -50,7 +50,8 @@ if (isset($_GET['restablecer_password'])) {
 
         $userModel->actualizar_colaborador($_POST['new_pass2'], $_POST['restore_code']);
         $mensaje = 'Contraseña actualizada';
-        require_once __DIR__ . '/../views/login.php';
+        header("Location: /../views/login.php?msg=Contraseña+actualizada+correctamente");
+        //require_once __DIR__ . '/../views/login.php';
         exit();
         
     }
