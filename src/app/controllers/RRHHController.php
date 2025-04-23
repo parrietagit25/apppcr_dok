@@ -71,10 +71,12 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
         $carta_trabajo = $class->carta_trabajo($descripcion);
 
         $dartos_cola = $class->datos_colaborador();
-        foreach ($dartos_cola as $key => $value) {
-            $nombre_comple = $value['nombre']. ' ' .$value['apellido']; 
-            $codigo = $value['codigo_empleado'];
-        }
+        $nombre_comple = "";
+        $codigo = "";
+        if (!empty($dartos_cola) && isset($dartos_cola[0])) {
+            $nombre_comple = $dartos_cola[0]['nombre'] . ' ' . $dartos_cola[0]['apellido'];
+            $codigo = $dartos_cola[0]['codigo_empleado'];
+        }        
 
         $mensaje = 'El colaborador '.$nombre_comple.' con codigo '.$codigo.' 
         ha solicitado, una carta de trabajo <br> 
