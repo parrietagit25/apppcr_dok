@@ -25,27 +25,54 @@ include __DIR__ . '/header.php'; ?>
     </div>
     <div class="text-center">
 
-        <?php 
-        
-        foreach ($todos_datos as $key => $value) {
+    <?php 
+foreach ($todos_datos as $key => $value) {
 
-            $codigo = $value['codigo_empleado'];
-            $nombre_compl = $value['nombre'].' '.$value['apellido'];
-        
-            echo 'Codigo Empleado: <b> '.$value['codigo_empleado'].' </b> <br>';
-            echo 'Horario: <b> '.$value['codigo_horario'].' </b> <br>';
-            echo 'Nombre: <b> '.$value['nombre'].' </b> <br>';
-            echo 'Apellido: <b> '.$value['apellido'].' </b> <br>';
-            echo 'Fecha Nacimiento: <b> '.$value['fecha_nacimiento'].' </b> <br>';
-            echo 'Sexo: <b> '.$value['sexo'].' </b> <br>';
-            echo 'Estado Civil: <b> '.$value['estado_civil'].' </b> <br>';
-            echo 'Email: <b> '.$value['email'].' </b> <br>';
-            echo 'Telefono: <b> '.$value['telefono1'].' </b> <br>';
-            echo 'Direccion: <b> '.$value['direccion1'].' </b> <br>';
-            echo 'Fecha de ingreso: <b> '.$value['fecha_ingreso'].' </b> <br>';
-            //echo 'Ultimo Pago: <b> '.$value['ultimo_dia_pagado'].' </b> <br>';
+    echo 'Codigo Empleado: <b>' . $value['codigo_empleado'] . '</b><br>';
 
-        } ?>
+    if (isset($value['codigo_horario'])) {
+        echo 'Horario: <b>' . $value['codigo_horario'] . '</b><br>';
+    }
+
+    if (isset($value['nombre'])) {
+        echo 'Nombre: <b>' . $value['nombre'] . '</b><br>';
+    }
+
+    if (isset($value['apellido'])) {
+        echo 'Apellido: <b>' . $value['apellido'] . '</b><br>';
+    }
+
+    if (isset($value['fecha_nacimiento'])) {
+        echo 'Fecha Nacimiento: <b>' . $value['fecha_nacimiento'] . '</b><br>';
+    }
+
+    if (isset($value['sexo'])) {
+        echo 'Sexo: <b>' . $value['sexo'] . '</b><br>';
+    }
+
+    if (isset($value['estado_civil'])) {
+        echo 'Estado Civil: <b>' . $value['estado_civil'] . '</b><br>';
+    }
+
+    if (isset($value['email'])) {
+        echo 'Email: <b>' . $value['email'] . '</b><br>';
+    }
+
+    if (isset($value['telefono1'])) {
+        echo 'Telefono: <b>' . $value['telefono1'] . '</b><br>';
+    }
+
+    if (isset($value['direccion1'])) {
+        echo 'Direccion: <b>' . $value['direccion1'] . '</b><br>';
+    }
+
+    if (isset($value['fecha_ingreso'])) {
+        echo 'Fecha de ingreso: <b>' . $value['fecha_ingreso'] . '</b><br>';
+    }
+
+    // Puedes seguir agregando más campos si es necesario
+}
+?>
     <br>
     <div class="text-center">
         <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#solicitudActualizarDatos">
