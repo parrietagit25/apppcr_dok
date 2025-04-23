@@ -364,6 +364,7 @@ class Rrhh {
 
 
     public function select_jefe(){
+        echo "SELECT * FROM `empleados` WHERE `codigo_empleado` = '".$_SESSION['code']."'";
         
         $stmt_departamento = $this->pdo->prepare("SELECT * FROM `empleados` WHERE `codigo_empleado` = '".$_SESSION['code']."';");
         $stmt_departamento->execute();
