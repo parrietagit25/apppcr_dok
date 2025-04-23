@@ -33,7 +33,18 @@ if (isset($_GET['codigo'])) {
 
         $response = ["existe" => $count > 0];
 
-    }else {
+    }elseif($count==0){
+
+        $stmt = $conn->prepare("SELECT COUNT(*) FROM encargados_colab WHERE code_empleado = ?");
+        $stmt->bind_param("s", $codigo);
+        $stmt->execute();
+        $stmt->bind_result($count);
+        $stmt->fetch();
+        $stmt->close();
+
+        $response = ["existe" => $count > 0];
+
+    }else{
         $response = ["no_existe" => "El codigo de empleado no existe en la base de datos de RRHH"];
     }
 
