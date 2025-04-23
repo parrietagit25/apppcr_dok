@@ -27,17 +27,43 @@ class User {
     }
     
 
-    public function nombre_colaborador(){
+    public function nombre_colaborador() {
         $code = $_SESSION['code'];
-        $stmt = $this->pdo->prepare("SELECT * FROM empleados WHERE codigo_empleado  = :code");
-        $stmt->bindParam(':code', $code, PDO::PARAM_INT);
-        $stmt->execute();
-
-        $nombre = "";
-        if ($list_code = $stmt->fetch(PDO::FETCH_ASSOC)) {
-            return $list_code['nombre'].' '.$list_code['apellido'];
+    
+        // Lista de empleados que no aparecen en el datawere house de payday
+        $colaboradores = [
+            "00111111" => ["César", "Durufour"],
+            "00111112" => ["Ricardo", "De La Guardia"],
+            "00111122" => ["Marilin", "Santos"],
+            "00111113" => ["Oscar", "Castillo"],
+            "001142"    => ["Michelle", "de la Guardia"],
+            "002015"    => ["Ivette", "Romero"],
+            "001082"    => ["Jorge", "Juan De La Guardia"],
+            "00111114"  => ["Daska", "Vaz"],
+            "00111115"  => ["Herminda", "Sánchez"],
+            "00111116"  => ["David", "Jordan"],
+            "00111117"  => ["Luis", "Pinilla"],
+            "00111118"  => ["Rigoberto", "López"],
+            "00111119"  => ["Jaime", "Cedeño"],
+            "00111110"  => ["Diana", "Rico"],
+            "00111120"  => ["Giovanni", "Colucci"],
+        ];
+    
+        if (array_key_exists($code, $colaboradores)) {
+            return $colaboradores[$code][0] . ' ' . $colaboradores[$code][1];
         }
+    
+        $stmt = $this->pdo->prepare("SELECT * FROM empleados WHERE codigo_empleado = :code");
+        $stmt->bindParam(':code', $code, PDO::PARAM_STR);
+        $stmt->execute();
+    
+        if ($list_code = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            return $list_code['nombre'] . ' ' . $list_code['apellido'];
+        }
+    
+        return ""; 
     }
+    
 
     public function get_tyte_user(){
         if (isset($_SESSION['code'])) {
