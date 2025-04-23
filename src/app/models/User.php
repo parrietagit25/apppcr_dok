@@ -76,8 +76,9 @@ class User {
         }
 
         $code = $codigo;
+        $sin_dos_primeros = substr($codigo, 2);
         $stmt = $this->pdo->prepare("SELECT count(*) as contar FROM encargados_colab WHERE code_empleado = :code");
-        $stmt->bindParam(':code', $code, PDO::PARAM_INT);
+        $stmt->bindParam(':code', $sin_dos_primeros, PDO::PARAM_INT);
         $stmt->execute();
 
         if ($list_code = $stmt->fetch(PDO::FETCH_ASSOC)) {
