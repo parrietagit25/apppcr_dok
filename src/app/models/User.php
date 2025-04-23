@@ -67,11 +67,25 @@ class User {
 
             if ($list_code['contar'] == 1) {
                 return 1;
+            }elseif($list_code['contar'] == 0){
+
+                $stmt = $this->pdo->prepare("SELECT count(*) as contar FROM encargados_colab WHERE code_empleado = :code");
+                $stmt->bindParam(':code', $code, PDO::PARAM_INT);
+                $stmt->execute();
+
+                if ($list_code = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                    if ($list_code['contar'] >= 1) {
+                        return 1;
+                    }else {
+                        return 0;
+                    }
+                }else {
+                    return 0;
+                }
             }else{
                 return 0;
             } 
 
-           //return $list_code['nombre'];
         }
 
     }

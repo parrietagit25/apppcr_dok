@@ -17,16 +17,12 @@ $userModel = new User($pdo);
 
 if (isset($_GET['reg_col'])) {
     
-
     if (isset($_POST['registro_colaborador'])) {
-
-        
 
         $result_bus = $userModel->buscar_code_col_reg($_POST['reg_code']);
 
         if ($result_bus == 1) {
-
-            
+        
             //echo 'pasando';
             $userModel->insertar_colaborador($_POST['reg_code'], $_POST['reg_password']);
             $mensaje = 'Colaborador Registrado';
