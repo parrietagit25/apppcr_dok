@@ -363,27 +363,31 @@ class Rrhh {
     }
 
 
-    public function select_jefe(){
-        //echo "SELECT * FROM `empleados` WHERE `codigo_empleado` = '".$_SESSION['code']."'";
-
-        $stmt_departamento = $this->pdo->prepare("SELECT * FROM `empleados` WHERE `codigo_empleado` = '".$_SESSION['code']."';");
+    public function select_jefe() {
+        $nombre_departamento = ''; // ✅ Inicialización por defecto
+    
+        $stmt_departamento = $this->pdo->prepare("SELECT * FROM `empleados` WHERE `codigo_empleado` = :codigo;");
+        $stmt_departamento->bindParam(':codigo', $_SESSION['code']);
         $stmt_departamento->execute();
+    
         while ($list_code = $stmt_departamento->fetch(PDO::FETCH_ASSOC)) {
             $nombre_departamento = $list_code['nombre_departamento'];
         }
-
+    
         $array_datos = [];
         $stmt_frase = $this->pdo->prepare("SELECT * FROM `encargados_colab` 
-                                            WHERE 
-                                            departamento like '%".$nombre_departamento."%';");
-        
+                                           WHERE departamento LIKE :departamento");
+        $param_departamento = '%' . $nombre_departamento . '%';
+        $stmt_frase->bindParam(':departamento', $param_departamento);
         $stmt_frase->execute();
+    
         while ($list_code = $stmt_frase->fetch(PDO::FETCH_ASSOC)) {
             $array_datos[] = $list_code;
         }
-
+    
         return $array_datos;
     }
+    
 
     public function select_permisos_all(){
 
