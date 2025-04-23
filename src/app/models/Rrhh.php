@@ -417,31 +417,75 @@ class Rrhh {
         return $array_datos;
     }
     
-
-    public function select_permisos_all(){
-
-        $stmt_departamento = $this->pdo->prepare("SELECT * FROM `empleados` WHERE `codigo_empleado` = '".$_SESSION['code']."';");
-        $stmt_departamento->execute();
-        while ($list_code = $stmt_departamento->fetch(PDO::FETCH_ASSOC)) {
-            $nombre_departamento = $list_code['nombre_departamento'];
-        }
-
-        $array_datos = [];
+    
+    public function select_permisos_all() {
         $code = $_SESSION['code'];
-        $stmt_frase = $this->pdo->prepare("SELECT p.*, 
-                                                  e.nombre, 
-                                                  e.apellido 
-                                           FROM 
-                                           solicitud_permiso p inner join empleados e on p.code = e.codigo_empleado 
-                                           WHERE 
-                                           e.nombre_departamento like '%".$nombre_departamento."%'");
-        /*  where p.id_jefe = '".$code."' */
-        $stmt_frase->execute();
-        while ($list_code = $stmt_frase->fetch(PDO::FETCH_ASSOC)) {
-            $array_datos[] = $list_code;
+    
+        // Lista local de colaboradores con sus departamentos (puedes mover a archivo externo si crece)
+        $departamentos_fijos = [
+            "00111111" => "OPERACIONES",
+            "00111112" => "VENTAS DE AUTOS",
+            "00111122" => "ADMINISTRACION",
+            "00111113" => "ADMINISTRACION",
+            "001142"    => "MERCADEO",
+            "002015"    => "CONTAB-COBROS",
+            "001082"    => "CONTABILIDAD",
+            "00111114"  => "MERCADEO",
+            "00111115"  => "TALLER",
+            "00111116"  => "OPERACIONES",
+            "00111117"  => "OPERACIONES",
+            "00111118"  => "OPERACIONES",
+            "00111119"  => "OPERACIONES",
+            "00111110"  => "OPERACIONES",
+            "00111120"  => "RENTALS",
+        ];
+    
+        // Intentar obtener el departamento desde la tabla empleados
+        $stmt_departamento = $this->pdo->prepare("SELECT nombre_departamento FROM empleados WHERE codigo_empleado = :code");
+        $stmt_departamento->bindParam(':code', $code, PDO::PARAM_STR);
+        $stmt_departamento->execute();
+    
+        $nombre_departamento = "";
+        if ($result = $stmt_departamento->fetch(PDO::FETCH_ASSOC)) {
+            $nombre_departamento = $result['nombre_departamento'];
         }
+    
+        // Si no se encuentra en empleados y el código está en la lista, usar el valor de la lista
+        if (empty($nombre_departamento) && isset($departamentos_fijos[$code])) {
+            $nombre_departamento = $departamentos_fijos[$code];
+        }
+    
+        // Si aún no hay nombre_departamento, buscar en encargados_colab
+        if (empty($nombre_departamento)) {
+            $stmt_alt = $this->pdo->prepare("SELECT departamento FROM encargados_colab WHERE code_empleado = :code");
+            $stmt_alt->bindParam(':code', $code, PDO::PARAM_STR);
+            $stmt_alt->execute();
+    
+            if ($encargado = $stmt_alt->fetch(PDO::FETCH_ASSOC)) {
+                $nombre_departamento = $encargado['departamento'];
+            }
+        }
+    
+        // Consulta final si se tiene un departamento válido
+        $array_datos = [];
+    
+        if (!empty($nombre_departamento)) {
+            $stmt_frase = $this->pdo->prepare("SELECT p.*, e.nombre, e.apellido
+                                               FROM solicitud_permiso p
+                                               INNER JOIN empleados e ON p.code = e.codigo_empleado
+                                               WHERE e.nombre_departamento LIKE :departamento");
+            $like_dep = '%' . $nombre_departamento . '%';
+            $stmt_frase->bindParam(':departamento', $like_dep, PDO::PARAM_STR);
+            $stmt_frase->execute();
+    
+            while ($list_code = $stmt_frase->fetch(PDO::FETCH_ASSOC)) {
+                $array_datos[] = $list_code;
+            }
+        }
+    
         return $array_datos;
     }
+    
 
     public function update_permiso($respuesta, $comentario, $permiso_id){
 
