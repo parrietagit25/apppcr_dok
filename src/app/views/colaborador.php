@@ -159,14 +159,22 @@ foreach ($todos_datos as $key => $value) {
     const loader = document.getElementById("loaderActualizarDatos");
 
     if (form) {
-      form.addEventListener("submit", function () {
+      form.addEventListener("submit", function (e) {
+        e.preventDefault(); // evitamos el envío inmediato
+
         btn.disabled = true;
         btn.value = "Enviando...";
         loader.classList.remove("d-none");
+
+        // Esperamos 1 segundo antes de enviar el formulario
+        setTimeout(() => {
+          form.submit(); // aquí sí se envía normalmente
+        }, 1000);
       });
     }
   });
 </script>
+
 
 
 <?php 
