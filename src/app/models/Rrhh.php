@@ -27,8 +27,6 @@ class Rrhh {
     public function datos_colaborador() {
 
         $code = $_SESSION['code'];
-
-        echo $code;
     
         // Lista local de colaboradores
         $colaboradores = [
