@@ -73,9 +73,12 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
         $dartos_cola = $class->datos_colaborador();
         $nombre_comple = "";
         $codigo = "";
+        echo '<pre>';
+        echo var_dump($dartos_cola);
+        echo '</pre>';
         if (!empty($dartos_cola) && isset($dartos_cola[0])) {
-            $nombre_comple = $dartos_cola[0]['nombre'] . ' ' . $dartos_cola[0]['apellido'];
-            $codigo = $dartos_cola[0]['codigo_empleado'];
+            $nombre_comple = $dartos_cola['nombre'] . ' ' . $dartos_cola['apellido'];
+            $codigo = $dartos_cola['codigo_empleado'];
         }        
 
         $mensaje = 'El colaborador '.$nombre_comple.' con codigo '.$codigo.' 

@@ -48,7 +48,6 @@ class Rrhh {
     
         // Si está en la lista local, devolver datos simulados
         if (array_key_exists($code, $colaboradores)) {
-            echo "<div class='alert alert-success'>Colaborador encontrado en la lista local.</div>";
             return [
                 [
                     "codigo_empleado" => $code,
