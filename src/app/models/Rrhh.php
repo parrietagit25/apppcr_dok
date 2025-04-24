@@ -25,11 +25,10 @@ class Rrhh {
     }
 
     public function datos_colaborador() {
-        if (!isset($_SESSION['code'])) {
-            die("Error: No hay sesión iniciada.");
-        }
-    
+
         $code = $_SESSION['code'];
+
+        echo $code;
     
         // Lista local de colaboradores
         $colaboradores = [
@@ -37,9 +36,6 @@ class Rrhh {
             "00111112" => ["nombre" => "Ricardo", "apellido" => "De La Guardia"],
             "00111122" => ["nombre" => "Marilin", "apellido" => "Santos"],
             "00111113" => ["nombre" => "Oscar", "apellido" => "Castillo"],
-            "001142"    => ["nombre" => "Michelle", "apellido" => "de la Guardia"],
-            "002015"    => ["nombre" => "Ivette", "apellido" => "Romero"],
-            "001082"    => ["nombre" => "Jorge", "apellido" => "Juan De La Guardia"],
             "00111114"  => ["nombre" => "Daska", "apellido" => "Vaz"],
             "00111115"  => ["nombre" => "Herminda", "apellido" => "Sánchez"],
             "00111116"  => ["nombre" => "David", "apellido" => "Jordan"],
@@ -52,6 +48,7 @@ class Rrhh {
     
         // Si está en la lista local, devolver datos simulados
         if (array_key_exists($code, $colaboradores)) {
+            echo "<div class='alert alert-success'>Colaborador encontrado en la lista local.</div>";
             return [
                 [
                     "codigo_empleado" => $code,
