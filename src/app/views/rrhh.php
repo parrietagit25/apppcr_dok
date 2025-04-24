@@ -132,14 +132,16 @@ include __DIR__ . '/header.php';
         </div>
         <?php } ?>
         <?php if ($tipo_usuario == 1 || $tipo_usuario == 4) { ?>
-        <div class="col-4">
-            <a href="<?php echo BASE_URL_CONTROLLER; ?>/RRHHController.php?calamidad_vrrhh=1" class="text-decoration-none">
-                <div class="p-2">
-                    <img src="<?php echo BASE_URL_IMAGE; ?>solicitudva.png" alt="Noticias" class="mb-2" width="50">
-                    <p>V-Solicitud de Calamidades</p>
-                </div>
-            </a>
-        </div>
+            <?php if($code_lomg >7){}else{ ?> 
+            <div class="col-4">
+                <a href="<?php echo BASE_URL_CONTROLLER; ?>/RRHHController.php?calamidad_vrrhh=1" class="text-decoration-none">
+                    <div class="p-2">
+                        <img src="<?php echo BASE_URL_IMAGE; ?>solicitudva.png" alt="Noticias" class="mb-2" width="50">
+                        <p>V-Solicitud de Calamidades</p>
+                    </div>
+                </a>
+            </div>
+            <?php } ?>
         <?php } ?>
     </div>
     <br>
