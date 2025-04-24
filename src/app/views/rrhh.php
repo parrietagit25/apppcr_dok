@@ -21,7 +21,7 @@ include __DIR__ . '/header.php';
         <div class="carousel-inner">
             <div class="carousel-item active">
                 <div class="p-3 bg-light rounded">
-                    <h5 class="fw-bold">RRHH - Colaborador</h5>
+                    <h5 class="fw-bold">RRHH - Colaborador <?php echo $code_lomg; ?></h5>
                 </div>
             </div>
         </div>
