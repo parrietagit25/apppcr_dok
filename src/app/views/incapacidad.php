@@ -83,7 +83,14 @@ include __DIR__ . '/header.php'; ?>
                         <textarea name="descripcion" class="form-control" style="margin:10px;"></textarea>
                     </div>
                     <br>
-                    <input type="submit" class="btn btn-primary" value="Subir Incapacidad" name="incapacidad">
+                    <!--<input type="submit" class="btn btn-primary" value="Subir Incapacidad" name="incapacidad">-->
+
+                    <input type="hidden" class="form-control" name="incapacidad" value="1">
+                        
+                    <div class="d-flex align-items-center gap-2">
+                        <input type="button" class="btn btn-primary" id="btnIncapacidad" value="Subir Incapacidad">
+                        <span id="loaderIncapacidad" class="spinner-border spinner-border-sm text-primary d-none" role="status" aria-hidden="true"></span>
+                    </div>
                 </form>
             </div>
         </div>
@@ -99,5 +106,27 @@ include __DIR__ . '/header.php'; ?>
         <a href="#" class="navbar-brand text-center" style="width: 25%;"></a>
     </div>
 </nav>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const form = document.querySelector('#incapacidad form');
+    const btn = document.getElementById("btnIncapacidad");
+    const loader = document.getElementById("loaderIncapacidad");
+
+    if (form && btn && loader) {
+      btn.addEventListener("click", function (e) {
+        // Desactiva el botón y muestra el loader
+        btn.disabled = true;
+        btn.value = "Enviando...";
+        loader.classList.remove("d-none");
+
+        // Espera 800ms y luego envía el formulario normalmente
+        setTimeout(() => {
+          form.submit();
+        }, 800);
+      });
+    }
+  });
+</script>
 
 <?php include __DIR__ . '/footer.php'; ?>
