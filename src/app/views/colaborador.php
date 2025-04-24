@@ -127,13 +127,10 @@ foreach ($todos_datos as $key => $value) {
 
                         <input type="hidden" class="form-control" name="code_cola" value="<?php echo $codigo; ?>">
                         <input type="hidden" class="form-control" name="nombre_cola" value="<?php echo $nombre_compl; ?>">
-
-                        <div class="d-flex align-items-center gap-2">
-                            <input type="submit" class="btn btn-primary" id="btnActualizarDatos" value="Solicitar Actualización" name="actualizacion_datos">
-                            <span id="loaderActualizarDatos" class="spinner-border spinner-border-sm text-primary d-none" role="status" aria-hidden="true"></span>
-                        </div>
-
+                        
                     </form>
+
+                    <input type="button" class="btn btn-primary" id="btnActualizarDatos" value="Solicitar Actualización">
                 </div>
             </div>
         </div>
@@ -158,24 +155,21 @@ foreach ($todos_datos as $key => $value) {
     const btn = document.getElementById("btnActualizarDatos");
     const loader = document.getElementById("loaderActualizarDatos");
 
-    if (form) {
-      form.addEventListener("submit", function (e) {
-        e.preventDefault(); // evitamos el envío inmediato
-
+    if (form && btn && loader) {
+      btn.addEventListener("click", function (e) {
+        // Desactiva el botón y muestra el loader
         btn.disabled = true;
         btn.value = "Enviando...";
         loader.classList.remove("d-none");
 
-        // Esperamos 1 segundo antes de enviar el formulario
+        // Espera 800ms y luego envía el formulario normalmente
         setTimeout(() => {
-          form.submit(); // aquí sí se envía normalmente
-        }, 1000);
+          form.submit();
+        }, 800);
       });
     }
   });
 </script>
-
-
 
 <?php 
 
