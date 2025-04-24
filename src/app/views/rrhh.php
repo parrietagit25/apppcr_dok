@@ -21,7 +21,7 @@ include __DIR__ . '/header.php';
         <div class="carousel-inner">
             <div class="carousel-item active">
                 <div class="p-3 bg-light rounded">
-                    <h5 class="fw-bold">RRHH - Colaborador <?php echo $code_lomg; ?></h5>
+                    <h5 class="fw-bold">RRHH - Colaborador </h5>
                 </div>
             </div>
         </div>
@@ -45,7 +45,7 @@ include __DIR__ . '/header.php';
                 </div>
             </a>
         </div>
-        
+        <?php if($code_lomg >7){}else{ ?> 
         <div class="col-4">
             <a href="<?php echo BASE_URL_CONTROLLER; ?>/RRHHController.php?carta_trabajo=1" class="text-decoration-none">
                 <div class="p-2">
@@ -54,6 +54,7 @@ include __DIR__ . '/header.php';
                 </div>
             </a>
         </div>
+        <?php } ?>
         <?php if ($tipo_usuario == 1 || $tipo_usuario == 4) { ?>
         <div class="col-4">
             <a href="<?php echo BASE_URL_CONTROLLER; ?>/RRHHController.php?carta_trabajo_aprobar=1" class="text-decoration-none">
@@ -64,6 +65,7 @@ include __DIR__ . '/header.php';
             </a>
         </div>
         <?php } ?>
+        <?php if($code_lomg >7){}else{ ?> 
         <div class="col-4">
             <a href="<?php echo BASE_URL_CONTROLLER; ?>/RRHHController.php?incapacidad=1" class="text-decoration-none">
                 <div class="p-2">
@@ -72,6 +74,7 @@ include __DIR__ . '/header.php';
                 </div>
             </a>
         </div>
+        <?php } ?>
         <?php if ($tipo_usuario == 1 || $tipo_usuario == 4) { ?>
         <div class="col-4">
             <a href="<?php echo BASE_URL_CONTROLLER; ?>/RRHHController.php?incapacidad_vrrhh=1" class="text-decoration-none">
@@ -98,7 +101,7 @@ include __DIR__ . '/header.php';
                 </div>
             </a>
         </div>
-        
+        <?php if($code_lomg >7){}else{ ?> 
         <div class="col-4">
             <a href="<?php echo BASE_URL_CONTROLLER; ?>/RRHHController.php?solicitud_permiso=1" class="text-decoration-none">
                 <div class="p-2">
@@ -107,6 +110,7 @@ include __DIR__ . '/header.php';
                 </div>
             </a>
         </div>
+        <?php } ?>
         <?php if ($tipo_usuario == 1 || $tipo_usuario == 3 || $tipo_usuario == 4) { ?>
         <div class="col-4">
             <a href="<?php echo BASE_URL_CONTROLLER; ?>/RRHHController.php?solicitud_permiso_admin=1" class="text-decoration-none">
@@ -117,6 +121,7 @@ include __DIR__ . '/header.php';
             </a>
         </div>
         <?php } ?>
+        <?php if($code_lomg >7){}else{ ?> 
         <div class="col-4">
             <a href="<?php echo BASE_URL_CONTROLLER; ?>/RRHHController.php?calamidad=1" class="text-decoration-none">
                 <div class="p-2">
@@ -125,6 +130,7 @@ include __DIR__ . '/header.php';
                 </div>
             </a>
         </div>
+        <?php } ?>
         <?php if ($tipo_usuario == 1 || $tipo_usuario == 4) { ?>
         <div class="col-4">
             <a href="<?php echo BASE_URL_CONTROLLER; ?>/RRHHController.php?calamidad_vrrhh=1" class="text-decoration-none">
