@@ -72,7 +72,14 @@ include __DIR__ . '/header.php'; ?>
                     <p>Ingrese la persona o entidad al cual irá dirigida la carta de trabajo</p>
                     <textarea name="descripcion" class="form-control" style="margin:10px;"></textarea>
                     <br>
-                    <input type="submit" class="btn btn-primary" value="Solicitar Carta" name="carta_trabajo">
+                    <!--<input type="submit" class="btn btn-primary" value="Solicitar Carta" name="carta_trabajo">-->
+
+                    <input type="hidden" class="form-control" name="carta_trabajo" value="1">
+                        
+                    <div class="d-flex align-items-center gap-2">
+                        <input type="button" class="btn btn-primary" id="btnSolicitarCarta" value="Solicitar Carta">
+                        <span id="loaderSolicitarCarta" class="spinner-border spinner-border-sm text-primary d-none" role="status" aria-hidden="true"></span>
+                    </div>
                 </form>
             </div>
         </div>
@@ -88,5 +95,27 @@ include __DIR__ . '/header.php'; ?>
         <a href="#" class="navbar-brand text-center" style="width: 25%;"></a>
     </div>
 </nav>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const form = document.querySelector('#solicitudModal form');
+    const btn = document.getElementById("btnSolicitarCarta");
+    const loader = document.getElementById("loaderSolicitarCarta");
+
+    if (form && btn && loader) {
+      btn.addEventListener("click", function (e) {
+        // Desactiva el botón y muestra el loader
+        btn.disabled = true;
+        btn.value = "Enviando...";
+        loader.classList.remove("d-none");
+
+        // Espera 800ms y luego envía el formulario normalmente
+        setTimeout(() => {
+          form.submit();
+        }, 800);
+      });
+    }
+  });
+</script>
 
 <?php include __DIR__ . '/footer.php'; ?>
