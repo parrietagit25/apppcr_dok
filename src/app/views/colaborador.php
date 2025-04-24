@@ -28,6 +28,9 @@ include __DIR__ . '/header.php'; ?>
     <?php 
 foreach ($todos_datos as $key => $value) {
 
+    $codigo = $value['codigo_empleado'];
+    $nombre_compl = $value['nombre'] . ' ' . $value['apellido'];
+
     echo 'Codigo Empleado: <b>' . $value['codigo_empleado'] . '</b><br>';
 
     if (isset($value['codigo_horario'])) {
