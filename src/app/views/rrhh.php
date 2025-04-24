@@ -31,7 +31,7 @@ include __DIR__ . '/header.php';
         <div class="col-4">
             <a href="<?php echo BASE_URL_CONTROLLER; ?>RRHHController.php?mis_datos=1" class="text-decoration-none">
                 <div class="p-2">
-                    <img src="<?php echo BASE_URL; ?>/images/misdatos.png" alt="RRHH" class="mb-2" width="50">
+                    <img src="<?php echo BASE_URL_IMAGE; ?>misdatos.png" alt="RRHH" class="mb-2" width="50">
                     <p>Mis datos</p>
                 </div>
             </a>
@@ -40,32 +40,16 @@ include __DIR__ . '/header.php';
         <div class="col-4">
             <a href="<?php echo BASE_URL_CONTROLLER; ?>/RRHHController.php?mis_vacaciones=1" class="text-decoration-none">
                 <div class="p-2">
-                    <img src="<?php echo BASE_URL; ?>/images/ico_vacaciones.png" alt="Beneficios" class="mb-2" width="50">
+                    <img src="<?php echo BASE_URL_IMAGE; ?>ico_vacaciones.png" alt="Beneficios" class="mb-2" width="50">
                     <p>Mis Vacaciones</p>
                 </div>
             </a>
         </div>
         
-        <!--<div class="col-4">
-            <a href="#" class="text-decoration-none">
-                <div class="p-2">
-                    <img src="<?php echo BASE_URL; ?>/images/carta.png" alt="Noticias" class="mb-2" width="50">
-                    <p>Ficha</p>
-                </div>
-            </a>
-        </div>
-        <div class="col-4">
-            <a href="#" class="text-decoration-none">
-                <div class="p-2">
-                    <img src="<?php echo BASE_URL; ?>/images/ico_pagos.png" alt="Noticias" class="mb-2" width="50">
-                    <p>Pagos</p>
-                </div>
-            </a>
-        </div>-->
         <div class="col-4">
             <a href="<?php echo BASE_URL_CONTROLLER; ?>/RRHHController.php?carta_trabajo=1" class="text-decoration-none">
                 <div class="p-2">
-                    <img src="<?php echo BASE_URL; ?>/images/ico_carta_trabajo.png" alt="Noticias" class="mb-2" width="50">
+                    <img src="<?php echo BASE_URL_IMAGE; ?>ico_carta_trabajo.png" alt="Noticias" class="mb-2" width="50">
                     <p>Carta de Trabajo</p>
                 </div>
             </a>
