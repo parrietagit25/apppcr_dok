@@ -112,14 +112,16 @@ include __DIR__ . '/header.php';
         </div>
         <?php } ?>
         <?php if ($tipo_usuario == 1 || $tipo_usuario == 3 || $tipo_usuario == 4) { ?>
-        <div class="col-4">
-            <a href="<?php echo BASE_URL_CONTROLLER; ?>/RRHHController.php?solicitud_permiso_admin=1" class="text-decoration-none">
-                <div class="p-2">
-                    <img src="<?php echo BASE_URL_IMAGE; ?>permiso1.png" alt="Noticias" class="mb-2" width="50">
-                    <p>V-Solicitud de Permiso</p>
+            <?php if($code_lomg >7){}else{ ?> 
+                <div class="col-4">
+                    <a href="<?php echo BASE_URL_CONTROLLER; ?>/RRHHController.php?solicitud_permiso_admin=1" class="text-decoration-none">
+                        <div class="p-2">
+                            <img src="<?php echo BASE_URL_IMAGE; ?>permiso1.png" alt="Noticias" class="mb-2" width="50">
+                            <p>V-Solicitud de Permiso</p>
+                        </div>
+                    </a>
                 </div>
-            </a>
-        </div>
+            <?php } ?>
         <?php } ?>
         <?php if($code_lomg >7){}else{ ?> 
         <div class="col-4">
