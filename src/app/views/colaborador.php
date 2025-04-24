@@ -127,7 +127,12 @@ foreach ($todos_datos as $key => $value) {
 
                         <input type="hidden" class="form-control" name="code_cola" value="<?php echo $codigo; ?>">
                         <input type="hidden" class="form-control" name="nombre_cola" value="<?php echo $nombre_compl; ?>">
-                        <input type="submit" class="btn btn-primary" value="Solicitar Actualizacion" name="actualizacion_datos">
+
+                        <div class="d-flex align-items-center gap-2">
+                            <input type="submit" class="btn btn-primary" id="btnActualizarDatos" value="Solicitar Actualización" name="actualizacion_datos">
+                            <span id="loaderActualizarDatos" class="spinner-border spinner-border-sm text-primary d-none" role="status" aria-hidden="true"></span>
+                        </div>
+
                     </form>
                 </div>
             </div>
@@ -146,6 +151,23 @@ foreach ($todos_datos as $key => $value) {
         <a href="#" class="navbar-brand text-center" style="width: 25%;"></a>
     </div>
 </nav>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const form = document.querySelector('#solicitudActualizarDatos form');
+    const btn = document.getElementById("btnActualizarDatos");
+    const loader = document.getElementById("loaderActualizarDatos");
+
+    if (form) {
+      form.addEventListener("submit", function () {
+        btn.disabled = true;
+        btn.value = "Enviando...";
+        loader.classList.remove("d-none");
+      });
+    }
+  });
+</script>
+
 
 <?php 
 
