@@ -58,7 +58,7 @@ include __DIR__ . '/header.php';
         <div class="col-4">
             <a href="<?php echo BASE_URL_CONTROLLER; ?>/RRHHController.php?carta_trabajo_aprobar=1" class="text-decoration-none">
                 <div class="p-2">
-                    <img src="<?php echo BASE_URL; ?>/images/ico_carta_trabajo.png" alt="Noticias" class="mb-2" width="50">
+                    <img src="<?php echo BASE_URL_IMAGE; ?>ico_carta_trabajo.png" alt="Noticias" class="mb-2" width="50">
                     <p>V-RRHH Carta de Trabajo</p>
                 </div>
             </a>
@@ -67,7 +67,7 @@ include __DIR__ . '/header.php';
         <div class="col-4">
             <a href="<?php echo BASE_URL_CONTROLLER; ?>/RRHHController.php?incapacidad=1" class="text-decoration-none">
                 <div class="p-2">
-                    <img src="<?php echo BASE_URL; ?>/images/ico_incapacidades.png" alt="Noticias" class="mb-2" width="50">
+                    <img src="<?php echo BASE_URL_IMAGE; ?>ico_incapacidades.png" alt="Noticias" class="mb-2" width="50">
                     <p>Incapacidades</p>
                 </div>
             </a>
@@ -76,7 +76,7 @@ include __DIR__ . '/header.php';
         <div class="col-4">
             <a href="<?php echo BASE_URL_CONTROLLER; ?>/RRHHController.php?incapacidad_vrrhh=1" class="text-decoration-none">
                 <div class="p-2">
-                    <img src="<?php echo BASE_URL; ?>/images/ico_incapacidades.png" alt="Noticias" class="mb-2" width="50">
+                    <img src="<?php echo BASE_URL_IMAGE; ?>ico_incapacidades.png" alt="Noticias" class="mb-2" width="50">
                     <p>V-RRHH Incapacidades</p>
                 </div>
             </a>
@@ -85,7 +85,7 @@ include __DIR__ . '/header.php';
         <!--<div class="col-4">
             <a href="#" class="text-decoration-none">
                 <div class="p-2">
-                    <img src="<?php echo BASE_URL; ?>/images/carta.png" alt="Noticias" class="mb-2" width="50">
+                    <img src="<?php echo BASE_URL; ?>carta.png" alt="Noticias" class="mb-2" width="50">
                     <p>RRHH consulta</p>
                 </div>
             </a>
@@ -93,7 +93,7 @@ include __DIR__ . '/header.php';
         <div class="col-4">
             <a href="https://www.konzerta.com/empleos-busqueda-panama-car-rental.html" target="_BLANK" class="text-decoration-none">
                 <div class="p-2">
-                    <img src="<?php echo BASE_URL; ?>/images/ico_vacantes.png" alt="Noticias" class="mb-2" width="50">
+                    <img src="<?php echo BASE_URL_IMAGE; ?>ico_vacantes.png" alt="Noticias" class="mb-2" width="50">
                     <p>Vacantes</p>
                 </div>
             </a>
@@ -102,7 +102,7 @@ include __DIR__ . '/header.php';
         <div class="col-4">
             <a href="<?php echo BASE_URL_CONTROLLER; ?>/RRHHController.php?solicitud_permiso=1" class="text-decoration-none">
                 <div class="p-2">
-                    <img src="<?php echo BASE_URL; ?>/images/permiso1.png" alt="Noticias" class="mb-2" width="50">
+                    <img src="<?php echo BASE_URL_IMAGE; ?>permiso1.png" alt="Noticias" class="mb-2" width="50">
                     <p>Solicitud de Permiso</p>
                 </div>
             </a>
@@ -111,7 +111,7 @@ include __DIR__ . '/header.php';
         <div class="col-4">
             <a href="<?php echo BASE_URL_CONTROLLER; ?>/RRHHController.php?solicitud_permiso_admin=1" class="text-decoration-none">
                 <div class="p-2">
-                    <img src="<?php echo BASE_URL; ?>/images/permiso1.png" alt="Noticias" class="mb-2" width="50">
+                    <img src="<?php echo BASE_URL_IMAGE; ?>permiso1.png" alt="Noticias" class="mb-2" width="50">
                     <p>V-Solicitud de Permiso</p>
                 </div>
             </a>
@@ -120,7 +120,7 @@ include __DIR__ . '/header.php';
         <div class="col-4">
             <a href="<?php echo BASE_URL_CONTROLLER; ?>/RRHHController.php?calamidad=1" class="text-decoration-none">
                 <div class="p-2">
-                    <img src="<?php echo BASE_URL; ?>/images/solicitudva.png" alt="Noticias" class="mb-2" width="50">
+                    <img src="<?php echo BASE_URL_IMAGE; ?>solicitudva.png" alt="Noticias" class="mb-2" width="50">
                     <p>Solicitud de Calamidades</p>
                 </div>
             </a>
@@ -129,7 +129,7 @@ include __DIR__ . '/header.php';
         <div class="col-4">
             <a href="<?php echo BASE_URL_CONTROLLER; ?>/RRHHController.php?calamidad_vrrhh=1" class="text-decoration-none">
                 <div class="p-2">
-                    <img src="<?php echo BASE_URL; ?>/images/solicitudva.png" alt="Noticias" class="mb-2" width="50">
+                    <img src="<?php echo BASE_URL_IMAGE; ?>solicitudva.png" alt="Noticias" class="mb-2" width="50">
                     <p>V-Solicitud de Calamidades</p>
                 </div>
             </a>
