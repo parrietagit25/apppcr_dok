@@ -21,7 +21,7 @@ include __DIR__ . '/header.php'; ?>
     </div>
 
     <div class="text-center">
-        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#incapacidad">
+        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#calamidad">
             Subir Calamidad
         </button>
     </div>
