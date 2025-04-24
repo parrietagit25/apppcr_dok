@@ -11,7 +11,7 @@ include __DIR__ . '/header.php';
 <div class="container mt-4">
 
     <!--<div class="text-center mb-4">
-        <img src="<?php echo BASE_URL; ?>/images/user.png" alt="User Avatar" class="rounded-circle" width="80">
+        <img src="<?php echo BASE_URL; ?>user.png" alt="User Avatar" class="rounded-circle" width="80">
         <h4>Bienvenido</h4>
         <p><b><?php echo isset($nombre) ? htmlspecialchars($nombre, ENT_QUOTES, 'UTF-8') : 'Usuario'; ?></b></p>
     </div> 
@@ -70,7 +70,7 @@ include __DIR__ . '/header.php';
         <div class="col-4">
             <a href="<?php echo BASE_URL_CONTROLLER; ?>RRHHController.php" class="text-decoration-none">
                 <div class="p-2">
-                    <img src="<?php echo BASE_URL; ?>/images/ico_rrhh.png" alt="RRHH" class="mb-2" width="50">
+                    <img src="<?php echo BASE_URL_IMAGE; ?>ico_rrhh.png" alt="RRHH" class="mb-2" width="50">
                     <p>RRHH</p>
                 </div>
             </a>
@@ -78,7 +78,7 @@ include __DIR__ . '/header.php';
         <div class="col-4">
             <a href="<?php echo BENEFICIOS; ?>" target="_blank" class="text-decoration-none">
                 <div class="p-2">
-                    <img src="<?php echo BASE_URL; ?>/images/beneficios.png" alt="Beneficios" class="mb-2" width="50">
+                    <img src="<?php echo BASE_URL_IMAGE; ?>beneficios.png" alt="Beneficios" class="mb-2" width="50">
                     <p>Beneficios</p>
                 </div>
             </a>
@@ -86,7 +86,7 @@ include __DIR__ . '/header.php';
         <div class="col-4">
             <a href="<?php echo BASE_URL_CONTROLLER; ?>/CarnetController.php" class="text-decoration-none">
                 <div class="p-2">
-                    <img src="<?php echo BASE_URL; ?>/images/carnet.png" alt="Servicios" class="mb-2" width="50">
+                    <img src="<?php echo BASE_URL_IMAGE; ?>carnet.png" alt="Servicios" class="mb-2" width="50">
                     <p>Carnet</p>
                 </div>
             </a>
@@ -102,7 +102,7 @@ include __DIR__ . '/header.php';
         <div class="col-4">
             <a href="<?php echo BASE_URL_CONTROLLER; ?>/MainController.php?cumple=1" class="text-decoration-none">
                 <div class="p-2">
-                    <img src="<?php echo BASE_URL; ?>/images/hb.png" alt="Cumpleaños" class="mb-2" width="50">
+                    <img src="<?php echo BASE_URL_IMAGE; ?>hb.png" alt="Cumpleaños" class="mb-2" width="50">
                     <p>Cumpleaños del mes</p>
                 </div>
             </a>
@@ -110,7 +110,7 @@ include __DIR__ . '/header.php';
         <div class="col-4">
             <a href="mailto:rrhh@grupopcr.com.pa?subject=Solicitud%20de%20información" class="text-decoration-none">
                 <div class="p-2">
-                    <img src="<?php echo BASE_URL; ?>/images/ico_correo.png" alt="Cumpleaños" class="mb-2" width="50">
+                    <img src="<?php echo BASE_URL_IMAGE; ?>ico_correo.png" alt="Cumpleaños" class="mb-2" width="50">
                     <p>Correo Electronico</p>
                 </div>
             </a>
@@ -118,7 +118,7 @@ include __DIR__ . '/header.php';
         <div class="col-4">
             <a href="tel:+63796524" class="text-decoration-none">
                 <div class="p-2">
-                    <img src="<?php echo BASE_URL; ?>/images/ico_linea_apoyo.png" alt="Cumpleaños" class="mb-2" width="50">
+                    <img src="<?php echo BASE_URL_IMAGE; ?>ico_linea_apoyo.png" alt="Cumpleaños" class="mb-2" width="50">
                     <p>Linea de apoyo</p>
                 </div>
             </a>
@@ -127,7 +127,7 @@ include __DIR__ . '/header.php';
         <div class="col-4">
             <a href="cumple.php" class="text-decoration-none">
                 <div class="p-2">
-                    <img src="<?php echo BASE_URL; ?>/images/ico_operativa.png" alt="Cumpleaños" class="mb-2" width="50">
+                    <img src="<?php echo BASE_URL; ?>ico_operativa.png" alt="Cumpleaños" class="mb-2" width="50">
                     <p>Operativa de la empresa</p>
                 </div>
             </a>
@@ -135,7 +135,7 @@ include __DIR__ . '/header.php';
         <div class="col-4">
             <a href="cumple.php" class="text-decoration-none">
                 <div class="p-2">
-                    <img src="<?php echo BASE_URL; ?>/images/ico_crecimnieto.png" alt="Cumpleaños" class="mb-2" width="50">
+                    <img src="<?php echo BASE_URL; ?>ico_crecimnieto.png" alt="Cumpleaños" class="mb-2" width="50">
                     <p>Crecimiento interno</p>
                 </div>
             </a>
@@ -144,7 +144,7 @@ include __DIR__ . '/header.php';
         <div class="col-4">
             <a href="<?php echo BASE_URL_CONTROLLER; ?>/EvaluacionController.php" class="text-decoration-none">
                 <div class="p-2">
-                    <img src="<?php echo BASE_URL; ?>/images/ico_evaluacion.png" alt="Cumpleaños" class="mb-2" width="50">
+                    <img src="<?php echo BASE_URL_IMAGE; ?>ico_evaluacion.png" alt="Cumpleaños" class="mb-2" width="50">
                     <p>Evaluacion de desempeño</p>
                 </div>
             </a>
@@ -153,7 +153,7 @@ include __DIR__ . '/header.php';
         <div class="col-4">
             <a href="<?php echo BASE_URL_CONTROLLER; ?>/EvaluacionController.php?eval=admin" class="text-decoration-none">
                 <div class="p-2">
-                    <img src="<?php echo BASE_URL; ?>/images/ico_evaluacion.png" alt="Cumpleaños" class="mb-2" width="50">
+                    <img src="<?php echo BASE_URL_IMAGE; ?>ico_evaluacion.png" alt="Cumpleaños" class="mb-2" width="50">
                     <p>V-Evaluacion de desempeño</p>
                 </div>
             </a>
@@ -165,7 +165,7 @@ include __DIR__ . '/header.php';
     <div class="bg-light p-3 rounded">
         <h5 class="fw-bold">Top Beneficios</h5>
         <div class="d-flex">
-            <img src="<?php echo BASE_URL; ?>/images/playablanca.jpg" alt="Playa Blanca Resort" class="me-3" width="100">
+            <img src="<?php echo BASE_URL; ?>playablanca.jpg" alt="Playa Blanca Resort" class="me-3" width="100">
             <div>
                 <p class="mb-0">Playa Blanca Resort</p>
                 <small class="text-muted">Descuento del 7% de la tarifa</small>
