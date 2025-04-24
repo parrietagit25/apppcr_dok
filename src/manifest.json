@@ -1,6 +1,6 @@
 {
-  "name": "APP PCR",
-  "short_name": "APPPCR",
+  "name": "Gente PCR",
+  "short_name": "GentePCR",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
