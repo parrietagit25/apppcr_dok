@@ -128,9 +128,12 @@ foreach ($todos_datos as $key => $value) {
                         <input type="hidden" class="form-control" name="code_cola" value="<?php echo $codigo; ?>">
                         <input type="hidden" class="form-control" name="nombre_cola" value="<?php echo $nombre_compl; ?>">
                         
-                    </form>
+                        <div class="d-flex align-items-center gap-2">
+                            <input type="button" class="btn btn-primary" id="btnActualizarDatos" value="Solicitar Actualización">
+                            <span id="loaderActualizarDatos" class="spinner-border spinner-border-sm text-primary d-none" role="status" aria-hidden="true"></span>
+                        </div>
 
-                    <input type="button" class="btn btn-primary" id="btnActualizarDatos" value="Solicitar Actualización">
+                    </form>
                 </div>
             </div>
         </div>
