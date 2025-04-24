@@ -106,7 +106,7 @@ class Rrhh {
     }
 
     public function carta_trabajo($descripcion) {
-        $_SESSION['code'] = ltrim($_SESSION['code'], '0');
+        
         $code_user = $_SESSION['code']; 
         $stat = 1;            
         $file_add = "";       
