@@ -27,7 +27,7 @@ include __DIR__ . '/header.php'; ?>
 
     <div class="carnet">
         <h1>GRUPO <b>PCR</b></h1>
-        <img src="<?php echo BASE_URL_IMAGE; ?>user.png" alt="Foto del empleado">
+        <img src="<?php echo BASE_URL_IMAGE; ?>imagen_carnet/<?php  echo $resultado = substr($_SESSION['code'], 2);?>.jpeg" alt="Foto del empleado">
         <h3><?php echo $nombre . ' ' . $apellido; ?></h3>
         <p><b>Código:</b> <?php echo $codigo_empleado; ?></p>
         <p><b>Departamento:</b> <?php echo $departamento; ?></p>
