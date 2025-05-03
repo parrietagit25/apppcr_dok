@@ -32,7 +32,7 @@ include __DIR__ . '/header.php'; ?>
             </thead>
             <tbody>
                 <?php
-                 $calamidades = $class->calamidades();
+                 $calamidades = $class->calamidades_rrhh();
                  if (!empty($calamidades)) {
                      foreach ($calamidades as $row) {
                          echo "<tr>

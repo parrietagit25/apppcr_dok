@@ -235,13 +235,40 @@ class Rrhh {
 
     public function calamidades() {
 
+        $code = $_SESSION['code'];
+
         $stmt = $this->pdo->prepare("SELECT ct.id, ct.descripcion, ct.fecha_log, 
                                         CASE ct.stat
                                             WHEN 1 THEN 'Solicitado'
                                             WHEN 2 THEN 'Revisado'
                                         END AS estado, 
                                         c.nombre,
-                                        ct.file_add FROM calamidades ct inner join col_datos_generales c on ct.code_user = c.codigo  WHERE ct.stat in(0)");
+                                        ct.file_add FROM calamidades ct inner join col_datos_generales c on ct.code_user = c.codigo  
+                                        WHERE 
+                                        ct.stat in(1, 2) 
+                                        and 
+                                        ct.code_user = '".$code."'");
+
+        $stmt->execute();
+        $array_datos = [];
+        while ($list_code = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            $array_datos[] = $list_code;
+        }
+        return $array_datos;
+    }
+
+    public function calamidades_rrhh() {
+
+        $stmt = $this->pdo->prepare("SELECT ct.id, ct.descripcion, ct.fecha_log, 
+                                        CASE ct.stat
+                                            WHEN 1 THEN 'Solicitado'
+                                            WHEN 2 THEN 'Revisado'
+                                        END AS estado, 
+                                        c.nombre,
+                                        ct.file_add FROM calamidades ct inner join col_datos_generales c on ct.code_user = c.codigo  
+                                        WHERE 
+                                        ct.stat in(1, 2)");
+
         $stmt->execute();
         $array_datos = [];
         while ($list_code = $stmt->fetch(PDO::FETCH_ASSOC)) {
