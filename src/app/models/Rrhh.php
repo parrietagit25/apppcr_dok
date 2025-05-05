@@ -462,6 +462,9 @@ class Rrhh {
     
     
     public function select_permisos_all() {
+
+        /*
+
         $code = $_SESSION['code'];
     
         // Lista local de colaboradores con sus departamentos (puedes mover a archivo externo si crece)
@@ -524,6 +527,20 @@ class Rrhh {
             while ($list_code = $stmt_frase->fetch(PDO::FETCH_ASSOC)) {
                 $array_datos[] = $list_code;
             }
+        } 
+
+        */
+
+        $array_datos = [];
+
+        $stmt_frase = $this->pdo->prepare("SELECT p.*, e.nombre, e.apellido
+                                            FROM solicitud_permiso p
+                                            INNER JOIN empleados e ON p.code = e.codigo_empleado");
+                
+        $stmt_frase->execute();
+
+        while ($list_code = $stmt_frase->fetch(PDO::FETCH_ASSOC)) {
+        $array_datos[] = $list_code;
         }
     
         return $array_datos;
