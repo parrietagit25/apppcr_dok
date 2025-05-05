@@ -531,6 +531,8 @@ class Rrhh {
 
         */
 
+        // solo usuario rrhh y admin pueden ver los permisos, el codigo que esta arriba es para que el jefe lo vea pero ya esto cambio 
+
         $array_datos = [];
 
         $stmt_frase = $this->pdo->prepare("SELECT p.*, e.nombre, e.apellido

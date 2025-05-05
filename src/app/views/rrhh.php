@@ -45,7 +45,6 @@ include __DIR__ . '/header.php';
                 </div>
             </a>
         </div>
-        <?php if($code_lomg >7){}else{ ?> 
         <div class="col-4">
             <a href="<?php echo BASE_URL_CONTROLLER; ?>/RRHHController.php?carta_trabajo=1" class="text-decoration-none">
                 <div class="p-2">
@@ -54,7 +53,6 @@ include __DIR__ . '/header.php';
                 </div>
             </a>
         </div>
-        <?php } ?>
         <?php if ($tipo_usuario == 1 || $tipo_usuario == 4) { ?>
         <div class="col-4">
             <a href="<?php echo BASE_URL_CONTROLLER; ?>/RRHHController.php?carta_trabajo_aprobar=1" class="text-decoration-none">
@@ -64,8 +62,7 @@ include __DIR__ . '/header.php';
                 </div>
             </a>
         </div>
-        <?php } ?>
-        <?php if($code_lomg >7){}else{ ?> 
+        <?php } ?> 
         <div class="col-4">
             <a href="<?php echo BASE_URL_CONTROLLER; ?>/RRHHController.php?incapacidad=1" class="text-decoration-none">
                 <div class="p-2">
@@ -74,7 +71,6 @@ include __DIR__ . '/header.php';
                 </div>
             </a>
         </div>
-        <?php } ?>
         <?php if ($tipo_usuario == 1 || $tipo_usuario == 4) { ?>
         <div class="col-4">
             <a href="<?php echo BASE_URL_CONTROLLER; ?>/RRHHController.php?incapacidad_vrrhh=1" class="text-decoration-none">
@@ -85,14 +81,6 @@ include __DIR__ . '/header.php';
             </a>
         </div>
         <?php } ?>
-        <!--<div class="col-4">
-            <a href="#" class="text-decoration-none">
-                <div class="p-2">
-                    <img src="<?php echo BASE_URL; ?>carta.png" alt="Noticias" class="mb-2" width="50">
-                    <p>RRHH consulta</p>
-                </div>
-            </a>
-        </div>-->
         <div class="col-4">
             <a href="https://www.konzerta.com/empleos-busqueda-panama-car-rental.html" target="_BLANK" class="text-decoration-none">
                 <div class="p-2">
@@ -101,7 +89,6 @@ include __DIR__ . '/header.php';
                 </div>
             </a>
         </div>
-        <?php if($code_lomg >7){}else{ ?> 
         <div class="col-4">
             <a href="<?php echo BASE_URL_CONTROLLER; ?>/RRHHController.php?solicitud_permiso=1" class="text-decoration-none">
                 <div class="p-2">
@@ -110,9 +97,7 @@ include __DIR__ . '/header.php';
                 </div>
             </a>
         </div>
-        <?php } ?>
         <?php if ($tipo_usuario == 1 || $tipo_usuario == 3 || $tipo_usuario == 4) { ?>
-            <?php if($code_lomg >7){}else{ ?> 
                 <div class="col-4">
                     <a href="<?php echo BASE_URL_CONTROLLER; ?>/RRHHController.php?solicitud_permiso_admin=1" class="text-decoration-none">
                         <div class="p-2">
@@ -121,9 +106,7 @@ include __DIR__ . '/header.php';
                         </div>
                     </a>
                 </div>
-            <?php } ?>
         <?php } ?>
-        <?php if($code_lomg >7){}else{ ?> 
         <div class="col-4">
             <a href="<?php echo BASE_URL_CONTROLLER; ?>/RRHHController.php?calamidad=1" class="text-decoration-none">
                 <div class="p-2">
@@ -132,9 +115,7 @@ include __DIR__ . '/header.php';
                 </div>
             </a>
         </div>
-        <?php } ?>
         <?php if ($tipo_usuario == 1 || $tipo_usuario == 4) { ?>
-            <?php if($code_lomg >7){}else{ ?> 
             <div class="col-4">
                 <a href="<?php echo BASE_URL_CONTROLLER; ?>/RRHHController.php?calamidad_vrrhh=1" class="text-decoration-none">
                     <div class="p-2">
@@ -143,7 +124,6 @@ include __DIR__ . '/header.php';
                     </div>
                 </a>
             </div>
-            <?php } ?>
         <?php } ?>
     </div>
     <br>
