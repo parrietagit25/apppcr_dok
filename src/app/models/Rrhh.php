@@ -182,6 +182,28 @@ class Rrhh {
         return $stmt->execute();
     }
 
+    public function incapacidad_vrrhh() {
+
+        $code = $_SESSION['code'];
+
+        $stmt = $this->pdo->prepare("SELECT ct.id, ct.descripcion, ct.fecha_log, 
+                                        CASE ct.stat
+                                            WHEN 1 THEN 'Enviado'
+                                            WHEN 2 THEN 'Revisado'
+                                            WHEN 3 THEN 'Anulado'
+                                        END AS estado, 
+                                        c.nombre,
+                                        ct.file_add FROM incapacidad ct inner join col_datos_generales c on ct.code_user = c.codigo  
+                                        WHERE 
+                                        ct.stat in(1,2)");
+        $stmt->execute();
+        $array_datos = [];
+        while ($list_code = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            $array_datos[] = $list_code;
+        }
+        return $array_datos;
+    }
+
     public function incapacidad() {
 
         $code = $_SESSION['code'];

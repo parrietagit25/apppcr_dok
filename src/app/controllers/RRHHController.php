@@ -230,7 +230,7 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
     
     }
 
-    $incapacidad = $class->incapacidad();
+    $incapacidad = $class->incapacidad_vrrhh();
 
     require_once __DIR__ . '/../views/incapacidad_vrrhh.php';
     exit();
