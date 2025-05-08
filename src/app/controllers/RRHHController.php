@@ -190,7 +190,8 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
             //$copiacoo = ["pedro.arrieta@grupopcr.com.pa", "rrhhgpcr@grupopcr.com.pa"];
             //$copia = ["pedro.arrieta@grupopcr.com.pa"];
         
-            $class->enviar_correo("rrhhgpcr@grupopcr.com.pa", $copia, "Incapacidad de '".$nombre_comple."' ", $mensaje);
+            //$class->enviar_correo("rrhhgpcr@grupopcr.com.pa", $copia, "Incapacidad de '".$nombre_comple."' ", $mensaje);
+            $class->enviar_correo("pedro.arrieta@grupopcr.com.pa", 'pedroarrieta25@hotmail.com', "Incapacidad de '".$nombre_comple."' ", $mensaje);
             
             echo "<div class='alert alert-success'>Incapacidad guardada correctamente.</div>";
 
