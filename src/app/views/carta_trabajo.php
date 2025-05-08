@@ -25,8 +25,10 @@ include __DIR__ . '/header.php'; ?>
             Solicitar Carta de Trabajo
         </button>
         <br>
+        <br>
+        <br>
         <p>
-            <spam style="color:red;">Nota: Las cartas se gestionan únicamente los días jueves. Por favor, una vez solicitadas, espere hasta el siguiente jueves para su procesamiento.</spam>
+            <spam style="color:red;"><b>Nota: Las cartas se gestionan únicamente los días jueves. Por favor, una vez solicitadas, espere hasta el siguiente jueves para su procesamiento.</b></spam>
         </p>
     </div>
 
