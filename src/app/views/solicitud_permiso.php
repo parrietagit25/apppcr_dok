@@ -74,6 +74,11 @@ include __DIR__ . '/header.php'; ?>
             <div class="modal-header">
                 <h5 class="modal-title" id="solicitudModalLabel">Solicitar Permiso </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <br>
+                <br>
+                <p>
+                    <spam style="color:red;"><b>Nota: Recuerde que las vacaciones deben ser aprobadas previamente por su supervisor para su debida autorización.</b></spam>
+                </p>
             </div>
             <div class="modal-body">
                 <form action="" method="POST" enctype="multipart/form-data">
