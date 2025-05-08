@@ -24,6 +24,9 @@ include __DIR__ . '/header.php'; ?>
         <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#solicitudModal">
             Solicitar Carta de Trabajo
         </button>
+        <p>
+            <spam slyle="color:red;">Nota: Las cartas se gestionan únicamente los días jueves. Por favor, una vez solicitadas, espere hasta el siguiente jueves para su procesamiento.</spam>
+        </p>
     </div>
 
     <div class="row mt-5">
