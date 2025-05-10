@@ -26,11 +26,9 @@ escribir_log("--- INICIO DE EJECUCION DEL SCRIPT ---");
 escribir_log("Método de solicitud: " . $_SERVER['REQUEST_METHOD']);
 
 // --- TOKEN SECRETO COMPARTIDO ---
-// !! REEMPLAZA ESTO CON EL TOKEN QUE GENERASTE Y USASTE EN TU SCRIPT PYTHON !!
-$expected_token = 'p2RqZg9bJkLmNqP_sS_tUvWxYz1A3B5C7D9E2F8G1H0I6J4K7L5M2N1Po3-q_Rs';
+$expected_token = 'p2RqZg9bJkLmNqP_sS_tUvWxYz1A3B5C7D9E2F8G1H0I6J4K7L5M2N1Po3-q_Rs'; // Tu token
 
 // --- Configuración de MySQL ---
-// !! REEMPLAZA ESTAS CREDENCIALES CON LAS TUYAS !!
 $mysql_config = [
     'host' => 'db',
     'username' => 'appuser',
@@ -84,32 +82,12 @@ $response = ['status' => 'error', 'message' => 'Solicitud incorrecta.'];
 
 // --- Validación del Token ---
 $received_token = null;
-$auth_header = $_SERVER['HTTP_X_AUTH_TOKEN'] ?? ($_SERVER['HTTP_AUTHORIZATION'] ?? null);
-
-if ($auth_header) {
-    if (strpos($auth_header, 'Bearer ') === 0) {
-        $received_token = substr($auth_header, 7);
-    } elseif (isset($_SERVER['HTTP_X_AUTH_TOKEN'])) { // Priorizar X-Auth-Token si ambos están presentes (poco probable)
-         $received_token = $auth_header;
-    } else if (!isset($_SERVER['HTTP_X_AUTH_TOKEN']) && strpos($auth_header, 'Bearer ') !== 0) {
-        // Si es HTTP_AUTHORIZATION pero no tiene Bearer, podría ser el token directamente
-        // o un esquema diferente. Por ahora, si es X-Auth-Token, se usa tal cual.
-        // Si es HTTP_AUTHORIZATION sin "Bearer ", no lo procesamos como token simple aquí
-        // a menos que se ajuste esta lógica.
-        // Para X-Auth-Token simple: $_SERVER['HTTP_X_AUTH_TOKEN']
-        // Para Authorization: Bearer <token>: $_SERVER['HTTP_AUTHORIZATION']
-        // El script python envía X-Auth-Token, así que $_SERVER['HTTP_X_AUTH_TOKEN'] es la clave.
-        // La lógica anterior de if/elseif ya cubre bien HTTP_X_AUTH_TOKEN y Bearer.
-        // No es necesario este else if
-    }
-}
 // Simplificación de la obtención del token, priorizando X-Auth-Token que envía Python
 if (isset($_SERVER['HTTP_X_AUTH_TOKEN'])) {
     $received_token = $_SERVER['HTTP_X_AUTH_TOKEN'];
 } elseif (isset($_SERVER['HTTP_AUTHORIZATION']) && preg_match('/Bearer\s(\S+)/', $_SERVER['HTTP_AUTHORIZATION'], $matches)) {
     $received_token = $matches[1];
 }
-
 
 if ($received_token === null) {
     escribir_log("Validación de Token FALLIDA: No se recibió ningún token.", 'ERROR');
@@ -153,7 +131,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
     escribir_log("JSON decodificado exitosamente. Número de registros: " . count($data), 'INFO');
-
 
     if (empty($data) || !is_array($data)) {
         escribir_log("Los datos decodificados están vacíos o no son un array.", 'ERROR');
@@ -234,10 +211,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             foreach ($columnas_mysql as $col_index => $col_nombre) {
                 $valor = array_key_exists($col_nombre, $fila) ? $fila[$col_nombre] : null;
                 
-                if ($mysql_column_bind_types[$col_index] == 's') { // Solo para tipos string
-                    if (is_string($valor) && (trim($valor) === '' || $valor === '0000-00-00' || $valor === '0000-00-00 00:00:00')) {
+                // *** INICIO: NUEVA LÓGICA GLOBAL PARA NULL -> 0 ***
+                if ($valor === null) {
+                    $valor = 0; // Si cualquier campo es NULL, se establece a 0.
+                    // Descomenta la siguiente línea si quieres loguear cada vez que esto sucede (puede ser muy verboso)
+                    // escribir_log("[Fila $indice_fila] Columna '{$col_nombre}' era NULL, se estableció a 0.", 'DEBUG');
+                }
+                // *** FIN: NUEVA LÓGICA GLOBAL PARA NULL -> 0 ***
+                
+                // Manejo especial para strings de fecha vacías/problemáticas que NO eran NULL originalmente
+                // y que no se convirtieron a 0 arriba (porque no eran NULL).
+                // O si después de convertirse a 0, aún necesitas tratarlos diferente (lo cual no es el caso aquí
+                // porque si $valor es 0, is_string($valor) será falso).
+                if ($mysql_column_bind_types[$col_index] == 's' && $valor !== null && is_string($valor)) { 
+                    if (trim($valor) === '' || $valor === '0000-00-00' || $valor === '0000-00-00 00:00:00') {
                          if (stripos($col_nombre, 'fecha') !== false || stripos($col_nombre, 'ultimo_dia_pagado') !== false || stripos($col_nombre, 'ultima_modificacion') !== false ) {
-                            $valor = null; // Convertir fechas vacías/inválidas a NULL
+                            $valor = null; 
+                            escribir_log("[Fila $indice_fila] Columna '{$col_nombre}' string de fecha inválida ('" . ($fila[$col_nombre] ?? 'NO PRESENTE') . "'), convertida a NULL para inserción.", 'DEBUG');
                          }
                     }
                 }
@@ -269,6 +259,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $filas_insertadas++;
             } else {
                 $error_msg_fila = "[Fila $indice_fila] Error al ejecutar insert: " . $stmt->error . ". Datos: " . substr(json_encode($fila), 0, 200);
+                escribir_log("[Fila $indice_fila] Valores intentados (después de defaults): " . substr(json_encode($params_valores),0,500), "DEBUG");
                 escribir_log($error_msg_fila, 'ERROR');
                 $errores_insercion[] = $error_msg_fila;
             }
@@ -284,8 +275,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             escribir_log("Transacción ROLLBACK debido a errores en la inserción. Errores: " . count($errores_insercion), 'ERROR');
             http_response_code(400); 
             $response['message'] = "Se encontraron errores durante la inserción. No se guardaron datos. Total filas con error: " . count($errores_insercion);
-            $response['errors_details'] = $errores_insercion; // Estos ya están logueados individualmente
-            $response['filas_intentadas_con_exito_parcial'] = $filas_insertadas; // Filas que se insertaron ANTES del primer error que causó rollback
+            $response['errors_details'] = $errores_insercion;
+            $response['filas_intentadas_con_exito_parcial'] = $filas_insertadas;
         }
 
     } catch (Exception $e) {
@@ -306,6 +297,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $response['message'] = 'Método no permitido. Solo se acepta POST.';
 }
 
-escribir_log("--- FIN DE EJECUCION DEL SCRIPT. Respuesta final: " . json_encode($response). " ---", "INFO");
+escribir_log("--- FIN DE EJECUCION DEL SCRIPT. Respuesta final: " . substr(json_encode($response), 0, 1000) . " ---", "INFO");
 echo json_encode($response, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
 ?>
