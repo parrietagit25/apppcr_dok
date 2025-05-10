@@ -159,7 +159,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     $placeholders = implode(', ', array_fill(0, count($columnas_mysql), '?'));
     $sql_column_names_string = implode(', ', array_map(function($col) { return "`$col`"; }, $columnas_mysql));
-    $stmt_sql = "INSERT INTO `$tabla_temporal` ($sql_column_names_string) VALUES ($placeholders)";
+    $stmt_sql = "INSERT IGNORE INTO `$tabla_temporal` ($sql_column_names_string) VALUES ($placeholders)";
     escribir_log("Preparando sentencia SQL: {$stmt_sql}", 'DEBUG');
     $stmt = $conn->prepare($stmt_sql);
 
