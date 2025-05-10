@@ -25,8 +25,9 @@ $mysql_config = [
 ];
 
 $tabla_temporal = 'temp_empleados';
+$tabla_produccion = 'empleados'; // Nombre de tu tabla de producción
 
-$columnas_mysql = [ // 105 columnas
+$columnas_mysql = [ // 105 columnas (sin incluir fecha_update si es auto-gestionada en ambas)
     "ncodcia", "codigo_empleado", "codigo_horario", "tarjeta_reloj", "nombre", "apellido",
     "fecha_nacimiento", "cedula", "dv", "cedula_rep_empleador", "cedula_reportada",
     "estado_civil", "sexo", "seguro_social", "grupo_isr", "cantidad_dependientes",
@@ -64,30 +65,12 @@ $mysql_column_bind_types = [ // 105 tipos
 ];
 $param_types_string = implode('', $mysql_column_bind_types);
 
-// --- IMPORTANTE: Mapa de columnas NOT NULL y sus valores por defecto ---
-// Debes poblar este array con TODAS las columnas que son NOT NULL en tu tabla MySQL `temp_empleados`
-// y para las cuales podrías recibir un NULL desde SQL Server.
-// Clave: nombre de la columna, Valor: valor por defecto a usar si el original es NULL.
 $mapa_defaults_para_no_nulos = [
-    'pertenece_sindicato' => 0,       // Ejemplo: TINYINT NOT NULL
-    'hace_declaracion_renta' => 0,    // Ejemplo: TINYINT NOT NULL
-    'tiene_vale' => 0,                // Ejemplo: TINYINT NOT NULL
-    'es_pasaporte' => 0,              // Ejemplo: TINYINT NOT NULL
-    'es_jefe_cuadrilla' => 0,         // Ejemplo: TINYINT NOT NULL
-    'es_marino' => 0,                 // Ejemplo: TINYINT NOT NULL
-    
-    // EJEMPLOS - ¡REVISA Y COMPLETA ESTA LISTA SEGÚN TU ESQUEMA MYSQL!
-    // Si una columna VARCHAR es NOT NULL y puede venir NULL, usa '' o un placeholder
-    // 'nombre' => '', 
-    // 'apellido' => '',
-    // 'cedula' => '', 
-    // 'observaciones' => '', // Si observaciones es TEXT NOT NULL
-
-    // Si una columna INT/DECIMAL es NOT NULL y puede venir NULL
-    // 'cantidad_dependientes' => 0,
-    // 'horas_regulares' => 0.0,
+    'pertenece_sindicato' => 0, 'hace_declaracion_renta' => 0, 'tiene_vale' => 0,
+    'es_pasaporte' => 0, 'es_jefe_cuadrilla' => 0, 'es_marino' => 0,
+    // ¡COMPLETA ESTA LISTA SEGÚN TU ESQUEMA MYSQL PARA TODAS LAS COLUMNAS NOT NULL!
+    // 'observaciones' => '', // Ejemplo TEXT NOT NULL
 ];
-
 
 header('Content-Type: application/json');
 $response = ['status' => 'error', 'message' => 'Solicitud incorrecta.'];
@@ -131,11 +114,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
     escribir_log("JSON decodificado exitosamente. Número de registros: " . count($data), 'INFO');
 
-    if (empty($data) || !is_array($data)) {
-        escribir_log("Los datos decodificados están vacíos o no son un array.", 'ERROR');
-        http_response_code(400); $response['message'] = 'No se recibieron datos válidos o el formato es incorrecto.';
+    if (empty($data) && count($data) === 0) { // Modificado para permitir un array vacío si no hay datos
+        escribir_log("El array de datos decodificado está vacío. No hay datos para procesar.", 'INFO');
+        // No es un error, simplemente no hay datos.
+        $response['status'] = 'success';
+        $response['message'] = 'No se recibieron datos para procesar. Las tablas no fueron modificadas.';
         echo json_encode($response, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT); exit;
     }
+    if (!is_array($data)){
+        escribir_log("Los datos decodificados no son un array.", 'ERROR');
+        http_response_code(400); $response['message'] = 'El formato de los datos es incorrecto (no es un array).';
+        echo json_encode($response, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT); exit;
+    }
+
 
     escribir_log("Intentando conectar a MySQL: Host: {$mysql_config['host']}, DB: {$mysql_config['database']}", 'INFO');
     $conn = new mysqli($mysql_config['host'], $mysql_config['username'], $mysql_config['password'], $mysql_config['database'], $mysql_config['port']);
@@ -159,8 +150,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     $placeholders = implode(', ', array_fill(0, count($columnas_mysql), '?'));
     $sql_column_names_string = implode(', ', array_map(function($col) { return "`$col`"; }, $columnas_mysql));
+    
     $stmt_sql = "INSERT IGNORE INTO `$tabla_temporal` ($sql_column_names_string) VALUES ($placeholders)";
-    escribir_log("Preparando sentencia SQL: {$stmt_sql}", 'DEBUG');
+    escribir_log("Preparando sentencia SQL (con IGNORE): {$stmt_sql}", 'DEBUG');
     $stmt = $conn->prepare($stmt_sql);
 
     if (!$stmt) {
@@ -171,96 +163,168 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
     escribir_log("Sentencia SQL preparada exitosamente.", 'INFO');
     
-    $filas_insertadas = 0;
-    $errores_insercion = [];
-    $conn->begin_transaction();
-    escribir_log("Iniciando transacción para inserción de datos.", 'INFO');
+    $filas_intentadas_temp = 0;
+    $filas_realmente_insertadas_temp = 0;
+    $filas_ignoradas_temp = 0;
+    $errores_carga_temporal = [];
+
+    $conn->begin_transaction(); // Transacción para la carga en temp_empleados
+    escribir_log("Iniciando transacción para carga en `{$tabla_temporal}`.", 'INFO');
 
     try {
-        foreach ($data as $indice_fila => $fila) {
-            if (!is_array($fila)) {
-                $error_msg_fila = "[Fila $indice_fila] Los datos recibidos no son un array. Saltando fila. Datos: " . substr(json_encode($fila), 0, 200);
-                escribir_log($error_msg_fila, 'WARNING'); $errores_insercion[] = $error_msg_fila; continue;
-            }
+        if (!empty($data)) { // Solo procesar si hay datos
+            foreach ($data as $indice_fila => $fila) {
+                if (!is_array($fila)) {
+                    $error_msg_fila = "[Fila $indice_fila en TEMPORAL] Los datos recibidos no son un array. Saltando fila. Datos: " . substr(json_encode($fila), 0, 200);
+                    escribir_log($error_msg_fila, 'WARNING'); $errores_carga_temporal[] = $error_msg_fila; continue;
+                }
 
-            $params_valores = [];
-            foreach ($columnas_mysql as $col_index => $col_nombre) {
-                $valor_original_json = array_key_exists($col_nombre, $fila) ? $fila[$col_nombre] : null;
-                $valor_a_insertar = $valor_original_json; // Empezamos con el valor tal como vino
+                $params_valores = [];
+                foreach ($columnas_mysql as $col_index => $col_nombre) {
+                    $valor_original_json = array_key_exists($col_nombre, $fila) ? $fila[$col_nombre] : null;
+                    $valor_a_insertar = $valor_original_json;
 
-                // PASO 1: Convertir strings de fecha problemáticos (vacíos, '0000-00-00') a NULL real
-                // Esto es para columnas que son strings y se mapean a tipos de fecha en MySQL.
-                $tipo_bind_actual = $mysql_column_bind_types[$col_index];
-                if ($tipo_bind_actual == 's' && $valor_a_insertar !== null && is_string($valor_a_insertar)) {
-                    if (trim($valor_a_insertar) === '' || $valor_a_insertar === '0000-00-00' || $valor_a_insertar === '0000-00-00 00:00:00') {
-                        if (stripos($col_nombre, 'fecha') !== false || stripos($col_nombre, 'ultimo_dia_pagado') !== false || stripos($col_nombre, 'ultima_modificacion') !== false) {
-                            $valor_a_insertar = null; 
-                            escribir_log("[Fila $indice_fila] Columna '{$col_nombre}' string de fecha ('{$valor_original_json}') convertida a NULL real.", 'DEBUG');
+                    $tipo_bind_actual = $mysql_column_bind_types[$col_index];
+                    if ($tipo_bind_actual == 's' && $valor_a_insertar !== null && is_string($valor_a_insertar)) {
+                        if (trim($valor_a_insertar) === '' || $valor_a_insertar === '0000-00-00' || $valor_a_insertar === '0000-00-00 00:00:00') {
+                            if (stripos($col_nombre, 'fecha') !== false || stripos($col_nombre, 'ultimo_dia_pagado') !== false || stripos($col_nombre, 'ultima_modificacion') !== false) {
+                                $valor_a_insertar = null; 
+                                escribir_log("[Fila $indice_fila en TEMPORAL] Columna '{$col_nombre}' string de fecha ('{$valor_original_json}') convertida a NULL real.", 'DEBUG');
+                            }
                         }
                     }
-                }
 
-                // PASO 2: Si el valor (original o modificado por PASO 1) es NULL,
-                // aplicar un valor por defecto SOLO si la columna es NOT NULL en MySQL.
-                if ($valor_a_insertar === null) {
-                    if (array_key_exists($col_nombre, $mapa_defaults_para_no_nulos)) {
-                        $valor_a_insertar = $mapa_defaults_para_no_nulos[$col_nombre];
-                        escribir_log("[Fila $indice_fila] Columna '{$col_nombre}' era NULL y es NOT NULL, se usó valor por defecto: '" . var_export($valor_a_insertar, true) . "'.", 'DEBUG');
+                    if ($valor_a_insertar === null) {
+                        if (array_key_exists($col_nombre, $mapa_defaults_para_no_nulos)) {
+                            $valor_a_insertar = $mapa_defaults_para_no_nulos[$col_nombre];
+                            escribir_log("[Fila $indice_fila en TEMPORAL] Columna '{$col_nombre}' era NULL y es NOT NULL, se usó valor por defecto: '" . var_export($valor_a_insertar, true) . "'.", 'DEBUG');
+                        }
                     }
-                    // Si $valor_a_insertar sigue siendo NULL aquí, es porque la columna permite NULLs
-                    // y no estaba en $mapa_defaults_para_no_nulos, o el valor original no era un string de fecha problemático.
+                    $params_valores[] = $valor_a_insertar;
                 }
-                $params_valores[] = $valor_a_insertar;
-            }
 
-            $params_referencias = [];
-            foreach ($params_valores as $key_val => &$val_ref) { $params_referencias[$key_val] = &$val_ref; }
-            
-            if (strlen($param_types_string) !== count($params_referencias)) {
-                $error_msg_fila = "[Fila $indice_fila] Discrepancia crítica en el número de parámetros. Tipos: " . strlen($param_types_string) . ", Valores: " . count($params_referencias) . ". Error en config arrays PHP. Datos: " . substr(json_encode($fila), 0, 200);
-                escribir_log($error_msg_fila, 'ERROR'); $errores_insercion[] = $error_msg_fila; continue; 
-            }
-            
-            $bind_args = array_merge([$param_types_string], $params_referencias);
-            
-            if (!call_user_func_array([$stmt, 'bind_param'], $bind_args)) {
-                 $error_msg_fila = "[Fila $indice_fila] Error en bind_param: " . $stmt->error . ". Tipos: '$param_types_string'. #Params: ".count($params_referencias).". Datos: " . substr(json_encode($fila), 0, 200);
-                 escribir_log($error_msg_fila, 'ERROR'); $errores_insercion[] = $error_msg_fila; continue;
-            }
+                $params_referencias = [];
+                foreach ($params_valores as $key_val => &$val_ref) { $params_referencias[$key_val] = &$val_ref; }
+                
+                if (strlen($param_types_string) !== count($params_referencias)) {
+                    $error_msg_fila = "[Fila $indice_fila en TEMPORAL] Discrepancia crítica en parámetros. Tipos: " . strlen($param_types_string) . ", Valores: " . count($params_referencias) . ". Datos: " . substr(json_encode($fila), 0, 200);
+                    escribir_log($error_msg_fila, 'ERROR'); $errores_carga_temporal[] = $error_msg_fila; continue; 
+                }
+                
+                $bind_args = array_merge([$param_types_string], $params_referencias);
+                
+                if (!call_user_func_array([$stmt, 'bind_param'], $bind_args)) {
+                    $error_msg_fila = "[Fila $indice_fila en TEMPORAL] Error en bind_param: " . $stmt->error . ". Datos: " . substr(json_encode($fila), 0, 200);
+                    escribir_log($error_msg_fila, 'ERROR'); $errores_carga_temporal[] = $error_msg_fila; continue;
+                }
 
-            if ($stmt->execute()) {
-                $filas_insertadas++;
-            } else {
-                $error_msg_fila = "[Fila $indice_fila] Error al ejecutar insert: " . $stmt->error . ". Datos: " . substr(json_encode($fila), 0, 200);
-                escribir_log("[Fila $indice_fila] Valores intentados (después de defaults): " . substr(json_encode($params_valores),0,500), "DEBUG");
-                escribir_log($error_msg_fila, 'ERROR'); $errores_insercion[] = $error_msg_fila;
+                $filas_intentadas_temp++;
+                if ($stmt->execute()) {
+                    if ($stmt->affected_rows > 0) {
+                        $filas_realmente_insertadas_temp++;
+                    } else {
+                        $filas_ignoradas_temp++;
+                        escribir_log("[Fila $indice_fila en TEMPORAL] Fila ignorada por MySQL (duplicado PK). Datos: " . substr(json_encode($fila), 0, 200), 'WARNING');
+                    }
+                } else {
+                    $error_msg_fila = "[Fila $indice_fila en TEMPORAL] Error al ejecutar insert: " . $stmt->error . ". Datos: " . substr(json_encode($fila), 0, 200);
+                    escribir_log("[Fila $indice_fila en TEMPORAL] Valores intentados: " . substr(json_encode($params_valores),0,500), "DEBUG");
+                    escribir_log($error_msg_fila, 'ERROR'); $errores_carga_temporal[] = $error_msg_fila;
+                }
             }
-        }
+        } // Fin if (!empty($data))
 
-        if (empty($errores_insercion)) {
-            $conn->commit();
-            escribir_log("Transacción COMMIT. Filas insertadas exitosamente: {$filas_insertadas}.", 'INFO');
-            $response['status'] = 'success';
-            $response['message'] = "Se procesaron los datos. Filas insertadas en `{$tabla_temporal}`: {$filas_insertadas}.";
-        } else {
-            $conn->rollback();
-            escribir_log("Transacción ROLLBACK debido a errores en la inserción. Errores: " . count($errores_insercion), 'ERROR');
+        if (empty($errores_carga_temporal)) {
+            $conn->commit(); // COMMIT para temp_empleados
+            escribir_log("Transacción COMMIT para `{$tabla_temporal}`. Filas intentadas: {$filas_intentadas_temp}. Insertadas: {$filas_realmente_insertadas_temp}. Ignoradas: {$filas_ignoradas_temp}.", 'INFO');
+            
+            // --- INICIO: Transferencia a Tabla de Producción ---
+            escribir_log("Iniciando transferencia de datos de `{$tabla_temporal}` a `{$tabla_produccion}`.", 'INFO');
+            
+            if ($filas_realmente_insertadas_temp > 0 || ($filas_intentadas_temp > 0 && $filas_ignoradas_temp == $filas_intentadas_temp && empty($data) == false )) { 
+                // Proceder si se insertaron filas O si se intentaron filas y todas fueron ignoradas (lo que significa que temp_empleados podría no estar vacía si hubo datos previos válidos)
+                // Una comprobación más simple es si temp_empleados no está vacía, pero usemos las filas insertadas por ahora.
+                // O, mejor aún, solo proceder si la carga a temporal se considera "exitosa en su conjunto",
+                // y si `temp_empleados` efectivamente tiene datos que transferir.
+                // El `INSERT IGNORE` significa que `$errores_carga_temporal` estará vacío si solo hubo duplicados.
+
+                $conn->begin_transaction(); // Nueva transacción para la tabla de producción
+                escribir_log("Iniciando transacción para `{$tabla_produccion}`.", 'INFO');
+                try {
+                    escribir_log("Truncando tabla de producción: `{$tabla_produccion}`", 'INFO');
+                    if (!$conn->query("TRUNCATE TABLE `{$tabla_produccion}`")) {
+                        throw new Exception("Error al truncar `{$tabla_produccion}`: " . $conn->error);
+                    }
+                    escribir_log("Tabla `{$tabla_produccion}` truncada exitosamente.", 'INFO');
+
+                    $sql_transfer = "INSERT INTO `{$tabla_produccion}` ({$sql_column_names_string}) SELECT {$sql_column_names_string} FROM `{$tabla_temporal}`";
+                    escribir_log("Ejecutando transferencia: {$sql_transfer}", 'DEBUG');
+                    
+                    if (!$conn->query($sql_transfer)) {
+                        throw new Exception("Error al transferir datos a `{$tabla_produccion}`: " . $conn->error);
+                    }
+                    
+                    $filas_transferidas_produccion = $conn->affected_rows;
+                    escribir_log("Datos transferidos exitosamente a `{$tabla_produccion}`. Filas afectadas: {$filas_transferidas_produccion}.", 'INFO');
+                    
+                    $conn->commit(); // COMMIT para la tabla de producción
+                    escribir_log("Transacción COMMIT para `{$tabla_produccion}`.", 'INFO');
+                    
+                    $response['status'] = 'success';
+                    $response['message'] = "Datos cargados a `{$tabla_temporal}` (Insertadas: {$filas_realmente_insertadas_temp}, Ignoradas: {$filas_ignoradas_temp}) y transferidos a `{$tabla_produccion}` (Transferidas: {$filas_transferidas_produccion}).";
+                    $response['temporal_insertadas'] = $filas_realmente_insertadas_temp;
+                    $response['temporal_ignoradas'] = $filas_ignoradas_temp;
+                    $response['produccion_transferidas'] = $filas_transferidas_produccion;
+
+                } catch (Exception $e_prod) {
+                    $conn->rollback(); // ROLLBACK para la tabla de producción
+                    $exception_msg_prod = "Error durante la transferencia a `{$tabla_produccion}`: " . $e_prod->getMessage();
+                    escribir_log($exception_msg_prod, 'CRITICAL');
+                    $response['status'] = 'error';
+                    $response['message'] = "Carga a `{$tabla_temporal}` correcta (Insertadas: {$filas_realmente_insertadas_temp}, Ignoradas: {$filas_ignoradas_temp}), PERO FALLÓ transferencia a producción. Error: " . $e_prod->getMessage();
+                    $response['production_transfer_error'] = $e_prod->getMessage();
+                    if (!headers_sent()) { http_response_code(500); }
+                }
+            } else if (empty($data) && $filas_intentadas_temp == 0) {
+                // No hubo datos para empezar
+                 $response['status'] = 'success'; // O 'info'
+                 $response['message'] = "No se recibieron datos para procesar. Las tablas no fueron modificadas.";
+                 escribir_log("No se recibieron datos para la tabla temporal. No se realiza transferencia a producción.", "INFO");
+            }
+            else {
+                 // No se insertaron filas nuevas en temp_empleados (quizás todas eran duplicados o hubo otros problemas no críticos)
+                 // O el array $data original estaba vacío.
+                escribir_log("No hay filas nuevas en `{$tabla_temporal}` para transferir a `{$tabla_produccion}` (Insertadas: {$filas_realmente_insertadas_temp}). La tabla de producción no fue modificada.", 'INFO');
+                $response['status'] = 'success'; // La carga a temporal se considera éxito si no hubo errores críticos
+                $response['message'] = "Carga a `{$tabla_temporal}` completada (Insertadas: {$filas_realmente_insertadas_temp}, Ignoradas: {$filas_ignoradas_temp}). No hay filas nuevas para transferir o no se insertaron filas en temporal. Tabla de producción no modificada.";
+                $response['temporal_insertadas'] = $filas_realmente_insertadas_temp;
+                $response['temporal_ignoradas'] = $filas_ignoradas_temp;
+                $response['produccion_transferidas'] = 0;
+            }
+            // --- FIN: Transferencia a Tabla de Producción ---
+
+        } else { // $errores_carga_temporal NO está vacío
+            $conn->rollback(); // ROLLBACK para temp_empleados
+            escribir_log("Transacción ROLLBACK para `{$tabla_temporal}` debido a errores. Errores: " . count($errores_carga_temporal), 'ERROR');
             http_response_code(400); 
-            $response['message'] = "Se encontraron errores durante la inserción. No se guardaron datos. Total filas con error: " . count($errores_insercion);
-            $response['errors_details'] = $errores_insercion;
-            $response['filas_intentadas_con_exito_parcial'] = $filas_insertadas;
+            $response['status'] = 'error';
+            $response['message'] = "Se encontraron errores durante la carga a `{$tabla_temporal}`. No se guardaron datos. Errores: " . count($errores_carga_temporal);
+            $response['errors_details_temporal'] = $errores_carga_temporal;
         }
 
-    } catch (Exception $e) {
-        $conn->rollback();
-        $exception_msg = "Excepción durante la transacción: " . $e->getMessage() . " en " . $e->getFile() . " línea " . $e->getLine();
+    } catch (Exception $e) { // Captura excepciones generales del proceso de carga a temporal
+        if ($conn->in_transaction) { // Verificar si la conexión sigue activa y hay transacción
+             $conn->rollback();
+        }
+        $exception_msg = "Excepción durante carga a `{$tabla_temporal}`: " . $e->getMessage() . " en " . $e->getFile() . " línea " . $e->getLine();
         escribir_log($exception_msg, 'CRITICAL');
         http_response_code(500);
-        $response['message'] = "Excepción crítica durante la transacción: " . $e->getMessage();
-        $response['errors_details_antes_excepcion'] = $errores_insercion;
+        $response['status'] = 'error';
+        $response['message'] = "Excepción crítica durante carga a `{$tabla_temporal}`: " . $e->getMessage();
+        $response['errors_details_temporal_exception'] = $errores_carga_temporal; // Errores de fila antes de esta excepción general
     }
 
-    $stmt->close();
+    if (isset($stmt)) $stmt->close();
     $conn->close();
     escribir_log("Conexión MySQL cerrada.", 'INFO');
 } else {
