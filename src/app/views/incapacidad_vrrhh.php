@@ -33,7 +33,7 @@ include __DIR__ . '/header.php'; ?>
             </thead>
             <tbody>
                 <?php
-                 $incapacidad = $class->incapacidad();
+                 $incapacidad = $class->incapacidad_vrrhh();
                  if (!empty($incapacidad)) {
                      foreach ($incapacidad as $row) {
                          echo "<tr>
