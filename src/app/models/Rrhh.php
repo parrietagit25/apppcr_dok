@@ -406,10 +406,11 @@ class Rrhh {
 
     }
 
-    public function insertar_permiso($id_jefe, $descripcion, $tipo_licencia, $fecha_inicio, $fecha_fin){
+    public function insertar_permiso($id_jefe, $descripcion, $tipo_licencia, $fecha_inicio, $fecha_fin, $archivo_adjunto = null){
+
         $code = $_SESSION['code'];
-        $sql = "INSERT INTO solicitud_permiso(descripcion, id_jefe, stat, code, tipo_licencia, fecha_inicio, fecha_fin) 
-                VALUES (:descripcion, :id_jefe, 1, :code, :tipo_licencia, :fecha_inicio, :fecha_fin)";
+        $sql = "INSERT INTO solicitud_permiso(descripcion, id_jefe, stat, code, tipo_licencia, fecha_inicio, fecha_fin, archivo_adjunto) 
+                VALUES (:descripcion, :id_jefe, 1, :code, :tipo_licencia, :fecha_inicio, :fecha_fin, :archivo_adjunto)";
         $stmt = $this->pdo->prepare($sql);
         $stmt->bindParam(':descripcion', $descripcion, PDO::PARAM_STR);
         $stmt->bindValue(':id_jefe', $id_jefe, is_null($id_jefe) ? PDO::PARAM_NULL : PDO::PARAM_INT);
@@ -417,6 +418,7 @@ class Rrhh {
         $stmt->bindParam(':tipo_licencia', $tipo_licencia, PDO::PARAM_STR);
         $stmt->bindParam(':fecha_inicio', $fecha_inicio, PDO::PARAM_STR);
         $stmt->bindParam(':fecha_fin', $fecha_fin, PDO::PARAM_STR);
+        $stmt->bindParam(':archivo_adjunto', $archivo_adjunto, PDO::PARAM_STR);
         
         return $stmt->execute();
     }

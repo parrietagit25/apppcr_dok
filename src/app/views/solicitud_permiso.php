@@ -115,6 +115,10 @@ include __DIR__ . '/header.php'; ?>
                         <input type="date" name="fecha_fin" id="" class="form-control bloquear-pasado">
                     </div>
                     <div class='mb-3'>
+                        <label for='archivo' class='form-label'>Adjuntar un archivo</label>
+                        <input type="file" name="archivo_adjunto" id="" class="form-control bloquear-pasado">
+                    </div>
+                    <div class='mb-3'>
                         <p>Descripcion del Permiso</p>
                         <textarea name="descripcion" class="form-control" style="margin:10px;"></textarea>
                     </div>

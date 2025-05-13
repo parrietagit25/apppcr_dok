@@ -245,7 +245,18 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
         $fecha_inicio = $_POST['fecha_inicio'];
         $fecha_fin = $_POST['fecha_fin'];
 
-        $class->insertar_permiso($id_jefe, $descripcion, $tipo_licencia, $fecha_inicio, $fecha_fin);
+        $archivo_ruta = null;
+        if (isset($_FILES['archivo_adjunto']) && $_FILES['archivo_adjunto']['error'] === UPLOAD_ERR_OK) {
+            $nombre_tmp = $_FILES['archivo_adjunto']['tmp_name'];
+            $nombre_archivo = basename($_FILES['archivo_adjunto']['name']);
+            $destino = 'archivos/' . time() . '_' . $nombre_archivo;
+
+            if (move_uploaded_file($nombre_tmp, $destino)) {
+                $archivo_ruta = $destino; // Ruta que se guardará en la base de datos
+            }
+        }
+
+        $class->insertar_permiso($id_jefe, $descripcion, $tipo_licencia, $fecha_inicio, $fecha_fin, $archivo_ruta);
 
         $email_jefe = $class->datos_jefes($id_jefe);
 
