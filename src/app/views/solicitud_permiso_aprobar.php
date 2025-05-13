@@ -61,7 +61,7 @@ include __DIR__ . '/header.php'; ?>
                             </tr>";
 
                             $ruta_completa = $row['archivo_adjunto']; // Puede ser NULL
-                            $prefijo_a_eliminar = '/var/www/html/';
+                            $prefijo_a_eliminar = '/var/www/html/app/controllers/';
                             $ruta_relativa = '';
 
                             if (is_string($ruta_completa) && strpos($ruta_completa, $prefijo_a_eliminar) === 0) {
