@@ -40,7 +40,7 @@ include __DIR__ . '/header.php'; ?>
                 if (!empty($solicitudes)) {
                     foreach ($solicitudes as $row) {
                         echo "<tr>
-                                <td>{$row['nombre']}</td>
+                                <td>{$row['nombre']} {$row['apellido']}</td>
                                 <td>{$row['descripcion']}</td>
                                 <td>{$row['fecha_log']}</td>
                                 <td>
