@@ -85,6 +85,10 @@ include __DIR__ . '/header.php'; ?>
                                                 <b>{$row['fecha_fin']}</b>
                                             </div>
                                             <div class='mb-3'>
+                                                <label for='comentario' class='form-label'>Archivo</label>
+                                                <a href='{$row['archivo_adjunto']}'>Archivo</a>
+                                            </div>
+                                            <div class='mb-3'>
                                                 <label for='comentario' class='form-label'>Descripcion</label>
                                                 <textarea class='form-control' name='comentario_jefe' id='comentario' rows='3' readonly>{$row['descripcion']}</textarea>
                                             </div>

@@ -287,9 +287,21 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
         Fechas del permiso desde '.$fecha_inicio.' hasta '.$fecha_fin.' <br>
         Descripcion del permiso: '.$descripcion.'';
 
-        //$copia = ["pedro.arrieta@grupopcr.com.pa", "abi.pineda@grupopcr.com.pa", $email_feje];
+        $copia = ["pedro.arrieta@grupopcr.com.pa", "abi.pineda@grupopcr.com.pa", $email_feje];
 
-        $copia = ["pedro.arrieta@grupopcr.com.pa"];
+        //$copia = ["pedro.arrieta@grupopcr.com.pa"];
+    
+        $class->enviar_correo("rrhhgpcr@grupopcr.com.pa", $copia, "Solicitud de permiso tipo '".$tipo_licencia."'", $mensaje);
+
+
+        /***** ######################### email para el enargado **************************** */
+
+        $mensaje = 'El colaborador  '.$nombre_comple.' con codigo de empleado: '.$codigo.'<br> 
+        ha solicitado un permiso tipo '.$tipo_licencia.' <br>
+        Fechas del permiso desde '.$fecha_inicio.' hasta '.$fecha_fin.' <br>
+        Descripcion del permiso: '.$descripcion.'';
+
+        $copia = ["pedro.arrieta@grupopcr.com.pa", "abi.pineda@grupopcr.com.pa", $email_feje];
     
         $class->enviar_correo("rrhhgpcr@grupopcr.com.pa", $copia, "Solicitud de permiso tipo '".$tipo_licencia."'", $mensaje);
 
