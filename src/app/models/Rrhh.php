@@ -158,7 +158,8 @@ class Rrhh {
                                             WHEN 3 THEN 'Borrado'
                                         END AS estado, 
                                         c.nombre,
-                                        ct.file_add FROM carta_trabajo ct inner join col_datos_generales c on ct.code_user = c.codigo  WHERE ct.stat in(1,2)");
+                                        c.apellido, 
+                                        ct.file_add FROM carta_trabajo ct inner join empleados c on ct.code_user = c.codigo_empleado  WHERE ct.stat in(1,2)");
         $stmt->execute();
         $array_datos = [];
         while ($list_code = $stmt->fetch(PDO::FETCH_ASSOC)) {
