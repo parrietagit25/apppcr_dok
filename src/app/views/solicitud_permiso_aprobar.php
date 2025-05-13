@@ -52,7 +52,7 @@ include __DIR__ . '/header.php'; ?>
                         echo "<tr>
                                 <td>{$row['nombre']} {$row['apellido']}</td>
                                 <td>{$row['tipo_licencia']}</td>
-                                <td>{$row['fecha_log']}</td>
+                                <td>{$row['fecha_log']} - {$row['archivo_adjunto']}</td>
                                 <td>
                                     <a href='#' data-bs-toggle='modal' data-bs-target='#modalAdjuntar{$row['id']}'>
                                         {$status}
