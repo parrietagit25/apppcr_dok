@@ -151,15 +151,19 @@ class Rrhh {
 
     public function solicitudes_aprobar() {
 
-        $stmt = $this->pdo->prepare("SELECT ct.id, ct.descripcion, ct.fecha_log, 
-                                        CASE ct.stat
-                                            WHEN 1 THEN 'Solicitado'
-                                            WHEN 2 THEN 'Aprobado'
-                                            WHEN 3 THEN 'Borrado'
-                                        END AS estado, 
-                                        c.nombre,
-                                        c.apellido, 
-                                        ct.file_add FROM carta_trabajo ct inner join empleados c on ct.code_user = c.codigo_empleado  WHERE ct.stat in(1,2)");
+        $stmt = $this->pdo->prepare("SELECT ct.id, ct.descripcion, ct.fecha_log,
+                                            CASE ct.stat
+                                                WHEN 1 THEN 'Solicitado'
+                                                WHEN 2 THEN 'Aprobado'
+                                                WHEN 3 THEN 'Borrado'
+                                            END AS estado,
+                                            c.nombre,
+                                            c.apellido,
+                                            ct.file_add
+                                        FROM carta_trabajo ct
+                                        INNER JOIN empleados c
+                                        ON ct.code_user COLLATE utf8mb4_unicode_ci = c.codigo_empleado COLLATE utf8mb4_unicode_ci
+                                        WHERE ct.stat IN (1, 2);");
         $stmt->execute();
         $array_datos = [];
         while ($list_code = $stmt->fetch(PDO::FETCH_ASSOC)) {
