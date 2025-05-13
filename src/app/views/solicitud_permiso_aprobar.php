@@ -99,7 +99,7 @@ include __DIR__ . '/header.php'; ?>
                                             if ($row['archivo_adjunto'] != '') {
                                                 echo "<div class='mb-3'>
                                                     <label for='archivo' class='form-label'>Archivo</label>
-                                                    <a href='app/uploads/permisos/{$ruta_relativa}'>Archivo</a>
+                                                    <a href='app/uploads/permisos/{$row['archivo_adjunto']}'>Archivo</a>
                                                 </div>";
                                             } 
 
