@@ -60,6 +60,11 @@ include __DIR__ . '/header.php'; ?>
                                 </td>
                             </tr>";
 
+                            $ruta_completa = $row['archivo_adjunto'];
+                            $prefijo_a_eliminar = '/var/www/html/';
+                            $patron = '/^' . preg_quote($prefijo_a_eliminar, '/') . '/';
+                            $ruta_relativa = preg_replace($patron, '', $ruta_completa);
+
                         echo "
                         <div class='modal fade' id='modalAdjuntar{$row['id']}' tabindex='-1' aria-labelledby='modalLabel{$row['id']}' aria-hidden='true'>
                             <div class='modal-dialog'>
@@ -83,12 +88,16 @@ include __DIR__ . '/header.php'; ?>
                                                 <b>{$row['fecha_inicio']}</b>
                                                 <label for='archivo' class='form-label'>Fecha Hasta</label>
                                                 <b>{$row['fecha_fin']}</b>
-                                            </div>
-                                            <div class='mb-3'>
-                                                <label for='comentario' class='form-label'>Archivo</label>
-                                                <a href='{$row['archivo_adjunto']}'>Archivo</a>
-                                            </div>
-                                            <div class='mb-3'>
+                                            </div>";
+
+                                            if ($row['archivo_adjunto'] != '') {
+                                                echo "<div class='mb-3'>
+                                                    <label for='archivo' class='form-label'>Archivo</label>
+                                                    <a href='{$ruta_relativa}'>Archivo</a>
+                                                </div>";
+                                            } 
+
+                                            echo "<div class='mb-3'>
                                                 <label for='comentario' class='form-label'>Descripcion</label>
                                                 <textarea class='form-control' name='comentario_jefe' id='comentario' rows='3' readonly>{$row['descripcion']}</textarea>
                                             </div>
