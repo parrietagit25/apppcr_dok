@@ -282,6 +282,36 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
             $email = $value['email'];
         }
 
+        if($tipo_licencia == 'Vacaciones'){
+
+        /***** ######################### email para el enargado **************************** */
+
+        $mensaje = '
+        <h4 style="color:rgb(250, 11, 2);">Aprobación pendiente: Solicitud de permiso de colaborador</h4>
+
+        <p>El colaborador <strong>' . $nombre_comple . '</strong> (Código de empleado: <strong>' . $codigo . '</strong>) ha solicitado un permiso del tipo <strong>' . $tipo_licencia . '</strong>.</p>
+
+        <p><strong>Periodo solicitado:</strong> desde el <strong>' . $fecha_inicio . '</strong> hasta el <strong>' . $fecha_fin . '</strong></p>
+
+        <p><strong>Descripción del permiso:</strong><br>' . nl2br($descripcion) . '</p>
+
+        <h4 style="color:rgb(250, 11, 2);">Para aprobar esta solicitud, por favor comuníquese con el Departamento de Recursos Humanos notificando su aprobación.</h4>
+
+        <p><strong>Canal de contacto:</strong></p>
+        <ul>
+            <li>Email: <a href="mailto:abi.pineda@grupopcr.com.pa">abi.pineda@grupopcr.com.pa</a></li>
+        </ul>
+
+        <p><em>Este es un mensaje automático. Por favor, no responda a este correo. Utilice los canales indicados para cualquier comunicación.</em></p>
+        ';
+
+
+        $copia = ["pedro.arrieta@grupopcr.com.pa", "abi.pineda@grupopcr.com.pa", $email_feje];
+    
+        $class->enviar_correo("rrhhgpcr@grupopcr.com.pa", $copia, "Solicitud de permiso tipo '".$tipo_licencia."'", $mensaje); 
+
+        }else{
+
         $mensaje = 'El colaborador  '.$nombre_comple.' con codigo de empleado: '.$codigo.'<br> 
         ha solicitado un permiso tipo '.$tipo_licencia.' <br>
         Fechas del permiso desde '.$fecha_inicio.' hasta '.$fecha_fin.' <br>
@@ -293,17 +323,7 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
     
         $class->enviar_correo("rrhhgpcr@grupopcr.com.pa", $copia, "Solicitud de permiso tipo '".$tipo_licencia."'", $mensaje);
 
-
-        /***** ######################### email para el enargado **************************** */
-/*
-        $mensaje = 'El colaborador  '.$nombre_comple.' con codigo de empleado: '.$codigo.'<br> 
-        ha solicitado un permiso tipo '.$tipo_licencia.' <br>
-        Fechas del permiso desde '.$fecha_inicio.' hasta '.$fecha_fin.' <br>
-        Descripcion del permiso: '.$descripcion.'';
-
-        $copia = ["pedro.arrieta@grupopcr.com.pa", "abi.pineda@grupopcr.com.pa", $email_feje];
-    
-        $class->enviar_correo("rrhhgpcr@grupopcr.com.pa", $copia, "Solicitud de permiso tipo '".$tipo_licencia."'", $mensaje); */
+        }
 
         //$copia = "pedro.arrieta@grupopcr.com.pa "."abi.pineda@grupopcr.com.pa ".$email_feje;
 
