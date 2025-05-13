@@ -251,8 +251,19 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
             $nombre_archivo = basename($_FILES['archivo_adjunto']['name']);
             $destino = 'archivos/' . time() . '_' . $nombre_archivo;
 
-            if (move_uploaded_file($nombre_tmp, $destino)) {
-                $archivo_ruta = $destino; // Ruta que se guardará en la base de datos
+            // Carpeta de almacenamiento
+            $upload_dir = __DIR__ . '/../uploads/permisos/';
+            if (!is_dir($upload_dir)) {
+                mkdir($upload_dir, 0777, true);
+            }
+
+            $archivo_destino = $upload_dir . $nombre_archivo;
+
+            if (move_uploaded_file($nombre_tmp, $archivo_destino)) {
+                $archivo_ruta = $archivo_destino; // Ruta que se guardará en la base de datos
+            } else {
+                echo "<div class='alert alert-danger'>Error al mover el archivo.</div>";
+                exit;
             }
         }
 
