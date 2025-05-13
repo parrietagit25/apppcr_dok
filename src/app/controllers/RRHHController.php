@@ -267,7 +267,7 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
             }
         }
 
-        $class->insertar_permiso($id_jefe, $descripcion, $tipo_licencia, $fecha_inicio, $fecha_fin, $archivo_ruta);
+        $class->insertar_permiso($id_jefe, $descripcion, $tipo_licencia, $fecha_inicio, $fecha_fin, $nombre_archivo);
 
         $email_jefe = $class->datos_jefes($id_jefe);
 
