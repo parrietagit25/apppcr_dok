@@ -61,14 +61,11 @@ include __DIR__ . '/header.php'; ?>
                             </tr>";
 
                             $ruta_completa = $row['archivo_adjunto']; // Puede ser NULL
-                            $prefijo_a_eliminar = '/var/www/html/app/controllers/';
+                            $prefijo_a_eliminar = '/var/www/html/app/controllers/app/controllers/';
                             $ruta_relativa = '';
 
                             if (is_string($ruta_completa) && strpos($ruta_completa, $prefijo_a_eliminar) === 0) {
                                 $ruta_relativa = substr($ruta_completa, strlen($prefijo_a_eliminar));
-
-                                $texto_a_eliminar_de_ruta = 'controllers/';
-                                $ruta_relativa = str_replace($texto_a_eliminar_de_ruta, '', $ruta_relativa);
 
                             } elseif (is_string($ruta_completa)) {
                                 $ruta_relativa = $ruta_completa; // No comenzaba con el prefijo, pero es una cadena
