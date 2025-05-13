@@ -114,6 +114,7 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
 
             if (move_uploaded_file($archivo_tmp, $archivo_destino)) {
                 if ($class->aprobar_carta_trabajo($id_carta, $archivo_nombre, $comentario)) {
+                    $get_email_colab = $objeto->get_email_colaborador($id_carta);
                     echo "<div class='alert alert-success'>Carta aprobada y archivo guardado correctamente.</div>";
 
                     $dartos_cola = $class->datos_colaborador();
@@ -130,7 +131,7 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
                     $copia = ["pedro.arrieta@grupopcr.com.pa", "rrhhgpcr@grupopcr.com.pa"];
                     //$copia = ["pedro.arrieta@grupopcr.com.pa"];
 
-                    $class->enviar_correo($email, $copia, "Carta de trabajo Enviada", $mensaje);
+                    $class->enviar_correo($get_email_colab['email'], $copia, "Carta de trabajo Enviada", $mensaje);
 
                 } else {
                     echo "<div class='alert alert-danger'>Error al actualizar la base de datos.</div>";

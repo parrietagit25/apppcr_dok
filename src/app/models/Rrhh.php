@@ -187,6 +187,15 @@ class Rrhh {
         return $stmt->execute();
     }
 
+    public function get_email_colaborador($id_carta) {
+        $stmt = $this->pdo->prepare("SELECT c.email FROM carta_trabajo ct 
+                                      INNER JOIN empleados c ON ct.code_user = c.codigo_empleado 
+                                      WHERE ct.id = :id_carta");
+        $stmt->bindParam(':id_carta', $id_carta, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
     public function incapacidad_vrrhh() {
 
         $code = $_SESSION['code'];
