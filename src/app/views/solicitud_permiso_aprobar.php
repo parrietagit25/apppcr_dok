@@ -60,10 +60,15 @@ include __DIR__ . '/header.php'; ?>
                                 </td>
                             </tr>";
 
-                            $ruta_completa = $row['archivo_adjunto'];
+                            $ruta_completa = $row['archivo_adjunto']; // Puede ser NULL
                             $prefijo_a_eliminar = '/var/www/html/';
-                            $patron = '/^' . preg_quote($prefijo_a_eliminar, '/') . '/';
-                            $ruta_relativa = preg_replace($patron, '', $ruta_completa);
+                            $ruta_relativa = '';
+
+                            if (is_string($ruta_completa) && strpos($ruta_completa, $prefijo_a_eliminar) === 0) {
+                                $ruta_relativa = substr($ruta_completa, strlen($prefijo_a_eliminar));
+                            } elseif (is_string($ruta_completa)) {
+                                $ruta_relativa = $ruta_completa; // No comenzaba con el prefijo, pero es una cadena
+                            }
 
                         echo "
                         <div class='modal fade' id='modalAdjuntar{$row['id']}' tabindex='-1' aria-labelledby='modalLabel{$row['id']}' aria-hidden='true'>
