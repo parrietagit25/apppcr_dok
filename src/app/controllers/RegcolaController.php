@@ -26,8 +26,9 @@ if (isset($_GET['reg_col'])) {
             //echo 'pasando';
             $userModel->insertar_colaborador($_POST['reg_code'], $_POST['reg_password']);
             $mensaje = 'Colaborador Registrado';
-            //sleep(3);
-            require_once __DIR__ . '/../views/login.php';
+            sleep(3);
+            header("Location: apppcr.net");
+            //require_once __DIR__ . '/../views/login.php';
             exit();
         }else {
             $mensaje = 'Ya usted esta registrado';
