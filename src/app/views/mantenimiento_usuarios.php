@@ -55,7 +55,7 @@ include __DIR__ . '/header.php';
         <!-- Modal -->
         <div class="modal fade" id="modalPassword" tabindex="-1" aria-labelledby="modalPasswordLabel" aria-hidden="true">
         <div class="modal-dialog">
-            <form method="POST" action="cambiar_password.php">
+            <form method="POST" action="<?php echo BASE_URL_CONTROLLER; ?>/MainController.php?mantenimiento_usuarios=1">
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title">Cambiar Contraseña</h5>
