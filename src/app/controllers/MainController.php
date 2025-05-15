@@ -53,10 +53,40 @@ if (isset($_GET['cumple'])) {
         ];
         return $meses[$mesIngles] ?? $mesIngles;
     }
-    
 
     $cumple = $class_rrhh->dia_cumple();
     require_once __DIR__ . '/../views/cumple.php';
+    exit();
+}
+
+if (isset($_GET['mantenimineto'])) {
+    require_once __DIR__ . '/../views/mantenimiento.php';
+    exit();
+}
+
+if (isset($_GET['mantenimiento_usuarios'])) {
+
+    
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        $code = $_POST['codigo_empleado'];
+        $pass = $_POST['nueva_password'];
+
+        $resultado = $userModel->actualizar_colaborador($pass, $code);
+
+        if ($resultado) {
+            echo "<div class='alert alert-success'>Regsitro Actualizado.</div>";
+        } else {
+            echo "<div class='alert alert-danger'>Error al actalizar.</div>";
+        }
+    }
+
+    $usuarios = $userModel->usuarios();
+    require_once __DIR__ . '/../views/mantenimiento_usuarios.php';
+    exit();
+}
+
+if (isset($_GET['mantenimiento_permisos'])) {
+    require_once __DIR__ . '/../views/mantenimiento_permisos.php';
     exit();
 }
 

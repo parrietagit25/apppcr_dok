@@ -165,6 +165,12 @@ class User {
             return false; // Error
         }
     }
+
+    public function usuarios() {
+        $stmt = $this->pdo->prepare("SELECT * FROM empleado_log el inner join empleados e on el.codigo = e.codigo_empleado WHERE el.stat = 1");
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
     
     
 }

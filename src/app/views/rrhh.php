@@ -10,13 +10,6 @@ include __DIR__ . '/header.php';
 
 <div class="container mt-4">
 
-    <!--<div class="input-group mb-3">
-        <input type="text" class="form-control" placeholder="Search" aria-label="Search" aria-describedby="search-button">
-        <button class="btn btn-outline-secondary" type="button" id="search-button">
-            <i class="bi bi-search"></i>
-        </button>
-    </div>-->
-
     <div id="carouselExampleSlidesOnly" class="carousel slide mb-4" data-bs-ride="carousel">
         <div class="carousel-inner">
             <div class="carousel-item active">

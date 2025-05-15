@@ -129,6 +129,9 @@
             font-weight: bold;
         }
     </style>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
 </head>
 <body>
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
@@ -148,6 +151,11 @@
                     <li class="nav-item">
                         <a class="nav-link" href="#">Contacto</a>
                     </li> -->
+                    <?php if ($tipo_usuario == 1 || $tipo_usuario == 4) { ?>
+                        <li class="nav-item">
+                            <a class="nav-link" href="<?php echo BASE_URL_CONTROLLER; ?>MainController.php?mantenimineto=1">Mantenimiento</a>
+                        </li>
+                    <?php } ?>
                     <li class="nav-item">
                         <a class="nav-link" href="<?php echo BASE_URL_LINK; ?>/salir.php">Salir</a> 
                     </li>

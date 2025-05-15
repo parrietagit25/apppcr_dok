@@ -1,0 +1,113 @@
+<?php
+// app/views/rrhh.php
+if (!isset($_SESSION['code'])) {
+    header("Location: salir.php");
+    exit();
+}
+
+include __DIR__ . '/header.php'; 
+?>
+
+<div class="container mt-4">
+
+    <div id="carouselExampleSlidesOnly" class="carousel slide mb-4" data-bs-ride="carousel">
+        <div class="carousel-inner">
+            <div class="carousel-item active">
+                <div class="p-3 bg-light rounded">
+                    <h5 class="fw-bold">Mantenimiento - Usuarios </h5>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row text-center mb-4">
+        
+        <table id="tablaUsuarios" class="table table-bordered table-striped">
+            <thead class="table-dark text-center">
+                <tr>
+                    <th>Nombre</th>
+                    <th>Apellido</th>
+                    <th>Fecha Log</th>
+                    <th>Código Empleado</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php foreach ($usuarios as $usuario): ?>
+                    <tr>
+                        <td><?= htmlspecialchars($usuario['nombre']) ?></td>
+                        <td><?= htmlspecialchars($usuario['apellido']) ?></td>
+                        <td><?= htmlspecialchars($usuario['fecha_log']) ?></td>
+                        <td><?= htmlspecialchars($usuario['codigo_empleado']) ?></td>
+                        <td class="text-center">
+                            <button class="btn btn-sm btn-warning" 
+                                    data-bs-toggle="modal" 
+                                    data-bs-target="#modalPassword" 
+                                    data-code="<?= $usuario['codigo_empleado'] ?>">
+                                Cambiar Contraseña
+                            </button>
+                        </td>
+                    </tr>
+                <?php endforeach; ?>
+            </tbody>
+        </table>
+
+        <!-- Modal -->
+        <div class="modal fade" id="modalPassword" tabindex="-1" aria-labelledby="modalPasswordLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <form method="POST" action="cambiar_password.php">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Cambiar Contraseña</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                    </div>
+                    <div class="modal-body">
+                        <input type="hidden" name="codigo_empleado" id="codigoEmpleadoInput">
+                        <div class="mb-3">
+                            <label for="nuevaPassword" class="form-label">Nueva contraseña</label>
+                            <input type="password" class="form-control" id="nuevaPassword" name="nueva_password" required>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary">Guardar</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+        </div>
+
+
+
+    <br>
+    <br><br><br><br>
+</div>
+
+<nav class="navbar fixed-bottom navbar-light bg-light border-top">
+    <div class="container-fluid">
+        <a href="<?php echo BASE_URL_CONTROLLER; ?>/MainController.php" class="navbar-brand text-center" style="width: 25%;">INICIO</a>
+        <a href="#" class="navbar-brand text-center" style="width: 25%;"></a>
+        <a href="<?php echo BASE_URL_CONTROLLER; ?>/MainController.php" class="navbar-brand text-center" style="width: 25%;">VOLVER</a>
+        <a href="#" class="navbar-brand text-center" style="width: 25%;"></a>
+    </div>
+</nav>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var modal = document.getElementById('modalPassword');
+        modal.addEventListener('show.bs.modal', function (event) {
+            var button = event.relatedTarget;
+            var codigo = button.getAttribute('data-code');
+            var inputCodigo = modal.querySelector('#codigoEmpleadoInput');
+            inputCodigo.value = codigo;
+        });
+
+        // Inicializar DataTable
+        $('#tablaUsuarios').DataTable({
+            "language": {
+                "url": "//cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json"
+            }
+        });
+    });
+</script>
+<?php include __DIR__ . '/footer.php'; ?>
