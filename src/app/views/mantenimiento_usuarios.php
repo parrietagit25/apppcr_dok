@@ -87,7 +87,7 @@ include __DIR__ . '/header.php';
     <div class="container-fluid">
         <a href="<?php echo BASE_URL_CONTROLLER; ?>/MainController.php" class="navbar-brand text-center" style="width: 25%;">INICIO</a>
         <a href="#" class="navbar-brand text-center" style="width: 25%;"></a>
-        <a href="<?php echo BASE_URL_CONTROLLER; ?>/MainController.php" class="navbar-brand text-center" style="width: 25%;">VOLVER</a>
+        <a href="<?php echo BASE_URL_CONTROLLER; ?>/MainController.php?mantenimiento_usuarios=1" class="navbar-brand text-center" style="width: 25%;">VOLVER</a>
         <a href="#" class="navbar-brand text-center" style="width: 25%;"></a>
     </div>
 </nav>

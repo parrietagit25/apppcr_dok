@@ -86,6 +86,9 @@ if (isset($_GET['mantenimiento_usuarios'])) {
 }
 
 if (isset($_GET['mantenimiento_permisos'])) {
+
+    $solicitudes = $class_rrhh->obtenerSolicitudesUnificadas();
+
     require_once __DIR__ . '/../views/mantenimiento_permisos.php';
     exit();
 }
