@@ -758,53 +758,52 @@ class Rrhh {
 
     public function obtenerSolicitudesUnificadas() {
         $sql = "
-                    SELECT 
-                        'Calamidad' AS tipo,
-                        e.codigo_empleado AS codigo,
-                        e.nombre,
-                        e.apellido,
-                        c.fecha_log,
-                        c.descripcion,
-                        c.file_add
-                    FROM calamidades c
-                    INNER JOIN empleados e 
-                        ON CONVERT(e.codigo_empleado USING utf8mb4) COLLATE utf8mb4_unicode_ci = 
-                        CONVERT(c.code_user USING utf8mb4) COLLATE utf8mb4_unicode_ci
-                    WHERE c.stat = 1
+            SELECT 
+                'Calamidad' AS tipo,
+                e.codigo_empleado AS codigo,
+                e.nombre,
+                e.apellido,
+                c.fecha_log,
+                c.descripcion,
+                c.file_add
+            FROM calamidades c
+            INNER JOIN empleados e 
+                ON CAST(e.codigo_empleado AS UNSIGNED) = CAST(c.code_user AS UNSIGNED)
+            WHERE c.stat = 1
 
-                    UNION ALL
+            UNION ALL
 
-                    SELECT 
-                        'Carta de Trabajo' AS tipo,
-                        e.codigo_empleado AS codigo,
-                        e.nombre,
-                        e.apellido,
-                        ct.fecha_log,
-                        ct.descripcion,
-                        ct.file_add
-                    FROM carta_trabajo ct
-                    INNER JOIN empleados e 
-                        ON CONVERT(e.codigo_empleado USING utf8mb4) COLLATE utf8mb4_unicode_ci = 
-                        CONVERT(ct.code_user USING utf8mb4) COLLATE utf8mb4_unicode_ci
-                    WHERE ct.stat = 1
+            SELECT 
+                'Carta de Trabajo' AS tipo,
+                e.codigo_empleado AS codigo,
+                e.nombre,
+                e.apellido,
+                ct.fecha_log,
+                ct.descripcion,
+                ct.file_add
+            FROM carta_trabajo ct
+            INNER JOIN empleados e 
+                ON CONVERT(e.codigo_empleado USING utf8mb4) COLLATE utf8mb4_unicode_ci = 
+                CONVERT(ct.code_user USING utf8mb4) COLLATE utf8mb4_unicode_ci
+            WHERE ct.stat = 1
 
-                    UNION ALL
+            UNION ALL
 
-                    SELECT 
-                        'Permiso' AS tipo,
-                        e.codigo_empleado AS codigo,
-                        e.nombre,
-                        e.apellido,
-                        sp.fecha_log,
-                        sp.descripcion,
-                        sp.archivo_adjunto AS file_add
-                    FROM solicitud_permiso sp
-                    INNER JOIN empleados e 
-                        ON CONVERT(e.codigo_empleado USING utf8mb4) COLLATE utf8mb4_unicode_ci = 
-                        CONVERT(sp.code USING utf8mb4) COLLATE utf8mb4_unicode_ci
-                    WHERE sp.stat = 1
+            SELECT 
+                'Permiso' AS tipo,
+                e.codigo_empleado AS codigo,
+                e.nombre,
+                e.apellido,
+                sp.fecha_log,
+                CONCAT(sp.tipo_licencia, ' - ', sp.descripcion) AS descripcion,
+                sp.archivo_adjunto AS file_add
+            FROM solicitud_permiso sp
+            INNER JOIN empleados e 
+                ON CONVERT(e.codigo_empleado USING utf8mb4) COLLATE utf8mb4_unicode_ci = 
+                CONVERT(sp.code USING utf8mb4) COLLATE utf8mb4_unicode_ci
+            WHERE sp.stat = 1
 
-                    ORDER BY fecha_log DESC
+            ORDER BY fecha_log DESC
         ";
 
         $stmt = $this->pdo->prepare($sql);
