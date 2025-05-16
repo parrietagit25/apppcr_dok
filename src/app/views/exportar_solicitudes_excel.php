@@ -1,5 +1,5 @@
 <?php
-require '../vendor/autoload.php';
+require '../../vendor/autoload.php';
 require_once '../models/Rrhh.php'; // Asegúrate de usar el modelo correcto
 
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
