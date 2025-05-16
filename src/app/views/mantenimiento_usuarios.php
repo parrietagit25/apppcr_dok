@@ -51,7 +51,7 @@ include __DIR__ . '/header.php';
                                     data-bs-target="#modalStatus"
                                     data-code="<?= $usuario['codigo_empleado'] ?>"
                                     data-status="<?= $usuario['stat'] ?>">
-                                Cambiar Estado
+                                Desactivar usuario
                             </button>
                         </td>
                     </tr>
@@ -90,13 +90,13 @@ include __DIR__ . '/header.php';
             <form method="POST" action="<?php echo BASE_URL_CONTROLLER; ?>/MainController.php?cambiar_estado_usuario=1">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title">Cambiar Estado del Usuario</h5>
+                        <h5 class="modal-title">Desactivar usuario</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
                     </div>
                     <div class="modal-body">
                         <input type="hidden" name="codigo_empleado" id="codigoEstadoInput">
                         <input type="hidden" name="estado_actual" id="estadoActualInput">
-                        <p>¿Está seguro que desea cambiar el estado de este usuario?</p>
+                        <p>¿Está seguro que desea desactivar usuario?</p>
                     </div>
                     <div class="modal-footer">
                         <button type="submit" class="btn btn-danger">Confirmar</button>
