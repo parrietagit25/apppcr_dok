@@ -7,8 +7,8 @@ use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 // Configuración de conexión
 $host = 'db';
 $db   = 'apppcr';
-$user = 'pedropcr';
-$pass = 'Chicho1787$$$Chicho';
+$user = 'appuser';
+$pass = 'apppass';
 $charset = 'utf8mb4';
 
 $dsn = "mysql:host=$host;dbname=$db;charset=$charset";
