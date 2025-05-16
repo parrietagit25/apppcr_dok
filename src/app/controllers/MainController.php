@@ -92,7 +92,7 @@ if (isset($_GET['cambiar_estado_usuario'])) {
     $nuevoEstado = $estadoActual === 1 ? 0 : 1;
 
     $resultado = $userModel->cambiarEstadoUsuario($codigo, $nuevoEstado);
-
+    $usuarios = $userModel->usuarios();
     require_once __DIR__ . '/../views/mantenimiento_usuarios.php';
     exit();
 }
