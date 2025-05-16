@@ -11,7 +11,7 @@ include __DIR__ . '/header.php';
 <div class="container mt-4">
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h5 class="fw-bold">Solicitudes Registradas</h5>
-        <a href="#exportar_solicitudes_excel.php" class="btn btn-success">📥 Exportar a Excel</a>
+        <a href="exportar_solicitudes_excel.php" class="btn btn-success">📥 Exportar a Excel</a>
     </div>
 
     <table id="tablaSolicitudes" class="table table-bordered table-striped">
