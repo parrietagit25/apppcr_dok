@@ -46,6 +46,13 @@ include __DIR__ . '/header.php';
                                     data-code="<?= $usuario['codigo_empleado'] ?>">
                                 Cambiar Contraseña
                             </button>
+                            <button class="btn btn-sm btn-danger"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#modalStatus"
+                                    data-code="<?= $usuario['codigo_empleado'] ?>"
+                                    data-status="<?= $usuario['stat'] ?>">
+                                Cambiar Estado
+                            </button>
                         </td>
                     </tr>
                 <?php endforeach; ?>
@@ -70,6 +77,29 @@ include __DIR__ . '/header.php';
                     </div>
                     <div class="modal-footer">
                         <button type="submit" class="btn btn-primary">Guardar</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+        </div>
+
+        <!-- Modal Estado -->
+        <div class="modal fade" id="modalStatus" tabindex="-1" aria-labelledby="modalStatusLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <form method="POST" action="<?php echo BASE_URL_CONTROLLER; ?>/MainController.php?cambiar_estado_usuario=1">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Cambiar Estado del Usuario</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                    </div>
+                    <div class="modal-body">
+                        <input type="hidden" name="codigo_empleado" id="codigoEstadoInput">
+                        <input type="hidden" name="estado_actual" id="estadoActualInput">
+                        <p>¿Está seguro que desea cambiar el estado de este usuario?</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-danger">Confirmar</button>
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
                     </div>
                 </div>
@@ -109,5 +139,14 @@ include __DIR__ . '/header.php';
             }
         });
     });
+
+    var modalEstado = document.getElementById('modalStatus');
+    modalEstado.addEventListener('show.bs.modal', function (event) {
+    var button = event.relatedTarget;
+    var codigo = button.getAttribute('data-code');
+    var estado = button.getAttribute('data-status');
+    modalEstado.querySelector('#codigoEstadoInput').value = codigo;
+    modalEstado.querySelector('#estadoActualInput').value = estado;
+});
 </script>
 <?php include __DIR__ . '/footer.php'; ?>

@@ -85,6 +85,18 @@ if (isset($_GET['mantenimiento_usuarios'])) {
     exit();
 }
 
+if (isset($_GET['cambiar_estado_usuario'])) {
+
+    $codigo = $_POST['codigo_empleado'];
+    $estadoActual = (int) $_POST['estado_actual'];
+    $nuevoEstado = $estadoActual === 1 ? 0 : 1;
+
+    $resultado = $userModel->cambiarEstadoUsuario($codigo, $nuevoEstado);
+
+    require_once __DIR__ . '/../views/mantenimiento_usuarios.php';
+    exit();
+}
+
 if (isset($_GET['mantenimiento_permisos'])) {
 
     $solicitudes = $class_rrhh->obtenerSolicitudesUnificadas();

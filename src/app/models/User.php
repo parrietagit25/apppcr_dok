@@ -25,7 +25,14 @@ class User {
             return false;
         }
     }
-    
+
+
+    public function cambiarEstadoUsuario($codigo, $nuevoEstado) {
+        $sql = "UPDATE empleado_log SET stat = ? WHERE codigo = ?";
+        $stmt = $this->pdo->prepare($sql);
+        return $stmt->execute([$nuevoEstado, $codigo]);
+    }
+
 
     public function nombre_colaborador() {
         $code = $_SESSION['code'];
