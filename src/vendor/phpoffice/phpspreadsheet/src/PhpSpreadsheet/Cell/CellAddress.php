@@ -35,7 +35,9 @@ class CellAddress
     public function __construct(string $cellAddress, ?Worksheet $worksheet = null)
     {
         $this->cellAddress = str_replace('$', '', $cellAddress);
-        [$this->columnId, $this->rowId, $this->columnName] = Coordinate::indexesFromString($this->cellAddress);
+        [$this->columnName, $rowId] = Coordinate::coordinateFromString($cellAddress);
+        $this->rowId = (int) $rowId;
+        $this->columnId = Coordinate::columnIndexFromString($this->columnName);
         $this->worksheet = $worksheet;
     }
 
@@ -45,9 +47,15 @@ class CellAddress
      */
     private static function validateColumnAndRow($columnId, $rowId): void
     {
-        if (!is_numeric($columnId) || $columnId <= 0 || !is_numeric($rowId) || $rowId <= 0) {
-            throw new Exception('Row and Column Ids must be positive integer values');
-        }
+        $array = [$columnId, $rowId];
+        array_walk(
+            $array,
+            function ($value): void {
+                if (!is_numeric($value) || $value <= 0) {
+                    throw new Exception('Row and Column Ids must be positive integer values');
+                }
+            }
+        );
     }
 
     /**

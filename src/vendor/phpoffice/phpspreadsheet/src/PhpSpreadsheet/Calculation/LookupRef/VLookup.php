@@ -26,7 +26,7 @@ class VLookup extends LookupBase
      */
     public static function lookup($lookupValue, $lookupArray, $indexNumber, $notExactMatch = true)
     {
-        if (is_array($lookupValue) || is_array($indexNumber)) {
+        if (is_array($lookupValue)) {
             return self::evaluateArrayArgumentsIgnore([self::class, __FUNCTION__], 1, $lookupValue, $lookupArray, $indexNumber, $notExactMatch);
         }
 
@@ -49,9 +49,7 @@ class VLookup extends LookupBase
         $firstColumn = array_shift($columnKeys) ?? 1;
 
         if (!$notExactMatch) {
-            /** @var callable */
-            $callable = [self::class, 'vlookupSort'];
-            uasort($lookupArray, $callable);
+            uasort($lookupArray, ['self', 'vlookupSort']);
         }
 
         $rowNumber = self::vLookupSearch($lookupValue, $lookupArray, $firstColumn, $notExactMatch);
@@ -64,12 +62,12 @@ class VLookup extends LookupBase
         return ExcelError::NA();
     }
 
-    private static function vlookupSort(array $a, array $b): int
+    private static function vlookupSort($a, $b)
     {
         reset($a);
         $firstColumn = key($a);
-        $aLower = StringHelper::strToLower((string) $a[$firstColumn]);
-        $bLower = StringHelper::strToLower((string) $b[$firstColumn]);
+        $aLower = StringHelper::strToLower($a[$firstColumn]);
+        $bLower = StringHelper::strToLower($b[$firstColumn]);
 
         if ($aLower == $bLower) {
             return 0;
@@ -84,13 +82,13 @@ class VLookup extends LookupBase
      */
     private static function vLookupSearch($lookupValue, array $lookupArray, $column, bool $notExactMatch): ?int
     {
-        $lookupLower = StringHelper::strToLower((string) $lookupValue);
+        $lookupLower = StringHelper::strToLower($lookupValue);
 
         $rowNumber = null;
         foreach ($lookupArray as $rowKey => $rowData) {
             $bothNumeric = is_numeric($lookupValue) && is_numeric($rowData[$column]);
             $bothNotNumeric = !is_numeric($lookupValue) && !is_numeric($rowData[$column]);
-            $cellDataLower = StringHelper::strToLower((string) $rowData[$column]);
+            $cellDataLower = StringHelper::strToLower($rowData[$column]);
 
             // break if we have passed possible keys
             if (

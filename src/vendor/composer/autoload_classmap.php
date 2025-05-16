@@ -9,5 +9,6 @@ return array(
     'BaseSendGridClientInterface' => $vendorDir . '/sendgrid/sendgrid/lib/BaseSendGridClientInterface.php',
     'Composer\\InstalledVersions' => $vendorDir . '/composer/InstalledVersions.php',
     'SendGrid' => $vendorDir . '/sendgrid/sendgrid/lib/SendGrid.php',
+    'Stringable' => $vendorDir . '/myclabs/php-enum/stubs/Stringable.php',
     'TwilioEmail' => $vendorDir . '/sendgrid/sendgrid/lib/TwilioEmail.php',
 );

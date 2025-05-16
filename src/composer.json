@@ -2,6 +2,6 @@
     "require": {
         "phpmailer/phpmailer": "6.6",
         "sendgrid/sendgrid": "^8.1",
-        "phpoffice/phpspreadsheet": "^1.23"
+        "phpoffice/phpspreadsheet": "1.23.0"
     }
 }

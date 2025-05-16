@@ -102,27 +102,29 @@ class Operations
      */
     public static function product(...$args)
     {
-        $args = array_filter(
-            Functions::flattenArray($args),
-            function ($value) {
-                return $value !== null;
-            }
-        );
-
         // Return value
-        $returnValue = (count($args) === 0) ? 0.0 : 1.0;
+        $returnValue = null;
 
         // Loop through arguments
-        foreach ($args as $arg) {
+        foreach (Functions::flattenArray($args) as $arg) {
             // Is it a numeric value?
             if (is_numeric($arg)) {
-                $returnValue *= $arg;
+                if ($returnValue === null) {
+                    $returnValue = $arg;
+                } else {
+                    $returnValue *= $arg;
+                }
             } else {
-                return ExcelError::throwError($arg);
+                return ExcelError::VALUE();
             }
         }
 
-        return (float) $returnValue;
+        // Return
+        if ($returnValue === null) {
+            return 0;
+        }
+
+        return $returnValue;
     }
 
     /**

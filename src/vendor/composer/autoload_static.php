@@ -4,7 +4,7 @@
 
 namespace Composer\Autoload;
 
-class ComposerStaticInita3277c677735e1aafbb2915f7d1239ce
+class ComposerStaticInitd131f65b3d01f3fe2b7b5a8a65684afe
 {
     public static $files = array (
         '2cffec82183ee1cea088009cef9a6fc3' => __DIR__ . '/..' . '/ezyang/htmlpurifier/library/HTMLPurifier.composer.php',
@@ -35,11 +35,11 @@ class ComposerStaticInita3277c677735e1aafbb2915f7d1239ce
         ),
         'M' => 
         array (
+            'MyCLabs\\Enum\\' => 13,
             'Matrix\\' => 7,
         ),
         'C' => 
         array (
-            'Composer\\Pcre\\' => 14,
             'Complex\\' => 8,
         ),
     );
@@ -94,13 +94,13 @@ class ComposerStaticInita3277c677735e1aafbb2915f7d1239ce
         array (
             0 => __DIR__ . '/..' . '/phpmailer/phpmailer/src',
         ),
+        'MyCLabs\\Enum\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/myclabs/php-enum/src',
+        ),
         'Matrix\\' => 
         array (
             0 => __DIR__ . '/..' . '/markbaker/matrix/classes/src',
-        ),
-        'Composer\\Pcre\\' => 
-        array (
-            0 => __DIR__ . '/..' . '/composer/pcre/src',
         ),
         'Complex\\' => 
         array (
@@ -122,16 +122,17 @@ class ComposerStaticInita3277c677735e1aafbb2915f7d1239ce
         'BaseSendGridClientInterface' => __DIR__ . '/..' . '/sendgrid/sendgrid/lib/BaseSendGridClientInterface.php',
         'Composer\\InstalledVersions' => __DIR__ . '/..' . '/composer/InstalledVersions.php',
         'SendGrid' => __DIR__ . '/..' . '/sendgrid/sendgrid/lib/SendGrid.php',
+        'Stringable' => __DIR__ . '/..' . '/myclabs/php-enum/stubs/Stringable.php',
         'TwilioEmail' => __DIR__ . '/..' . '/sendgrid/sendgrid/lib/TwilioEmail.php',
     );
 
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->prefixLengthsPsr4 = ComposerStaticInita3277c677735e1aafbb2915f7d1239ce::$prefixLengthsPsr4;
-            $loader->prefixDirsPsr4 = ComposerStaticInita3277c677735e1aafbb2915f7d1239ce::$prefixDirsPsr4;
-            $loader->prefixesPsr0 = ComposerStaticInita3277c677735e1aafbb2915f7d1239ce::$prefixesPsr0;
-            $loader->classMap = ComposerStaticInita3277c677735e1aafbb2915f7d1239ce::$classMap;
+            $loader->prefixLengthsPsr4 = ComposerStaticInitd131f65b3d01f3fe2b7b5a8a65684afe::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInitd131f65b3d01f3fe2b7b5a8a65684afe::$prefixDirsPsr4;
+            $loader->prefixesPsr0 = ComposerStaticInitd131f65b3d01f3fe2b7b5a8a65684afe::$prefixesPsr0;
+            $loader->classMap = ComposerStaticInitd131f65b3d01f3fe2b7b5a8a65684afe::$classMap;
 
         }, null, ClassLoader::class);
     }
