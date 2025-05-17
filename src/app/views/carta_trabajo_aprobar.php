@@ -82,6 +82,9 @@ include __DIR__ . '/header.php'; ?>
                 ?>
             </tbody>
         </table>
+        <br>
+        <br>
+        <br>
     </div>
 </div>
 
