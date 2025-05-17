@@ -189,8 +189,8 @@ class Rrhh {
 
     public function get_email_colaborador($id_carta) {
         $stmt = $this->pdo->prepare("SELECT c.email FROM carta_trabajo ct 
-                                      INNER JOIN empleados c ON ct.code_user = c.codigo_empleado 
-                                      WHERE ct.id = :id_carta");
+                                                    INNER JOIN empleados c ON ct.code_user COLLATE utf8mb4_unicode_ci = c.codigo_empleado COLLATE utf8mb4_unicode_ci 
+                                                    WHERE ct.id = :id_carta");
         $stmt->bindParam(':id_carta', $id_carta, PDO::PARAM_INT);
         $stmt->execute();
         return $stmt->fetch(PDO::FETCH_ASSOC);
