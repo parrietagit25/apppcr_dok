@@ -113,8 +113,6 @@ if (isset($_GET['mantenimiento_usuarios_no_listados'])) {
     }
 
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['editar_usuario'])) {
-
-        echo "<div class='alert alert-success'>Pasando por edicion</div>";
         
         $code = $_POST['codigo_empleado'];
         $nombre = $_POST['nombre'];
@@ -128,8 +126,6 @@ if (isset($_GET['mantenimiento_usuarios_no_listados'])) {
             echo "<div class='alert alert-danger'>Error al actalizar.</div>";
         }
     }
-
-    echo "<div class='alert alert-success'>Pasando por el controlador</div>";
 
     $usuarios_no_listados = $userModel->usuarios_no_listados();
     require_once __DIR__ . '/../views/mantenimiento_usuarios_no_listados.php';
