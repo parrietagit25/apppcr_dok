@@ -426,7 +426,7 @@ class Rrhh {
 
         $sql = "
             SELECT 
-                codigo_empleado,
+                codigo_empleado COLLATE utf8mb4_unicode_ci AS codigo_empleado,
                 nombre COLLATE utf8mb4_unicode_ci AS nombre,
                 apellido COLLATE utf8mb4_unicode_ci AS apellido,
                 fecha_nacimiento,
@@ -440,7 +440,7 @@ class Rrhh {
             UNION ALL
 
             SELECT 
-                codigo_empleado,
+                codigo_empleado COLLATE utf8mb4_unicode_ci AS codigo_empleado,
                 nombre COLLATE utf8mb4_unicode_ci AS nombre,
                 apellido COLLATE utf8mb4_unicode_ci AS apellido,
                 fecha_nacimiento,
@@ -462,6 +462,7 @@ class Rrhh {
 
         return $array_datos;
     }
+
 
     public function insertar_permiso($id_jefe, $descripcion, $tipo_licencia, $fecha_inicio, $fecha_fin, $archivo_adjunto = null){
 
