@@ -97,6 +97,38 @@ if (isset($_GET['cambiar_estado_usuario'])) {
     exit();
 }
 
+if (isset($_GET['mantenimiento_usuarios_no_listados'])) {
+
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        $code = $_POST['codigo_empleado'];
+        $pass = $_POST['nueva_password'];
+
+        $resultado = $userModel->actualizar_colaborador($pass, $code);
+
+        if ($resultado) {
+            echo "<div class='alert alert-success'>Regsitro Actualizado.</div>";
+        } else {
+            echo "<div class='alert alert-danger'>Error al actalizar.</div>";
+        }
+    }
+
+    $usuarios_no_listados = $userModel->usuarios_no_listados();
+    require_once __DIR__ . '/../views/mantenimiento_usuarios_no_listados.php';
+    exit();
+}
+
+if (isset($_GET['cambiar_estado_usuario_no_listado'])) {
+
+    $codigo = $_POST['codigo_empleado'];
+    $estadoActual = (int) $_POST['estado_actual'];
+    $nuevoEstado = $estadoActual === 1 ? 0 : 1;
+
+    $resultado = $userModel->cambiarEstadoUsuario($codigo, $nuevoEstado);
+    $usuarios_no_listados = $userModel->usuarios_no_listados();
+    require_once __DIR__ . '/../views/mantenimiento_usuarios_no_listados.php';
+    exit();
+}
+
 if (isset($_GET['mantenimiento_permisos'])) {
 
     $solicitudes = $class_rrhh->obtenerSolicitudesUnificadas();

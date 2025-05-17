@@ -33,6 +33,15 @@ include __DIR__ . '/header.php';
         </div>
 
         <div class="col-4">
+            <a href="<?php echo BASE_URL_CONTROLLER; ?>/MainController.php?mantenimiento_usuarios_no_listados=1" class="text-decoration-none">
+                <div class="p-2">
+                    <img src="<?php echo BASE_URL_IMAGE; ?>user.png" alt="Noticias" class="mb-2" width="50">
+                    <p>Usuarios No listados</p>
+                </div>
+            </a>
+        </div>
+
+        <div class="col-4">
             <a href="<?php echo BASE_URL_CONTROLLER; ?>/MainController.php?mantenimiento_permisos=1" class="text-decoration-none">
                 <div class="p-2">
                     <img src="<?php echo BASE_URL_IMAGE; ?>permiso1.png" alt="Noticias" class="mb-2" width="50">
