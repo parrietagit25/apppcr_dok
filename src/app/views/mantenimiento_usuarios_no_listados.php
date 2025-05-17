@@ -60,7 +60,7 @@ include __DIR__ . '/header.php';
                             </div>
                         </div>
                         <div class="modal-footer">
-                            <button type="submit" class="btn btn-success">Registrar</button>
+                            <button type="submit" class="btn btn-success" name="registrar_usuario">Registrar</button>
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
                         </div>
                     </div>

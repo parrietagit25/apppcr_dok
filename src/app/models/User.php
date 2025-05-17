@@ -176,6 +176,34 @@ public function nombre_colaborador() {
         $stmt = $this->pdo->prepare($sql);
         return $stmt->execute([$nombre, $apellido, $fecha_nacimiento, $code]);
     }
+
+    public function registrar_usuario_no_listado($codigo, $nombre, $apellido, $fecha_nacimiento, $password, $stat = 1, $type_user = 2){
+
+        try {
+            $this->pdo->beginTransaction();
+
+            // Insertar en colaboradores_externos
+            $stmt1 = $this->pdo->prepare("INSERT INTO colaboradores_externos (codigo_empleado, nombre, apellido, fecha_nacimiento) 
+                                        VALUES (?, ?, ?, ?)");
+            $stmt1->execute([$codigo, $nombre, $apellido, $fecha_nacimiento]);
+
+            // Encriptar contraseña
+            $pass_hash = password_hash($password, PASSWORD_BCRYPT);
+
+            // Insertar en empleado_log
+            $stmt2 = $this->pdo->prepare("INSERT INTO empleado_log (codigo, pass, stat, type_user) 
+                                        VALUES (?, ?, ?, ?)");
+            $stmt2->execute([$codigo, $pass_hash, $stat, $type_user]);
+
+            $this->pdo->commit();
+            return true;
+
+        } catch (Exception $e) {
+            $this->pdo->rollBack();
+            return false;
+        }
+    }
+
     
     
 }

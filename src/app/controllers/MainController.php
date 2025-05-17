@@ -99,6 +99,26 @@ if (isset($_GET['cambiar_estado_usuario'])) {
 
 if (isset($_GET['mantenimiento_usuarios_no_listados'])) {
 
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['registrar_usuario'])) {
+        $codigo = $_POST['codigo_empleado'];
+        $nombre = $_POST['nombre'];
+        $apellido = $_POST['apellido'];
+        $fecha_nacimiento = $_POST['fecha_nacimiento'];
+        $password = $_POST['password'];
+
+        // Estado y tipo por defecto
+        $stat = 1;
+        $type_user = 2;
+
+        $resultado = $userModel->registrar_usuario_no_listado($codigo, $nombre, $apellido, $fecha_nacimiento, $password, $stat, $type_user);
+
+        if ($resultado) {
+            echo "<div class='alert alert-success'>Usuario registrado exitosamente.</div>";
+        } else {
+            echo "<div class='alert alert-danger'>Error al registrar el usuario.</div>";
+        }
+    }
+
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['actualizar_password'])) {
         $code = $_POST['codigo_empleado'];
         $pass = $_POST['nueva_password'];
