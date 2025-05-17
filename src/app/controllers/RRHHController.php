@@ -114,7 +114,7 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
 
             if (move_uploaded_file($archivo_tmp, $archivo_destino)) {
                 if ($class->aprobar_carta_trabajo($id_carta, $archivo_nombre, $comentario)) {
-                    $get_email_colab = $objeto->get_email_colaborador($id_carta);
+                    $get_email_colab = $class->get_email_colaborador($id_carta);
                     echo "<div class='alert alert-success'>Carta aprobada y archivo guardado correctamente.</div>";
 
                     $dartos_cola = $class->datos_colaborador();
