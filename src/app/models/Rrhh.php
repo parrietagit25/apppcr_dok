@@ -163,7 +163,8 @@ class Rrhh {
                                         FROM carta_trabajo ct
                                         INNER JOIN empleados c
                                         ON ct.code_user COLLATE utf8mb4_unicode_ci = c.codigo_empleado COLLATE utf8mb4_unicode_ci
-                                        WHERE ct.stat IN (1, 2);");
+                                        WHERE ct.stat IN (1, 2)
+                                        ORDER BY ct.id DESC;");
         $stmt->execute();
         $array_datos = [];
         while ($list_code = $stmt->fetch(PDO::FETCH_ASSOC)) {
