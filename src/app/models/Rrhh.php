@@ -427,8 +427,8 @@ class Rrhh {
         $sql = "
             SELECT 
                 codigo_empleado,
-                nombre,
-                apellido,
+                nombre COLLATE utf8mb4_unicode_ci AS nombre,
+                apellido COLLATE utf8mb4_unicode_ci AS apellido,
                 fecha_nacimiento,
                 'empleado' AS tipo,
                 DAY(fecha_nacimiento) AS dia_cumpleaños
@@ -441,8 +441,8 @@ class Rrhh {
 
             SELECT 
                 codigo_empleado,
-                nombre,
-                apellido,
+                nombre COLLATE utf8mb4_unicode_ci AS nombre,
+                apellido COLLATE utf8mb4_unicode_ci AS apellido,
                 fecha_nacimiento,
                 'externo' AS tipo,
                 DAY(fecha_nacimiento) AS dia_cumpleaños
@@ -462,7 +462,6 @@ class Rrhh {
 
         return $array_datos;
     }
-
 
     public function insertar_permiso($id_jefe, $descripcion, $tipo_licencia, $fecha_inicio, $fecha_fin, $archivo_adjunto = null){
 
