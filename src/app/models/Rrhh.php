@@ -404,7 +404,7 @@ class Rrhh {
         }
         return $array_datos;
     }
-
+    /*
     public function dia_cumple(){
 
         $array_datos = [];
@@ -419,7 +419,50 @@ class Rrhh {
         }
         return $array_datos;
 
+    } */
+
+    public function dia_cumple() {
+        $array_datos = [];
+
+        $sql = "
+            SELECT 
+                codigo_empleado,
+                nombre,
+                apellido,
+                fecha_nacimiento,
+                'empleado' AS tipo,
+                DAY(fecha_nacimiento) AS dia_cumpleaños
+            FROM empleados
+            WHERE MONTH(fecha_nacimiento) = MONTH(CURDATE())
+            AND DAY(fecha_nacimiento) >= DAY(CURDATE())
+            AND estatus_empleado = 'A'
+
+            UNION ALL
+
+            SELECT 
+                codigo_empleado,
+                nombre,
+                apellido,
+                fecha_nacimiento,
+                'externo' AS tipo,
+                DAY(fecha_nacimiento) AS dia_cumpleaños
+            FROM colaboradores_externos
+            WHERE MONTH(fecha_nacimiento) = MONTH(CURDATE())
+            AND DAY(fecha_nacimiento) >= DAY(CURDATE())
+
+            ORDER BY dia_cumpleaños;
+        ";
+
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute();
+
+        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            $array_datos[] = $row;
+        }
+
+        return $array_datos;
     }
+
 
     public function insertar_permiso($id_jefe, $descripcion, $tipo_licencia, $fecha_inicio, $fecha_fin, $archivo_adjunto = null){
 

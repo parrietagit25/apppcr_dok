@@ -74,7 +74,7 @@ include __DIR__ . '/header.php';
                 <tr>
                     <th>Nombre</th>
                     <th>Apellido</th>
-                    <th>Fecha Log</th>
+                    <th>Fecha Nacimiento</th>
                     <th>Código Empleado</th>
                     <th>Acciones</th>
                 </tr>
@@ -84,7 +84,7 @@ include __DIR__ . '/header.php';
                     <tr>
                         <td><?= htmlspecialchars($usuario['nombre']) ?></td>
                         <td><?= htmlspecialchars($usuario['apellido']) ?></td>
-                        <td><?= htmlspecialchars($usuario['fecha_log']) ?></td>
+                        <td><?= htmlspecialchars($usuario['fecha_nacimiento']) ?></td>
                         <td><?= htmlspecialchars($usuario['codigo_empleado']) ?></td>
                         <td class="text-center">
                             <button class="btn btn-sm btn-primary" 
@@ -114,7 +114,7 @@ include __DIR__ . '/header.php';
                                                 </div>
                                                 <div class="mb-3">
                                                     <label for="fecha_nacimiento" class="form-label">Fecha de nacimiento</label>
-                                                    <input type="date" class="form-control" id="fecha_nacimiento" name="fecha_nacimiento" value="<?= htmlspecialchars($usuario['fecha_log']) ?>" required>
+                                                    <input type="date" class="form-control" id="fecha_nacimiento" name="fecha_nacimiento" value="<?= htmlspecialchars($usuario['fecha_nacimiento']) ?>" required>
                                                 </div>
                                             </div>
                                             <div class="modal-footer">
