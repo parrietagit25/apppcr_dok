@@ -170,6 +170,12 @@ public function nombre_colaborador() {
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
+
+    public function editar_usuario($code, $nombre, $apellido, $fecha_nacimiento) {
+        $sql = "UPDATE colaboradores_externos SET nombre = ?, apellido = ?, fecha_nacimiento = ? WHERE codigo_empleado = ?";
+        $stmt = $this->pdo->prepare($sql);
+        return $stmt->execute([$nombre, $apellido, $fecha_nacimiento, $code]);
+    }
     
     
 }

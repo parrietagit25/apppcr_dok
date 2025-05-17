@@ -46,6 +46,38 @@ include __DIR__ . '/header.php';
                                     data-code="<?= $usuario['codigo_empleado'] ?>">
                                 Editar User
                             </button>
+                            <!-- Modal -->
+                            <div class="modal fade" id="modalEditar" tabindex="-1" aria-labelledby="modalPasswordLabel" aria-hidden="true">
+                                <div class="modal-dialog">
+                                    <form method="POST" action="<?php echo BASE_URL_CONTROLLER; ?>/MainController.php?cambiar_estado_usuario_no_listado=1">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title">Editar User</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <input type="hidden" name="codigo_empleado" id="codigoEmpleadoInput">
+                                                <div class="mb-3">
+                                                    <label for="nombre" class="form-label">Nombre</label>
+                                                    <input type="text" class="form-control" id="nombre" name="nombre" value="<?= htmlspecialchars($usuario['nombre']) ?>" required>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label for="apellido" class="form-label">Apellido</label>
+                                                    <input type="text" class="form-control" id="apellido" name="apellido" value="<?= htmlspecialchars($usuario['apellido']) ?>" required>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label for="fecha_nacimiento" class="form-label">Fecha de nacimiento</label>
+                                                    <input type="date" class="form-control" id="fecha_nacimiento" name="fecha_nacimiento" value="<?= htmlspecialchars($usuario['fecha_log']) ?>" required>
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="submit" class="btn btn-primary" name="editar_usuario">Guardar</button>
+                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
                             <button class="btn btn-sm btn-warning" 
                                     data-bs-toggle="modal" 
                                     data-bs-target="#modalPassword" 
@@ -66,31 +98,6 @@ include __DIR__ . '/header.php';
         </table>
 
         <!-- Modal -->
-        <div class="modal fade" id="modalEditar" tabindex="-1" aria-labelledby="modalPasswordLabel" aria-hidden="true">
-            <div class="modal-dialog">
-                <form method="POST" action="<?php echo BASE_URL_CONTROLLER; ?>/MainController.php?cambiar_estado_usuario_no_listado=1">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title">Editar User</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-                        </div>
-                        <div class="modal-body">
-                            <input type="hidden" name="codigo_empleado" id="codigoEmpleadoInput">
-                            <div class="mb-3">
-                                <label for="fecha_nacimiento" class="form-label">Fecha de nacimiento</label>
-                                <input type="date" class="form-control" id="fecha_nacimiento" name="fecha_nacimiento" required>
-                            </div>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="submit" class="btn btn-primary">Guardar</button>
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                        </div>
-                    </div>
-                </form>
-            </div>
-        </div>
-
-        <!-- Modal -->
         <div class="modal fade" id="modalPassword" tabindex="-1" aria-labelledby="modalPasswordLabel" aria-hidden="true">
             <div class="modal-dialog">
                 <form method="POST" action="<?php echo BASE_URL_CONTROLLER; ?>/MainController.php?cambiar_estado_usuario_no_listado=1">
@@ -107,7 +114,7 @@ include __DIR__ . '/header.php';
                             </div>
                         </div>
                         <div class="modal-footer">
-                            <button type="submit" class="btn btn-primary">Guardar</button>
+                            <button type="submit" class="btn btn-primary" name="actualizar_password">Guardar</button>
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
                         </div>
                     </div>

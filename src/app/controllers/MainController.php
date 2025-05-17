@@ -99,7 +99,7 @@ if (isset($_GET['cambiar_estado_usuario'])) {
 
 if (isset($_GET['mantenimiento_usuarios_no_listados'])) {
 
-    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['actualizar_password'])) {
         $code = $_POST['codigo_empleado'];
         $pass = $_POST['nueva_password'];
 
@@ -112,18 +112,21 @@ if (isset($_GET['mantenimiento_usuarios_no_listados'])) {
         }
     }
 
-    $usuarios_no_listados = $userModel->usuarios_no_listados();
-    require_once __DIR__ . '/../views/mantenimiento_usuarios_no_listados.php';
-    exit();
-}
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['editar_usuario'])) {
+        
+        $code = $_POST['codigo_empleado'];
+        $nombre = $_POST['nombre'];
+        $apellido = $_POST['apellido'];
+        $fecha_nacimiento = $_POST['fecha_nacimiento'];
 
-if (isset($_GET['cambiar_estado_usuario_no_listado'])) {
+        $resultado = $userModel->editar_usuario($code, $nombre, $apellido, $fecha_nacimiento);
+        if ($resultado) {
+            echo "<div class='alert alert-success'>Regsitro Actualizado.</div>";
+        } else {
+            echo "<div class='alert alert-danger'>Error al actalizar.</div>";
+        }
+    }
 
-    $codigo = $_POST['codigo_empleado'];
-    $estadoActual = (int) $_POST['estado_actual'];
-    $nuevoEstado = $estadoActual === 1 ? 0 : 1;
-
-    $resultado = $userModel->cambiarEstadoUsuario($codigo, $nuevoEstado);
     $usuarios_no_listados = $userModel->usuarios_no_listados();
     require_once __DIR__ . '/../views/mantenimiento_usuarios_no_listados.php';
     exit();
