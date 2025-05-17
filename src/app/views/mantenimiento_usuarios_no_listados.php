@@ -42,7 +42,7 @@ include __DIR__ . '/header.php';
                         <td class="text-center">
                             <button class="btn btn-sm btn-primary" 
                                     data-bs-toggle="modal" 
-                                    data-bs-target="#modalPassword" 
+                                    data-bs-target="#modalEditar" 
                                     data-code="<?= $usuario['codigo_empleado'] ?>">
                                 Editar User
                             </button>
@@ -77,8 +77,8 @@ include __DIR__ . '/header.php';
                         <div class="modal-body">
                             <input type="hidden" name="codigo_empleado" id="codigoEmpleadoInput">
                             <div class="mb-3">
-                                <label for="nuevaPassword" class="form-label">Fecha de nacimiento</label>
-                                <input type="date" class="form-control" name="fecha_nacimiento" required>
+                                <label for="fecha_nacimiento" class="form-label">Fecha de nacimiento</label>
+                                <input type="date" class="form-control" id="fecha_nacimiento" name="fecha_nacimiento" required>
                             </div>
                         </div>
                         <div class="modal-footer">
@@ -117,25 +117,25 @@ include __DIR__ . '/header.php';
 
         <!-- Modal Estado -->
         <div class="modal fade" id="modalStatus" tabindex="-1" aria-labelledby="modalStatusLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <form method="POST" action="<?php echo BASE_URL_CONTROLLER; ?>/MainController.php?cambiar_estado_usuario_no_listado=1">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title">Desactivar usuario</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            <div class="modal-dialog">
+                <form method="POST" action="<?php echo BASE_URL_CONTROLLER; ?>/MainController.php?cambiar_estado_usuario_no_listado=1">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Desactivar usuario</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                        </div>
+                        <div class="modal-body">
+                            <input type="hidden" name="codigo_empleado" id="codigoEstadoInput">
+                            <input type="hidden" name="estado_actual" id="estadoActualInput">
+                            <p>¿Está seguro que desea desactivar usuario?</p>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="submit" class="btn btn-danger">Confirmar</button>
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        </div>
                     </div>
-                    <div class="modal-body">
-                        <input type="hidden" name="codigo_empleado" id="codigoEstadoInput">
-                        <input type="hidden" name="estado_actual" id="estadoActualInput">
-                        <p>¿Está seguro que desea desactivar usuario?</p>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="submit" class="btn btn-danger">Confirmar</button>
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    </div>
-                </div>
-            </form>
-        </div>
+                </form>
+            </div>
         </div>
 
 
@@ -173,11 +173,20 @@ include __DIR__ . '/header.php';
 
     var modalEstado = document.getElementById('modalStatus');
     modalEstado.addEventListener('show.bs.modal', function (event) {
-    var button = event.relatedTarget;
-    var codigo = button.getAttribute('data-code');
-    var estado = button.getAttribute('data-status');
-    modalEstado.querySelector('#codigoEstadoInput').value = codigo;
-    modalEstado.querySelector('#estadoActualInput').value = estado;
-});
+        var button = event.relatedTarget;
+        var codigo = button.getAttribute('data-code');
+        var estado = button.getAttribute('data-status');
+        modalEstado.querySelector('#codigoEstadoInput').value = codigo;
+        modalEstado.querySelector('#estadoActualInput').value = estado;
+    });
+
+    var modalEstado = document.getElementById('modalEditar');
+    modalEstado.addEventListener('show.bs.modal', function (event) {
+        var button = event.relatedTarget;
+        var codigo = button.getAttribute('data-code');
+        var fecha_nacimiento = button.getAttribute('data-fecha');
+        modalfecha_nacimiento.querySelector('#codigoEstadoInput').value = codigo;
+        modalEstado.querySelector('#fecha_nacimiento').value = fecha_nacimiento;
+    });
 </script>
 <?php include __DIR__ . '/footer.php'; ?>
