@@ -760,10 +760,10 @@ class Rrhh {
         }
 
         $mensaje_correo = 'Se ha realizado una solicitud de vacaciones desde el APP PCR <br>
-                          el colaborador <b>'.$colaborador .'</b> ha solicitado vacaciones y estos son sus <br> 
-                          comentarios <b>'.$descripcion.'</b> <br>
-                          Su encargado directo <b>'.$nombre_jefe.'</b> ha aprobado su solicitud y estos son sus <br>
-                          comentarios <b>'.$comentario_jefe.'</b>';
+                           el colaborador <b>'.$colaborador .'</b> ha solicitado vacaciones y estos son sus <br> 
+                           comentarios <b>'.$descripcion.'</b> <br>
+                           Su encargado directo <b>'.$nombre_jefe.'</b> ha aprobado su solicitud y estos son sus <br>
+                           comentarios <b>'.$comentario_jefe.'</b>';
 
         return $mensaje_correo;
 
