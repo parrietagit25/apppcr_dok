@@ -363,12 +363,22 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
         $class->update_permiso($_POST['respuesta_jefe'], $_POST['comentario_jefe'], $_POST['permiso_id']);
         //echo "<div class='alert alert-success'>Permiso actualizado correctamente.</div>";
 
-        $dartos_cola = $class->datos_colaborador();
-        foreach ($dartos_cola as $key => $value) {
+        $id_permiso = $_POST['permiso_id'];
+
+        //$dartos_cola = $class->datos_colaborador();
+
+        $get_email_colab = $class->get_email_permiso($id_permiso);
+
+        foreach ($get_email_colab as $key => $value) {
+            $nombre_comple = $value['nombre']. ' ' .$value['apellido']; 
+            $email = $value['email'];
+        }
+
+        /* foreach ($dartos_cola as $key => $value) {
             $nombre_comple = $value['nombre']. ' ' .$value['apellido']; 
             $codigo = $value['codigo_empleado'];
             $email = $value['email'];
-        }
+        } */
 
         if ($_POST['respuesta_jefe'] == 'A') {
             $rep = 'Solicitud Aceptada';
@@ -382,10 +392,10 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
         Los comentarios de su jefe directo son: '.$_POST['comentario_jefe'].'';
 
 
-        //$copiacoo = ["pedro.arrieta@grupopcr.com.pa", "abi.pineda@grupopcr.com.pa", "rrhhgpcr@grupopcr.com.pa"];
-        $copiacoo = ["pedro.arrieta@grupopcr.com.pa"];
+        $copiacoo = ["pedro.arrieta@grupopcr.com.pa", "abi.pineda@grupopcr.com.pa", "rrhhgpcr@grupopcr.com.pa"];
+        //$copiacoo = ["pedro.arrieta@grupopcr.com.pa"];
 
-        //$class->enviar_correo($email, $copiacoo, "Respuesta a la solicitud de permiso", $mensaje);
+        $class->enviar_correo($email, $copiacoo, "Respuesta a la solicitud de permiso", $mensaje);
     
         echo "<div class='alert alert-success'>Permiso actualizado correctamente.</div>";
 
