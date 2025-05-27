@@ -49,7 +49,7 @@ include __DIR__ . '/header.php'; ?>
                             $status = 'Declinado';
                         }
 
-                        echo "<tr>
+                       echo "<tr>
                                 <td>{$row['nombre']} {$row['apellido']}</td>
                                 <td>{$row['tipo_licencia']}</td>
                                 <td>{$row['fecha_log']}</td>
@@ -60,16 +60,15 @@ include __DIR__ . '/header.php'; ?>
                                 </td>
                             </tr>";
 
-                            $ruta_completa = $row['archivo_adjunto']; // Puede ser NULL
-                            $prefijo_a_eliminar = 'var/www/html/';
-                            $ruta_relativa = '';
+                        $ruta_completa = $row['archivo_adjunto'];
+                        $prefijo_a_eliminar = 'var/www/html/';
+                        $ruta_relativa = '';
 
-                            if (is_string($ruta_completa) && strpos($ruta_completa, $prefijo_a_eliminar) === 0) {
-                                $ruta_relativa = substr($ruta_completa, strlen($prefijo_a_eliminar));
-
-                            } elseif (is_string($ruta_completa)) {
-                                $ruta_relativa = $ruta_completa; // No comenzaba con el prefijo, pero es una cadena
-                            }
+                        if (is_string($ruta_completa) && strpos($ruta_completa, $prefijo_a_eliminar) === 0) {
+                            $ruta_relativa = substr($ruta_completa, strlen($prefijo_a_eliminar));
+                        } elseif (is_string($ruta_completa)) {
+                            $ruta_relativa = $ruta_completa;
+                        }
 
                         echo "
                         <div class='modal fade' id='modalAdjuntar{$row['id']}' tabindex='-1' aria-labelledby='modalLabel{$row['id']}' aria-hidden='true'>
@@ -80,52 +79,66 @@ include __DIR__ . '/header.php'; ?>
                                         <button type='button' class='btn-close' data-bs-dismiss='modal' aria-label='Close'></button>
                                     </div>
                                     <div class='modal-body'>
-                                        <form action='' method='POST' enctype='multipart/form-data'>
+                                        <form method='POST' enctype='multipart/form-data'>
                                             <input type='hidden' name='permiso_id' value='{$row['id']}'>
-                                            
-                                             <div class='mb-3'>
-                                                <label for='archivo' class='form-label'>Tipo de licencia</label>
-                                                <select name='tipo_licencia' id='' class='form-control' disabled>
+
+                                            <div class='mb-3'>
+                                                <label class='form-label'>Tipo de licencia</label>
+                                                <select class='form-control' disabled>
                                                     <option>{$row['tipo_licencia']}</option>
                                                 </select>
                                             </div>
+
                                             <div class='mb-3'>
-                                                <label for='archivo' class='form-label'>Fecha Desde</label>
-                                                <b>{$row['fecha_inicio']}</b>
-                                                <label for='archivo' class='form-label'>Fecha Hasta</label>
+                                                <label class='form-label'>Fecha Desde</label>
+                                                <b>{$row['fecha_inicio']}</b><br>
+                                                <label class='form-label'>Fecha Hasta</label>
                                                 <b>{$row['fecha_fin']}</b>
                                             </div>";
 
-                                            if ($row['archivo_adjunto'] != '') {
-                                                echo "<div class='mb-3'>
-                                                    <label for='archivo' class='form-label'>Archivo</label>
-                                                    <a href='https://apppcr.net/app/uploads/permisos/{$row['archivo_adjunto']}' target='_blank'>Archivo</a>
-                                                </div>";
-                                            } 
+                        if ($row['archivo_adjunto'] != '') {
+                            echo "<div class='mb-3'>
+                                    <label class='form-label'>Archivo</label>
+                                    <a href='https://apppcr.net/app/uploads/permisos/{$row['archivo_adjunto']}' target='_blank'>Archivo</a>
+                                </div>";
+                        }
 
-                                            echo "<div class='mb-3'>
-                                                <label for='comentario' class='form-label'>Descripcion</label>
-                                                <textarea class='form-control' name='comentario_jefe' id='comentario' rows='3' readonly>{$row['descripcion']}</textarea>
-                                            </div>
-                                            <div class='mb-3'>
-                                                <label for='archivo' class='form-label'>Seleccione una opcion</label>
-                                                <select name='respuesta_jefe' class='form-control'>
-                                                    <option>Seleccionar</option>
-                                                    <option value='A'>Aprobar</option>
-                                                    <option value='D'>Declinar</option>
-                                                </select>
-                                            </div>
-                                            <div class='mb-3'>
-                                                <label for='comentario' class='form-label'>Comentario (opcional)</label>
-                                                <textarea class='form-control' name='comentario_jefe' id='comentario' rows='3'></textarea>
-                                            </div>
-                                            <input value='{$row['tipo_licencia']}' name='tipo_licencia' type='hidden'>
-                                            <button type='submit' class='btn btn-primary' name='aprobar_permiso'>Guardar</button>
-                                        </form>
-                                    </div>
+                                  echo "<div class='mb-3'>
+                                            <label class='form-label'>Descripcion</label>
+                                            <textarea class='form-control' name='comentario_jefe' rows='3' readonly>{$row['descripcion']}</textarea>
+                                        </div>
+
+                                        <div class='mb-3'>
+                                            <label class='form-label'>Seleccione una opción</label>
+                                            <select name='respuesta_jefe' class='form-control'>
+                                                <option>Seleccionar</option>
+                                                <option value='A'>Aprobar</option>
+                                                <option value='D'>Declinar</option>
+                                            </select>
+                                        </div>
+
+                                        <div class='mb-3'>
+                                            <label class='form-label'>Comentario (opcional)</label>
+                                            <textarea class='form-control' name='comentario_jefe' rows='3'></textarea>
+                                        </div>
+
+                                        <input type='hidden' name='tipo_licencia' value='{$row['tipo_licencia']}'>
+                                        <input type='hidden' name='aprobar_permiso' value='1'>
+
+                                        <div class='d-flex align-items-center gap-2'>
+                                            <button type='button' 
+                                                    class='btn btn-primary btn-guardar' 
+                                                    id='btnGuardar{$row['id']}' 
+                                                    data-id='{$row['id']}'>
+                                                Guardar
+                                            </button>
+                                            <span id='loaderGuardar{$row['id']}' class='spinner-border spinner-border-sm text-primary d-none' role='status' aria-hidden='true'></span>
+                                        </div>
+                                    </form>
                                 </div>
                             </div>
-                        </div>";
+                        </div>
+                    </div>";
                     }
                 } else {
                     echo "<tr><td colspan='4' class='text-center'>No hay solicitudes registradas.</td></tr>";
@@ -145,5 +158,26 @@ include __DIR__ . '/header.php'; ?>
         <a href="#" class="navbar-brand text-center" style="width: 25%;"></a>
     </div>
 </nav>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    document.querySelectorAll(".btn-guardar").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+            const id = btn.getAttribute("data-id");
+            const loader = document.getElementById("loaderGuardar" + id);
+            const modal = document.getElementById("modalAdjuntar" + id);
+            const form = modal.querySelector("form");
+
+            btn.disabled = true;
+            btn.textContent = "Enviando...";
+            loader.classList.remove("d-none");
+
+            setTimeout(() => {
+                form.submit();
+            }, 800);
+        });
+    });
+});
+</script>
 
 <?php include __DIR__ . '/footer.php'; ?>
