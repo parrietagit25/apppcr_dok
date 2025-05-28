@@ -306,8 +306,8 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
         <p><em>Este es un mensaje automático. Por favor, no responda a este correo. Utilice los canales indicados para cualquier comunicación.</em></p>
         ';
 
-
-        $copia = ["pedro.arrieta@grupopcr.com.pa", "abi.pineda@grupopcr.com.pa", $email_feje];
+// , $email_feje
+        $copia = ["pedro.arrieta@grupopcr.com.pa", "abi.pineda@grupopcr.com.pa"];
     
         $class->enviar_correo("rrhhgpcr@grupopcr.com.pa", $copia, "Solicitud de permiso tipo '".$tipo_licencia."'", $mensaje); 
 
