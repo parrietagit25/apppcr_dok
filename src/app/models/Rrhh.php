@@ -781,6 +781,7 @@ class Rrhh {
     public function enviar_correo($email, $mail_copia, $asunto, $mensaje){
 
         $mail = new PHPMailer(true);
+        $mail->CharSet = 'UTF-8'; 
 
         try {
             $mail->isSMTP();

@@ -392,8 +392,8 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
         Los comentarios de su jefe directo son: '.$_POST['comentario_jefe'].'';
 
 
-        $copiacoo = ["pedro.arrieta@grupopcr.com.pa", "abi.pineda@grupopcr.com.pa", "rrhhgpcr@grupopcr.com.pa"];
-        //$copiacoo = ["pedro.arrieta@grupopcr.com.pa"];
+        //$copiacoo = ["pedro.arrieta@grupopcr.com.pa", "abi.pineda@grupopcr.com.pa", "rrhhgpcr@grupopcr.com.pa"];
+        $copiacoo = ["pedro.arrieta@grupopcr.com.pa"];
 
         $class->enviar_correo($email, $copiacoo, "Respuesta a la solicitud de permiso", $mensaje);
     
