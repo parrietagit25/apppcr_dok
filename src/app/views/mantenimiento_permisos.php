@@ -26,7 +26,19 @@ include __DIR__ . '/header.php';
             </tr>
         </thead>
         <tbody>
-            <?php foreach ($solicitudes as $s): ?>
+            <?php foreach ($solicitudes as $s): 
+
+                if ($s['tipo'] == 'Incapacidad') {
+                    $s['file_add'] = BASE_URL_FILES_UPDATE_INCAPACIDAD . '/' . $s['file_add'];
+                }elseif ($s['tipo'] == 'Calamidad') {
+                    $s['file_add'] = BASE_URL_FILES_UPDATE_CALAMIDADES . '/' . $s['file_add'];
+                } elseif ($s['tipo'] == 'Permiso') {
+                    $s['file_add'] = BASE_URL_FILES_UPDATE_PERMISOS . '/' . $s['file_add'];
+                } else {
+                    $s['file_add'] = 'NULL';
+                }
+                
+                ?>
                 <tr>
                     <td><?= htmlspecialchars($s['tipo']) ?></td>
                     <td><?= htmlspecialchars($s['codigo']) ?></td>
