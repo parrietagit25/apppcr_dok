@@ -8,6 +8,8 @@ require_once __DIR__ . '/../models/User.php';
 $pdo = Database::connect();
 $userModel = new User($pdo);
 
+$tipo_usuario = $userModel->get_tyte_user();
+
 if (!isset($_SESSION['code'])) {
     header("Location: salir.php");
     exit();
