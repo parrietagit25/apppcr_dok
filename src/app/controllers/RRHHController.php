@@ -247,6 +247,7 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
         $fecha_fin = $_POST['fecha_fin'];
 
         $archivo_ruta = null;
+        $nombre_archivo = null;
         if (isset($_FILES['archivo_adjunto']) && $_FILES['archivo_adjunto']['error'] === UPLOAD_ERR_OK) {
             $nombre_tmp = $_FILES['archivo_adjunto']['tmp_name'];
             $nombre_archivo = basename($_FILES['archivo_adjunto']['name']);
@@ -306,8 +307,7 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
         <p><em>Este es un mensaje automático. Por favor, no responda a este correo. Utilice los canales indicados para cualquier comunicación.</em></p>
         ';
 
-// , $email_feje
-        $copia = ["pedro.arrieta@grupopcr.com.pa", "abi.pineda@grupopcr.com.pa"];
+        $copia = ["pedro.arrieta@grupopcr.com.pa", "abi.pineda@grupopcr.com.pa", $email_feje];
     
         $class->enviar_correo("rrhhgpcr@grupopcr.com.pa", $copia, "Solicitud de permiso tipo '".$tipo_licencia."'", $mensaje); 
 
