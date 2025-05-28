@@ -31,7 +31,7 @@ include __DIR__ . '/header.php';
         <!-- Modal Registrar Usuario -->
         <div class="modal fade" id="modalRegistrar" tabindex="-1" aria-labelledby="modalRegistrarLabel" aria-hidden="true">
             <div class="modal-dialog">
-                <form method="POST" action="<?php echo BASE_URL_CONTROLLER; ?>/MainController.php?registrar_usuario_no_listado=1">
+                <form method="POST" action=""> <!-- <?php echo BASE_URL_CONTROLLER; ?>/MainController.php?registrar_usuario_no_listado=1-->
                     <div class="modal-content">
                         <div class="modal-header">
                             <h5 class="modal-title">Registrar Nuevo Usuario</h5>
