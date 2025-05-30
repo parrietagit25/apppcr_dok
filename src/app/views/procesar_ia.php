@@ -1,6 +1,6 @@
 <?php
-require_once '../../config/config.php';
-require_once '../../config/conexion.php'; // Si usas la clase Database en otro archivo
+require_once '/config/config.php';
+require_once '/config/conexion.php'; // Si usas la clase Database en otro archivo
 
 $apiKey = API_IA;
 
