@@ -7,7 +7,6 @@ $apiKey = API_IA;
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['pregunta'])) {
     $pregunta = trim($_POST['pregunta']);
 
-    // Definir las columnas de las tablas clave (puedes automatizarlo con DESCRIBE si quieres)
     $columnas = [
         'empleados' => ['codigo_empleado', 'nombre', 'apellido', 'departamento', 'puesto', 'correo', 'fecha_ingreso'],
         'empleado_log' => ['id', 'codigo_empleado', 'fecha_log', 'accion'],
@@ -19,7 +18,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['pregunta'])) {
         'solicitud_permiso' => ['id', 'codigo_empleado', 'fecha_inicio', 'fecha_fin', 'motivo', 'estatus']
     ];
 
-    // Generar el prompt
     $prompt = "
 Eres un experto en bases de datos MySQL. Solo responde con consultas SELECT.
 
@@ -48,7 +46,6 @@ Responde solo con una consulta SQL válida en una sola línea, sin explicaciones
 Pregunta: $pregunta
     ";
 
-    // Preparar la solicitud
     $url = "https://api.openai.com/v1/chat/completions";
     $data = [
         "model" => "gpt-3.5-turbo",
@@ -76,37 +73,38 @@ Pregunta: $pregunta
     if (isset($response['choices'][0]['message']['content'])) {
         $sql_generado = trim($response['choices'][0]['message']['content']);
 
-        // Ejecutar la consulta
         try {
             $pdo = Database::connect();
             $stmt = $pdo->query($sql_generado);
             $resultados = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
             $total = count($resultados);
-            $html = "<p><strong>Total de registros:</strong> $total</p>";
-            $html .= "<p><strong>Consulta generada:</strong></p><pre>$sql_generado</pre>";
+            $html = "<p><strong>Total de registros:</strong> {$total}</p>";
+            $html .= "<p><strong>Consulta generada:</strong></p><pre><code>" . htmlspecialchars($sql_generado) . "</code></pre>";
 
             if ($total > 0) {
-                $html .= "<table border='1' cellpadding='5'><tr>";
+                $html .= "<div style='overflow-x:auto'><table border='1' cellpadding='6' cellspacing='0' style='border-collapse: collapse; min-width: 400px;'>";
+                $html .= "<thead><tr>";
                 foreach (array_keys($resultados[0]) as $col) {
-                    $html .= "<th>$col</th>";
+                    $html .= "<th style='background-color:#f4f4f4'>" . htmlspecialchars($col) . "</th>";
                 }
-                $html .= "</tr>";
+                $html .= "</tr></thead><tbody>";
+
                 foreach ($resultados as $fila) {
                     $html .= "<tr>";
                     foreach ($fila as $valor) {
-                        $html .= "<td>$valor</td>";
+                        $html .= "<td>" . htmlspecialchars($valor) . "</td>";
                     }
                     $html .= "</tr>";
                 }
-                $html .= "</table>";
+                $html .= "</tbody></table></div>";
             } else {
                 $html .= "<p>No se encontraron resultados.</p>";
             }
 
             echo $html;
         } catch (PDOException $e) {
-            echo "<p>Error al ejecutar la consulta generada: {$e->getMessage()}</p>";
+            echo "<p><strong>Error al ejecutar la consulta:</strong> " . htmlspecialchars($e->getMessage()) . "</p>";
         }
     } else {
         echo "No se pudo obtener una respuesta de la IA.";
