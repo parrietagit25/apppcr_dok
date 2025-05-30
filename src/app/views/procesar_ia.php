@@ -1,19 +1,62 @@
 <?php
 require_once __DIR__ . '/../../config/config.php';
+require_once __DIR__ . '/../../config/conexion.php'; // Si usas la clase Database en otro archivo
 
-$apiKey = API_IA; 
+$apiKey = API_IA;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['pregunta'])) {
     $pregunta = trim($_POST['pregunta']);
 
-    $url = "https://api.openai.com/v1/chat/completions";
+    // Definir las columnas de las tablas clave (puedes automatizarlo con DESCRIBE si quieres)
+    $columnas = [
+        'empleados' => ['codigo_empleado', 'nombre', 'apellido', 'departamento', 'puesto', 'correo', 'fecha_ingreso'],
+        'empleado_log' => ['id', 'codigo_empleado', 'fecha_log', 'accion'],
+        'calamidades' => ['id', 'codigo_empleado', 'tipo_calamidad', 'fecha'],
+        'carta_trabajo' => ['id', 'codigo_empleado', 'fecha_solicitud', 'estatus'],
+        'colaboradores_externos' => ['id', 'codigo', 'nombre', 'empresa', 'fecha_registro'],
+        'encargados_colab' => ['id', 'codigo_empleado', 'nombre_encargado'],
+        'incapacidad' => ['id', 'codigo_empleado', 'fecha_inicio', 'fecha_fin', 'tipo_incapacidad'],
+        'solicitud_permiso' => ['id', 'codigo_empleado', 'fecha_inicio', 'fecha_fin', 'motivo', 'estatus']
+    ];
 
+    // Generar el prompt
+    $prompt = "
+Eres un experto en bases de datos MySQL. Solo responde con consultas SELECT.
+
+Estas son las tablas disponibles:
+- empleados
+- empleado_log
+- calamidades
+- carta_trabajo
+- colaboradores_externos
+- encargados_colab
+- incapacidad
+- solicitud_permiso
+
+La tabla principal es 'empleados', que contiene toda la información de los colaboradores.
+La tabla 'empleado_log' contiene los accesos y registros de la app, relacionada con 'empleados' por la columna 'codigo_empleado'.
+
+En general, todas las tablas están relacionadas con 'empleados' por la columna 'codigo_empleado' o 'codigo'.
+
+⚠️ Usa alias como: empleados AS e, empleado_log AS l, calamidades AS ca, etc.
+Y referencia columnas así: e.nombre, l.fecha_log, ca.tipo_calamidad, etc.
+
+Ejemplo correcto:
+SELECT e.nombre, l.fecha_log FROM empleados AS e INNER JOIN empleado_log AS l ON e.codigo_empleado = l.codigo_empleado;
+
+Responde solo con una consulta SQL válida en una sola línea, sin explicaciones.
+Pregunta: $pregunta
+    ";
+
+    // Preparar la solicitud
+    $url = "https://api.openai.com/v1/chat/completions";
     $data = [
         "model" => "gpt-3.5-turbo",
         "messages" => [
-            ["role" => "user", "content" => $pregunta]
+            ["role" => "system", "content" => "Eres un asistente experto en consultas MySQL."],
+            ["role" => "user", "content" => $prompt]
         ],
-        "temperature" => 0.7
+        "temperature" => 0.2
     ];
 
     $headers = [
@@ -31,7 +74,40 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['pregunta'])) {
 
     $response = json_decode($result, true);
     if (isset($response['choices'][0]['message']['content'])) {
-        echo $response['choices'][0]['message']['content'];
+        $sql_generado = trim($response['choices'][0]['message']['content']);
+
+        // Ejecutar la consulta
+        try {
+            $pdo = Database::connect();
+            $stmt = $pdo->query($sql_generado);
+            $resultados = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            $total = count($resultados);
+            $html = "<p><strong>Total de registros:</strong> $total</p>";
+            $html .= "<p><strong>Consulta generada:</strong></p><pre>$sql_generado</pre>";
+
+            if ($total > 0) {
+                $html .= "<table border='1' cellpadding='5'><tr>";
+                foreach (array_keys($resultados[0]) as $col) {
+                    $html .= "<th>$col</th>";
+                }
+                $html .= "</tr>";
+                foreach ($resultados as $fila) {
+                    $html .= "<tr>";
+                    foreach ($fila as $valor) {
+                        $html .= "<td>$valor</td>";
+                    }
+                    $html .= "</tr>";
+                }
+                $html .= "</table>";
+            } else {
+                $html .= "<p>No se encontraron resultados.</p>";
+            }
+
+            echo $html;
+        } catch (PDOException $e) {
+            echo "<p>Error al ejecutar la consulta generada: {$e->getMessage()}</p>";
+        }
     } else {
         echo "No se pudo obtener una respuesta de la IA.";
     }
