@@ -17,33 +17,33 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['pregunta'])) {
         'solicitud_permiso' => ['id', 'code', 'fecha_log', 'descripcion', 'tipo_licencia']
     ];
 
+    // Construir texto de columnas
+    $texto_tablas_columnas = "";
+    foreach ($columnas as $tabla => $cols) {
+        $texto_tablas_columnas .= "- $tabla (" . implode(", ", $cols) . ")\n";
+    }
+
     $prompt = "
-Eres un experto en bases de datos MySQL. Solo responde con consultas SELECT.
+    Eres un experto en bases de datos MySQL. Solo responde con consultas SELECT.
 
-Estas son las tablas disponibles:
-- empleados
-- empleado_log
-- calamidades
-- carta_trabajo
-- colaboradores_externos
-- encargados_colab
-- incapacidad
-- solicitud_permiso
+    Estas son las tablas disponibles y sus columnas:
+    $texto_tablas_columnas
 
-La tabla principal es 'empleados', que contiene toda la información de los colaboradores.
-La tabla 'empleado_log' contiene los accesos y registros de la app, relacionada con 'empleados' por la columna 'codigo_empleado'.
+    La tabla principal es 'empleados', que contiene toda la información de los colaboradores.
+    La tabla 'empleado_log' contiene los accesos y registros de la app, relacionada con 'empleados' por la columna 'codigo_empleado'.
 
-En general, todas las tablas están relacionadas con 'empleados' por la columna 'codigo_empleado' o 'codigo' o 'code' o 'code_user'.
+    En general, todas las tablas están relacionadas con 'empleados' por las columnas: 'codigo_empleado', 'codigo', 'code', o 'code_user'.
 
-⚠️ Usa alias como: empleados AS e, empleado_log AS l, calamidades AS ca, etc.
-Y referencia columnas así: e.nombre, l.fecha_log, tl.tipo_licencia, etc.
+    ⚠️ Usa alias como: empleados AS e, empleado_log AS l, calamidades AS ca, etc.
+    Y referencia columnas así: e.nombre, l.fecha_log, ca.descripcion, etc.
 
-Ejemplo correcto:
-SELECT e.nombre, l.fecha_log FROM empleados AS e INNER JOIN empleado_log AS l ON e.codigo_empleado = l.codigo;
+    Ejemplo correcto:
+    SELECT e.nombre, l.fecha_log FROM empleados AS e INNER JOIN empleado_log AS l ON e.codigo_empleado = l.codigo;
 
-Responde solo con una consulta SQL válida en una sola línea, sin explicaciones.
-Pregunta: $pregunta
+    Responde solo con una consulta SQL válida en una sola línea, sin explicaciones.
+    Pregunta: $pregunta
     ";
+
 
     $url = "https://api.openai.com/v1/chat/completions";
     $data = [
