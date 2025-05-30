@@ -73,7 +73,9 @@ $resumen = generarResumen($respuesta);
         .then(data => {
             document.getElementById("respuesta").textContent = data;
             const utterance = new SpeechSynthesisUtterance(data);
+            utterance.lang = 'es-ES'; // Español
             speechSynthesis.speak(utterance);
+
         })
         .catch(err => {
             document.getElementById("respuesta").textContent = "Error al consultar la IA.";
