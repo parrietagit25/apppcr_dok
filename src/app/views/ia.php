@@ -62,7 +62,7 @@ $resumen = generarResumen($respuesta);
         e.preventDefault();
         const pregunta = document.getElementById("pregunta").value;
 
-        fetch("procesar_ia.php", {
+        fetch("/src/app/views/procesar_ia.php", {
             method: "POST",
             headers: {
                 "Content-Type": "application/x-www-form-urlencoded"
