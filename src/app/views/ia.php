@@ -72,9 +72,9 @@ $resumen = generarResumen($respuesta);
         .then(res => res.text())
         .then(data => {
             document.getElementById("respuesta").textContent = data;
-            const utterance = new SpeechSynthesisUtterance(data);
-            utterance.lang = 'es-ES'; // Español
-            speechSynthesis.speak(utterance);
+            //const utterance = new SpeechSynthesisUtterance(data);
+            //utterance.lang = 'es-ES'; // Español
+            //speechSynthesis.speak(utterance);
 
         })
         .catch(err => {
