@@ -71,14 +71,19 @@ $resumen = generarResumen($respuesta);
         })
         .then(res => res.text())
         .then(data => {
-            document.getElementById("respuesta").textContent = data;
-            //const utterance = new SpeechSynthesisUtterance(data);
-            //utterance.lang = 'es-ES'; // Español
-            //speechSynthesis.speak(utterance);
+            document.getElementById("respuesta").innerHTML = data;
 
+            // Si deseas habilitar lectura en voz alta (opcional)
+            /*
+            const utterance = new SpeechSynthesisUtterance(
+                document.getElementById("respuesta").innerText
+            );
+            utterance.lang = 'es-ES';
+            speechSynthesis.speak(utterance);
+            */
         })
         .catch(err => {
-            document.getElementById("respuesta").textContent = "Error al consultar la IA.";
+            document.getElementById("respuesta").innerHTML = "<p>Error al consultar la IA.</p>";
             console.error(err);
         });
     });
