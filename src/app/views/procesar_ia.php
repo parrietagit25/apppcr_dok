@@ -94,7 +94,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['pregunta'])) {
                 foreach ($resultados as $fila) {
                     $html .= "<tr>";
                     foreach ($fila as $valor) {
-                        $html .= "<td>" . htmlspecialchars($valor) . "</td>";
+                        $html .= "<td>" . htmlspecialchars($variable ?? '', ENT_QUOTES, 'UTF-8') . "</td>";
                     }
                     $html .= "</tr>";
                 }
