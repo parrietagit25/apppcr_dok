@@ -26,7 +26,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['pregunta'])) {
     $prompt = "
     Eres un experto en bases de datos MySQL. Solo responde con consultas SELECT.
 
-    ⚠️ IMPORTANTE: Si haces JOIN entre columnas de texto como codigo_empleado, code_user, etc., asegúrate de usar COLLATE utf8mb4_general_ci en ambas columnas para evitar errores de collation.
+    ⚠️ IMPORTANTE: Cuando hagas comparaciones entre columnas como e.codigo_empleado = ct.code_user, usa COLLATE utf8mb4_general_ci en ambas partes, por ejemplo:
+    e.codigo_empleado COLLATE utf8mb4_general_ci = ct.code_user COLLATE utf8mb4_general_ci
 
     Estas son las tablas disponibles y sus columnas:
     $texto_tablas_columnas
