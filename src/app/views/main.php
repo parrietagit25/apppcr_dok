@@ -149,7 +149,7 @@ include __DIR__ . '/header.php';
                 </div>
             </a>
         </div>
-        <?php if ($tipo_usuario == 1) { ?>
+        <?php if ($tipo_usuario == 1 || $tipo_usuario == 4) { ?>
         <div class="col-4">
             <a href="<?php echo BASE_URL_CONTROLLER; ?>/EvaluacionController.php?eval=admin" class="text-decoration-none">
                 <div class="p-2">
@@ -159,6 +159,17 @@ include __DIR__ . '/header.php';
             </a>
         </div>
         <?php } ?>
+        <?php if ($tipo_usuario == 1) { ?>
+        <div class="col-4">
+            <a href="<?php echo BASE_URL_CONTROLLER; ?>/MainController.php?ia=1" class="text-decoration-none">
+                <div class="p-2">
+                    <img src="<?php echo BASE_URL_IMAGE; ?>ia.png" alt="Cumpleaños" class="mb-2" width="50">
+                    <p>AI PCR-RRHH</p>
+                </div>
+            </a>
+        </div>
+        <?php } ?>
+
     </div>
 
     <!-- Top beneficios 

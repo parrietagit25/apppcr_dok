@@ -160,5 +160,11 @@ if (isset($_GET['mantenimiento_permisos'])) {
     exit();
 }
 
+if (isset($_GET['ia'])) {
+
+    require_once __DIR__ . '/../views/ia.php';
+    exit();
+}
+
 // Cargar la vista
 require_once __DIR__ . '/../views/main.php';
