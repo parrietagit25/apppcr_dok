@@ -8,14 +8,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['pregunta'])) {
     $pregunta = trim($_POST['pregunta']);
 
     $columnas = [
-        'empleados' => ['codigo_empleado', 'nombre', 'apellido', 'departamento', 'puesto', 'correo', 'fecha_ingreso'],
-        'empleado_log' => ['id', 'codigo_empleado', 'fecha_log', 'accion'],
-        'calamidades' => ['id', 'codigo_empleado', 'tipo_calamidad', 'fecha'],
-        'carta_trabajo' => ['id', 'codigo_empleado', 'fecha_solicitud', 'estatus'],
-        'colaboradores_externos' => ['id', 'codigo', 'nombre', 'empresa', 'fecha_registro'],
-        'encargados_colab' => ['id', 'codigo_empleado', 'nombre_encargado'],
-        'incapacidad' => ['id', 'codigo_empleado', 'fecha_inicio', 'fecha_fin', 'tipo_incapacidad'],
-        'solicitud_permiso' => ['id', 'codigo_empleado', 'fecha_inicio', 'fecha_fin', 'motivo', 'estatus']
+        'empleados' => ['codigo_empleado', 'nombre', 'apellido', 'nombre_departamento', 'nombre_cargo', 'email', 'fecha_ingreso'],
+        'empleado_log' => ['id', 'codigo', 'fecha_log', 'stat'],
+        'calamidades' => ['id', 'code_user', 'descripcion', 'fecha_log'],
+        'carta_trabajo' => ['id', 'code_user', 'descripcion', 'fecha_log'],
+        'encargados_colab' => ['id', 'code_empleado', 'nombre', 'apellido', 'departamento', 'email', 'gerente_area'],
+        'incapacidad' => ['id', 'code_user', 'descripcion', 'fecha_log'],
+        'solicitud_permiso' => ['id', 'code', 'fecha_log', 'descripcion', 'tipo_licencia']
     ];
 
     $prompt = "
@@ -34,13 +33,13 @@ Estas son las tablas disponibles:
 La tabla principal es 'empleados', que contiene toda la información de los colaboradores.
 La tabla 'empleado_log' contiene los accesos y registros de la app, relacionada con 'empleados' por la columna 'codigo_empleado'.
 
-En general, todas las tablas están relacionadas con 'empleados' por la columna 'codigo_empleado' o 'codigo'.
+En general, todas las tablas están relacionadas con 'empleados' por la columna 'codigo_empleado' o 'codigo' o 'code' o 'code_user'.
 
 ⚠️ Usa alias como: empleados AS e, empleado_log AS l, calamidades AS ca, etc.
-Y referencia columnas así: e.nombre, l.fecha_log, ca.tipo_calamidad, etc.
+Y referencia columnas así: e.nombre, l.fecha_log, tl.tipo_licencia, etc.
 
 Ejemplo correcto:
-SELECT e.nombre, l.fecha_log FROM empleados AS e INNER JOIN empleado_log AS l ON e.codigo_empleado = l.codigo_empleado;
+SELECT e.nombre, l.fecha_log FROM empleados AS e INNER JOIN empleado_log AS l ON e.codigo_empleado = l.codigo;
 
 Responde solo con una consulta SQL válida en una sola línea, sin explicaciones.
 Pregunta: $pregunta
