@@ -42,10 +42,13 @@ include __DIR__ . '/header.php'; ?>
             $calamidades = $class->calamidades();
             if (!empty($calamidades)) {
                 foreach ($calamidades as $row) {
-                    $nombreCompleto = htmlspecialchars($row['nombre'] . ' ' . $row['apellido']);
-                    $descripcion = htmlspecialchars($row['descripcion']);
-                    $fecha = htmlspecialchars($row['fecha_log']);
-                    $estado = htmlspecialchars($row['estado']);
+                    $nombre = isset($row['nombre']) ? $row['nombre'] : 'Desconocido';
+                    $apellido = isset($row['apellido']) ? $row['apellido'] : '';
+                    $nombreCompleto = htmlspecialchars($nombre . ' ' . $apellido);
+
+                    $descripcion = htmlspecialchars($row['descripcion'] ?? '');
+                    $fecha = htmlspecialchars($row['fecha_log'] ?? '');
+                    $estado = htmlspecialchars($row['estado'] ?? '');
 
                     if (!empty($row['file_add'])) {
                         $archivo = '<a href="' . BASE_URL_FILES_UPDATE_CALAMIDADES . '/' . $row['file_add'] . '" target="_blank" class="btn btn-sm btn-outline-primary">Ver Archivo</a>';
@@ -59,7 +62,7 @@ include __DIR__ . '/header.php'; ?>
                             <td>{$fecha}</td>
                             <td>{$estado}</td>
                             <td class='text-center'>{$archivo}</td>
-                          </tr>";
+                        </tr>";
                 }
             } else {
                 echo "<tr><td colspan='5' class='text-center'>No hay solicitudes registradas.</td></tr>";
