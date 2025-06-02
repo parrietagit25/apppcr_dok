@@ -291,7 +291,7 @@ class Rrhh {
                                         WHERE 
                                         ct.stat in(1, 2) 
                                         and 
-                                        ct.code_user = '".$code."'");
+                                        ct.code_user = '00".$code."'");
 
         $stmt->execute();
         $array_datos = [];
