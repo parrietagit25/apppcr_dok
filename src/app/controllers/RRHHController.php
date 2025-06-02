@@ -473,6 +473,7 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
         $code_user = isset($_SESSION['code']) ? ltrim($_SESSION['code'], '0') : 0;
         $descripcion = trim($_POST['descripcion']);
         $file_add = "";
+        $monto = isset($_POST['monto']) ? trim($_POST['monto']) : 0;
     
         // Carpeta de almacenamiento
         $upload_dir = __DIR__ . '/../uploads/calamidades/';
@@ -494,7 +495,7 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
         }
     
         // Insertar en la base de datos usando el modelo
-        if ($class->insertar_calamidades($code_user, $descripcion, $file_add)) {
+        if ($class->insertar_calamidades($code_user, $descripcion, $file_add, $monto)) {
 
             $dartos_cola = $class->datos_colaborador();
             foreach ($dartos_cola as $key => $value) {
@@ -506,8 +507,8 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
             ha registrado una calamidad. <br>
             Comentarios del colaborador: '.$descripcion;
 
-            $copia = ["abi.pineda@grupopcr.com.pa", "pedro.arrieta@grupopcr.com.pa"];
-            //$copia = ["pedro.arrieta@grupopcr.com.pa"];
+            //$copia = ["abi.pineda@grupopcr.com.pa", "pedro.arrieta@grupopcr.com.pa"];
+            $copia = ["pedro.arrieta@grupopcr.com.pa"];
         
             $class->enviar_correo("rrhhgpcr@grupopcr.com.pa", $copia, "Calamidad de '".$nombre_comple."' ", $mensaje);
 

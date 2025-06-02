@@ -321,10 +321,10 @@ class Rrhh {
         return $array_datos;
     }
 
-    public function insertar_calamidades($code_user, $descripcion, $file_add, $stat = 1, $user_update = 0){
+    public function insertar_calamidades($code_user, $descripcion, $file_add, $monto, $stat = 1, $user_update = 0){
 
-        $sql = "INSERT INTO calamidades (code_user, descripcion, fecha_log, stat, file_add, user_update) 
-        VALUES (:code_user, :descripcion, CURRENT_TIMESTAMP(), :stat, :file_add, :user_update)";
+        $sql = "INSERT INTO calamidades (code_user, descripcion, fecha_log, stat, file_add, user_update, monto) 
+        VALUES (:code_user, :descripcion, CURRENT_TIMESTAMP(), :stat, :file_add, :user_update, :monto)";
 
         $stmt = $this->pdo->prepare($sql);
         $stmt->bindParam(':code_user', $code_user, PDO::PARAM_INT);
@@ -332,6 +332,7 @@ class Rrhh {
         $stmt->bindParam(':stat', $stat, PDO::PARAM_INT);
         $stmt->bindParam(':file_add', $file_add, PDO::PARAM_STR);
         $stmt->bindParam(':user_update', $user_update, PDO::PARAM_INT);
+        $stmt->bindParam(':monto', $monto, PDO::PARAM_STR);
 
         return $stmt->execute();
 

@@ -97,8 +97,8 @@ include __DIR__ . '/header.php';
             <input type="file" class="form-control" name="archivo_calamidades" id="archivo" required>
           </div>
           <div class="mb-3">
-            <label for="monto_prestamo" class="form-label">Monto del préstamo</label>
-            <input type="text" class="form-control" name="monto_prestamo" id="monto_prestamo" required>
+            <label for="monto" class="form-label">Monto del préstamo</label>
+            <input type="text" class="form-control" name="monto" id="monto" required>
           </div>
           <div class="mb-3">
             <label class="form-label">Comentario</label>
