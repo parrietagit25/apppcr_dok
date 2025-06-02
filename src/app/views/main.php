@@ -116,7 +116,7 @@ include __DIR__ . '/header.php';
             </a>
         </div>
         <div class="col-4">
-            <a href="tel:+63796524" class="text-decoration-none">
+            <a href="tel:+50763796524" class="text-decoration-none">
                 <div class="p-2">
                     <img src="<?php echo BASE_URL_IMAGE; ?>ico_linea_apoyo.png" alt="Cumpleaños" class="mb-2" width="50">
                     <p>Linea de apoyo</p>

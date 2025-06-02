@@ -27,7 +27,7 @@ include __DIR__ . '/header.php'; ?>
     </div>
     <div class="row mt-5">
         <h5 class="text-center">Solicitudes de Calamidades </h5>
-        <table class="table table-striped table-bordered mt-3">
+        <table id="tablaSolicitudes" class="table table-bordered table-striped">
             <thead class="table-dark">
                 <tr>
                     <th>Nombre</th>
@@ -77,6 +77,10 @@ include __DIR__ . '/header.php'; ?>
                     <div class='mb-3'>
                         <label for='archivo' class='form-label'>Seleccione un archivo</label>
                         <input type='file' class='form-control' name='archivo_calamidades' id='archivo' required>
+                    </div>
+                    <div class='mb-3'>
+                        <label for='archivo' class='form-label'>Monto del prestamo</label>
+                        <input type='text' class='form-control' name='monto_prestamo' id='monto_prestamo' value='0' required>
                     </div>
                     <div class='mb-3'>
                         <p>Comentario</p>
