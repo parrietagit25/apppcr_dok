@@ -25,43 +25,49 @@ include __DIR__ . '/header.php'; ?>
             Subir Calamidad
         </button>
     </div>
-    <div class="row mt-5">
-        <h5 class="text-center">Solicitudes de Calamidades </h5>
-        <table id="tablaCalamidades" class="table table-striped table-bordered mt-3">
-            <thead class="table-dark">
-                <tr>
-                    <th>Nombre</th>
-                    <th>Descripción</th>
-                    <th>Fecha de Solicitud</th>
-                    <th>Estado</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php
-                $calamidades = $class->calamidades();
-                if (!empty($calamidades)) {
-                    foreach ($calamidades as $row) {
+<div class="row mt-5">
+    <h5 class="text-center">Solicitudes de Calamidades</h5>
+    <table id="tablaCalamidades" class="table table-striped table-bordered mt-3">
+        <thead class="table-dark text-center">
+            <tr>
+                <th>Nombre</th>
+                <th>Descripción</th>
+                <th>Fecha de Solicitud</th>
+                <th>Estado</th>
+                <th>Archivo</th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php
+            $calamidades = $class->calamidades();
+            if (!empty($calamidades)) {
+                foreach ($calamidades as $row) {
+                    $nombreCompleto = htmlspecialchars($row['nombre'] . ' ' . $row['apellido']);
+                    $descripcion = htmlspecialchars($row['descripcion']);
+                    $fecha = htmlspecialchars($row['fecha_log']);
+                    $estado = htmlspecialchars($row['estado']);
 
-                        if ($row['file_add'] != '') {
-                            $link = '<a href="'.BASE_URL_FILES_UPDATE_CALAMIDADES.'/'.$row['file_add'].'" target="_blank">Calamidades</a>';
-                        }else{
-                            $link = '';
-                        }
-
-                        echo "<tr>
-                                <td>{$link}</td>
-                                <td>{$row['descripcion']}</td>
-                                <td>{$row['fecha_log']}</td>
-                                <td>{$row['estado']}</td>
-                            </tr>";
+                    if (!empty($row['file_add'])) {
+                        $archivo = '<a href="' . BASE_URL_FILES_UPDATE_CALAMIDADES . '/' . $row['file_add'] . '" target="_blank" class="btn btn-sm btn-outline-primary">Ver Archivo</a>';
+                    } else {
+                        $archivo = 'Sin archivo';
                     }
-                } else {
-                    echo "<tr><td colspan='4' class='text-center'>No hay solicitudes registradas.</td></tr>";
+
+                    echo "<tr>
+                            <td>{$nombreCompleto}</td>
+                            <td>{$descripcion}</td>
+                            <td>{$fecha}</td>
+                            <td>{$estado}</td>
+                            <td class='text-center'>{$archivo}</td>
+                          </tr>";
                 }
-                ?>
-            </tbody>
-        </table>
-    </div>
+            } else {
+                echo "<tr><td colspan='5' class='text-center'>No hay solicitudes registradas.</td></tr>";
+            }
+            ?>
+        </tbody>
+    </table>
+</div>
 </div>
 
 <!-- Modal -->
