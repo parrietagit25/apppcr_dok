@@ -4,153 +4,142 @@ if (!isset($_SESSION['code'])) {
     exit();
 }
 
-include __DIR__ . '/header.php'; ?>
+include __DIR__ . '/header.php';
+?>
 
 <div class="container mt-4">
-    <div class="input-group mb-3">
-        
-    </div>
-    <div id="carouselExampleSlidesOnly" class="carousel slide mb-4" data-bs-ride="carousel">
-        <div class="carousel-inner">
-            <div class="carousel-item active">
-                <div class="p-3 bg-light rounded">
-                    <h5 class="fw-bold">RRHH - Calamidades </h5>
-                </div>
-            </div>
-        </div>
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5 class="fw-bold">Solicitudes de Calamidades</h5>
     </div>
 
-    <div class="text-center">
+    <div class="text-center mb-4">
         <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#calamidad">
             Subir Calamidad
         </button>
     </div>
-<div class="row mt-5">
-    <h5 class="text-center">Solicitudes de Calamidades</h5>
-    <table id="tablaCalamidades" class="table table-striped table-bordered mt-3">
+
+    <table id="tablaCalamidades" class="table table-bordered table-striped">
         <thead class="table-dark text-center">
             <tr>
+                <th>Código</th>
                 <th>Nombre</th>
                 <th>Descripción</th>
-                <th>Fecha de Solicitud</th>
+                <th>Fecha</th>
                 <th>Estado</th>
-                <th>Archivo</th>
+                <th>Acciones</th>
             </tr>
         </thead>
         <tbody>
             <?php
             $calamidades = $class->calamidades();
-            if (!empty($calamidades)) {
-                foreach ($calamidades as $row) {
-                    $nombre = isset($row['nombre']) ? $row['nombre'] : 'Desconocido';
-                    $apellido = isset($row['apellido']) ? $row['apellido'] : '';
-                    $nombreCompleto = htmlspecialchars($nombre . ' ' . $apellido);
-
-                    $descripcion = htmlspecialchars($row['descripcion'] ?? '');
-                    $fecha = htmlspecialchars($row['fecha_log'] ?? '');
-                    $estado = htmlspecialchars($row['estado'] ?? '');
-
-                    if (!empty($row['file_add'])) {
-                        $archivo = '<a href="' . BASE_URL_FILES_UPDATE_CALAMIDADES . '/' . $row['file_add'] . '" target="_blank" class="btn btn-sm btn-outline-primary">Ver Archivo</a>';
-                    } else {
-                        $archivo = 'Sin archivo';
-                    }
-
-                    echo "<tr>
-                            <td>{$nombreCompleto}</td>
-                            <td>{$descripcion}</td>
-                            <td>{$fecha}</td>
-                            <td>{$estado}</td>
-                            <td class='text-center'>{$archivo}</td>
-                        </tr>";
-                }
-            } else {
-                echo "<tr><td colspan='5' class='text-center'>No hay solicitudes registradas.</td></tr>";
-            }
+            foreach ($calamidades as $c):
+                $archivo = (!empty($c['file_add']))
+                    ? BASE_URL_FILES_UPDATE_CALAMIDADES . '/' . $c['file_add']
+                    : 'NULL';
             ?>
+            <tr>
+                <td><?= htmlspecialchars($c['codigo'] ?? '-') ?></td>
+                <td><?= htmlspecialchars(($c['nombre'] ?? '') . ' ' . ($c['apellido'] ?? '')) ?></td>
+                <td><?= htmlspecialchars($c['descripcion'] ?? '-') ?></td>
+                <td><?= htmlspecialchars($c['fecha_log'] ?? '-') ?></td>
+                <td><?= htmlspecialchars($c['estado'] ?? '-') ?></td>
+                <td class="text-center">
+                    <button class="btn btn-sm btn-info"
+                            data-bs-toggle="modal"
+                            data-bs-target="#modalDetalles"
+                            data-nombre="<?= htmlspecialchars(($c['nombre'] ?? '') . ' ' . ($c['apellido'] ?? '')) ?>"
+                            data-descripcion="<?= htmlspecialchars($c['descripcion'] ?? '', ENT_QUOTES) ?>"
+                            data-fecha="<?= htmlspecialchars($c['fecha_log'] ?? '') ?>"
+                            data-estado="<?= htmlspecialchars($c['estado'] ?? '') ?>"
+                            data-archivo="<?= $archivo ?>">
+                        Ver Detalles
+                    </button>
+                </td>
+            </tr>
+            <?php endforeach; ?>
         </tbody>
     </table>
 </div>
+
+<!-- Modal Detalles -->
+<div class="modal fade" id="modalDetalles" tabindex="-1" aria-labelledby="modalDetallesLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Detalles de la Calamidad</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <div class="modal-body">
+        <p><strong>Empleado:</strong> <span id="modalNombre"></span></p>
+        <p><strong>Fecha:</strong> <span id="modalFecha"></span></p>
+        <p><strong>Estado:</strong> <span id="modalEstado"></span></p>
+        <p><strong>Descripción:</strong></p>
+        <p id="modalDescripcion" class="text-muted"></p>
+        <p><strong>Archivo Adjunto:</strong></p>
+        <div id="modalArchivo"></div>
+      </div>
+    </div>
+  </div>
 </div>
 
-<!-- Modal -->
+<!-- Modal Subir Calamidad -->
 <div class="modal fade" id="calamidad" tabindex="-1" aria-labelledby="solicitudModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="solicitudModalLabel">Subir Calamidad </h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <form action="" method="POST" enctype="multipart/form-data">
-                    <div class='mb-3'>
-                        <label for='archivo' class='form-label'>Seleccione un archivo</label>
-                        <input type='file' class='form-control' name='archivo_calamidades' id='archivo' required>
-                    </div>
-                    <div class='mb-3'>
-                        <label for='archivo' class='form-label'>Monto del prestamo</label>
-                        <input type='text' class='form-control' name='monto_prestamo' id='monto_prestamo' value='' required>
-                    </div>
-                    <div class='mb-3'>
-                        <p>Comentario</p>
-                        <textarea name="descripcion" class="form-control" style="margin:10px;"></textarea>
-                    </div>
-                    <br>
-                    <!--<input type="submit" class="btn btn-primary" value="Subir Calamidad" name="calamidad">-->
-
-                    <input type="hidden" class="form-control" name="calamidad" value="1">
-                        
-                    <div class="d-flex align-items-center gap-2">
-                        <input type="button" class="btn btn-primary" id="btnCalamidad" value="Solicitar Calamidad">
-                        <span id="loaderCalamidad" class="spinner-border spinner-border-sm text-primary d-none" role="status" aria-hidden="true"></span>
-                    </div>
-                </form>
-            </div>
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form action="" method="POST" enctype="multipart/form-data">
+        <div class="modal-header">
+          <h5 class="modal-title" id="solicitudModalLabel">Subir Calamidad</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
         </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label for="archivo" class="form-label">Seleccione un archivo</label>
+            <input type="file" class="form-control" name="archivo_calamidades" id="archivo" required>
+          </div>
+          <div class="mb-3">
+            <label for="monto_prestamo" class="form-label">Monto del préstamo</label>
+            <input type="text" class="form-control" name="monto_prestamo" id="monto_prestamo" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Comentario</label>
+            <textarea name="descripcion" class="form-control" rows="3"></textarea>
+          </div>
+          <input type="hidden" name="calamidad" value="1">
+        </div>
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-primary">Enviar Solicitud</button>
+        </div>
+      </form>
     </div>
+  </div>
 </div>
 
-<br>
-<nav class="navbar fixed-bottom navbar-light bg-light border-top">
-    <div class="container-fluid">
-        <a href="<?php echo BASE_URL_CONTROLLER; ?>/MainController.php" class="navbar-brand text-center" style="width: 25%;">INICIO</a>
-        <a href="#" class="navbar-brand text-center" style="width: 25%;"></a>
-        <a href="<?php echo BASE_URL_CONTROLLER; ?>/RRHHController.php" class="navbar-brand text-center" style="width: 25%;">VOLVER</a>
-        <a href="#" class="navbar-brand text-center" style="width: 25%;"></a>
-    </div>
-</nav>
-
 <script>
-  document.addEventListener("DOMContentLoaded", function () {
-    const form = document.querySelector('#calamidad form');
-    const btn = document.getElementById("btnCalamidad");
-    const loader = document.getElementById("loaderCalamidad");
+document.addEventListener('DOMContentLoaded', function () {
+    const modal = document.getElementById('modalDetalles');
+    modal.addEventListener('show.bs.modal', function (event) {
+        const button = event.relatedTarget;
+        document.getElementById('modalNombre').textContent = button.getAttribute('data-nombre');
+        document.getElementById('modalFecha').textContent = button.getAttribute('data-fecha');
+        document.getElementById('modalEstado').textContent = button.getAttribute('data-estado');
+        document.getElementById('modalDescripcion').textContent = button.getAttribute('data-descripcion');
 
-    if (form && btn && loader) {
-      btn.addEventListener("click", function (e) {
-        // Desactiva el botón y muestra el loader
-        btn.disabled = true;
-        btn.value = "Enviando...";
-        loader.classList.remove("d-none");
-
-        // Espera 800ms y luego envía el formulario normalmente
-        setTimeout(() => {
-          form.submit();
-        }, 800);
-      });
-    }
-  });
-</script>
-<script>
-  document.addEventListener('DOMContentLoaded', function () {
-    $('#tablaCalamidades').DataTable({
-      language: {
-        url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json"
-      },
-      pageLength: 10,
-      ordering: true,
-      responsive: true
+        const archivo = button.getAttribute('data-archivo');
+        const modalArchivo = document.getElementById('modalArchivo');
+        if (archivo && archivo !== 'NULL') {
+            modalArchivo.innerHTML = `<a href="${archivo}" target="_blank" class="btn btn-outline-primary btn-sm">Ver Archivo</a>`;
+        } else {
+            modalArchivo.textContent = "No hay archivo adjunto.";
+        }
     });
-  });
+
+    $('#tablaCalamidades').DataTable({
+        language: {
+            url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json"
+        },
+        pageLength: 10
+    });
+});
 </script>
+
 <?php include __DIR__ . '/footer.php'; ?>
