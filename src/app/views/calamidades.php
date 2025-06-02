@@ -27,7 +27,7 @@ include __DIR__ . '/header.php'; ?>
     </div>
     <div class="row mt-5">
         <h5 class="text-center">Solicitudes de Calamidades </h5>
-        <table id="tablaSolicitudes" class="table table-bordered table-striped">
+        <table id="tablaCalamidades" class="table table-striped table-bordered mt-3">
             <thead class="table-dark">
                 <tr>
                     <th>Nombre</th>
@@ -80,7 +80,7 @@ include __DIR__ . '/header.php'; ?>
                     </div>
                     <div class='mb-3'>
                         <label for='archivo' class='form-label'>Monto del prestamo</label>
-                        <input type='text' class='form-control' name='monto_prestamo' id='monto_prestamo' value='0' required>
+                        <input type='text' class='form-control' name='monto_prestamo' id='monto_prestamo' value='' required>
                     </div>
                     <div class='mb-3'>
                         <p>Comentario</p>
@@ -130,6 +130,18 @@ include __DIR__ . '/header.php'; ?>
         }, 800);
       });
     }
+  });
+</script>
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    $('#tablaCalamidades').DataTable({
+      language: {
+        url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json"
+      },
+      pageLength: 10,
+      ordering: true,
+      responsive: true
+    });
   });
 </script>
 <?php include __DIR__ . '/footer.php'; ?>
