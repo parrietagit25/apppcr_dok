@@ -279,7 +279,8 @@ class Rrhh {
 
     public function calamidades() {
 
-        $code = '00'.$_SESSION['code'];
+        $code = $_SESSION['code'];
+        $code = substr($code, 2);
 
         $stmt = $this->pdo->prepare("SELECT ct.id, ct.descripcion, ct.fecha_log, 
                                         CASE ct.stat
