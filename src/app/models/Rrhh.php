@@ -279,7 +279,7 @@ class Rrhh {
 
     public function calamidades() {
 
-        $code = $_SESSION['code'];
+        $code = '00'.$_SESSION['code'];
 
         $stmt = $this->pdo->prepare("SELECT ct.id, ct.descripcion, ct.fecha_log, 
                                         CASE ct.stat
@@ -291,7 +291,7 @@ class Rrhh {
                                         WHERE 
                                         ct.stat in(1, 2) 
                                         and 
-                                        ct.code_user = '00".$code."'");
+                                        ct.code_user = '".$code."'");
 
         $stmt->execute();
         $array_datos = [];
