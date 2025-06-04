@@ -142,7 +142,7 @@ include __DIR__ . '/header.php';
         </div>
         -->
         <div class="col-4">
-            <a href="<?php echo BASE_URL_CONTROLLER; ?>/EvaluacionController.php" class="text-decoration-none">
+            <a href="https://www.talentoen360.com/loginForm" class="text-decoration-none" target="_blank">
                 <div class="p-2">
                     <img src="<?php echo BASE_URL_IMAGE; ?>ico_evaluacion.png" alt="Cumpleaños" class="mb-2" width="50">
                     <p>Evaluacion de desempeño</p>
