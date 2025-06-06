@@ -120,6 +120,16 @@ include __DIR__ . '/header.php';
   </div>
 </div>
 
+<!-- Botones de navegación -->
+<div class="text-center mt-5 mb-4">
+    <a href="index.php" class="btn btn-outline-primary me-2">
+        <i class="bi bi-house-door-fill"></i> Inicio
+    </a>
+    <button onclick="window.history.back()" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left-circle"></i> Volver
+    </button>
+</div>
+
 <!-- JS para DataTable y modal dinámico -->
 <script>
 document.addEventListener('DOMContentLoaded', function () {
