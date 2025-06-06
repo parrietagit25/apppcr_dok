@@ -7,6 +7,12 @@ if (!isset($_SESSION['code'])) {
 include __DIR__ . '/header.php';
 ?>
 
+<!-- DataTables -->
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json"></script>
+
 <div class="container mt-4">
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h5 class="fw-bold">Solicitudes de Calamidades</h5>
@@ -114,8 +120,16 @@ include __DIR__ . '/header.php';
   </div>
 </div>
 
+<!-- JS para DataTable y modal dinámico -->
 <script>
 document.addEventListener('DOMContentLoaded', function () {
+    $('#tablaCalamidades').DataTable({
+        language: {
+            url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json"
+        },
+        pageLength: 10
+    });
+
     const modal = document.getElementById('modalDetalles');
     modal.addEventListener('show.bs.modal', function (event) {
         const button = event.relatedTarget;
@@ -131,13 +145,6 @@ document.addEventListener('DOMContentLoaded', function () {
         } else {
             modalArchivo.textContent = "No hay archivo adjunto.";
         }
-    });
-
-    $('#tablaCalamidades').DataTable({
-        language: {
-            url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json"
-        },
-        pageLength: 10
     });
 });
 </script>
