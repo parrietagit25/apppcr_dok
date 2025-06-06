@@ -4,33 +4,40 @@ if (!isset($_SESSION['code'])) {
     exit();
 }
 
-include __DIR__ . '/header.php'; ?>
+include __DIR__ . '/header.php';
+?>
+
+<!-- DataTables -->
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json"></script>
 
 <div class="container mt-4">
-    <div class="input-group mb-3">
-        
-    </div>
+    <div class="input-group mb-3"></div>
+
     <div id="carouselExampleSlidesOnly" class="carousel slide mb-4" data-bs-ride="carousel">
         <div class="carousel-inner">
             <div class="carousel-item active">
                 <div class="p-3 bg-light rounded">
-                    <h5 class="fw-bold">RRHH - incapacidad </h5>
+                    <h5 class="fw-bold">RRHH - Incapacidad</h5>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="text-center">
+    <div class="text-center mb-4">
         <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#incapacidad">
             Subir incapacidad
         </button>
     </div>
+
     <div class="row mt-5">
-        <h5 class="text-center">Solicitudes de incapacidad </h5>
-        <table class="table table-striped table-bordered mt-3">
-            <thead class="table-dark">
+        <h5 class="text-center">Solicitudes de Incapacidad</h5>
+        <table id="tablaIncapacidad" class="table table-striped table-bordered mt-3">
+            <thead class="table-dark text-center">
                 <tr>
-                    <th>Nombre</th>
+                    <th>Archivo</th>
                     <th>Descripción</th>
                     <th>Fecha de Solicitud</th>
                     <th>Estado</th>
@@ -41,18 +48,14 @@ include __DIR__ . '/header.php'; ?>
                 $incapacidad = $class->incapacidad();
                 if (!empty($incapacidad)) {
                     foreach ($incapacidad as $row) {
-
-                        if ($row['file_add'] != '') {
-                            $link = '<a href="'.BASE_URL_FILES_UPDATE_INCAPACIDAD.'/'.$row['file_add'].'" target="_blank">Incapacidad</a>';
-                        }else{
-                            $link = '';
-                        }
-
+                        $link = (!empty($row['file_add']))
+                            ? '<a href="' . BASE_URL_FILES_UPDATE_INCAPACIDAD . '/' . $row['file_add'] . '" target="_blank">Incapacidad</a>'
+                            : '';
                         echo "<tr>
-                                <td>{$link}</td>
-                                <td>{$row['descripcion']}</td>
-                                <td>{$row['fecha_log']}</td>
-                                <td>{$row['estado']}</td>
+                                <td>$link</td>
+                                <td>" . htmlspecialchars($row['descripcion']) . "</td>
+                                <td>" . htmlspecialchars($row['fecha_log']) . "</td>
+                                <td>" . htmlspecialchars($row['estado']) . "</td>
                             </tr>";
                     }
                 } else {
@@ -69,24 +72,20 @@ include __DIR__ . '/header.php'; ?>
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="solicitudModalLabel">Subir incapacidad </h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <h5 class="modal-title" id="solicitudModalLabel">Subir Incapacidad</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
             </div>
             <div class="modal-body">
                 <form action="" method="POST" enctype="multipart/form-data">
-                    <div class='mb-3'>
-                        <label for='archivo' class='form-label'>Seleccione un archivo</label>
-                        <input type='file' class='form-control' name='archivo_incapacidad' id='archivo' required>
+                    <div class="mb-3">
+                        <label for="archivo" class="form-label">Seleccione un archivo</label>
+                        <input type="file" class="form-control" name="archivo_incapacidad" id="archivo" required>
                     </div>
-                    <div class='mb-3'>
-                        <p>Comentario</p>
+                    <div class="mb-3">
+                        <label for="descripcion" class="form-label">Comentario</label>
                         <textarea name="descripcion" class="form-control" style="margin:10px;"></textarea>
                     </div>
-                    <br>
-                    <!--<input type="submit" class="btn btn-primary" value="Subir Incapacidad" name="incapacidad">-->
-
-                    <input type="hidden" class="form-control" name="incapacidad" value="1">
-                        
+                    <input type="hidden" name="incapacidad" value="1">
                     <div class="d-flex align-items-center gap-2">
                         <input type="button" class="btn btn-primary" id="btnIncapacidad" value="Subir Incapacidad">
                         <span id="loaderIncapacidad" class="spinner-border spinner-border-sm text-primary d-none" role="status" aria-hidden="true"></span>
@@ -97,6 +96,7 @@ include __DIR__ . '/header.php'; ?>
     </div>
 </div>
 
+<!-- Navegación inferior -->
 <br>
 <nav class="navbar fixed-bottom navbar-light bg-light border-top">
     <div class="container-fluid">
@@ -107,26 +107,34 @@ include __DIR__ . '/header.php'; ?>
     </div>
 </nav>
 
+<!-- JS: Formulario y DataTable -->
 <script>
-  document.addEventListener("DOMContentLoaded", function () {
+document.addEventListener("DOMContentLoaded", function () {
+    // Subir incapacidad
     const form = document.querySelector('#incapacidad form');
     const btn = document.getElementById("btnIncapacidad");
     const loader = document.getElementById("loaderIncapacidad");
 
     if (form && btn && loader) {
-      btn.addEventListener("click", function (e) {
-        // Desactiva el botón y muestra el loader
-        btn.disabled = true;
-        btn.value = "Enviando...";
-        loader.classList.remove("d-none");
+        btn.addEventListener("click", function () {
+            btn.disabled = true;
+            btn.value = "Enviando...";
+            loader.classList.remove("d-none");
 
-        // Espera 800ms y luego envía el formulario normalmente
-        setTimeout(() => {
-          form.submit();
-        }, 800);
-      });
+            setTimeout(() => {
+                form.submit();
+            }, 800);
+        });
     }
-  });
+
+    // Inicializar DataTable
+    $('#tablaIncapacidad').DataTable({
+        language: {
+            url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json"
+        },
+        pageLength: 10
+    });
+});
 </script>
 
 <?php include __DIR__ . '/footer.php'; ?>
