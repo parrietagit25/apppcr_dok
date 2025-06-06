@@ -4,12 +4,18 @@ if (!isset($_SESSION['code'])) {
     exit();
 }
 
-include __DIR__ . '/header.php'; ?>
+include __DIR__ . '/header.php';
+?>
+
+<!-- DataTables -->
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json"></script>
 
 <div class="container mt-4">
-    <div class="input-group mb-3">
-        
-    </div>
+    <div class="input-group mb-3"></div>
+
     <div id="carouselExampleSlidesOnly" class="carousel slide mb-4" data-bs-ride="carousel">
         <div class="carousel-inner">
             <div class="carousel-item active">
@@ -20,20 +26,20 @@ include __DIR__ . '/header.php'; ?>
         </div>
     </div>
 
-    <div class="text-center">
+    <div class="text-center mb-4">
         <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#permiso">
             Solicitar Permiso
         </button>
-        <br>
-        <br>
+        <br><br>
         <p>
-            <spam style="color:red;"><b>Nota: Recuerde que las vacaciones deben ser aprobadas previamente por su supervisor para su debida autorización.</b></spam>
+            <span style="color:red;"><b>Nota: Recuerde que las vacaciones deben ser aprobadas previamente por su supervisor para su debida autorización.</b></span>
         </p>
     </div>
+
     <div class="row mt-5">
-        <h5 class="text-center">Solicitudes de Permiso </h5>
-        <table class="table table-striped table-bordered mt-3">
-            <thead class="table-dark">
+        <h5 class="text-center">Solicitudes de Permiso</h5>
+        <table id="tablaPermisos" class="table table-striped table-bordered mt-3">
+            <thead class="table-dark text-center">
                 <tr>
                     <th>Nombre</th>
                     <th>Descripción</th>
@@ -47,20 +53,13 @@ include __DIR__ . '/header.php'; ?>
                 $permisos = $class->select_permisos();
                 if (!empty($permisos)) {
                     foreach ($permisos as $row) {
-
-                        if ($row['stat'] == 1) {
-                            $status = 'Solicitado';
-                        }elseif ($row['stat'] == 2) {
-                            $status = 'Aprobado';
-                        }else {
-                            $status = 'Declinado';
-                        }
+                        $status = $row['stat'] == 1 ? 'Solicitado' : ($row['stat'] == 2 ? 'Aprobado' : 'Declinado');
 
                         echo "<tr>
-                                <td>{$row['nombre']} {$row['apellido']}</td>
-                                <td>{$row['descripcion']}</td>
-                                <td>{$row['fecha_log']}</td>
-                                <td>{$status}</td>
+                                <td>" . htmlspecialchars($row['nombre'] . ' ' . $row['apellido']) . "</td>
+                                <td>" . htmlspecialchars($row['descripcion']) . "</td>
+                                <td>" . htmlspecialchars($row['fecha_log']) . "</td>
+                                <td>" . htmlspecialchars($status) . "</td>
                             </tr>";
                     }
                 } else {
@@ -77,67 +76,71 @@ include __DIR__ . '/header.php'; ?>
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="solicitudModalLabel">Solicitar Permiso </h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-               
+                <h5 class="modal-title" id="solicitudModalLabel">Solicitar Permiso</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
             </div>
             <div class="modal-body">
                 <form action="" method="POST" enctype="multipart/form-data">
-                    <div class='mb-3'>
-                        <label for='archivo' class='form-label'>Seleccione Su jefe inmediato</label>
-                        <select name="id_jefe" id="" class="form-control">
+                    <div class="mb-3">
+                        <label class="form-label">Seleccione su jefe inmediato</label>
+                        <select name="id_jefe" class="form-control" required>
                             <option value="">Seleccionar</option>
-                            <?php foreach ($select_jefe as $key => $value) { ?>
-                                <option value="<?php echo $value['code_empleado']; ?>"><?php echo $value['nombre'].' '.$value['apellido']; ?></option>
-                            <?php } ?>
+                            <?php foreach ($select_jefe as $value): ?>
+                                <option value="<?php echo $value['code_empleado']; ?>">
+                                    <?php echo $value['nombre'] . ' ' . $value['apellido']; ?>
+                                </option>
+                            <?php endforeach; ?>
                         </select>
                     </div>
-                    <div class='mb-3'>
-                        <label for='archivo' class='form-label'>Tipo de licencia</label>
-                        <select name="tipo_licencia" id="" class="form-control">
+
+                    <div class="mb-3">
+                        <label class="form-label">Tipo de licencia</label>
+                        <select name="tipo_licencia" class="form-control" required>
                             <option value="">Seleccionar</option>
-                            <option value="Vacaciones">Vacaciones // <?php foreach ($mis_vacas as $key => $value) { ?><p> Vacaciones Acumuladas: <b><?php echo $value['dias_vaca_acu_tiempo']; ?></b> Días</p> <?php } ?></option>
+                            <option value="Vacaciones">Vacaciones (Acumuladas: <?php echo $mis_vacas[0]['dias_vaca_acu_tiempo'] ?? '0'; ?> días)</option>
                             <option value="Enfermedad">Enfermedad</option>
                             <option value="Duelo">Duelo</option>
                             <option value="Tiempo sin pago">Tiempo sin pago</option>
                             <option value="Compensatorio">Compensatorio</option>
                             <option value="Flex day">Flex day</option>
-                            <option value="Cita Medica">Cita Medica</option>
+                            <option value="Cita Medica">Cita Médica</option>
                             <option value="Teletrabajo">Teletrabajo</option>
                         </select>
                     </div>
-                    <div class='mb-3'>
-                        <label for='archivo' class='form-label'>Fecha Inicio</label>
-                        <input type="date" name="fecha_inicio" id="" class="form-control bloquear-pasado">
-                    </div>
-                    <div class='mb-3'>
-                        <label for='archivo' class='form-label'>Fecha Fin</label>
-                        <input type="date" name="fecha_fin" id="" class="form-control bloquear-pasado">
-                    </div>
-                    <div class='mb-3'>
-                        <label for='archivo' class='form-label'>Adjuntar un archivo</label>
-                        <input type="file" name="archivo_adjunto" id="" class="form-control bloquear-pasado">
-                    </div>
-                    <div class='mb-3'>
-                        <p>Descripcion del Permiso</p>
-                        <textarea name="descripcion" class="form-control" style="margin:10px;"></textarea>
-                    </div>
-                    <br>
-                    <!--<input type="submit" class="btn btn-primary" value="Solicitar" name="solicitud_permiso">-->
 
-                    <input type="hidden" class="form-control" name="solicitud_permiso" value="1">
-                        
+                    <div class="mb-3">
+                        <label class="form-label">Fecha Inicio</label>
+                        <input type="date" name="fecha_inicio" class="form-control bloquear-pasado" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Fecha Fin</label>
+                        <input type="date" name="fecha_fin" class="form-control bloquear-pasado" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Adjuntar un archivo (opcional)</label>
+                        <input type="file" name="archivo_adjunto" class="form-control">
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Descripción del Permiso</label>
+                        <textarea name="descripcion" class="form-control" rows="3" required></textarea>
+                    </div>
+
+                    <input type="hidden" name="solicitud_permiso" value="1">
+
                     <div class="d-flex align-items-center gap-2">
                         <input type="button" class="btn btn-primary" id="btnPermiso" value="Solicitar Permiso">
                         <span id="loaderPermiso" class="spinner-border spinner-border-sm text-primary d-none" role="status" aria-hidden="true"></span>
                     </div>
-
                 </form>
             </div>
         </div>
     </div>
 </div>
 
+<!-- Navegación inferior -->
 <br>
 <nav class="navbar fixed-bottom navbar-light bg-light border-top">
     <div class="container-fluid">
@@ -148,25 +151,31 @@ include __DIR__ . '/header.php'; ?>
     </div>
 </nav>
 
+<!-- JS: Formulario + DataTable -->
 <script>
-  document.addEventListener("DOMContentLoaded", function () {
+document.addEventListener("DOMContentLoaded", function () {
+    // Envío del formulario con loader
     const form = document.querySelector('#permiso form');
     const btn = document.getElementById("btnPermiso");
     const loader = document.getElementById("loaderPermiso");
 
     if (form && btn && loader) {
-      btn.addEventListener("click", function (e) {
-        // Desactiva el botón y muestra el loader
-        btn.disabled = true;
-        btn.value = "Enviando...";
-        loader.classList.remove("d-none");
-
-        // Espera 800ms y luego envía el formulario normalmente
-        setTimeout(() => {
-          form.submit();
-        }, 800);
-      });
+        btn.addEventListener("click", function () {
+            btn.disabled = true;
+            btn.value = "Enviando...";
+            loader.classList.remove("d-none");
+            setTimeout(() => form.submit(), 800);
+        });
     }
-  });
+
+    // DataTable en español
+    $('#tablaPermisos').DataTable({
+        language: {
+            url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json"
+        },
+        pageLength: 10
+    });
+});
 </script>
+
 <?php include __DIR__ . '/footer.php'; ?>
