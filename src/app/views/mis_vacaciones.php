@@ -50,10 +50,10 @@ include __DIR__ . '/header.php'; ?>
                         <?php if (!empty($all_vacas)) {
                             foreach ($all_vacas as $key => $value) { 
                                 echo "<tr>
-                                        <td>{$row['codigo_empleado']}</td>
-                                        <td>{$row['nombre']}</td>
-                                        <td>{$row['apellido']}</td>
-                                        <td>{$row['dias_vaca_acu_tiempo']}</td>
+                                        <td>{$value['codigo_empleado']}</td>
+                                        <td>{$value['nombre']}</td>
+                                        <td>{$value['apellido']}</td>
+                                        <td>{$value['dias_vaca_acu_tiempo']}</td>
                                     </tr>";
                             }
                         } else {
