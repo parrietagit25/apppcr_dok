@@ -4,15 +4,18 @@ if (!isset($_SESSION['code'])) {
     exit();
 }
 
-include __DIR__ . '/header.php'; ?>
+include __DIR__ . '/header.php';
+?>
+
+<!-- DataTables -->
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json"></script>
 
 <div class="container mt-4">
-    <div class="input-group mb-3">
-        <!--<input type="text" class="form-control" placeholder="Search" aria-label="Search" aria-describedby="search-button">
-        <button class="btn btn-outline-secondary" type="button" id="search-button">
-            <i class="bi bi-search"></i>
-        </button>-->
-    </div>
+    <div class="input-group mb-3"></div>
+
     <div id="carouselExampleSlidesOnly" class="carousel slide mb-4" data-bs-ride="carousel">
         <div class="carousel-inner">
             <div class="carousel-item active">
@@ -25,8 +28,8 @@ include __DIR__ . '/header.php'; ?>
 
     <div class="row mt-5">
         <h5 class="text-center">Solicitudes de Cartas de Trabajo</h5>
-        <table class="table table-striped table-bordered mt-3">
-            <thead class="table-dark">
+        <table id="tablaCartasTrabajo" class="table table-striped table-bordered mt-3">
+            <thead class="table-dark text-center">
                 <tr>
                     <th>Nombre</th>
                     <th>Descripción</th>
@@ -40,16 +43,17 @@ include __DIR__ . '/header.php'; ?>
                 if (!empty($solicitudes)) {
                     foreach ($solicitudes as $row) {
                         echo "<tr>
-                                <td>{$row['nombre']} {$row['apellido']}</td>
-                                <td>{$row['descripcion']}</td>
-                                <td>{$row['fecha_log']}</td>
+                                <td>" . htmlspecialchars($row['nombre'] . ' ' . $row['apellido']) . "</td>
+                                <td>" . htmlspecialchars($row['descripcion']) . "</td>
+                                <td>" . htmlspecialchars($row['fecha_log']) . "</td>
                                 <td>
                                     <a href='#' data-bs-toggle='modal' data-bs-target='#modalAdjuntar{$row['id']}'>
-                                        {$row['estado']}
+                                        " . htmlspecialchars($row['estado']) . "
                                     </a>
                                 </td>
                             </tr>";
 
+                        // Modal de cada solicitud
                         echo "
                         <div class='modal fade' id='modalAdjuntar{$row['id']}' tabindex='-1' aria-labelledby='modalLabel{$row['id']}' aria-hidden='true'>
                             <div class='modal-dialog'>
@@ -62,12 +66,12 @@ include __DIR__ . '/header.php'; ?>
                                         <form action='' method='POST' enctype='multipart/form-data'>
                                             <input type='hidden' name='solicitud_id' value='{$row['id']}'>
                                             <div class='mb-3'>
-                                                <label for='archivo' class='form-label'>Seleccione un archivo</label>
-                                                <input type='file' class='form-control' name='archivo' id='archivo' required>
+                                                <label for='archivo{$row['id']}' class='form-label'>Seleccione un archivo</label>
+                                                <input type='file' class='form-control' name='archivo' id='archivo{$row['id']}' required>
                                             </div>
                                             <div class='mb-3'>
-                                                <label for='comentario' class='form-label'>Comentario (opcional)</label>
-                                                <textarea class='form-control' name='comentario' id='comentario' rows='3'></textarea>
+                                                <label for='comentario{$row['id']}' class='form-label'>Comentario (opcional)</label>
+                                                <textarea class='form-control' name='comentario' id='comentario{$row['id']}' rows='3'></textarea>
                                             </div>
                                             <button type='submit' class='btn btn-primary' name='aprobar_carta'>Subir archivo</button>
                                         </form>
@@ -82,25 +86,21 @@ include __DIR__ . '/header.php'; ?>
                 ?>
             </tbody>
         </table>
-        <br>
-        <br>
-        <br>
     </div>
 </div>
 
-<!-- Modal -->
+<!-- Modal de solicitud nueva (si lo usas desde aquí) -->
 <div class="modal fade" id="solicitudModal" tabindex="-1" aria-labelledby="solicitudModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="solicitudModalLabel">Solicitar Carta de Trabajo</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
             </div>
             <div class="modal-body">
                 <form action="" method="POST">
                     <p>Ingrese la persona o entidad al cual irá dirigida la carta de trabajo</p>
                     <textarea name="descripcion" class="form-control" style="margin:10px;"></textarea>
-                    <br>
                     <input type="submit" class="btn btn-primary" value="Solicitar Carta" name="carta_trabajo">
                 </form>
             </div>
@@ -108,6 +108,7 @@ include __DIR__ . '/header.php'; ?>
     </div>
 </div>
 
+<!-- Navegación inferior -->
 <br>
 <nav class="navbar fixed-bottom navbar-light bg-light border-top">
     <div class="container-fluid">
@@ -117,5 +118,17 @@ include __DIR__ . '/header.php'; ?>
         <a href="#" class="navbar-brand text-center" style="width: 25%;"></a>
     </div>
 </nav>
+
+<!-- Inicializar DataTable -->
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    $('#tablaCartasTrabajo').DataTable({
+        language: {
+            url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json"
+        },
+        pageLength: 10
+    });
+});
+</script>
 
 <?php include __DIR__ . '/footer.php'; ?>
