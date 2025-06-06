@@ -9,7 +9,7 @@ class User {
     public function authenticate($code, $password) {
 
         try {
-            $stmt = $this->pdo->prepare("SELECT pass FROM empleado_log WHERE codigo = :code AND stat = 1");
+            $stmt = $this->pdo->prepare("SELECT pass FROM empleado_log el inner join empleados e on el.codigo = e.codigo_empleado WHERE el.codigo = :code AND el.stat = 1 AND e.estatus_empleado='A'");
             $stmt->bindParam(':code', $code, PDO::PARAM_INT);
             $stmt->execute();
     
