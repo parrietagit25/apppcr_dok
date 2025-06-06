@@ -4,12 +4,18 @@ if (!isset($_SESSION['code'])) {
     exit();
 }
 
-include __DIR__ . '/header.php'; ?>
+include __DIR__ . '/header.php';
+?>
+
+<!-- Estilos y scripts de DataTables -->
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json"></script>
 
 <div class="container mt-4">
-    <div class="input-group mb-3">
-        
-    </div>
+    <div class="input-group mb-3"></div>
+
     <div id="carouselExampleSlidesOnly" class="carousel slide mb-4" data-bs-ride="carousel">
         <div class="carousel-inner">
             <div class="carousel-item active">
@@ -24,18 +30,16 @@ include __DIR__ . '/header.php'; ?>
         <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#solicitudModal">
             Solicitar Carta de Trabajo
         </button>
-        <br>
-        <br>
-        <br>
+        <br><br><br>
         <p>
-            <spam style="color:red;"><b>Nota: Las cartas se gestionan únicamente los días jueves. Por favor, una vez solicitadas, espere hasta el siguiente jueves para su procesamiento.</b></spam>
+            <span style="color:red;"><b>Nota: Las cartas se gestionan únicamente los días jueves. Por favor, una vez solicitadas, espere hasta el siguiente jueves para su procesamiento.</b></span>
         </p>
     </div>
 
     <div class="row mt-5">
         <h5 class="text-center">Solicitudes de Cartas de Trabajo</h5>
-        <table class="table table-striped table-bordered mt-3">
-            <thead class="table-dark">
+        <table id="tablaCartas" class="table table-striped table-bordered mt-3">
+            <thead class="table-dark text-center">
                 <tr>
                     <th>Carta</th>
                     <th>Descripción</th>
@@ -44,28 +48,24 @@ include __DIR__ . '/header.php'; ?>
                 </tr>
             </thead>
             <tbody>
-                <?php foreach ($solicitudes as $key => $value) { 
-                    
-                    if ($value['file_add'] != '') {
-                        $link = '<a href="'.BASE_URL_FILES_UPDATE.'/'.$value['file_add'].'" target="_blank">Carta</a>';
-                    }else{
-                        $link = '';
-                    }
-                    
-                    ?>
+                <?php foreach ($solicitudes as $key => $value): 
+                    $link = (!empty($value['file_add']))
+                        ? '<a href="'.BASE_URL_FILES_UPDATE.'/'.$value['file_add'].'" target="_blank">Carta</a>'
+                        : '';
+                ?>
                 <tr>
                     <td><?php echo $link; ?></td>
-                    <td><?php echo $value['descripcion']; ?></td>
-                    <td><?php echo $value['fecha_log']; ?></td>
-                    <td><?php echo $value['estado']; ?></td>
+                    <td><?php echo htmlspecialchars($value['descripcion']); ?></td>
+                    <td><?php echo htmlspecialchars($value['fecha_log']); ?></td>
+                    <td><?php echo htmlspecialchars($value['estado']); ?></td>
                 </tr>
-                <?php } ?>
+                <?php endforeach; ?>
             </tbody>
         </table>
     </div>
 </div>
 
-<!-- Modal -->
+<!-- Modal Solicitud -->
 <div class="modal fade" id="solicitudModal" tabindex="-1" aria-labelledby="solicitudModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -77,12 +77,8 @@ include __DIR__ . '/header.php'; ?>
                 <form action="" method="POST">
                     <p>Ingrese la persona o entidad al cual irá dirigida la carta de trabajo</p>
                     <textarea name="descripcion" class="form-control" style="margin:10px;"></textarea>
-                    <br>
-                    <!--<input type="submit" class="btn btn-primary" value="Solicitar Carta" name="carta_trabajo">-->
-
-                    <input type="hidden" class="form-control" name="carta_trabajo" value="1">
-                        
-                    <div class="d-flex align-items-center gap-2">
+                    <input type="hidden" name="carta_trabajo" value="1">
+                    <div class="d-flex align-items-center gap-2 mt-3">
                         <input type="button" class="btn btn-primary" id="btnSolicitarCarta" value="Solicitar Carta">
                         <span id="loaderSolicitarCarta" class="spinner-border spinner-border-sm text-primary d-none" role="status" aria-hidden="true"></span>
                     </div>
@@ -92,6 +88,7 @@ include __DIR__ . '/header.php'; ?>
     </div>
 </div>
 
+<!-- Navegación inferior -->
 <br>
 <nav class="navbar fixed-bottom navbar-light bg-light border-top">
     <div class="container-fluid">
@@ -102,25 +99,33 @@ include __DIR__ . '/header.php'; ?>
     </div>
 </nav>
 
+<!-- JS: Solicitud de carta + DataTables -->
 <script>
   document.addEventListener("DOMContentLoaded", function () {
+    // Solicitar carta
     const form = document.querySelector('#solicitudModal form');
     const btn = document.getElementById("btnSolicitarCarta");
     const loader = document.getElementById("loaderSolicitarCarta");
 
     if (form && btn && loader) {
-      btn.addEventListener("click", function (e) {
-        // Desactiva el botón y muestra el loader
+      btn.addEventListener("click", function () {
         btn.disabled = true;
         btn.value = "Enviando...";
         loader.classList.remove("d-none");
 
-        // Espera 800ms y luego envía el formulario normalmente
         setTimeout(() => {
           form.submit();
         }, 800);
       });
     }
+
+    // Inicializar DataTable
+    $('#tablaCartas').DataTable({
+        language: {
+            url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json"
+        },
+        pageLength: 10
+    });
   });
 </script>
 
