@@ -62,6 +62,7 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
     
 } elseif (isset($_GET['mis_vacaciones'])) {
     $mis_vacas = $class->mis_vacaciones();
+    $all_vacas = $class->mis_vacaciones_all_employe();
     require_once __DIR__ . '/../views/mis_vacaciones.php';
     exit();
     

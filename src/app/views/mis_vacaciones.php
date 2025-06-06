@@ -33,6 +33,39 @@ include __DIR__ . '/header.php'; ?>
         
         ?>
 
+        <?php if ($tipo_usuario == 1 || $tipo_usuario == 4) { ?>
+
+            <div class="row mt-5">
+                <h5 class="text-center">Vacaciones Acumuladas todos.</h5>
+                <table class="table table-striped table-bordered mt-3">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Codigo</th>
+                            <th>Nombre</th>
+                            <th>Apellido</th>
+                            <th>Dias Acu.</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php if (!empty($all_vacas)) {
+                            foreach ($all_vacas as $key => $value) { 
+                                echo "<tr>
+                                        <td>{$row['codigo_empleado']}</td>
+                                        <td>{$row['nombre']}</td>
+                                        <td>{$row['apellido']}</td>
+                                        <td>{$row['dias_vaca_acu_tiempo']}</td>
+                                    </tr>";
+                            }
+                        } else {
+                            echo "<tr><td colspan='4' class='text-center'>No hay registros registradas.</td></tr>";
+                        }
+                        ?>
+                    </tbody>
+                </table>
+            </div>
+            
+        <?php } ?>
+
     </div>
 </div>
 <br>

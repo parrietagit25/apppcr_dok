@@ -103,6 +103,20 @@ class Rrhh {
         return $array_datos;
     }
 
+    public function mis_vacaciones_all_employe() {
+        if (!isset($_SESSION['code'])) {
+            die("Error: No hay sesión iniciada.");
+        }
+
+        $stmt = $this->pdo->prepare("SELECT codigo_empleado, nombre, apellido, dias_vaca_acu_tiempo FROM empleados WHERE estatus_empleado = 'A'");
+        $stmt->execute();
+        $array_datos = [];
+        while ($list_code = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            $array_datos[] = $list_code;
+        }
+        return $array_datos;
+    }
+
     public function carta_trabajo($descripcion) {
         
         $code_user = $_SESSION['code']; 
