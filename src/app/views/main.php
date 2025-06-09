@@ -174,6 +174,26 @@ include __DIR__ . '/header.php';
     </div> */ ?>
 
     <div class="container">
+
+        <div class="row text-center mb-3">
+            <div class="col-6 mb-4">
+                <a href="<?php echo BASE_URL_CONTROLLER; ?>/CarnetController.php" class="text-decoration-none">
+                    <div class="card-icon">
+                        <img src="<?php echo BASE_URL_IMAGE; ?>mi_espacio.svg" alt="Carnet">
+                        <div class="card-title"> <small>Mi Espacio</small> </div>
+                    </div>
+                </a>
+            </div>
+            <div class="col-6 mb-4">
+                <a href="<?php echo BASE_URL_CONTROLLER; ?>/MainController.php?cumple=1" class="text-decoration-none">
+                    <div class="card-icon">
+                        <img src="<?php echo BASE_URL_IMAGE; ?>beneficios.svg" alt="Cumpleaños">
+                        <div class="card-title"><small>Mis Beneficios</small></div>
+                    </div>
+                </a>
+            </div>
+        </div>
+        
         <div class="section-title">Mi Espacio</div>
         <div class="row text-center mb-3">
             <div class="col-4 mb-3">
