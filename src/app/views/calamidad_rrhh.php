@@ -75,42 +75,42 @@ include __DIR__ . '/header.php';
                         echo "              </div>
 
                                             <div class='mb-3'>
-                                                <label for='comentario' class='form-label'> Colaborador </label>
+                                                <label for='comentario' class='form-label'> <b>Colaborador</b> </label>
                                                 <p>{$row['nombre']}</p>
                                             </div>
                                             <div class='mb-3'>
-                                                <label for='comentario' class='form-label'> Fecha de la solicitud </label>
+                                                <label for='comentario' class='form-label'> <b>Fecha de la solicitud </b></label>
                                                 <p>{$row['fecha_log']}</p>
                                             </div>
 
                                             <div class='mb-3'>
-                                                <label for='comentario' class='form-label'> Departamento </label>
+                                                <label for='comentario' class='form-label'> <b>Departamento </b></label>
                                                 <p>{$row['departamento']}</p>
                                             </div>
                                             
                                             <div class='mb-3'>
-                                                <label for='comentario' class='form-label'> Comentario del Colaborador </label>
+                                                <label for='comentario' class='form-label'> <b>Comentario del Colaborador </b></label>
                                                 <p>{$row['descripcion']}</p>
                                             </div>
 
                                             <div class='mb-3'>
-                                                <label for='comentario' class='form-label'> Monto solicitado </label>
+                                                <label for='comentario' class='form-label'> <b>Monto solicitado </b></label>
                                                 <p>{$row['monto']}</p>
                                             </div>
 
                                             <div class='mb-3'>
-                                                <label for='comentario' class='form-label'> Plazo </label>
+                                                <label for='comentario' class='form-label'> <b>Plazo </b></label>
                                                 <p>{$row['plazo']}</p>
                                             </div>
 
                                             <div class='mb-3'>
-                                                <label for='comentario' class='form-label'> Forma de pago </label>
+                                                <label for='comentario' class='form-label'> <b>Forma de pago </b></label>
                                                 <p>{$row['forma_pago']}</p>
                                             </div>
                                             
 
                                             <div class='mb-3'>
-                                                <label for='comentario' class='form-label'>Comentario (opcional)</label>
+                                                <label for='comentario' class='form-label'><b>Comentario (opcional)</b></label>
                                                 <textarea class='form-control' name='comentario' rows='3'></textarea>
                                             </div>
                                             <button type='submit' class='btn btn-primary' name='aprobar_calamidad'>Revisado</button>
