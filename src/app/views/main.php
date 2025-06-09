@@ -268,11 +268,12 @@ include __DIR__ . '/header.php';
         </div>
     </div>-->
 </div>
-
+<?php /*
 <footer class="bg-light text-center text-lg-start mt-5">
     <div class="container p-4">
         <p>&copy; 2024 GrupoPCR. Todos los derechos reservados.</p>
     </div>
 </footer>
+ */ ?>
 
 <?php include __DIR__ . '/footer.php'; ?>
