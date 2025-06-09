@@ -177,7 +177,7 @@ include __DIR__ . '/header.php';
 
         <div class="row text-center mb-3">
             <div class="col-6 mb-4">
-                <a href="<?php echo BASE_URL_CONTROLLER; ?>/CarnetController.php" class="text-decoration-none">
+                <a href="<?php echo BASE_URL_CONTROLLER; ?>RRHHController.php" class="text-decoration-none">
                     <div style="background-color: #f8f9fa; padding: 20px; border-radius: 10px;">
                         <img width="100" src="<?php echo BASE_URL_IMAGE; ?>mi_espacio.svg" alt="Carnet">
                         <div class="card-title"> <small>Mi Espacio</small> </div>
