@@ -194,7 +194,7 @@ include __DIR__ . '/header.php';
             </div>
         </div>
         
-        <div class="section-title">Mi Espacio</div>
+        
         <div class="row text-center mb-3">
             <div class="col-4 mb-3">
                 <a href="<?php echo BASE_URL_CONTROLLER; ?>/CarnetController.php" class="text-decoration-none">
@@ -222,7 +222,7 @@ include __DIR__ . '/header.php';
             </div>
         </div>
 
-        <div class="section-title">Mis Beneficios</div>
+        
         <div class="row text-center mb-4">
             <div class="col-4 mb-3">
                 <a href="<?php echo BENEFICIOS; ?>" class="text-decoration-none" target="_blank">
