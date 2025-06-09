@@ -107,6 +107,24 @@ include __DIR__ . '/header.php';
             <input type="text" class="form-control" name="monto" id="monto" required>
           </div>
           <div class="mb-3">
+            <label for="plazo" class="form-label">Plazo</label>
+            <select class="form-select" name="plazo" id="plazo" required>
+              <option value="">Seleccione una opción</option>
+              <option value="3 meses">3 meses</option>
+              <option value="6 meses">6 meses</option>
+              <option value="1 año">1 año</option>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label for="forma_pago" class="form-label">Forma de pago</label>
+            <select class="form-select" name="forma_pago" id="forma_pago" required>
+              <option value="">Seleccione una opción</option>
+              <option value="salario">Salario</option>
+              <option value="descuento">Descuento</option>
+            </select>
+          </div>
+
+          <div class="mb-3">
             <label class="form-label">Comentario</label>
             <textarea name="descripcion" class="form-control" rows="3"></textarea>
           </div>

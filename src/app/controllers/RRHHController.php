@@ -475,6 +475,8 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
         $descripcion = trim($_POST['descripcion']);
         $file_add = "";
         $monto = isset($_POST['monto']) ? trim($_POST['monto']) : 0;
+        $plazo = isset($_POST['plazo']) ? trim($_POST['plazo']) : 0;
+        $forma_pago = isset($_POST['forma_pago']) ? trim($_POST['forma_pago']) : '';
     
         // Carpeta de almacenamiento
         $upload_dir = __DIR__ . '/../uploads/calamidades/';
@@ -496,7 +498,7 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
         }
     
         // Insertar en la base de datos usando el modelo
-        if ($class->insertar_calamidades($code_user, $descripcion, $file_add, $monto)) {
+        if ($class->insertar_calamidades($code_user, $descripcion, $file_add, $monto , $plazo, $forma_pago)) {
 
             $dartos_cola = $class->datos_colaborador();
             foreach ($dartos_cola as $key => $value) {
