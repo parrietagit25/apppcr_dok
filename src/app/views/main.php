@@ -258,6 +258,10 @@ include __DIR__ . '/header.php';
         </div>
     </div>
 
+    <br>
+    <br>
+    <br>
+
     <div class="fixed-bottom d-flex justify-content-around fondo-botones-abajo py-2">
         <a href="#" class="text-white text-center">
             <i class="bi bi-house-door-fill fs-4"></i><br><small>Inicio</small>
