@@ -188,7 +188,7 @@ include __DIR__ . '/header.php';
                 <a href="<?php echo BASE_URL_CONTROLLER; ?>/MainController.php?cumple=1" class="text-decoration-none">
                     <div class="card-icon">
                         <img src="<?php echo BASE_URL_IMAGE; ?>hb.svg" alt="Cumpleaños">
-                        <div class="card-title">Cumpleaños</div>
+                        <div class="card-title"><small>Cumpleaños</small></div>
                     </div>
                 </a>
             </div>
@@ -196,7 +196,7 @@ include __DIR__ . '/header.php';
                 <a href="mailto:rrhh@grupopcr.com.pa" class="text-decoration-none">
                     <div class="card-icon">
                         <img src="<?php echo BASE_URL_IMAGE; ?>ico_correo.svg" alt="Correo">
-                        <div class="card-title">Correo</div>
+                        <div class="card-title"><small>Correo</small></div>
                     </div>
                 </a>
             </div>
@@ -208,7 +208,7 @@ include __DIR__ . '/header.php';
                 <a href="<?php echo BENEFICIOS; ?>" class="text-decoration-none" target="_blank">
                     <div class="card-icon">
                         <img src="<?php echo BASE_URL_IMAGE; ?>beneficios.svg" alt="Beneficios">
-                        <div class="card-title">Mis Beneficios</div>
+                        <div class="card-title"><small>Mis Beneficios</small></div>
                     </div>
                 </a>
             </div>
@@ -216,7 +216,7 @@ include __DIR__ . '/header.php';
                 <a href="https://www.talentoen360.com/loginForm" class="text-decoration-none" target="_blank">
                     <div class="card-icon">
                         <img src="<?php echo BASE_URL_IMAGE; ?>ico_evaluacion.svg" alt="Evaluación">
-                        <div class="card-title">Evaluación</div>
+                        <div class="card-title"><small>Evaluación</small></div>
                     </div>
                 </a>
             </div>
@@ -224,7 +224,7 @@ include __DIR__ . '/header.php';
                 <a href="tel:+50763796524" class="text-decoration-none">
                     <div class="card-icon">
                         <img src="<?php echo BASE_URL_IMAGE; ?>ico_linea_apoyo.svg" alt="Línea de Apoyo">
-                        <div class="card-title">Línea de Apoyo</div>
+                        <div class="card-title"><small>Línea de Apoyo</small></div>
                     </div>
                 </a>
             </div>
