@@ -73,6 +73,42 @@ include __DIR__ . '/header.php';
                                             }
 
                         echo "              </div>
+
+                                            <div class='mb-3'>
+                                                <label for='comentario' class='form-label'> Colaborador </label>
+                                                <p>{$row['nombre']}</p>
+                                            </div>
+                                            <div class='mb-3'>
+                                                <label for='comentario' class='form-label'> Fecha de la solicitud </label>
+                                                <p>{$row['fecha_log']}</p>
+                                            </div>
+
+                                            <div class='mb-3'>
+                                                <label for='comentario' class='form-label'> Departamento </label>
+                                                <p>{$row['departamento']}</p>
+                                            </div>
+                                            
+                                            <div class='mb-3'>
+                                                <label for='comentario' class='form-label'> Comentario del Colaborador </label>
+                                                <p>{$row['descripcion']}</p>
+                                            </div>
+
+                                            <div class='mb-3'>
+                                                <label for='comentario' class='form-label'> Monto solicitado </label>
+                                                <p>{$row['monto']}</p>
+                                            </div>
+
+                                            <div class='mb-3'>
+                                                <label for='comentario' class='form-label'> Plazo </label>
+                                                <p>{$row['plazo']}</p>
+                                            </div>
+
+                                            <div class='mb-3'>
+                                                <label for='comentario' class='form-label'> Forma de pago </label>
+                                                <p>{$row['forma_pago']}</p>
+                                            </div>
+                                            
+
                                             <div class='mb-3'>
                                                 <label for='comentario' class='form-label'>Comentario (opcional)</label>
                                                 <textarea class='form-control' name='comentario' rows='3'></textarea>

@@ -514,8 +514,8 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
             Forma de pago indicada: '.$forma_pago.' <br>
             ';
 
-            //$copia = ["abi.pineda@grupopcr.com.pa", "pedro.arrieta@grupopcr.com.pa"];
-            $copia = ["pedro.arrieta@grupopcr.com.pa"];
+            $copia = ["abi.pineda@grupopcr.com.pa", "pedro.arrieta@grupopcr.com.pa"];
+            //$copia = ["pedro.arrieta@grupopcr.com.pa"];
         
             $class->enviar_correo("rrhhgpcr@grupopcr.com.pa", $copia, "Calamidad de '".$nombre_comple."' ", $mensaje);
 

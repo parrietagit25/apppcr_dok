@@ -318,11 +318,18 @@ class Rrhh {
 
     public function calamidades_rrhh() {
 
-        $stmt = $this->pdo->prepare("SELECT ct.id, ct.descripcion, ct.fecha_log, 
+        $stmt = $this->pdo->prepare("SELECT 
+                                        ct.id, 
+                                        ct.descripcion, 
+                                        ct.fecha_log, 
                                         CASE ct.stat
                                             WHEN 1 THEN 'Solicitado'
                                             WHEN 2 THEN 'Revisado'
                                         END AS estado, 
+                                        c.departamento,
+                                        ct.monto,
+                                        ct.plazo,
+                                        ct.forma_pago,
                                         c.nombre,
                                         ct.file_add FROM calamidades ct inner join col_datos_generales c on ct.code_user = c.codigo  
                                         WHERE 
