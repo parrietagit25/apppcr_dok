@@ -508,7 +508,11 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
 
             $mensaje = 'El colaborador '.$nombre_comple.' con codigo '.$codigo.' 
             ha registrado una calamidad. <br>
-            Comentarios del colaborador: '.$descripcion;
+            Comentarios del colaborador: '.$descripcion.' <br>
+            Monto indicado: '.$monto.' <br>
+            Plazo indicado: '.$plazo.' <br>
+            Forma de pago indicada: '.$forma_pago.' <br>
+            ';
 
             //$copia = ["abi.pineda@grupopcr.com.pa", "pedro.arrieta@grupopcr.com.pa"];
             $copia = ["pedro.arrieta@grupopcr.com.pa"];
