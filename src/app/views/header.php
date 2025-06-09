@@ -128,6 +128,44 @@
         .birthday-info h5 {
             font-weight: bold;
         }
+
+        .header {
+            background-color: #002f6c;
+            color: white;
+            padding: 20px;
+            border-bottom-left-radius: 30px;
+            border-bottom-right-radius: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .card-icon {
+            padding: 20px;
+            border-radius: 15px;
+            background-color: white;
+            box-shadow: 0px 4px 10px rgba(0,0,0,0.05);
+            transition: transform 0.2s;
+        }
+        .card-icon:hover {
+            transform: scale(1.02);
+        }
+        .card-icon img {
+            height: 40px;
+            margin-bottom: 10px;
+        }
+        .card-title {
+            font-weight: bold;
+            font-size: 15px;
+            color: #002f6c;
+        }
+        .section-title {
+            font-weight: bold;
+            color: #002f6c;
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+
     </style>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
@@ -164,11 +202,13 @@
         </div>
     </nav>
 
-    <div class="header">
-        <h1>Grupo <b>PCR</b></h1>
-        <p>Hola <?php echo htmlspecialchars($nombre, ENT_QUOTES, 'UTF-8'); ?></p>
-        <!--<span class="notification-icon">
-            <i class="bi bi-bell"></i>
-            <span class="badge"></span>
-        </span>-->
+    <div class="header d-flex justify-content-between align-items-center px-3 py-3">
+        <div>
+            <img src="<?php echo BASE_URL_IMAGE; ?>logo_gentepcr.png" alt="Logo PCR" height="40">
+            <p class="mt-2 fw-bold">¡Hola <?php echo htmlspecialchars($nombre); ?>!</p>
+        </div>
+        <div class="text-end text-white-50">
+            <?php echo date('d \d\e F \d\e Y'); ?>
+        </div>
     </div>
+

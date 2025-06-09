@@ -66,7 +66,7 @@ include __DIR__ . '/header.php';
     </div>
 
     <!-- Iconos de funcionalidades -->
-    <div class="row text-center mb-4">
+    <?php /*<div class="row text-center mb-4">
         <div class="col-4">
             <a href="<?php echo BASE_URL_CONTROLLER; ?>RRHHController.php" class="text-decoration-none">
                 <div class="p-2">
@@ -170,7 +170,86 @@ include __DIR__ . '/header.php';
         </div>
         <?php } ?>
 
+    </div> */ ?>
+
+    <div class="container">
+        <div class="section-title">Mi Espacio</div>
+        <div class="row text-center mb-3">
+            <div class="col-4 mb-3">
+                <a href="<?php echo BASE_URL_CONTROLLER; ?>/CarnetController.php" class="text-decoration-none">
+                    <div class="card-icon">
+                        <img src="<?php echo BASE_URL_IMAGE; ?>carnet.png" alt="Carnet">
+                        <div class="card-title">Mi Carnet</div>
+                    </div>
+                </a>
+            </div>
+            <div class="col-4 mb-3">
+                <a href="<?php echo BASE_URL_CONTROLLER; ?>/MainController.php?cumple=1" class="text-decoration-none">
+                    <div class="card-icon">
+                        <img src="<?php echo BASE_URL_IMAGE; ?>hb.png" alt="Cumpleaños">
+                        <div class="card-title">Cumpleaños</div>
+                    </div>
+                </a>
+            </div>
+            <div class="col-4 mb-3">
+                <a href="mailto:rrhh@grupopcr.com.pa" class="text-decoration-none">
+                    <div class="card-icon">
+                        <img src="<?php echo BASE_URL_IMAGE; ?>ico_correo.png" alt="Correo">
+                        <div class="card-title">Correo</div>
+                    </div>
+                </a>
+            </div>
+        </div>
+
+        <div class="section-title">Mis Beneficios</div>
+        <div class="row text-center mb-4">
+            <div class="col-4 mb-3">
+                <a href="<?php echo BENEFICIOS; ?>" class="text-decoration-none" target="_blank">
+                    <div class="card-icon">
+                        <img src="<?php echo BASE_URL_IMAGE; ?>beneficios.png" alt="Beneficios">
+                        <div class="card-title">Mis Beneficios</div>
+                    </div>
+                </a>
+            </div>
+            <div class="col-4 mb-3">
+                <a href="https://www.talentoen360.com/loginForm" class="text-decoration-none" target="_blank">
+                    <div class="card-icon">
+                        <img src="<?php echo BASE_URL_IMAGE; ?>ico_evaluacion.png" alt="Evaluación">
+                        <div class="card-title">Evaluación</div>
+                    </div>
+                </a>
+            </div>
+            <div class="col-4 mb-3">
+                <a href="tel:+50763796524" class="text-decoration-none">
+                    <div class="card-icon">
+                        <img src="<?php echo BASE_URL_IMAGE; ?>ico_linea_apoyo.png" alt="Línea de Apoyo">
+                        <div class="card-title">Línea de Apoyo</div>
+                    </div>
+                </a>
+            </div>
+        </div>
     </div>
+
+    <div class="container my-4">
+        <div class="bg-white rounded shadow p-3 text-center">
+            <h6 class="fw-bold text-secondary">🔔 FRASE DE LA SEMANA</h6>
+            <blockquote class="fst-italic text-muted mt-2">"<?php echo $frase['frase']; ?>"</blockquote>
+        </div>
+    </div>
+
+    <div class="fixed-bottom d-flex justify-content-around bg-primary py-2">
+        <a href="#" class="text-white text-center">
+            <i class="bi bi-house-door-fill fs-4"></i><br><small>Inicio</small>
+        </a>
+        <a href="#" class="text-white text-center">
+            <i class="bi bi-gear-fill fs-4"></i><br><small>Ajustes</small>
+        </a>
+        <a href="<?php echo BASE_URL_LINK; ?>/salir.php" class="text-white text-center">
+            <i class="bi bi-box-arrow-right fs-4"></i><br><small>Salir</small>
+        </a>
+    </div>
+
+
 
     <!-- Top beneficios 
     <div class="bg-light p-3 rounded">
