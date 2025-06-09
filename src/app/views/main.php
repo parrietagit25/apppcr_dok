@@ -42,7 +42,7 @@ include __DIR__ . '/header.php';
     <!-- 
     Modal frase de la semana
     -->
-
+    <?php /*
     <div class="modal fade" id="frase_semana" tabindex="-1" aria-labelledby="solicitudModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -64,7 +64,7 @@ include __DIR__ . '/header.php';
             </div>
         </div>
     </div>
-
+       */ ?>
     <!-- Iconos de funcionalidades -->
     <?php /*<div class="row text-center mb-4">
         <div class="col-4">
