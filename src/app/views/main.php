@@ -179,7 +179,7 @@ include __DIR__ . '/header.php';
             <div class="col-4 mb-3">
                 <a href="<?php echo BASE_URL_CONTROLLER; ?>/CarnetController.php" class="text-decoration-none">
                     <div class="card-icon">
-                        <img src="<?php echo BASE_URL_IMAGE; ?>carnet.png" alt="Carnet">
+                        <img src="<?php echo BASE_URL_IMAGE; ?>carnet.svg" alt="Carnet">
                         <div class="card-title">Mi Carnet</div>
                     </div>
                 </a>
