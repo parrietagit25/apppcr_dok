@@ -29,6 +29,7 @@ include __DIR__ . '/header.php';
     <?php }else{ ?>
     <div id="carouselExampleSlidesOnly" class="carousel slide mb-4" data-bs-ride="carousel">
     <?php } ?>
+    <?php /*
         <div class="carousel-inner">
             <div class="carousel-item active">
                 <div class="p-3 bg-light rounded">
@@ -42,7 +43,7 @@ include __DIR__ . '/header.php';
     <!-- 
     Modal frase de la semana
     -->
-    <?php /*
+    
     <div class="modal fade" id="frase_semana" tabindex="-1" aria-labelledby="solicitudModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
