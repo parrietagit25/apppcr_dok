@@ -10,7 +10,7 @@ class User {
 
         try {
             $stmt = $this->pdo->prepare("SELECT pass FROM empleado_log el inner join empleados e on el.codigo = e.codigo_empleado WHERE el.codigo = :code AND el.stat = 1 AND e.estatus_empleado='A'");
-            $stmt->bindParam(':code', $code, PDO::PARAM_INT);
+            $stmt->bindParam(':code', $code, PDO::PARAM_STR);
             $stmt->execute();
     
             $user = $stmt->fetch(PDO::FETCH_ASSOC);
