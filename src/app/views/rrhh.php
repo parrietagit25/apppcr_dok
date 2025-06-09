@@ -243,7 +243,7 @@ include __DIR__ . '/header.php';
         </div>
         <div>
             <a href="https://www.konzerta.com/empleos-busqueda-panama-car-rental.html" target="_blank">
-                <img src="<?php echo BASE_URL_IMAGE; ?>ico_vacantes.png" width="65" alt="Vacantes PCR">
+                <img src="<?php echo BASE_URL_IMAGE; ?>ico_vacantes.svg" width="65" alt="Vacantes PCR">
             </a>
         </div>
     </div>
