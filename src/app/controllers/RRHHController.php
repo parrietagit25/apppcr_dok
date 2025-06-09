@@ -32,7 +32,7 @@ $tipo_usuario = $userModel->get_tyte_user();
 $todos_datos = $class->datos_colaborador();
 $nombre = "";
 foreach ($todos_datos as $key => $value) {
-    $nombre = $value['nombre']. ' ' .$value['apellido'];
+    $nombre = $value['nombre']; //. ' ' .$value['apellido'];
 }
 
 if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
