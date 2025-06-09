@@ -52,7 +52,7 @@
         /* main */
 
         body {
-            background-color: #ffffff;
+            background-color: #e6e6e6;
             font-family: 'Arial', sans-serif;
             margin: 0;
             padding: 0;
@@ -107,7 +107,7 @@
     </style>
     <style>
         body {
-            background: linear-gradient(to right, #FFDEE9, #B5FFFC);
+            background-color: #e6e6e6;
             font-family: Arial, sans-serif;
         }
         .card {
