@@ -43,7 +43,7 @@ public function nombre_colaborador() {
     $stmt->execute();
 
     if ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-        return $row['nombre'] . ' ' . $row['apellido'];
+        return $row['nombre']; //. ' ' . $row['apellido'];
     }
 
     // Si no se encuentra, buscar en colaboradores_externos
