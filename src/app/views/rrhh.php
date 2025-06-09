@@ -162,7 +162,7 @@ include __DIR__ . '/header.php';
         <div class="row text-center mt-3">
             <div class="col-4 mb-3">
                 <a href="<?php echo BASE_URL_CONTROLLER; ?>RRHHController.php?mis_datos=1" class="text-decoration-none">
-                    <img src="<?php echo BASE_URL_IMAGE; ?>misdatos.png" width="45">
+                    <img src="<?php echo BASE_URL_IMAGE; ?>misdatos.svg" width="45">
                     <div class="text-muted small">Mis Datos</div>
                 </a>
             </div>
@@ -181,13 +181,13 @@ include __DIR__ . '/header.php';
             <?php if ($tipo_usuario == 1 || $tipo_usuario == 4) { ?>
             <div class="col-4 mb-3">
                 <a href="<?php echo BASE_URL_CONTROLLER; ?>/RRHHController.php?carta_trabajo_aprobar=1" class="text-decoration-none">
-                    <img src="<?php echo BASE_URL_IMAGE; ?>ico_carta_trabajo.png" width="45">
+                    <img src="<?php echo BASE_URL_IMAGE; ?>ico_carta_trabajo.svg" width="45">
                     <div class="text-muted small">V-Carta Trabajo</div>
                 </a>
             </div>
             <div class="col-4 mb-3">
                 <a href="<?php echo BASE_URL_CONTROLLER; ?>/RRHHController.php?calamidad_vrrhh=1" class="text-decoration-none">
-                    <img src="<?php echo BASE_URL_IMAGE; ?>solicitudva.png" width="45">
+                    <img src="<?php echo BASE_URL_IMAGE; ?>calamidad.svg" width="45">
                     <div class="text-muted small">V-Calamidades</div>
                 </a>
             </div>
@@ -201,13 +201,13 @@ include __DIR__ . '/header.php';
         <div class="row text-center mt-3">
             <div class="col-4 mb-3">
                 <a href="<?php echo BASE_URL_CONTROLLER; ?>/RRHHController.php?mis_vacaciones=1" class="text-decoration-none">
-                    <img src="<?php echo BASE_URL_IMAGE; ?>ico_vacaciones.png" width="45">
+                    <img src="<?php echo BASE_URL_IMAGE; ?>ico_vacaciones.svg" width="45">
                     <div class="text-muted small">Mis Vacaciones</div>
                 </a>
             </div>
             <div class="col-4 mb-3">
                 <a href="<?php echo BASE_URL_CONTROLLER; ?>/RRHHController.php?solicitud_permiso=1" class="text-decoration-none">
-                    <img src="<?php echo BASE_URL_IMAGE; ?>permiso1.png" width="45">
+                    <img src="<?php echo BASE_URL_IMAGE; ?>permiso1.svg" width="45">
                     <div class="text-muted small">Solicitar Permiso</div>
                 </a>
             </div>
@@ -228,7 +228,7 @@ include __DIR__ . '/header.php';
             <?php if ($tipo_usuario == 1 || $tipo_usuario == 4) { ?>
             <div class="col-4 mb-3">
                 <a href="<?php echo BASE_URL_CONTROLLER; ?>/RRHHController.php?incapacidad_vrrhh=1" class="text-decoration-none">
-                    <img src="<?php echo BASE_URL_IMAGE; ?>ico_incapacidades.png" width="45">
+                    <img src="<?php echo BASE_URL_IMAGE; ?>ico_incapacidades.svg" width="45">
                     <div class="text-muted small">V-Incapacidades</div>
                 </a>
             </div>
@@ -243,7 +243,7 @@ include __DIR__ . '/header.php';
         </div>
         <div>
             <a href="https://www.konzerta.com/empleos-busqueda-panama-car-rental.html" target="_blank">
-                <img src="<?php echo BASE_URL_IMAGE; ?>ico_vacantes.svg" width="65" alt="Vacantes PCR">
+                <img width="80" src="<?php echo BASE_URL_IMAGE; ?>ico_vacantes.svg" width="65" alt="Vacantes PCR">
             </a>
         </div>
     </div>
