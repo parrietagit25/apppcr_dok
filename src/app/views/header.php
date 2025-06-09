@@ -206,10 +206,14 @@
 
     </div>
 
-    <div>
-        <p class="mt-2 fw-bold"><img src="<?php echo BASE_URL_IMAGE; ?>genteico.png" alt="Logo PCR" height="40"> ¡Hola <?php echo htmlspecialchars($nombre); ?>!</p>
+    <div class="header d-flex justify-content-between align-items-center px-3 py-3">
+        <div class="d-flex align-items-center">
+            <img src="<?php echo BASE_URL_IMAGE; ?>genteico.png" alt="Logo PCR" height="40" class="me-2">
+            <p class="mb-0 fw-bold">¡Hola <?php echo htmlspecialchars($nombre); ?>!</p>
+        </div>
+        <div class="text-end text-white-50 small">
+            <?php echo date('d \d\e F \d\e Y'); ?>
+        </div>
     </div>
-    <div class="text-end text-black-50">
-        <?php echo date('d \d\e F \d\e Y'); ?>
-    </div>
+
 
