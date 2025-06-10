@@ -104,7 +104,7 @@ include __DIR__ . '/header.php';
           </div>
           <div class="mb-3">
             <label for="monto" class="form-label">Monto del préstamo</label>
-            <input type="text" class="form-control" name="monto" id="monto" required>
+            <input type="number" class="form-control" name="monto" id="monto" required>
           </div>
           <div class="mb-3">
             <label for="plazo" class="form-label">Plazo</label>
