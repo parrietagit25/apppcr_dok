@@ -355,8 +355,8 @@ class Rrhh {
         $stmt->bindParam(':file_add', $file_add, PDO::PARAM_STR);
         $stmt->bindParam(':user_update', $user_update, PDO::PARAM_INT);
         $stmt->bindParam(':monto', $monto, PDO::PARAM_STR);
-        $stmt->bindParam(':plazo', $monto, PDO::PARAM_STR);
-        $stmt->bindParam(':forma_pago', $monto, PDO::PARAM_STR);
+        $stmt->bindParam(':plazo', $plazo, PDO::PARAM_STR);
+        $stmt->bindParam(':forma_pago', $forma_pago, PDO::PARAM_STR);
 
         return $stmt->execute();
 
