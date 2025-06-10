@@ -45,6 +45,14 @@ include __DIR__ . '/header.php';
                     foreach ($permisos as $row) {
                         $status = $row['stat'] == 1 ? 'Solicitado' : ($row['stat'] == 2 ? 'Aprobado' : 'Declinado');
 
+                        $cantidad_dias = 0;
+                        if($row['tipo_licencia'] == 'Vacaciones'){
+                            $inicio = new DateTime($fecha_inicio);
+                            $fin = new DateTime($fecha_fin);
+                            $diferencia = $inicio->diff($fin);
+                            $cantidad_dias = $diferencia->days;
+                        }
+
                         echo "<tr>
                                 <td>" . htmlspecialchars($row['nombre'] . ' ' . $row['apellido']) . "</td>
                                 <td>" . htmlspecialchars($row['tipo_licencia']) . "</td>
@@ -84,8 +92,12 @@ include __DIR__ . '/header.php';
                                                 <label class='form-label'>Fecha Desde</label>
                                                 <b>{$row['fecha_inicio']}</b><br>
                                                 <label class='form-label'>Fecha Hasta</label>
-                                                <b>{$row['fecha_fin']}</b>
-                                            </div>
+                                                <b>{$row['fecha_fin']}</b>";
+                                        if ($row['tipo_licencia'] == 'Vacaciones') {
+                                               echo " <label class='form-label'>Cantidad de dias</label>
+                                                <b>{$cantidad_dias}</b>";
+                                        }
+                                           echo " </div>
 
                                             {$archivo}
 
