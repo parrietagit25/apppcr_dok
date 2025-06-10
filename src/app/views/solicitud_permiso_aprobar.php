@@ -47,8 +47,8 @@ include __DIR__ . '/header.php';
 
                         $cantidad_dias = 0;
                         if($row['tipo_licencia'] == 'Vacaciones'){
-                            $inicio = new DateTime($fecha_inicio);
-                            $fin = new DateTime($fecha_fin);
+                            $inicio = new DateTime($row['fecha_inicio']);
+                            $fin = new DateTime($row['fecha_fin']);
                             $diferencia = $inicio->diff($fin);
                             $cantidad_dias = $diferencia->days;
                         }
