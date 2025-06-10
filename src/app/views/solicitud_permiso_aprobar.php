@@ -92,9 +92,9 @@ include __DIR__ . '/header.php';
                                                 <label class='form-label'>Fecha Desde</label>
                                                 <b>{$row['fecha_inicio']}</b><br>
                                                 <label class='form-label'>Fecha Hasta</label>
-                                                <b>{$row['fecha_fin']}</b>";
+                                                <b>{$row['fecha_fin']}</b><br>";
                                         if ($row['tipo_licencia'] == 'Vacaciones') {
-                                               echo " <label class='form-label'>Cantidad de dias</label>
+                                         echo " <label class='form-label'>Cantidad de dias</label>
                                                 <b>{$cantidad_dias}</b>";
                                         }
                                            echo " </div>
