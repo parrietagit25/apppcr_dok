@@ -289,12 +289,22 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
 
         /***** ######################### email para el enargado **************************** */
 
+        $cantidad_dias = 0;
+        if($row['tipo_licencia'] == 'Vacaciones'){
+            $inicio = new DateTime($fecha_inicio);
+            $fin = new DateTime($fecha_fin);
+            $diferencia = $inicio->diff($fin);
+            $cantidad_dias = $diferencia->days;
+        }
+
         $mensaje = '
         <h4 style="color:rgb(250, 11, 2);">Aprobación pendiente: Solicitud de permiso de colaborador</h4>
 
         <p>El colaborador <strong>' . $nombre_comple . '</strong> (Código de empleado: <strong>' . $codigo . '</strong>) ha solicitado un permiso del tipo <strong>' . $tipo_licencia . '</strong>.</p>
 
         <p><strong>Periodo solicitado:</strong> desde el <strong>' . $fecha_inicio . '</strong> hasta el <strong>' . $fecha_fin . '</strong></p>
+
+        <p><strong>Cantidad de dias:' . $cantidad_dias . '</strong></p>
 
         <p><strong>Descripción del permiso:</strong><br>' . nl2br($descripcion) . '</p>
 
