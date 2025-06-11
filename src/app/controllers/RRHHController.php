@@ -546,10 +546,16 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
 
         $class->update_calamidad($_POST['calamidad_id']);
 
-        $dartos_cola = $class->datos_colaborador();
+        /* $dartos_cola = $class->datos_colaborador();
         foreach ($dartos_cola as $key => $value) {
             $nombre_comple = $value['nombre']. ' ' .$value['apellido']; 
             $codigo = $value['codigo_empleado'];
+            $email = $value['email'];
+        }*/
+
+        $get_email_colab = $class->get_email_calamidad($_POST['calamidad_id']);
+        foreach ($get_email_colab as $key => $value) {
+            $nombre_comple = $value['nombre']. ' ' .$value['apellido']; 
             $email = $value['email'];
         }
 

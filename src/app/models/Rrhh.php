@@ -890,6 +890,18 @@ class Rrhh {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    public function get_email_calamidad($id_calamidad) {
+        $stmt = $this->pdo->prepare("SELECT c.email, c.nombre, c.apellido
+                                        FROM calamidades ca 
+                                        INNER JOIN empleados c 
+                                            ON LPAD(ca.code_user, 6, '0') = c.codigo_empleado
+                                        WHERE ca.id = :id_calamidad;");
+        $stmt->bindParam(':id_calamidad', $id_calamidad, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+
+    }
+
 }
 
 
