@@ -290,12 +290,10 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
         /***** ######################### email para el enargado **************************** */
 
         $cantidad_dias = 0;
-        if($row['tipo_licencia'] == 'Vacaciones'){
-            $inicio = new DateTime($fecha_inicio);
-            $fin = new DateTime($fecha_fin);
-            $diferencia = $inicio->diff($fin);
-            $cantidad_dias = $diferencia->days;
-        }
+        $inicio = new DateTime($fecha_inicio);
+        $fin = new DateTime($fecha_fin);
+        $diferencia = $inicio->diff($fin);
+        $cantidad_dias = $diferencia->days;
 
         $mensaje = '
         <h4 style="color:rgb(250, 11, 2);">Aprobación pendiente: Solicitud de permiso de colaborador</h4>
