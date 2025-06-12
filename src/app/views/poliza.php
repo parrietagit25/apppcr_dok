@@ -32,7 +32,7 @@ include __DIR__ . '/header.php';
                 <a href="https://seguros.doctor-online.co/webm/views/login.php?resource=b60aa9f45cca11ebae930242ac130002" target="_blank" class="text-decoration-none">
                     <div style="background-color: #f8f9fa; padding: 20px; border-radius: 10px;">
                         <img width="100" src="<?php echo BASE_URL_IMAGE; ?>dr_minutos.png" alt="Cumpleaños">
-                        <div class="card-title"><small>Dr. en Minutos</small></div>
+                        <div class="card-title"><small>Doctor en Minutos</small></div>
                     </div>
                 </a>
             </div>
