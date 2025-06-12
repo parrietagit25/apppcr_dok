@@ -87,44 +87,43 @@ include __DIR__ . '/header.php';
                         </div> 
                         
 
-                        <!-- Modal para generar carta -->
-                        <div class='modal fade' id='modalGenerarCarta<?php echo $row['id']; ?>' tabindex='-1' aria-labelledby='modalCartaLabel<?php echo $row['id']; ?>' aria-hidden='true'>
+                        <div class='modal fade' id='modalGenerarCarta{$row['id']}' tabindex='-1' aria-labelledby='modalLabelGenerarCarta{$row['id']}' aria-hidden='true'>
                             <div class='modal-dialog modal-lg'>
                                 <div class='modal-content'>
                                     <form action='generar_carta_pdf.php' method='POST' target='_blank'>
                                         <div class='modal-header'>
-                                            <h5 class='modal-title'>Generar Carta de Trabajo</h5>
+                                            <h5 class='modal-title' id='modalLabelGenerarCarta{$row['id']}'>Generar Carta de Trabajo</h5>
                                             <button type='button' class='btn-close' data-bs-dismiss='modal' aria-label='Cerrar'></button>
                                         </div>
                                         <div class='modal-body'>
-                                            <input type='hidden' name='solicitud_id' value='<?php echo $row['id']; ?>'>
+                                            <input type='hidden' name='solicitud_id' value='{$row['id']}'>
                                             <div class='row g-3'>
                                                 <div class='col-md-6'>
                                                     <label class='form-label'>Nombre completo</label>
-                                                    <input type='text' class='form-control' name='nombre' value='<?php echo htmlspecialchars($row['nombre'] . ' ' . $row['apellido']); ?>' required>
+                                                    <input type='text' class='form-control' name='nombre' value='" . htmlspecialchars($row['nombre'] . ' ' . $row['apellido']) . "' required>
                                                 </div>
                                                 <div class='col-md-6'>
                                                     <label class='form-label'>Cédula</label>
-                                                    <input type='text' class='form-control' name='cedula' value='<?php echo htmlspecialchars($row['cedula']); ?>' required>
+                                                    <input type='text' class='form-control' name='cedula' value='" . htmlspecialchars($row['cedula']) . "' required>
                                                 </div>
                                                 <div class='col-md-6'>
                                                     <label class='form-label'>Seguro Social</label>
-                                                    <input type='text' class='form-control' name='seguro' value='<?php echo htmlspecialchars($row['seguro_social']); ?>' required>
+                                                    <input type='text' class='form-control' name='seguro' value='" . htmlspecialchars($row['seguro_social']) . "' required>
                                                 </div>
                                                 <div class='col-md-6'>
                                                     <label class='form-label'>Fecha de ingreso</label>
-                                                    <input type='date' class='form-control' name='fecha_ingreso' value='<?php echo htmlspecialchars($row['fecha_ingreso']); ?>' required>
+                                                    <input type='date' class='form-control' name='fecha_ingreso' value='" . htmlspecialchars($row['fecha_ingreso']) . "' required>
                                                 </div>
                                                 <div class='col-md-6'>
                                                     <label class='form-label'>Cargo</label>
-                                                    <input type='text' class='form-control' name='cargo' value='<?php echo htmlspecialchars($row['nombre_cargo']); ?>' required>
+                                                    <input type='text' class='form-control' name='cargo' value='" . htmlspecialchars($row['nombre_cargo']) . "' required>
                                                 </div>
                                                 <div class='col-md-6'>
                                                     <label class='form-label'>Salario</label>
-                                                    <input type='number' step='0.01' class='form-control' name='salario' value='<?php echo htmlspecialchars($row['salario_pactado']); ?>' required>
+                                                    <input type='number' step='0.01' class='form-control' name='salario' value='" . htmlspecialchars($row['salario_pactado']) . "' required>
                                                 </div>
                                                 <div class='col-md-4'>
-                                                    <label class='form-label'>Seguro Social</label>
+                                                    <label class='form-label'>Seguro Social (desc)</label>
                                                     <input type='number' step='0.01' class='form-control' name='desc_seguro' value='0.00'>
                                                 </div>
                                                 <div class='col-md-4'>
@@ -132,7 +131,7 @@ include __DIR__ . '/header.php';
                                                     <input type='number' step='0.01' class='form-control' name='desc_educativo' value='0.00'>
                                                 </div>
                                                 <div class='col-md-4'>
-                                                    <label class='form-label'>Impuesto Renta</label>
+                                                    <label class='form-label'>Imp. Renta</label>
                                                     <input type='number' step='0.01' class='form-control' name='desc_renta' value='0.00'>
                                                 </div>
                                             </div>
