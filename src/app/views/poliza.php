@@ -44,16 +44,27 @@ include __DIR__ . '/header.php';
     <br>
     <br>
 
-    <div class="fixed-bottom d-flex justify-content-around fondo-botones-abajo py-2">
-        <a href="#" class="text-white text-center">
-            <i class="bi bi-house-door-fill fs-4"></i><br><small>Inicio</small>
-        </a>
-        <a href="#" class="text-white text-center">
-            <i class="bi bi-gear-fill fs-4"></i><br><small>Ajustes</small>
-        </a>
-        <a href="<?php echo BASE_URL_LINK; ?>/salir.php" class="text-white text-center">
-            <i class="bi bi-box-arrow-right fs-4"></i><br><small>Salir</small>
-        </a>
-    </div>
+    <!-- Footer navegación -->
+    <nav class="navbar fixed-bottom navbar-light bg-primary">
+        <div class="container-fluid text-center text-white">
+            <div class="row w-100">
+                <div class="col">
+                    <a href="<?php echo BASE_URL_CONTROLLER; ?>/MainController.php" class="text-white text-decoration-none d-block py-2">
+                        <i class="bi bi-house-door-fill fs-4"></i><br><small>Inicio</small>
+                    </a>
+                </div>
+                <div class="col">
+                    <a href="#" class="text-white text-decoration-none d-block py-2">
+                        <i class="bi bi-gear-fill fs-4"></i><br><small>Ajustes</small>
+                    </a>
+                </div>
+                <div class="col">
+                    <a href="<?php echo BASE_URL_CONTROLLER; ?>/MainController.php" class="text-white text-decoration-none d-block py-2">
+                        <i class="bi bi-arrow-left-square-fill fs-4"></i><br><small>Volver</small>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
 </div>
 <?php include __DIR__ . '/footer.php'; ?>
