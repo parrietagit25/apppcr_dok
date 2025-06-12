@@ -32,7 +32,6 @@ include __DIR__ . '/header.php';
             <thead class="table-dark text-center">
                 <tr>
                     <th>Nombre</th>
-                    <th>Descripción</th>
                     <th>Fecha de Solicitud</th>
                     <th>Carta</th>
                     <th>Estado</th>
@@ -45,7 +44,6 @@ include __DIR__ . '/header.php';
                     foreach ($solicitudes as $row) {
                         echo "<tr>
                                 <td>" . htmlspecialchars($row['nombre'] . ' ' . $row['apellido']) . "</td>
-                                <td>" . htmlspecialchars($row['descripcion']) . "</td>
                                 <td>" . htmlspecialchars($row['fecha_log']) . "</td>
                                 <td class='text-center'>
                                     <button class='btn btn-sm btn-primary' data-bs-toggle='modal' data-bs-target='#modalGenerarCarta{$row['id']}'>
@@ -97,6 +95,12 @@ include __DIR__ . '/header.php';
                                         </div>
                                         <div class='modal-body'>
                                             <input type='hidden' name='solicitud_id' value='{$row['id']}'>
+                                            
+                                            <div class='mb-3'>
+                                                <p><strong>Descripción de la solicitud:</strong><br> " . nl2br(htmlspecialchars($row['descripcion'])) . "</p>
+                                                <p><strong>Fecha de solicitud:</strong> " . htmlspecialchars(date("d-m-Y", strtotime($row['fecha_log']))) . "</p>
+                                            </div>
+
                                             <div class='row g-3'>
                                                 <div class='col-md-6'>
                                                     <label class='form-label'>Nombre completo</label>
@@ -142,7 +146,9 @@ include __DIR__ . '/header.php';
                                     </form>
                                 </div>
                             </div>
-                        </div>";
+                        </div>
+";
+
                     }
                 } else {
                     echo "<tr><td colspan='4' class='text-center'>No hay solicitudes registradas.</td></tr>";
