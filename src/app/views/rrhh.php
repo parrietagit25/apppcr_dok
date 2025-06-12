@@ -233,12 +233,12 @@ include __DIR__ . '/header.php';
                 </a>
             </div>
             <?php } ?>
-            <div class="col-4 mb-3">
+            <!--<div class="col-4 mb-3">
                 <a href="https://seguros.doctor-online.co/webm/views/login.php?resource=b60aa9f45cca11ebae930242ac130002" class="text-decoration-none">
                     <img src="<?php echo BASE_URL_IMAGE; ?>dr_minutos.png" width="45">
                     <div class="text-muted small">Dr. en Minutos</div>
                 </a>
-            </div>
+            </div>-->
         </div>
     </div>
 
