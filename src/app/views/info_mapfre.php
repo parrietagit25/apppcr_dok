@@ -83,8 +83,6 @@ include __DIR__ . '/header.php';
                     </div>
                 </div>
             </div>
-
-           
         </div>
     </div>
 

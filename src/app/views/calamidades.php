@@ -20,7 +20,7 @@ include __DIR__ . '/header.php';
 
     <div class="text-center mb-4">
         <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#calamidad">
-            Subir Calamidad
+            Completar solicitud
         </button>
     </div>
 
@@ -88,13 +88,13 @@ include __DIR__ . '/header.php';
   </div>
 </div>
 
-<!-- Modal Subir Calamidad -->
+<!-- Modal Completar solicitud -->
 <div class="modal fade" id="calamidad" tabindex="-1" aria-labelledby="solicitudModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
       <form action="" method="POST" enctype="multipart/form-data">
         <div class="modal-header">
-          <h5 class="modal-title" id="solicitudModalLabel">Subir Calamidad</h5>
+          <h5 class="modal-title" id="solicitudModalLabel">Completar solicitud</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
         </div>
         <div class="modal-body">
