@@ -88,23 +88,22 @@ include __DIR__ . '/header.php';
                         <div class='modal fade' id='modalGenerarCarta{$row['id']}' tabindex='-1' aria-labelledby='modalLabelGenerarCarta{$row['id']}' aria-hidden='true'>
                             <div class='modal-dialog modal-lg'>
                                 <div class='modal-content'>
-                                    <form action='generar_carta_pdf.php' method='POST' target='_blank'>
+                                    <form action='' method='POST'>
                                         <div class='modal-header'>
                                             <h5 class='modal-title' id='modalLabelGenerarCarta{$row['id']}'>Generar Carta de Trabajo</h5>
                                             <button type='button' class='btn-close' data-bs-dismiss='modal' aria-label='Cerrar'></button>
                                         </div>
                                         <div class='modal-body'>
                                             <input type='hidden' name='solicitud_id' value='{$row['id']}'>
-                                            
                                             <div class='mb-3'>
-                                                <p><strong>Descripción de la solicitud:</strong><br> " . nl2br(htmlspecialchars($row['descripcion'])) . "</p>
-                                                <p><strong>Fecha de solicitud:</strong> " . htmlspecialchars(date("d-m-Y", strtotime($row['fecha_log']))) . "</p>
+                                                <label class='form-label'><strong>Descripción editable:</strong></label>
+                                                <textarea class='form-control' name='descripcion' rows='3'>" . htmlspecialchars($row['descripcion']) . "</textarea>
+                                                <p class='mt-2'><strong>Fecha de solicitud:</strong> " . htmlspecialchars(date("d-m-Y", strtotime($row['fecha_log']))) . "</p>
                                             </div>
-
                                             <div class='row g-3'>
                                                 <div class='col-md-6'>
                                                     <label class='form-label'>Nombre completo</label>
-                                                    <input type='text' class='form-control' name='nombre' value='" . htmlspecialchars($row['nombre'] . ' ' . $row['apellido']) . "' required>
+                                                    <input type='text' class='form-control' name='nombre' value='" . htmlspecialchars($row['nombre']) . "' required>
                                                 </div>
                                                 <div class='col-md-6'>
                                                     <label class='form-label'>Cédula</label>
@@ -112,7 +111,7 @@ include __DIR__ . '/header.php';
                                                 </div>
                                                 <div class='col-md-6'>
                                                     <label class='form-label'>Seguro Social</label>
-                                                    <input type='text' class='form-control' name='seguro' value='" . htmlspecialchars($row['seguro_social']) . "' required>
+                                                    <input type='text' class='form-control' name='seguro' value='" . htmlspecialchars($row['seguro']) . "' required>
                                                 </div>
                                                 <div class='col-md-6'>
                                                     <label class='form-label'>Fecha de ingreso</label>
@@ -120,35 +119,35 @@ include __DIR__ . '/header.php';
                                                 </div>
                                                 <div class='col-md-6'>
                                                     <label class='form-label'>Cargo</label>
-                                                    <input type='text' class='form-control' name='cargo' value='" . htmlspecialchars($row['nombre_cargo']) . "' required>
+                                                    <input type='text' class='form-control' name='cargo' value='" . htmlspecialchars($row['cargo']) . "' required>
                                                 </div>
                                                 <div class='col-md-6'>
                                                     <label class='form-label'>Salario</label>
-                                                    <input type='number' step='0.01' class='form-control' name='salario' value='" . htmlspecialchars($row['salario_pactado']) . "' required>
+                                                    <input type='number' step='0.01' class='form-control' name='salario' value='" . htmlspecialchars($row['salario']) . "' required>
                                                 </div>
                                                 <div class='col-md-4'>
                                                     <label class='form-label'>Seguro Social (desc)</label>
-                                                    <input type='number' step='0.01' class='form-control' name='desc_seguro' value='0.00'>
+                                                    <input type='number' step='0.01' class='form-control' name='desc_seguro' value='" . htmlspecialchars($row['desc_seguro']) . "'>
                                                 </div>
                                                 <div class='col-md-4'>
                                                     <label class='form-label'>Seguro Educativo</label>
-                                                    <input type='number' step='0.01' class='form-control' name='desc_educativo' value='0.00'>
+                                                    <input type='number' step='0.01' class='form-control' name='desc_educativo' value='" . htmlspecialchars($row['desc_educativo']) . "'>
                                                 </div>
                                                 <div class='col-md-4'>
                                                     <label class='form-label'>Imp. Renta</label>
-                                                    <input type='number' step='0.01' class='form-control' name='desc_renta' value='0.00'>
+                                                    <input type='number' step='0.01' class='form-control' name='desc_renta' value='" . htmlspecialchars($row['desc_renta']) . "'>
                                                 </div>
                                             </div>
                                         </div>
                                         <div class='modal-footer'>
                                             <button type='submit' class='btn btn-primary' name='guardar_formulario'>Guardar</button>
-                                            <button type='submit' class='btn btn-success' name='generar_pdf'>Generar PDF</button>
+                                            <button formaction='generar_carta_pdf.php' formtarget='_blank' class='btn btn-success' name='generar_pdf'>Generar PDF</button>
                                         </div>
-
                                     </form>
                                 </div>
                             </div>
                         </div>
+
 ";
 
                     }
