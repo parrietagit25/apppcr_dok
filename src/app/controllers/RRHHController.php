@@ -144,6 +144,41 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
             echo "<div class='alert alert-danger'>No se subió ningún archivo válido.</div>";
         }
     }
+
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['guardar_formulario'])) {
+            $stmt = $pdo->prepare("INSERT INTO carta_trabajo_formulario 
+                                    (carta_id, nombre, cedula, seguro, fecha_ingreso, cargo, salario, desc_seguro, desc_educativo, desc_renta, descripcion)
+                                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                                    ON DUPLICATE KEY UPDATE
+                                        nombre = VALUES(nombre),
+                                        cedula = VALUES(cedula),
+                                        seguro = VALUES(seguro),
+                                        fecha_ingreso = VALUES(fecha_ingreso),
+                                        cargo = VALUES(cargo),
+                                        salario = VALUES(salario),
+                                        desc_seguro = VALUES(desc_seguro),
+                                        desc_educativo = VALUES(desc_educativo),
+                                        desc_renta = VALUES(desc_renta),
+                                        descripcion = VALUES(descripcion)");
+
+            $stmt->execute([
+                $_POST['solicitud_id'],
+                $_POST['nombre'],
+                $_POST['cedula'],
+                $_POST['seguro'],
+                $_POST['fecha_ingreso'],
+                $_POST['cargo'],
+                $_POST['salario'],
+                $_POST['desc_seguro'],
+                $_POST['desc_educativo'],
+                $_POST['desc_renta'],
+                $_POST['descripcion']
+            ]);
+            
+            echo "<script>alert('Datos guardados correctamente');</script>";
+        }
+
+
     $solicitudes = $class->solicitudes_aprobar();
 
     require_once __DIR__ . '/../views/carta_trabajo_aprobar.php';

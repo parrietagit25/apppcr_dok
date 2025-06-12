@@ -141,8 +141,10 @@ include __DIR__ . '/header.php';
                                             </div>
                                         </div>
                                         <div class='modal-footer'>
-                                            <button type='submit' class='btn btn-success'>Generar PDF</button>
+                                            <button type='submit' class='btn btn-primary' name='guardar_formulario'>Guardar</button>
+                                            <button type='submit' class='btn btn-success' name='generar_pdf'>Generar PDF</button>
                                         </div>
+
                                     </form>
                                 </div>
                             </div>
