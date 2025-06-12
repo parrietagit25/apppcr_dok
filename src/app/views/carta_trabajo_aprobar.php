@@ -34,6 +34,7 @@ include __DIR__ . '/header.php';
                     <th>Nombre</th>
                     <th>Descripción</th>
                     <th>Fecha de Solicitud</th>
+                    <th>Carta</th>
                     <th>Estado</th>
                 </tr>
             </thead>
@@ -46,6 +47,11 @@ include __DIR__ . '/header.php';
                                 <td>" . htmlspecialchars($row['nombre'] . ' ' . $row['apellido']) . "</td>
                                 <td>" . htmlspecialchars($row['descripcion']) . "</td>
                                 <td>" . htmlspecialchars($row['fecha_log']) . "</td>
+                                <td class='text-center'>
+                                    <button class='btn btn-sm btn-primary' data-bs-toggle='modal' data-bs-target='#modalGenerarCarta{$row['id']}'>
+                                        Generar Carta
+                                    </button>
+                                </td>
                                 <td>
                                     <a href='#' data-bs-toggle='modal' data-bs-target='#modalAdjuntar{$row['id']}'>
                                         " . htmlspecialchars($row['estado']) . "
@@ -76,6 +82,65 @@ include __DIR__ . '/header.php';
                                             <button type='submit' class='btn btn-primary' name='aprobar_carta'>Subir archivo</button>
                                         </form>
                                     </div>
+                                </div>
+                            </div>
+                        </div> 
+                        
+
+                        <!-- Modal para generar carta -->
+                        <div class='modal fade' id='modalGenerarCarta{$row['id']}' tabindex='-1' aria-labelledby='modalCartaLabel{$row['id']}' aria-hidden='true'>
+                            <div class='modal-dialog modal-lg'>
+                                <div class='modal-content'>
+                                    <form action='generar_carta_pdf.php' method='POST' target='_blank'>
+                                        <div class='modal-header'>
+                                            <h5 class='modal-title'>Generar Carta de Trabajo</h5>
+                                            <button type='button' class='btn-close' data-bs-dismiss='modal' aria-label='Cerrar'></button>
+                                        </div>
+                                        <div class='modal-body'>
+                                            <input type='hidden' name='solicitud_id' value='{$row['id']}'>
+                                            <div class='row g-3'>
+                                                <div class='col-md-6'>
+                                                    <label class='form-label'>Nombre completo</label>
+                                                    <input type='text' class='form-control' name='nombre' value='" . htmlspecialchars($row['nombre'] . ' ' . $row['apellido']) . "' required>
+                                                </div>
+                                                <div class='col-md-6'>
+                                                    <label class='form-label'>Cédula</label>
+                                                    <input type='text' class='form-control' name='cedula' required>
+                                                </div>
+                                                <div class='col-md-6'>
+                                                    <label class='form-label'>Seguro Social</label>
+                                                    <input type='text' class='form-control' name='seguro' required>
+                                                </div>
+                                                <div class='col-md-6'>
+                                                    <label class='form-label'>Fecha de ingreso</label>
+                                                    <input type='date' class='form-control' name='fecha_ingreso' required>
+                                                </div>
+                                                <div class='col-md-6'>
+                                                    <label class='form-label'>Cargo</label>
+                                                    <input type='text' class='form-control' name='cargo' required>
+                                                </div>
+                                                <div class='col-md-6'>
+                                                    <label class='form-label'>Salario</label>
+                                                    <input type='number' step='0.01' class='form-control' name='salario' required>
+                                                </div>
+                                                <div class='col-md-4'>
+                                                    <label class='form-label'>Seguro Social</label>
+                                                    <input type='number' step='0.01' class='form-control' name='desc_seguro' value='0.00'>
+                                                </div>
+                                                <div class='col-md-4'>
+                                                    <label class='form-label'>Seguro Educativo</label>
+                                                    <input type='number' step='0.01' class='form-control' name='desc_educativo' value='0.00'>
+                                                </div>
+                                                <div class='col-md-4'>
+                                                    <label class='form-label'>Impuesto Renta</label>
+                                                    <input type='number' step='0.01' class='form-control' name='desc_renta' value='0.00'>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class='modal-footer'>
+                                            <button type='submit' class='btn btn-success'>Generar PDF</button>
+                                        </div>
+                                    </form>
                                 </div>
                             </div>
                         </div>";

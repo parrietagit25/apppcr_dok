@@ -125,7 +125,7 @@ include __DIR__ . '/header.php';
           </div>
 
           <div class="mb-3">
-            <label class="form-label">Comentario</label>
+            <label class="form-label">Motivo de su solicitud</label>
             <textarea name="descripcion" class="form-control" rows="3"></textarea>
           </div>
           <input type="hidden" name="calamidad" value="1">

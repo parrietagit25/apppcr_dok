@@ -89,7 +89,7 @@ include __DIR__ . '/header.php';
                                             </div>
                                             
                                             <div class='mb-3'>
-                                                <label for='comentario' class='form-label'> <b>Comentario del Colaborador </b></label>
+                                                <label for='comentario' class='form-label'> <b>Motivo de su solicitud </b></label>
                                                 <p>{$row['descripcion']}</p>
                                             </div>
 
