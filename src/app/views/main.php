@@ -225,7 +225,7 @@ include __DIR__ . '/header.php';
         
         <div class="row text-center mb-4">
             <div class="col-4 mb-3">
-                <a href="<?php echo BASE_URL_CONTROLLER; ?>/MainController.php?poliza=1" class="text-decoration-none" target="_blank">
+                <a href="<?php echo BASE_URL_CONTROLLER; ?>/MainController.php?poliza=1" class="text-decoration-none">
                     <div class="card-icon">
                         <img src="<?php echo BASE_URL_IMAGE; ?>mi_poliza.svg" alt="Beneficios">
                         <div class="card-title"><small>Mi Poliza</small></div>
