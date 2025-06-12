@@ -40,13 +40,6 @@ include __DIR__ . '/header.php';
 
     </div>
 
-    <div class="container my-4">
-        <div class="bg-white rounded shadow p-3 text-center">
-            <h6 class="fw-bold text-secondary">🔔 FRASE DE LA SEMANA</h6>
-            <blockquote class="fst-italic text-muted mt-2">"<?php echo $frase['frase']; ?>"</blockquote>
-        </div>
-    </div>
-
     <br>
     <br>
     <br>

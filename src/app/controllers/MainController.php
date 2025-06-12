@@ -166,5 +166,12 @@ if (isset($_GET['ia'])) {
     exit();
 }
 
+if (isset($_GET['poliza'])) {
+
+    require_once __DIR__ . '/../views/poliza.php';
+    exit();
+    
+}
+
 // Cargar la vista
 require_once __DIR__ . '/../views/main.php';
