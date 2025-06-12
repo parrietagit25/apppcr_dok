@@ -173,5 +173,12 @@ if (isset($_GET['poliza'])) {
     
 }
 
+if (isset($_GET['info_poliza'])) {
+
+    require_once __DIR__ . '/../views/info_mapfre.php';
+    exit();
+    
+}
+
 // Cargar la vista
 require_once __DIR__ . '/../views/main.php';
