@@ -576,6 +576,11 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
     require_once __DIR__ . '/../views/calamidad_rrhh.php';
     exit();
 
+}elseif (isset($_GET['info_poliza'])) {
+
+    require_once __DIR__ . '/../views/info_mapfre.php';
+    exit();
+    # code...
 }else {
     $code_lomg = strlen($_SESSION['code']);
     require_once __DIR__ . '/../views/rrhh.php';

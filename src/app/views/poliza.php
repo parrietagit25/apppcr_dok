@@ -11,11 +11,11 @@ include __DIR__ . '/header.php';
 <div class="container mt-4">
 
     <!-- Slider con frase -->
-    <?php if ($tipo_usuario == 1 || $tipo_usuario == 4) { ?>
+    <?php /* if ($tipo_usuario == 1 || $tipo_usuario == 4) { ?>
     <div id="carouselExampleSlidesOnly" class="carousel slide mb-4" data-bs-ride="carousel" data-bs-toggle="modal" data-bs-target="#frase_semana">
     <?php }else{ ?>
     <div id="carouselExampleSlidesOnly" class="carousel slide mb-4" data-bs-ride="carousel">
-    <?php } ?>
+    <?php } */ ?>
     
     <div class="container">
 
@@ -33,6 +33,14 @@ include __DIR__ . '/header.php';
                     <div style="background-color: #f8f9fa; padding: 20px; border-radius: 10px;">
                         <img width="100" src="<?php echo BASE_URL_IMAGE; ?>dr_minutos.png" alt="Cumpleaños">
                         <div class="card-title"><small>Doctor en Minutos</small></div>
+                    </div>
+                </a>
+            </div>
+            <div class="col-6 mb-4">
+                <a href="<?php echo BASE_URL_CONTROLLER; ?>/MainController.php?info_poliza=1" target="_blank" class="text-decoration-none">
+                    <div style="background-color: #f8f9fa; padding: 20px; border-radius: 10px;">
+                        <img width="100" src="<?php echo BASE_URL_IMAGE; ?>info.png" alt="Cumpleaños">
+                        <div class="card-title"><small>Info Mapfre</small></div>
                     </div>
                 </a>
             </div>
