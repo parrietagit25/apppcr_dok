@@ -173,7 +173,13 @@ class Rrhh {
                                             END AS estado,
                                             c.nombre,
                                             c.apellido,
-                                            ct.file_add
+                                            ct.file_add, 
+                                            c.codigo_empleado, 
+                                            c.salario_pactado, 
+                                            c.fecha_ingreso, 
+                                            c.cedula, 
+                                            c.seguro_social, 
+                                            c.nombre_cargo
                                         FROM carta_trabajo ct
                                         INNER JOIN empleados c
                                         ON ct.code_user COLLATE utf8mb4_unicode_ci = c.codigo_empleado COLLATE utf8mb4_unicode_ci
