@@ -121,7 +121,7 @@ include __DIR__ . '/header.php';
                                                 </div>
                                                 <div class='col-md-6'>
                                                     <label class='form-label'>Cargo</label>
-                                                    <input type='text' class='form-control' name='cargo' value='" . htmlspecialchars($row['cargo'] ?? '') . "' required>
+                                                    <input type='text' class='form-control' name='cargo' value='" . htmlspecialchars($row['nombre_cargo'] ?? '') . "' required>
                                                 </div>
                                                 <div class='col-md-6'>
                                                     <label class='form-label'>Salario</label>
@@ -148,10 +148,9 @@ include __DIR__ . '/header.php';
                                     </form>
                                 </div>
                             </div>
-                        </div>
+                        </div>";
 
-
-";
+                        
 
                     }
                 } else {
