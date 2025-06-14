@@ -1,71 +1,52 @@
 <?php
-// validar_empleado.php
-
-require_once __DIR__ . '/../config/conexion.php'; // Ajusta la ruta a tu archivo de conexión
-
-$codigo = $_GET['codigo'] ?? null;
-
-if (!$codigo) {
-    echo "⚠️ Código no proporcionado.";
-    exit;
+if (!isset($_SESSION['code'])) {
+    header("Location: salir.php");
+    exit();
 }
 
-// Buscar al empleado en la base de datos
-$stmt = $pdo->prepare("SELECT nombre, apellido, departamento, sangre FROM empleados WHERE codigo_empleado = ?");
-$stmt->execute([$codigo]);
-$empleado = $stmt->fetch(PDO::FETCH_ASSOC);
-?>
+include __DIR__ . '/header.php'; ?>
 
-<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8">
-  <title>Validación de Empleado</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      text-align: center;
-      padding: 40px;
-      background-color: #f2f2f2;
-    }
-    .card {
-      background: white;
-      padding: 30px;
-      border-radius: 12px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.15);
-      max-width: 400px;
-      margin: auto;
-    }
-    .card h2 {
-      margin-bottom: 10px;
-    }
-    .card p {
-      font-size: 16px;
-      margin: 6px 0;
-    }
-    .status {
-      margin-top: 20px;
-      font-weight: bold;
-      color: green;
-    }
-  </style>
-</head>
-<body>
+<div class="container mt-4">
 
-<?php if ($empleado): ?>
-  <div class="card">
-    <h2><?php echo $empleado['nombre'] . ' ' . $empleado['apellido']; ?></h2>
-    <p><b>Código:</b> <?php echo htmlspecialchars($codigo); ?></p>
-    <p><b>Departamento:</b> <?php echo $empleado['departamento']; ?></p>
-    <p><b>Tipo de Sangre:</b> <?php echo $empleado['sangre']; ?></p>
-    <div class="status">✅ Empleado verificado</div>
-  </div>
-<?php else: ?>
-  <div class="card">
-    <h2>❌ Código no válido</h2>
-    <p>No se encontró ningún colaborador con ese código.</p>
-  </div>
-<?php endif; ?>
+    <div id="carouselExampleSlidesOnly" class="carousel slide mb-4" data-bs-ride="carousel">
+        <div class="carousel-inner">
+            <div class="carousel-item active">
+                <div class="p-3 bg-light rounded">
+                    <h5 class="fw-bold">Carnet Virtual</h5>
+                </div>
+            </div>
+        </div>
+    </div>
 
-</body>
-</html>
+    <div class="carnet">
+        <h1>GRUPO <b>PCR</b></h1>
+
+        <img src="<?php echo BASE_URL_IMAGE; ?>imagen_carnet/<?php echo $resultado = substr($_SESSION['code'], 2); ?>.jpeg" alt="Foto del empleado">
+
+        <h3><?php echo $nombre . ' ' . $apellido; ?></h3>
+        <p><b>Código:</b> <?php echo $codigo_empleado; ?></p>
+        <p><b>Departamento:</b> <?php echo $departamento; ?></p>
+        <p><b>Sangre:</b> <?php echo $sangre; ?></p>
+
+        <div class="footer mt-3">
+            <p>Grupo PCR</p>
+            <p>Líderes Movilizando Panamá</p>
+        </div>
+    </div>
+
+</div>
+
+<br>
+<br>
+
+<br>
+<nav class="navbar fixed-bottom navbar-light bg-light border-top">
+    <div class="container-fluid">
+        <a href="<?php echo BASE_URL_CONTROLLER; ?>/MainController.php" class="navbar-brand text-center" style="width: 25%;">INICIO</a>
+        <a href="#" class="navbar-brand text-center" style="width: 25%;"></a>
+        <a href="<?php echo BASE_URL_CONTROLLER; ?>/MainController.php" class="navbar-brand text-center" style="width: 25%;">VOLVER</a>
+        <a href="#" class="navbar-brand text-center" style="width: 25%;"></a>
+    </div>
+</nav>
+
+<?php include __DIR__ . '/footer.php'; ?>

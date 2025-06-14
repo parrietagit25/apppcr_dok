@@ -57,5 +57,12 @@ if (array_key_exists($code, $colaboradores)) {
     }
 }
 
+if (isset($_GET['verificar_carnet'])) {
+
+    require_once __DIR__ . '/../views/validar_empleado.php';
+    exit();
+    # code...
+}
+
 // Cargar la vista
 require_once __DIR__ . '/../views/carnet.php';
