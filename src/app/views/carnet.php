@@ -27,37 +27,26 @@ include __DIR__ . '/header.php'; ?>
 
     <div class="carnet">
         <h1>GRUPO <b>PCR</b></h1>
-        <img src="<?php echo BASE_URL_IMAGE; ?>imagen_carnet/<?php  echo $resultado = substr($_SESSION['code'], 2);?>.jpeg" alt="Foto del empleado">
+
+        <img src="<?php echo BASE_URL_IMAGE; ?>imagen_carnet/<?php echo $resultado = substr($_SESSION['code'], 2); ?>.jpeg" alt="Foto del empleado">
+
         <h3><?php echo $nombre . ' ' . $apellido; ?></h3>
         <p><b>Código:</b> <?php echo $codigo_empleado; ?></p>
         <p><b>Departamento:</b> <?php echo $departamento; ?></p>
         <p><b>Sangre:</b> <?php echo $sangre; ?></p>
-        <div class="footer">
+
+        <!-- Código QR generado -->
+        <div class="mt-3 text-center">
+            <p><b>QR de Validación</b></p>
+            <img src="https://chart.googleapis.com/chart?cht=qr&chs=150x150&chl=<?php echo urlencode($codigo_empleado); ?>" alt="QR del empleado">
+        </div>
+
+        <div class="footer mt-3">
             <p>Grupo PCR</p>
             <p>Líderes Movilizando Panamá</p>
         </div>
     </div>
 
-</div>
-
-<!-- Modal -->
-<div class="modal fade" id="solicitudModal" tabindex="-1" aria-labelledby="solicitudModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="solicitudModalLabel">Solicitar Carta de Trabajo</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <form action="" method="POST">
-                    <p>Ingrese la persona o entidad al cual irá dirigida la carta de trabajo</p>
-                    <textarea name="descripcion" class="form-control" style="margin:10px;"></textarea>
-                    <br>
-                    <input type="submit" class="btn btn-primary" value="Solicitar Carta" name="carta_trabajo">
-                </form>
-            </div>
-        </div>
-    </div>
 </div>
 
 <br>
