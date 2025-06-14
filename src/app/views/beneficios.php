@@ -14,10 +14,9 @@ include __DIR__ . '/header.php';
     <!-- Sección: Mis Beneficios -->
     <div class="d-flex align-items-center bg-white rounded shadow-sm p-3 mb-3">
         <div class="me-3">
-            <img src="<?php echo BASE_URL_IMAGE; ?>mis_beneficios_app.svg" alt="Mis Beneficios" width="60">
+            <img src="<?php echo BASE_URL_IMAGE; ?>mis_beneficios_app.svg" alt="Mis Beneficios" width="100">
         </div>
         <div class="text-start">
-            <h6 class="fw-bold text-primary mb-1">Mis Beneficios</h6>
             <p class="mb-0 small text-muted">
                 Aprovecha los beneficios que te acompañarán en cada paso. Desde educación hasta bienestar, ¡esto es para ti!
             </p>
@@ -25,7 +24,7 @@ include __DIR__ . '/header.php';
     </div>
 
     <!-- Presentar Carnet -->
-    <div class="bg-light text-center rounded py-3 mb-3">
+    <div class="bg-light text-center rounded py-3 mb-3" style="background-color: #66749d; color: white;">
         <strong>PRESENTA TU CARNET PARA GOZAR DE ESTOS BENEFICIOS EXCLUSIVOS</strong><br>
         <a href="<?php echo BASE_URL_CONTROLLER; ?>/MainController.php?verificar_carnet=1" class="text-decoration-underline small text-dark">Si aún no tienes el tuyo, haz clic aquí</a>
     </div>
