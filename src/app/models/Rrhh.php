@@ -949,6 +949,61 @@ class Rrhh {
 
     }
 
+
+    public function get_datos_formulario_carta($id_carta) {
+        $stmt = $this->pdo->prepare("SELECT 
+            IFNULL(ctf.descripcion, ct.descripcion) AS descripcion,
+            IFNULL(ctf.nombre, c.nombre) AS nombre,
+            c.apellido,
+            IFNULL(ctf.salario, c.salario_pactado) AS salario,
+            IFNULL(ctf.fecha_ingreso, c.fecha_ingreso) AS fecha_ingreso,
+            IFNULL(ctf.cedula, c.cedula) AS cedula,
+            IFNULL(ctf.seguro, c.seguro_social) AS seguro,
+            IFNULL(ctf.cargo, c.nombre_cargo) AS cargo,
+            IFNULL(ctf.desc_seguro, 0) AS desc_seguro,
+            IFNULL(ctf.desc_educativo, 0) AS desc_educativo,
+            IFNULL(ctf.desc_renta, 0) AS desc_renta
+            FROM carta_trabajo ct
+            INNER JOIN empleados c ON ct.code_user COLLATE utf8mb4_unicode_ci = c.codigo_empleado COLLATE utf8mb4_unicode_ci
+            LEFT JOIN carta_trabajo_formulario ctf ON ctf.carta_id = ct.id
+            WHERE ct.id = :id");
+        $stmt->bindParam(':id', $id_carta);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    public function enviar_correo_con_adjunto($email, $mail_copia, $asunto, $mensaje, $ruta_archivo) {
+        $mail = new PHPMailer(true);
+        $mail->CharSet = 'UTF-8'; 
+
+        try {
+            $mail->isSMTP();
+            $mail->Host = 'smtp-mail.outlook.com';
+            $mail->SMTPAuth = true;
+            $mail->Username = 'notificaciones@grupopcr.com.pa';
+            $mail->Password = EMAIL_GLOBAL;
+            $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+            $mail->Port = 587;
+
+            $mail->setFrom('notificaciones@grupopcr.com.pa', 'PCR notificaciones');
+            $mail->addAddress($email);
+
+            foreach ($mail_copia as $cc) {
+                $mail->addCC($cc);
+            }
+
+            $mail->addAttachment($ruta_archivo); // adjunto PDF
+
+            $mail->isHTML(true);
+            $mail->Subject = $asunto;
+            $mail->Body = $mensaje;
+
+            $mail->send();
+        } catch (Exception $e) {
+            return "Error al enviar el correo: {$mail->ErrorInfo}";
+        }
+    }
+
 }
 
 

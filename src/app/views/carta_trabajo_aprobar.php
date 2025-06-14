@@ -62,27 +62,26 @@ include __DIR__ . '/header.php';
                         <div class='modal fade' id='modalAdjuntar{$row['id']}' tabindex='-1' aria-labelledby='modalLabel{$row['id']}' aria-hidden='true'>
                             <div class='modal-dialog'>
                                 <div class='modal-content'>
-                                    <div class='modal-header'>
-                                        <h5 class='modal-title' id='modalLabel{$row['id']}'>Adjuntar archivo a la solicitud</h5>
-                                        <button type='button' class='btn-close' data-bs-dismiss='modal' aria-label='Close'></button>
-                                    </div>
-                                    <div class='modal-body'>
-                                        <form action='' method='POST' enctype='multipart/form-data'>
+                                    <form action='?carta_trabajo_aprobar' method='POST'>
+                                        <div class='modal-header'>
+                                            <h5 class='modal-title' id='modalLabel{$row['id']}'>Enviar carta al colaborador</h5>
+                                            <button type='button' class='btn-close' data-bs-dismiss='modal' aria-label='Close'></button>
+                                        </div>
+                                        <div class='modal-body'>
                                             <input type='hidden' name='solicitud_id' value='{$row['id']}'>
+                                            <p>¿Desea generar y enviar la carta de trabajo al colaborador <strong>{$row['nombre']} {$row['apellido']}</strong>?</p>
                                             <div class='mb-3'>
-                                                <label for='archivo{$row['id']}' class='form-label'>Seleccione un archivo</label>
-                                                <input type='file' class='form-control' name='archivo' id='archivo{$row['id']}' required>
-                                            </div>
-                                            <div class='mb-3'>
-                                                <label for='comentario{$row['id']}' class='form-label'>Comentario (opcional)</label>
+                                                <label for='comentario{$row['id']}' class='form-label'>Comentario adicional (opcional)</label>
                                                 <textarea class='form-control' name='comentario' id='comentario{$row['id']}' rows='3'></textarea>
                                             </div>
-                                            <button type='submit' class='btn btn-primary' name='aprobar_carta'>Subir archivo</button>
-                                        </form>
-                                    </div>
+                                        </div>
+                                        <div class='modal-footer'>
+                                            <button type='submit' class='btn btn-success' name='enviar_carta_pdf'>Generar y Enviar</button>
+                                        </div>
+                                    </form>
                                 </div>
                             </div>
-                        </div> 
+                        </div>
                         
 
                         <div class='modal fade' id='modalGenerarCarta{$row['id']}' tabindex='-1' aria-labelledby='modalLabelGenerarCarta{$row['id']}' aria-hidden='true'>

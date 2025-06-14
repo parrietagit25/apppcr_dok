@@ -3,6 +3,7 @@
 require_once __DIR__ . '/../../vendor/autoload.php'; 
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
+use Dompdf\Dompdf;
 
 session_start();
 require_once __DIR__ . '/../../config/config.php';
@@ -179,13 +180,69 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
         echo "<script>alert('Datos guardados correctamente');</script>";
     }
 
-
-
     $solicitudes = $class->solicitudes_aprobar();
 
     require_once __DIR__ . '/../views/carta_trabajo_aprobar.php';
     exit();
 
+}elseif($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['enviar_carta_pdf'])) {
+    $id_carta = $_POST['solicitud_id'];
+    $comentario = $_POST['comentario'] ?? '';
+
+    // Obtener los datos del colaborador y de la carta
+    $datos = $class->get_datos_formulario_carta($id_carta);
+    if (!$datos) {
+        echo "<div class='alert alert-danger'>No se encontraron datos para generar la carta.</div>";
+    } else {
+
+        $fecha_actual = date("d/m/Y");
+        extract($datos); // $nombre, $cedula, $seguro, etc.
+
+        $html = "
+            <style> body { font-family: DejaVu Sans, sans-serif; font-size: 12pt; } </style>
+            <p>Panamá, $fecha_actual</p>
+            <p><strong>A quien pueda interesar:</strong></p>
+            <p>Por medio de la presente, hacemos constar que el(la) Sr(a). <strong>$nombre</strong>, con cédula <strong>$cedula</strong> y seguro social <strong>$seguro</strong>, labora en nuestra empresa desde el <strong>$fecha_ingreso</strong>, desempeñando el cargo de <strong>$cargo</strong>.</p>
+            <p>El salario mensual pactado es de B/. $salario, con las siguientes deducciones aproximadas:</p>
+            <ul>
+                <li>Seguro Social: B/. $desc_seguro</li>
+                <li>Seguro Educativo: B/. $desc_educativo</li>
+                <li>Impuesto sobre la Renta: B/. $desc_renta</li>
+            </ul>
+            <p>$descripcion</p>
+            <br><br>
+            <p><strong>Departamento de Planilla</strong></p>
+        ";
+
+        $dompdf = new Dompdf();
+        $dompdf->loadHtml($html);
+        $dompdf->setPaper('A4', 'portrait');
+        $dompdf->render();
+
+        $pdfOutput = $dompdf->output();
+        $nombreArchivo = 'Carta_' . preg_replace("/[^a-zA-Z0-9]/", "", $nombre) . '.pdf';
+        $ruta_archivo = __DIR__ . '/../uploads/carta_trabajo/' . $nombreArchivo;
+        file_put_contents($ruta_archivo, $pdfOutput);
+
+        // Obtener el correo del colaborador
+        $get_email_colab = $class->get_email_colaborador($id_carta);
+        $email_destino = $get_email_colab['email'] ?? '';
+
+        if ($email_destino) {
+            $mensaje_correo = "Estimado $nombre,<br><br>Adjunto encontrará su carta de trabajo solicitada. $comentario<br><br>Saludos,<br>RRHH";
+            $copias = ["pedro.arrieta@grupopcr.com.pa", "rrhhgpcr@grupopcr.com.pa"];
+
+            // Enviar con adjunto
+            $class->enviar_correo_con_adjunto($email_destino, $copias, "Carta de Trabajo", $mensaje_correo, $ruta_archivo);
+            echo "<div class='alert alert-success'>Carta generada y enviada exitosamente a $email_destino.</div>";
+        } else {
+            echo "<div class='alert alert-warning'>No se pudo obtener el correo del colaborador.</div>";
+        }
+    }
+
+    $solicitudes = $class->solicitudes_aprobar();
+    require_once __DIR__ . '/../views/carta_trabajo_aprobar.php';
+    exit;
 }elseif(isset($_GET['incapacidad'])){
 
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['descripcion'])) {
