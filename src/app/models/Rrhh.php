@@ -255,7 +255,7 @@ class Rrhh {
                 ON ct.code_user COLLATE utf8mb4_unicode_ci = c.codigo_empleado COLLATE utf8mb4_unicode_ci
             LEFT JOIN carta_trabajo_formulario ctf
                 ON ctf.carta_id = ct.id
-            WHERE ct.stat IN (1, 2)
+            WHERE ct.stat IN (1)
             ORDER BY ct.id DESC;
         ");
         
