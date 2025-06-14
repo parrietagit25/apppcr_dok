@@ -11,10 +11,17 @@ include __DIR__ . '/header.php';
 
 <div class="container mt-3">
 
-    <!-- Mis Beneficios -->
-    <div class="bg-primary text-white rounded p-3 mb-3 text-start">
-        <h6><i class="bi bi-gift"></i> Mis Beneficios</h6>
-        <p class="mb-0 small">Aprovecha los beneficios que te acompañarán en cada paso. ¡Esto es para ti!</p>
+    <!-- Sección: Mis Beneficios -->
+    <div class="d-flex align-items-center bg-white rounded shadow-sm p-3 mb-3">
+        <div class="me-3">
+            <img src="<?php echo BASE_URL_IMAGE; ?>mis_beneficios_app.svg" alt="Mis Beneficios" width="60">
+        </div>
+        <div class="text-start">
+            <h6 class="fw-bold text-primary mb-1">Mis Beneficios</h6>
+            <p class="mb-0 small text-muted">
+                Aprovecha los beneficios que te acompañarán en cada paso. Desde educación hasta bienestar, ¡esto es para ti!
+            </p>
+        </div>
     </div>
 
     <!-- Presentar Carnet -->
