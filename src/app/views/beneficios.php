@@ -35,7 +35,7 @@ include __DIR__ . '/header.php';
         <p class="small text-muted">Conoce los beneficios que brindan nuestras marcas aliadas</p>
 
         <div class="row row-cols-3 g-3 mt-2">
-            <div><img src="<?php echo BASE_URL_IMAGE; ?>hoteles_app.svg" width="40"><br><small>Hoteles</small></div>
+            <a href="https://apppcr.net/beneficios/"><div><img src="<?php echo BASE_URL_IMAGE; ?>hoteles_app.svg" width="40"><br><small>Hoteles</small></div></a>
             <div><img src="<?php echo BASE_URL_IMAGE; ?>restaurantes_app.svg" width="40"><br><small>Restaurantes</small></div>
             <div><img src="<?php echo BASE_URL_IMAGE; ?>salud_app.svg" width="40"><br><small>Salud</small></div>
             <div><img src="<?php echo BASE_URL_IMAGE; ?>educacion_app.svg" width="40"><br><small>Educación</small></div>
