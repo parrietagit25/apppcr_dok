@@ -37,10 +37,10 @@ include __DIR__ . '/header.php';
         <div class="row row-cols-3 g-3 mt-2">
             <a href="https://apppcr.net/beneficios/hoteles.php"><div><img src="<?php echo BASE_URL_IMAGE; ?>hoteles_app.svg" width="40"><br><small>Hoteles</small></div></a>
             <a href="https://apppcr.net/beneficios/restaurantes.php"><div><img src="<?php echo BASE_URL_IMAGE; ?>restaurantes_app.svg" width="40"><br><small>Restaurantes</small></div></a>
-            <div><img src="<?php echo BASE_URL_IMAGE; ?>salud_app.svg" width="40"><br><small>Salud</small></div>
-            <div><img src="<?php echo BASE_URL_IMAGE; ?>educacion_app.svg" width="40"><br><small>Educación</small></div>
-            <div><img src="<?php echo BASE_URL_IMAGE; ?>servicios_app.svg" width="40"><br><small>Servicios</small></div>
-            <div><img src="<?php echo BASE_URL_IMAGE; ?>otros_comercios.svg" width="40"><br><small>Otros</small></div>
+            <a href="https://apppcr.net/beneficios/salud.php"><div><img src="<?php echo BASE_URL_IMAGE; ?>salud_app.svg" width="40"><br><small>Salud</small></div></a>
+            <a href="https://apppcr.net/beneficios/educacion.php"><div><img src="<?php echo BASE_URL_IMAGE; ?>educacion_app.svg" width="40"><br><small>Educación</small></div></a>
+            <a href="https://apppcr.net/beneficios/servicios.php"><div><img src="<?php echo BASE_URL_IMAGE; ?>servicios_app.svg" width="40"><br><small>Servicios</small></div></a>
+            <a href="https://apppcr.net/beneficios/otros.php"><div><img src="<?php echo BASE_URL_IMAGE; ?>otros_comercios.svg" width="40"><br><small>Otros</small></div></a>
         </div>
     </div>
 
