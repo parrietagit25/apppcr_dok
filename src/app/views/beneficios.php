@@ -66,8 +66,8 @@ include __DIR__ . '/header.php';
                 </a>
             </div>
             <div class="col">
-                <a href="salir.php" class="text-white text-decoration-none d-block py-2">
-                    <i class="bi bi-box-arrow-right fs-4"></i><br><small>Salir</small>
+                <a href="<?php echo BASE_URL_CONTROLLER; ?>/MainController.php" class="text-white text-decoration-none d-block py-2">
+                    <i class="bi bi-box-arrow-right fs-4"></i><br><small>Volver</small>
                 </a>
             </div>
         </div>
