@@ -1,12 +1,15 @@
 <?php
+session_start();
 echo "Inicio de la página beneficios.php ";
 if (!isset($_SESSION['code'])) {
     header("Location: salir.php");
     exit();
 }
 echo " Usuario autenticado: " . htmlspecialchars($_SESSION['code']) . " ";
+error_log("Beneficios cargado para usuario: " . $_SESSION['code']);
 
 include __DIR__ . '/header.php';
+
 ?>
 
 <div style="background: #0b3b80; color: white; padding: 20px; border-bottom: 5px solid #004aad;">
