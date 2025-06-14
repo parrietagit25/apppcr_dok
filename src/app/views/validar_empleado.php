@@ -49,7 +49,7 @@ function levantarCamara() {
         { fps: 10, qrbox: 250 },
         qrCodeMessage => {
             scanner.stop();
-            window.location.href = `MainController.php?verificar_carnet=1&codigo=${encodeURIComponent(qrCodeMessage)}`;
+            window.location.href = `CarnetController.php?verificar_carnet=1&codigo=${encodeURIComponent(qrCodeMessage)}`;
         },
         errorMessage => { /* opcional */ }
     ).catch(err => {
