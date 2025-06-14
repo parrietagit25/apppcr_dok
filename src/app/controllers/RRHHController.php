@@ -161,7 +161,7 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
                 desc_renta = VALUES(desc_renta),
                 descripcion = VALUES(descripcion)";
 
-        $stmt = $this->pdo->prepare($sql);
+        $stmt = $class->pdo->prepare($sql);
         $stmt->execute([
             ':carta_id' => $_POST['solicitud_id'],
             ':nombre' => $_POST['nombre'],
