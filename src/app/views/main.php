@@ -205,6 +205,14 @@ include __DIR__ . '/header.php';
                 </a>
             </div>
             <div class="col-4 mb-3">
+                <a href="<?php echo BASE_URL_CONTROLLER; ?>/CarnetController.php" class="text-decoration-none">
+                    <div class="card-icon">
+                        <img src="<?php echo BASE_URL_IMAGE; ?>verificar.png" alt="Carnet">
+                        <div class="card-title"> <small>Verificar Carnet</small> </div>
+                    </div>
+                </a>
+            </div>
+            <div class="col-4 mb-3">
                 <a href="<?php echo BASE_URL_CONTROLLER; ?>/MainController.php?cumple=1" class="text-decoration-none">
                     <div class="card-icon">
                         <img src="<?php echo BASE_URL_IMAGE; ?>hb.svg" alt="Cumpleaños">
