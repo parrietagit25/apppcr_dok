@@ -37,8 +37,8 @@ include __DIR__ . '/header.php'; ?>
 
         <!-- Código QR generado -->
         <div class="mt-3 text-center">
-            <p><b>QR de Validación</b></p>
-            <img src="/app/views/generar_qr.php?codigo=<?php echo urlencode($codigo_empleado); ?>" alt="QR del empleado">
+            <p><b>QR del Empleado</b></p>
+            <img src="generar_qr.php?codigo=<?php echo urlencode($codigo_empleado); ?>" alt="QR">
         </div>
 
         <div class="footer mt-3">
