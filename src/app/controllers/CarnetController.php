@@ -58,10 +58,33 @@ if (array_key_exists($code, $colaboradores)) {
 }
 
 if (isset($_GET['verificar_carnet'])) {
+    $codigo = $_GET['codigo'] ?? null;
+    $empleadoVerificado = null;
+
+    if ($codigo) {
+        if (array_key_exists($codigo, $colaboradores)) {
+            $empleadoVerificado = $colaboradores[$codigo];
+            $empleadoVerificado['codigo_empleado'] = $codigo;
+        } else {
+            $stmt = $pdo->prepare("SELECT * FROM empleados WHERE codigo_empleado = :code");
+            $stmt->bindParam(':code', $codigo, PDO::PARAM_STR);
+            $stmt->execute();
+            $verificado = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if ($verificado) {
+                $empleadoVerificado = [
+                    "codigo_empleado" => $verificado["codigo_empleado"],
+                    "nombre" => $verificado["nombre"],
+                    "apellido" => $verificado["apellido"],
+                    "departamento" => $verificado["nombre_centro_costo"],
+                    "sangre" => $verificado["tipo_sangre"]
+                ];
+            }
+        }
+    }
 
     require_once __DIR__ . '/../views/validar_empleado.php';
     exit();
-    # code...
 }
 
 // Cargar la vista
