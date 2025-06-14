@@ -186,6 +186,9 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
     exit();
 
 }elseif($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['enviar_carta_pdf'])) {
+
+    echo 'Pasando por aqui';
+
     $id_carta = $_POST['solicitud_id'];
     $comentario = $_POST['comentario'] ?? '';
 
