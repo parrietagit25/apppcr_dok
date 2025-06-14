@@ -5,7 +5,7 @@ use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 
 class Rrhh {
-    private $pdo;
+    public $pdo;
 
     public function __construct($pdo) {
         $this->pdo = $pdo;
