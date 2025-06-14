@@ -48,6 +48,9 @@
             font-size: 0.8em;
             color: #777;
         }
+        .qr{
+            border-radius: none !important;
+        }
 
         /* main */
 
