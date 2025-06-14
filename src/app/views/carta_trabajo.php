@@ -52,7 +52,7 @@ include __DIR__ . '/header.php';
                 <tr>
                     <td class="text-center">
                         <?php if (!empty($value['carta_generada']) && $value['carta_generada'] == 1): ?>
-                            <a href="generar_carta_pdf_user.php?id=<?php echo $value['id']; ?>" target="_blank" class="btn btn-sm btn-success">
+                            <a href="/app/views/generar_carta_pdf_user.php?id=<?php echo $value['id']; ?>" target="_blank" class="btn btn-sm btn-success">
                                 Descargar PDF
                             </a>
                         <?php else: ?>
