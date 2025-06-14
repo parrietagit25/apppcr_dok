@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '../config/conexion.php'; // Ajusta la ruta si es distinta
+require_once __DIR__ . '/../../validar_empleado.php'; // Ajusta la ruta si es distinta
 
 $codigo = $_GET['codigo'] ?? null;
 $empleado = null;
