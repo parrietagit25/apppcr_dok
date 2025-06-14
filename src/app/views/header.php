@@ -48,8 +48,12 @@
             font-size: 0.8em;
             color: #777;
         }
-        .qr{
-            border-radius: none !important;
+
+        .carnet .qr {
+            border-radius: 0 !important;
+            width: 200px;
+            height: 200px;
+            object-fit: contain;
         }
 
         /* main */
