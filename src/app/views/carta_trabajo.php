@@ -48,13 +48,17 @@ include __DIR__ . '/header.php';
                 </tr>
             </thead>
             <tbody>
-                <?php foreach ($solicitudes as $key => $value): 
-                    $link = (!empty($value['file_add']))
-                        ? '<a href="'.BASE_URL_FILES_UPDATE.'/'.$value['file_add'].'" target="_blank">Carta</a>'
-                        : '';
-                ?>
+                <?php foreach ($solicitudes as $key => $value): ?>
                 <tr>
-                    <td><?php echo $link; ?></td>
+                    <td class="text-center">
+                        <?php if (!empty($value['carta_generada']) && $value['carta_generada'] == 1): ?>
+                            <a href="generar_carta_pdf_user.php?id=<?php echo $value['id']; ?>" target="_blank" class="btn btn-sm btn-success">
+                                Descargar PDF
+                            </a>
+                        <?php else: ?>
+                            <span class="text-muted">No disponible</span>
+                        <?php endif; ?>
+                    </td>
                     <td><?php echo htmlspecialchars($value['descripcion']); ?></td>
                     <td><?php echo htmlspecialchars($value['fecha_log']); ?></td>
                     <td><?php echo htmlspecialchars($value['estado']); ?></td>

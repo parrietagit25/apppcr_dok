@@ -141,6 +141,7 @@ class Rrhh {
         }
     }
 
+    /*
     public function solicitudes() {
         if (!isset($_SESSION['code'])) {
             die("Error: No hay sesión iniciada.");
@@ -160,7 +161,40 @@ class Rrhh {
             $array_datos[] = $list_code;
         }
         return $array_datos;
+    } */
+
+    public function solicitudes() {
+        if (!isset($_SESSION['code'])) {
+            die("Error: No hay sesión iniciada.");
+        }
+        $code = $_SESSION['code'];
+
+        $stmt = $this->pdo->prepare("
+            SELECT 
+                ct.id,
+                ct.descripcion,
+                ct.fecha_log,
+                CASE ct.stat
+                    WHEN 1 THEN 'Solicitado'
+                    WHEN 2 THEN 'Aprobado'
+                    WHEN 3 THEN 'Borrado'
+                END AS estado,
+                ct.file_add,
+                -- Indicador si existe carta generada
+                CASE 
+                    WHEN ct.stat = 2 AND ctf.id IS NOT NULL THEN 1
+                    ELSE 0
+                END AS carta_generada
+            FROM carta_trabajo ct
+            LEFT JOIN carta_trabajo_formulario ctf ON ctf.carta_id = ct.id
+            WHERE ct.stat IN (1, 2) AND ct.code_user = :code
+            ORDER BY ct.fecha_log DESC
+        ");
+        $stmt->bindParam(':code', $code, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
+
 
 
     /* public function solicitudes_aprobar() {
