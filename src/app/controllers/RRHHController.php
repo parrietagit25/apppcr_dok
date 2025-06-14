@@ -232,8 +232,8 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
             $mensaje_correo = "Estimado $nombre,<br><br>Adjunto encontrará su carta de trabajo solicitada. $comentario<br><br>Saludos,<br>RRHH";
             $copias = ["pedro.arrieta@grupopcr.com.pa", "rrhhgpcr@grupopcr.com.pa"];
 
-            // Enviar con adjunto
-            $class->enviar_correo_con_adjunto($email_destino, $copias, "Carta de Trabajo", $mensaje_correo, $ruta_archivo);
+            // Enviar con adjunto $email_destino
+            $class->enviar_correo_con_adjunto('pedroarrieta25@hotmail.com', $copias, "Carta de Trabajo", $mensaje_correo, $ruta_archivo);
             echo "<div class='alert alert-success'>Carta generada y enviada exitosamente a $email_destino.</div>";
         } else {
             echo "<div class='alert alert-warning'>No se pudo obtener el correo del colaborador.</div>";
