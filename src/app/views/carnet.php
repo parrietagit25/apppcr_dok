@@ -50,6 +50,9 @@ include __DIR__ . '/header.php'; ?>
 </div>
 
 <br>
+<br>
+
+<br>
 <nav class="navbar fixed-bottom navbar-light bg-light border-top">
     <div class="container-fluid">
         <a href="<?php echo BASE_URL_CONTROLLER; ?>/MainController.php" class="navbar-brand text-center" style="width: 25%;">INICIO</a>
