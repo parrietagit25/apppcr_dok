@@ -7,7 +7,7 @@ if (!isset($_SESSION['code'])) {
 echo " Usuario autenticado: " . htmlspecialchars($_SESSION['code']) . " ";
 error_log("Beneficios cargado para usuario: " . $_SESSION['code']);
 
-include __DIR__ . '/header.php';
+//include __DIR__ . '/header.php';
 
 ?>
 
