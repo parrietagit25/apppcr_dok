@@ -229,7 +229,7 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
                 $copias = ["pedro.arrieta@grupopcr.com.pa", "rrhhgpcr@grupopcr.com.pa"];
 
                 // Enviar con adjunto $email_destino
-                $class->enviar_correo_con_adjunto('pedroarrieta25@hotmail.com', $copias, "Carta de Trabajo", $mensaje_correo, $ruta_archivo);
+                $class->enviar_correo_con_adjunto($email_destino, $copias, "Carta de Trabajo", $mensaje_correo, $ruta_archivo);
                 echo "<div class='alert alert-success'>Carta generada y enviada exitosamente a $email_destino.</div>";
                 // pasar de estatus la carta a aprobada
                 $class->aprobar_carta_trabajo($id_carta);
