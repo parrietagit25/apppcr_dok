@@ -1,74 +1,65 @@
 <?php
-require('../fpdf/fpdf.php');
+require_once __DIR__ . '/../../../vendor/autoload.php';
 
-// Verificar si se enviaron los datos necesarios
+use Dompdf\Dompdf;
+
+// Verifica que lleguen los datos
 if (!isset($_POST['solicitud_id'])) {
     die("Solicitud inválida.");
 }
 
-$id = $_POST['solicitud_id'];
+// Recibe los datos del formulario
 $nombre = $_POST['nombre'] ?? '';
 $cedula = $_POST['cedula'] ?? '';
 $seguro = $_POST['seguro'] ?? '';
 $fecha_ingreso = $_POST['fecha_ingreso'] ?? '';
 $cargo = $_POST['cargo'] ?? '';
-$salario = number_format(floatval($_POST['salario'] ?? 0), 2);
-$desc_seguro = number_format(floatval($_POST['desc_seguro'] ?? 0), 2);
-$desc_educativo = number_format(floatval($_POST['desc_educativo'] ?? 0), 2);
-$desc_renta = number_format(floatval($_POST['desc_renta'] ?? 0), 2);
+$salario = number_format($_POST['salario'] ?? 0, 2);
+$desc_seguro = number_format($_POST['desc_seguro'] ?? 0, 2);
+$desc_educativo = number_format($_POST['desc_educativo'] ?? 0, 2);
+$desc_renta = number_format($_POST['desc_renta'] ?? 0, 2);
 $descripcion = $_POST['descripcion'] ?? '';
 $fecha_actual = date("d/m/Y");
 
-class PDF extends FPDF
-{
-    function Header()
-    {
-        // Encabezado
-        $this->SetFont('Arial','B',14);
-        $this->Cell(0,10,utf8_decode('GRUPO PCR'),0,1,'C');
-        $this->SetFont('Arial','',12);
-        $this->Cell(0,10,utf8_decode('Carta de Trabajo'),0,1,'C');
-        $this->Ln(5);
-    }
+// Contenido HTML de la carta
+$html = "
+    <style>
+        body { font-family: DejaVu Sans, sans-serif; font-size: 12pt; }
+        h2 { text-align: center; }
+        p { text-align: justify; line-height: 1.5; }
+    </style>
 
-    function Footer()
-    {
-        // Pie de página
-        $this->SetY(-15);
-        $this->SetFont('Arial','I',8);
-        $this->Cell(0,10,'Grupo PCR - Documento generado automaticamente',0,0,'C');
-    }
-}
+    <p>Panamá, $fecha_actual</p>
 
-$pdf = new PDF();
-$pdf->AddPage();
-$pdf->SetFont('Arial','',12);
+    <p><strong>A quien pueda interesar:</strong></p>
 
-// Cuerpo
-$pdf->MultiCell(0,8,utf8_decode("Panamá, $fecha_actual"));
-$pdf->Ln(10);
+    <p>Por medio de la presente, hacemos constar que el(la) Sr(a). <strong>$nombre</strong>, con cédula <strong>$cedula</strong> y seguro social <strong>$seguro</strong>, labora en nuestra empresa desde el <strong>$fecha_ingreso</strong>, desempeñando el cargo de <strong>$cargo</strong>.</p>
 
-$pdf->MultiCell(0,8,utf8_decode("A quien pueda interesar:"));
-$pdf->Ln(10);
+    <p>El salario mensual pactado es de B/. $salario, con las siguientes deducciones aproximadas:</p>
+    <ul>
+        <li>Seguro Social: B/. $desc_seguro</li>
+        <li>Seguro Educativo: B/. $desc_educativo</li>
+        <li>Impuesto sobre la Renta: B/. $desc_renta</li>
+    </ul>
 
-$texto = "
-Por medio de la presente, hacemos constar que el(la) Sr(a). $nombre, con cédula $cedula y seguro social $seguro, 
-labora en nuestra empresa desde el $fecha_ingreso, desempeñando el cargo de $cargo.
+    <p>$descripcion</p>
 
-El salario mensual pactado es de B/. $salario, con las siguientes deducciones aproximadas: 
-Seguro Social B/. $desc_seguro, Seguro Educativo B/. $desc_educativo, Impuesto sobre la Renta B/. $desc_renta.
+    <p>Se expide la presente para los fines que estime convenientes.</p>
 
-$descripcion
-
-Se expide la presente para los fines que estime convenientes.
+    <br><br><br>
+    <p><strong>Departamento de Planilla</strong></p>
 ";
 
-$pdf->MultiCell(0,8,utf8_decode($texto));
-$pdf->Ln(20);
+// Inicializa Dompdf
+$dompdf = new Dompdf();
+$dompdf->loadHtml($html);
 
-// Pie sin firma
-$pdf->SetFont('Arial','B',12);
-$pdf->Cell(0,10,utf8_decode('Departamento de Planilla'),0,1,'L');
+// Configuración del papel
+$dompdf->setPaper('A4', 'portrait');
 
-$pdf->Output("I", "carta_trabajo_$id.pdf");
+// Renderiza el PDF
+$dompdf->render();
+
+// Muestra en el navegador
+$dompdf->stream("carta_trabajo.pdf", ["Attachment" => false]); // true = descarga directa
 exit;
