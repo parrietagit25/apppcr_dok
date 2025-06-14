@@ -185,7 +185,7 @@ include __DIR__ . '/header.php';
                 </a>
             </div>
             <div class="col-6 mb-4">
-                <a href="<?php echo BENEFICIOS; ?>" class="text-decoration-none">
+                <a href="<?php echo BASE_URL_CONTROLLER; ?>BeneficiosController.php" class="text-decoration-none">
                     <div style="background-color: #f8f9fa; padding: 20px; border-radius: 10px;">
                         <img width="100" src="<?php echo BASE_URL_IMAGE; ?>beneficios.svg" alt="Cumpleaños">
                         <div class="card-title"><small>Mis Beneficios</small></div>
@@ -248,6 +248,7 @@ include __DIR__ . '/header.php';
                     </div>
                 </a>
             </div>
+            <?php if ($tipo_usuario == 1 || $tipo_usuario == 4) { ?>
             <div class="col-4 mb-3">
                 <a href="<?php echo BASE_URL_CONTROLLER; ?>/CarnetController.php?verificar_carnet=1" class="text-decoration-none">
                     <div class="card-icon">
@@ -256,6 +257,7 @@ include __DIR__ . '/header.php';
                     </div>
                 </a>
             </div>
+            <?php } ?>
         </div>
     </div>
 
