@@ -1,8 +1,10 @@
 <?php
+echo "<!-- Inicio de la página beneficios.php -->\n";
 if (!isset($_SESSION['code'])) {
     header("Location: salir.php");
     exit();
 }
+echo "<!-- Usuario autenticado: " . htmlspecialchars($_SESSION['code']) . " -->\n";
 
 include __DIR__ . '/header.php';
 ?>
