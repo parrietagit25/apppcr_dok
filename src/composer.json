@@ -3,7 +3,6 @@
         "phpmailer/phpmailer": "6.6",
         "sendgrid/sendgrid": "^8.1",
         "phpoffice/phpspreadsheet": "1.23.0",
-        "dompdf/dompdf": "^3.1",
-        "endroid/qr-code": "..."
+        "dompdf/dompdf": "^3.1"
     }
 }
