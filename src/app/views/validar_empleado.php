@@ -41,7 +41,16 @@
 
 <script>
 function levantarCamara() {
+    // Limpiar resultado anterior
+    const carnet = document.querySelector('.carnet');
+    if (carnet) carnet.remove();
+
+    const notFound = document.querySelector('.not-found') || document.querySelector('div[style*="color: red"]');
+    if (notFound) notFound.remove();
+
+    // Mostrar escáner
     document.getElementById("reader").style.display = "block";
+
     const scanner = new Html5Qrcode("reader");
 
     scanner.start(
@@ -51,12 +60,15 @@ function levantarCamara() {
             scanner.stop();
             window.location.href = `CarnetController.php?verificar_carnet=1&codigo=${encodeURIComponent(qrCodeMessage)}`;
         },
-        errorMessage => { /* opcional */ }
+        errorMessage => {
+            // Puedes mostrar mensaje temporal si quieres aquí
+        }
     ).catch(err => {
         alert("No se pudo acceder a la cámara: " + err);
     });
 }
 </script>
+
 
 </body>
 </html>
