@@ -234,7 +234,7 @@ class Rrhh {
     }
 
 
-    public function aprobar_carta_trabajo($id_carta, $archivo, $comentario) {
+     /* public function aprobar_carta_trabajo($id_carta, $archivo, $comentario) {
         $id_user_aprobado = $_SESSION['code'];
         $stat = 2;
         
@@ -247,7 +247,21 @@ class Rrhh {
         $stmt->bindParam(':id_carta', $id_carta, PDO::PARAM_INT);
         
         return $stmt->execute();
-    }
+    } */
+
+    public function aprobar_carta_trabajo($id_carta) {
+        $id_user_aprobado = $_SESSION['code'];
+        $stat = 2;
+        
+        $stmt = $this->pdo->prepare("UPDATE carta_trabajo 
+                                      SET stat = :stat, id_user_aprobado = :id_user_aprobado 
+                                      WHERE id = :id_carta");
+        $stmt->bindParam(':stat', $stat, PDO::PARAM_INT);
+        $stmt->bindParam(':id_user_aprobado', $id_user_aprobado, PDO::PARAM_INT);
+        $stmt->bindParam(':id_carta', $id_carta, PDO::PARAM_INT);
+        
+        return $stmt->execute();
+    } 
 
     public function get_email_colaborador($id_carta) {
         $stmt = $this->pdo->prepare("SELECT c.email FROM carta_trabajo ct 

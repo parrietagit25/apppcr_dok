@@ -112,7 +112,7 @@ include __DIR__ . '/header.php';
                                                 </div>
                                                 <div class='col-md-6'>
                                                     <label class='form-label'>Seguro Social</label>
-                                                    <input type='text' class='form-control' name='seguro' value='" . htmlspecialchars($row['seguro_social'] ?? '') . "' required>
+                                                    <input type='text' class='form-control' name='seguro' value='" . htmlspecialchars($row['seguro_social'] ?? '') . "'>
                                                 </div>
                                                 <div class='col-md-6'>
                                                     <label class='form-label'>Fecha de ingreso</label>
