@@ -247,8 +247,6 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
 
 }elseif($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['enviar_carta_pdf'])) {
 
-    echo 'Pasando por aqui';
-
     $id_carta = $_POST['solicitud_id'];
     $comentario = $_POST['comentario'] ?? '';
 
@@ -296,7 +294,7 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
             $copias = ["pedro.arrieta@grupopcr.com.pa", "rrhhgpcr@grupopcr.com.pa"];
 
             // Enviar con adjunto $email_destino
-            $class->enviar_correo_con_adjunto('pedroarrieta25@hotmail.com', $copias, "Carta de Trabajo", $mensaje_correo, $ruta_archivo);
+            $class->enviar_correo_con_adjunto($email_destino, $copias, "Carta de Trabajo", $mensaje_correo, $ruta_archivo);
             echo "<div class='alert alert-success'>Carta generada y enviada exitosamente a $email_destino.</div>";
         } else {
             echo "<div class='alert alert-warning'>No se pudo obtener el correo del colaborador.</div>";
