@@ -1,5 +1,4 @@
 <?php
-session_start();
 echo "Inicio de la página beneficios.php ";
 if (!isset($_SESSION['code'])) {
     header("Location: salir.php");
