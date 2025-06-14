@@ -724,33 +724,6 @@
     <p class="mb-0">Grupo PCR &copy; 2025. Todos los derechos reservados.</p>
   </footer>
 
-  <script>
-    function showSection(id) {
-      const sections = document.querySelectorAll('.section-content');
-      const loader = document.getElementById('loader');
-      sections.forEach(section => section.style.display = 'none');
-      loader.style.display = 'block';
-
-      setTimeout(() => {
-        loader.style.display = 'none';
-        document.getElementById(id).style.display = 'block';
-        document.getElementById(id).scrollIntoView({ behavior: 'smooth' });
-      }, 600);
-    }
-
-    window.onscroll = function () {
-      const btn = document.getElementById("backToTopBtn");
-      if (document.body.scrollTop > 200 || document.documentElement.scrollTop > 200) {
-        btn.style.display = "block";
-      } else {
-        btn.style.display = "none";
-      }
-    };
-
-    function scrollToTop() {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-  </script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
