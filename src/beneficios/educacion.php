@@ -59,7 +59,7 @@
       Si necesitas renovar tu carnet, acércate o escribe al Departamento de Recursos Humanos.
     </div>
 
-    <div id="educacion" class="section-content">
+    <div>
         <h3 class="mb-4">Educación</h3>
         <div class="card">
             <img src="image/ume.jpg" class="card-img-top" alt="UMECIT">
