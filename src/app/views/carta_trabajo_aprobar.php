@@ -113,7 +113,7 @@ include __DIR__ . '/header.php';
                                                 </div>
                                                 <div class='col-md-6'>
                                                     <label class='form-label'>Seguro Social</label>
-                                                    <input type='text' class='form-control' name='seguro' value='" . htmlspecialchars($row['seguro'] ?? '') . "' required>
+                                                    <input type='text' class='form-control' name='seguro' value='" . htmlspecialchars($row['seguro_social'] ?? '') . "' required>
                                                 </div>
                                                 <div class='col-md-6'>
                                                     <label class='form-label'>Fecha de ingreso</label>
@@ -125,7 +125,7 @@ include __DIR__ . '/header.php';
                                                 </div>
                                                 <div class='col-md-6'>
                                                     <label class='form-label'>Salario</label>
-                                                    <input type='number' step='0.01' class='form-control' name='salario' value='" . htmlspecialchars($row['salario'] ?? '0.00') . "' required>
+                                                    <input type='number' step='0.01' class='form-control' name='salario' value='" . htmlspecialchars($row['salario_pactado'] ?? '0.00') . "' required>
                                                 </div>
                                                 <div class='col-md-4'>
                                                     <label class='form-label'>Seguro Social (desc)</label>
