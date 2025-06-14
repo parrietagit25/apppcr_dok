@@ -163,7 +163,7 @@ class Rrhh {
     }
 
 
-    public function solicitudes_aprobar() {
+    /* public function solicitudes_aprobar() {
 
         $stmt = $this->pdo->prepare("SELECT ct.id, ct.descripcion, ct.fecha_log,
                                             CASE ct.stat
@@ -191,7 +191,48 @@ class Rrhh {
             $array_datos[] = $list_code;
         }
         return $array_datos;
+    } */
+
+    public function solicitudes_aprobar() {
+        $stmt = $this->pdo->prepare("
+            SELECT 
+                ct.id,
+                IFNULL(ctf.descripcion, ct.descripcion) AS descripcion,
+                ct.fecha_log,
+                CASE ct.stat
+                    WHEN 1 THEN 'Solicitado'
+                    WHEN 2 THEN 'Aprobado'
+                    WHEN 3 THEN 'Borrado'
+                END AS estado,
+                IFNULL(ctf.nombre, c.nombre) AS nombre,
+                c.apellido,
+                ct.file_add, 
+                c.codigo_empleado, 
+                IFNULL(ctf.salario, c.salario_pactado) AS salario_pactado,
+                IFNULL(ctf.fecha_ingreso, c.fecha_ingreso) AS fecha_ingreso,
+                IFNULL(ctf.cedula, c.cedula) AS cedula,
+                IFNULL(ctf.seguro, c.seguro_social) AS seguro_social,
+                IFNULL(ctf.cargo, c.nombre_cargo) AS nombre_cargo,
+                ctf.desc_seguro,
+                ctf.desc_educativo,
+                ctf.desc_renta
+            FROM carta_trabajo ct
+            INNER JOIN empleados c
+                ON ct.code_user COLLATE utf8mb4_unicode_ci = c.codigo_empleado COLLATE utf8mb4_unicode_ci
+            LEFT JOIN carta_trabajo_formulario ctf
+                ON ctf.carta_id = ct.id
+            WHERE ct.stat IN (1, 2)
+            ORDER BY ct.id DESC;
+        ");
+        
+        $stmt->execute();
+        $array_datos = [];
+        while ($list_code = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            $array_datos[] = $list_code;
+        }
+        return $array_datos;
     }
+
 
     public function aprobar_carta_trabajo($id_carta, $archivo, $comentario) {
         $id_user_aprobado = $_SESSION['code'];
