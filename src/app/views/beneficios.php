@@ -24,7 +24,7 @@ include __DIR__ . '/header.php';
     </div>
 
     <!-- Presentar Carnet -->
-    <div class="bg-light text-center rounded py-3 mb-3" style="background-color:rgb(72, 94, 160); color: white;">
+    <div class="bg-light text-center rounded py-3 mb-3" style="background-color:rgb(52, 93, 218); color: white;">
         <strong>PRESENTA TU CARNET PARA GOZAR DE ESTOS BENEFICIOS EXCLUSIVOS</strong><br>
         <a href="<?php echo BASE_URL_CONTROLLER; ?>/MainController.php?verificar_carnet=1" class="text-decoration-underline small text-dark">Si aún no tienes el tuyo, haz clic aquí</a>
     </div>
