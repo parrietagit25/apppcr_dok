@@ -1,52 +1,138 @@
 <?php
-if (!isset($_SESSION['code'])) {
-    header("Location: salir.php");
-    exit();
+session_start();
+require_once __DIR__ . '/../config/conexion.php'; // Ajusta la ruta si es distinta
+
+$codigo = $_GET['codigo'] ?? null;
+$empleado = null;
+$noEncontrado = false;
+
+if ($codigo) {
+    $stmt = $pdo->prepare("SELECT * FROM empleados WHERE codigo_empleado = ?");
+    $stmt->execute([$codigo]);
+    $empleado = $stmt->fetch(PDO::FETCH_ASSOC);
+    if (!$empleado) {
+        $noEncontrado = true;
+    }
 }
+?>
 
-include __DIR__ . '/header.php'; ?>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Validación de Carnet</title>
+    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f2f2f2;
+            text-align: center;
+            padding: 30px;
+        }
+        .carnet {
+            width: 300px;
+            margin: auto;
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
+        .carnet img {
+            border-radius: 50%;
+            width: 120px;
+            height: 120px;
+            object-fit: cover;
+            margin-bottom: 10px;
+        }
+        .carnet h3 {
+            margin: 0;
+            font-size: 1.2em;
+        }
+        .carnet p {
+            margin: 5px 0;
+            font-size: 0.9em;
+        }
+        .footer {
+            margin-top: 15px;
+            font-size: 0.8em;
+            color: #777;
+        }
+        #reader {
+            width: 300px;
+            margin: 20px auto;
+            display: none;
+        }
+        .btn {
+            padding: 10px 20px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        .not-found {
+            background: #fff3f3;
+            color: #a00;
+            padding: 15px;
+            margin: auto;
+            width: 300px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(255,0,0,0.1);
+        }
+    </style>
+</head>
+<body>
 
-<div class="container mt-4">
+<h2>Verificación de Carnet</h2>
 
-    <div id="carouselExampleSlidesOnly" class="carousel slide mb-4" data-bs-ride="carousel">
-        <div class="carousel-inner">
-            <div class="carousel-item active">
-                <div class="p-3 bg-light rounded">
-                    <h5 class="fw-bold">Carnet Virtual</h5>
-                </div>
-            </div>
-        </div>
-    </div>
-
+<?php if ($empleado): ?>
     <div class="carnet">
         <h1>GRUPO <b>PCR</b></h1>
-
-        <img src="<?php echo BASE_URL_IMAGE; ?>imagen_carnet/<?php echo $resultado = substr($_SESSION['code'], 2); ?>.jpeg" alt="Foto del empleado">
-
-        <h3><?php echo $nombre . ' ' . $apellido; ?></h3>
-        <p><b>Código:</b> <?php echo $codigo_empleado; ?></p>
-        <p><b>Departamento:</b> <?php echo $departamento; ?></p>
-        <p><b>Sangre:</b> <?php echo $sangre; ?></p>
-
-        <div class="footer mt-3">
+        <img src="<?php echo '../public/imagen_carnet/' . substr($empleado['codigo_empleado'], 2) . '.jpeg'; ?>" alt="Foto del empleado">
+        <h3><?php echo $empleado['nombre'] . ' ' . $empleado['apellido']; ?></h3>
+        <p><b>Código:</b> <?php echo $empleado['codigo_empleado']; ?></p>
+        <p><b>Departamento:</b> <?php echo $empleado['departamento']; ?></p>
+        <p><b>Sangre:</b> <?php echo $empleado['sangre']; ?></p>
+        <div class="footer">
             <p>Grupo PCR</p>
             <p>Líderes Movilizando Panamá</p>
         </div>
     </div>
-
-</div>
-
-<br>
-<br>
-
-<br>
-<nav class="navbar fixed-bottom navbar-light bg-light border-top">
-    <div class="container-fluid">
-        <a href="<?php echo BASE_URL_CONTROLLER; ?>/MainController.php" class="navbar-brand text-center" style="width: 25%;">INICIO</a>
-        <a href="#" class="navbar-brand text-center" style="width: 25%;"></a>
-        <a href="<?php echo BASE_URL_CONTROLLER; ?>/MainController.php" class="navbar-brand text-center" style="width: 25%;">VOLVER</a>
-        <a href="#" class="navbar-brand text-center" style="width: 25%;"></a>
+<?php elseif ($noEncontrado): ?>
+    <div class="not-found">
+        <p>❌ Usuario no encontrado.</p>
     </div>
-</nav>
+<?php endif; ?>
 
-<?php include __DIR__ . '/footer.php'; ?>
+<!-- Botón para escanear QR -->
+<button class="btn" onclick="levantarCamara()">📷 Escanear QR</button>
+
+<!-- Escáner QR -->
+<div id="reader"></div>
+
+<script>
+function levantarCamara() {
+    document.getElementById("reader").style.display = "block";
+
+    const scanner = new Html5Qrcode("reader");
+    scanner.start(
+        { facingMode: "environment" },
+        {
+            fps: 10,
+            qrbox: 250
+        },
+        qrCodeMessage => {
+            scanner.stop(); // Detener cámara
+            window.location.href = "validar_empleado.php?codigo=" + encodeURIComponent(qrCodeMessage);
+        },
+        errorMessage => {
+            // Opcional: console.log(errorMessage);
+        }
+    ).catch(err => {
+        alert("Error al acceder a la cámara: " + err);
+    });
+}
+</script>
+
+</body>
+</html>
