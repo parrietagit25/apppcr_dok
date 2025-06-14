@@ -62,7 +62,7 @@ include __DIR__ . '/header.php';
                         <div class='modal fade' id='modalAdjuntar{$row['id']}' tabindex='-1' aria-labelledby='modalLabel{$row['id']}' aria-hidden='true'>
                             <div class='modal-dialog'>
                                 <div class='modal-content'>
-                                    <form action='?carta_trabajo_aprobar' method='POST'>
+                                    <form action='' method='POST'>
                                         <div class='modal-header'>
                                             <h5 class='modal-title' id='modalLabel{$row['id']}'>Enviar carta al colaborador</h5>
                                             <button type='button' class='btn-close' data-bs-dismiss='modal' aria-label='Close'></button>
