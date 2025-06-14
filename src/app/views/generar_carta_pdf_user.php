@@ -1,11 +1,13 @@
 <?php
+session_start();
 require_once __DIR__ . '/../../vendor/autoload.php';
-require_once __DIR__ . '/../config/conexion.php'; 
+require_once __DIR__ . '/../../config/config.php';
+require_once __DIR__ . '/../core/Database.php';
 require_once __DIR__ . '/../models/Rrhh.php';
 
 use Dompdf\Dompdf;
 
-session_start();
+
 $class = new Rrhh();
 
 if (!isset($_SESSION['code']) || !isset($_GET['id'])) {
