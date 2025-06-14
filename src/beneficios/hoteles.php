@@ -59,7 +59,7 @@
       Si necesitas renovar tu carnet, acércate o escribe al Departamento de Recursos Humanos.
     </div>
       
-    <div id="hoteles" class="section-content">
+    <div>
     <h3 class="mb-4">Hoteles</h3>
 
         
