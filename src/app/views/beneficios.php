@@ -8,19 +8,8 @@ include __DIR__ . '/header.php';
 
 ?>
 
-<div style="background: #0b3b80; color: white; padding: 20px; border-bottom: 5px solid #004aad;">
-    <h5 class="m-0">GENTE <b>PCR</b> <span style="font-size: 0.8em;">MOBILE APP</span></h5>
-</div>
 
 <div class="container mt-3">
-
-    <!-- Bienvenida -->
-    <div class="d-flex justify-content-between align-items-center bg-white px-3 py-2 rounded shadow-sm my-3">
-        <div>
-            <i class="bi bi-person-circle"></i> ¡Hola <?php echo $_SESSION['nombre'] ?? 'Colaborador'; ?>!
-        </div>
-        <small><?php echo date("d \d\e F \d\e Y"); ?></small>
-    </div>
 
     <!-- Mis Beneficios -->
     <div class="bg-primary text-white rounded p-3 mb-3 text-start">
@@ -40,12 +29,12 @@ include __DIR__ . '/header.php';
         <p class="small text-muted">Conoce los beneficios que brindan nuestras marcas aliadas</p>
 
         <div class="row row-cols-3 g-3 mt-2">
-            <div><img src="<?php echo BASE_URL_IMAGE; ?>benef_hotel.svg" width="40"><br><small>Hoteles</small></div>
-            <div><img src="<?php echo BASE_URL_IMAGE; ?>benef_rest.svg" width="40"><br><small>Restaurantes</small></div>
-            <div><img src="<?php echo BASE_URL_IMAGE; ?>benef_salud.svg" width="40"><br><small>Salud</small></div>
-            <div><img src="<?php echo BASE_URL_IMAGE; ?>benef_edu.svg" width="40"><br><small>Educación</small></div>
-            <div><img src="<?php echo BASE_URL_IMAGE; ?>benef_serv.svg" width="40"><br><small>Servicios</small></div>
-            <div><img src="<?php echo BASE_URL_IMAGE; ?>benef_otros.svg" width="40"><br><small>Otros</small></div>
+            <div><img src="<?php echo BASE_URL_IMAGE; ?>hoteles_app.svg" width="40"><br><small>Hoteles</small></div>
+            <div><img src="<?php echo BASE_URL_IMAGE; ?>restaurantes_app.svg" width="40"><br><small>Restaurantes</small></div>
+            <div><img src="<?php echo BASE_URL_IMAGE; ?>salud_app.svg" width="40"><br><small>Salud</small></div>
+            <div><img src="<?php echo BASE_URL_IMAGE; ?>educacion_app.svg" width="40"><br><small>Educación</small></div>
+            <div><img src="<?php echo BASE_URL_IMAGE; ?>servicios_app.svg" width="40"><br><small>Servicios</small></div>
+            <div><img src="<?php echo BASE_URL_IMAGE; ?>otros_comercios.svg" width="40"><br><small>Otros</small></div>
         </div>
     </div>
 
