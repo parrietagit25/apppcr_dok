@@ -68,7 +68,7 @@ if (isset($_GET['restore_pass'])) {
             $codigoRecuperacion = $_POST['restore_code']; 
             $mensaje = enviarCorreoRecuperacion($email, $codigoRecuperacion);
             //require_once __DIR__ . '/../views/login.php';
-            require_once __DIR__ . '/index.php?msg=' . urlencode($mensaje);
+            header("Location: /index.php?msg=" . urlencode($mensaje));
             exit();
         } 
         require_once __DIR__ . '/../views/restore_code.php';
