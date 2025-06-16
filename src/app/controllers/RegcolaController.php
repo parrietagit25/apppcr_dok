@@ -27,7 +27,7 @@ if (isset($_GET['reg_col'])) {
             $userModel->insertar_colaborador($_POST['reg_code'], $_POST['reg_password']);
             $mensaje = 'Colaborador Registrado';
             sleep(3);
-            header("Location: apppcr.net");
+            header("Location: /index.php");
             //require_once __DIR__ . '/../views/login.php';
             exit();
         }else {
@@ -62,22 +62,13 @@ if (isset($_GET['restablecer_password'])) {
 
 if (isset($_GET['restore_pass'])) {
 
-    /*
-    if (isset($_POST['recuperar_pass'])) {
-        //echo 'pasando';
-        $userModel->insertar_colaborador($_POST['restore_code']);
-        $mensaje = 'Colaborador Registrado';
-        //sleep(3);
-        require_once __DIR__ . '/../views/login.php';
-        exit(); 
-    } */
-
     if (isset($_POST['restore_col'])) {
         if (isset($_POST['restore_code']) && $_POST['restore_code'] <> '') {
             $email = $_POST['email']; 
             $codigoRecuperacion = $_POST['restore_code']; 
             $mensaje = enviarCorreoRecuperacion($email, $codigoRecuperacion);
-            require_once __DIR__ . '/../views/login.php';
+            //require_once __DIR__ . '/../views/login.php';
+            require_once __DIR__ . '/index.php?msg=' . urlencode($mensaje);
             exit();
         } 
         require_once __DIR__ . '/../views/restore_code.php';

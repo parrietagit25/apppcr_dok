@@ -61,12 +61,20 @@
 <body>
 <div class="login-container">
     <?php 
+    /*
         if (isset($mensaje)){
              echo '<div class="alert alert-success alert-dismissible fade show" role="alert">
                     <strong>'.$mensaje.'</strong>
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                    </div>';
         }elseif (isset($_GET['msg'])) {
+            echo '<div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <strong>'.$_GET['msg'].'</strong>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                   </div>';
+        } */
+
+        if (isset($_GET['msg'])) {
             echo '<div class="alert alert-success alert-dismissible fade show" role="alert">
                     <strong>'.$_GET['msg'].'</strong>
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
