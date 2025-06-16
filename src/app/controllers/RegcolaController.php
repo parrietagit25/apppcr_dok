@@ -82,6 +82,7 @@ if (isset($_GET['restore_pass'])) {
 
 function enviarCorreoRecuperacion($emailDestino, $codigoRecuperacion) {
     $mail = new PHPMailer(true);
+    $mail->CharSet = 'UTF-8'; 
 
     try {
         $mail->isSMTP();
