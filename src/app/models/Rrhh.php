@@ -391,7 +391,7 @@ class Rrhh {
         $code = $_SESSION['code'];
         $code = substr($code, 2);
 
-        $stmt = $this->pdo->prepare("SELECT ct.id, ct.descripcion, ct.fecha_log, 
+        $stmt = $this->pdo->prepare("SELECT ct.id, ct.descripcion, ct.fecha_log, ct.code_user, 
                                         CASE ct.stat
                                             WHEN 1 THEN 'Solicitado'
                                             WHEN 2 THEN 'Revisado'

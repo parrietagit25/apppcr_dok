@@ -44,7 +44,7 @@ include __DIR__ . '/header.php';
                     : 'NULL';
             ?>
             <tr>
-                <td><?= htmlspecialchars($c['codigo'] ?? '-') ?></td>
+                <td><?= htmlspecialchars($c['code_user'] ?? '-') ?></td>
                 <td><?= htmlspecialchars(($c['nombre'] ?? '') . ' ' . ($c['apellido'] ?? '')) ?></td>
                 <td><?= htmlspecialchars($c['descripcion'] ?? '-') ?></td>
                 <td><?= htmlspecialchars($c['fecha_log'] ?? '-') ?></td>
