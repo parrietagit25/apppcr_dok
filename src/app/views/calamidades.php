@@ -138,7 +138,7 @@ include __DIR__ . '/header.php';
   </div>
 </div>
 
-<!-- Botones de navegación -->
+<!-- Botones de navegación 
 <div class="text-center mt-5 mb-4">
     <a href="index.php" class="btn btn-outline-primary me-2">
         <i class="bi bi-house-door-fill"></i> Inicio
@@ -146,7 +146,37 @@ include __DIR__ . '/header.php';
     <button onclick="window.history.back()" class="btn btn-outline-secondary">
         <i class="bi bi-arrow-left-circle"></i> Volver
     </button>
-</div>
+</div>-->
+
+    <div class="container">
+        <div class="row text-center mb-3">
+            <div class="col-6 mb-4">
+                <a href="<?php echo BASE_URL_IMAGE; ?>imagen_carnet_mapfre/<?php  echo substr($_SESSION['code'], 2); ?>.pdf" class="text-decoration-none" target="_blank">
+                    <div style="background-color: #f8f9fa; padding: 20px; border-radius: 10px;">
+                        <img width="100" src="<?php echo BASE_URL_IMAGE; ?>carnet.svg" alt="Carnet">
+                        <div class="card-title"> <small>Mi Carnet de Mapfre</small> </div>
+                    </div>
+                </a>
+            </div>
+            <div class="col-6 mb-4">
+                <a href="https://seguros.doctor-online.co/webm/views/login.php?resource=b60aa9f45cca11ebae930242ac130002" target="_blank" class="text-decoration-none">
+                    <div style="background-color: #f8f9fa; padding: 20px; border-radius: 10px;">
+                        <img width="100" src="<?php echo BASE_URL_IMAGE; ?>dr_minutos.png" alt="Cumpleaños">
+                        <div class="card-title"><small>Doctor en Minutos</small></div>
+                    </div>
+                </a>
+            </div>
+            <div class="col-6 mb-4">
+                <a href="<?php echo BASE_URL_CONTROLLER; ?>/MainController.php?info_poliza=1" target="_blank" class="text-decoration-none">
+                    <div style="background-color: #f8f9fa; padding: 20px; border-radius: 10px;">
+                        <img width="100" src="<?php echo BASE_URL_IMAGE; ?>info.png" alt="Cumpleaños">
+                        <div class="card-title"><small>Info Mapfre</small></div>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </div>
+
 
 <!-- JS para DataTable y modal dinámico -->
 <script>
