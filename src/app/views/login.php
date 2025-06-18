@@ -42,7 +42,7 @@
         .link-container a {
             display: block;
             margin-top: 5px;
-            color: #0d6efd;
+            color:rgb(255, 255, 255);
             text-decoration: none;
             font-weight: bold;
         }
@@ -86,6 +86,8 @@
         <div class="form-group">
             <input type="text" name="code" placeholder="Código de Colaborador" class="form-control prefijo">
         </div>
+        <br>
+        <br>
         <div class="form-group">
             <input type="password" name="password" placeholder="Password" class="form-control">
         </div>
