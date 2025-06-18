@@ -426,7 +426,9 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
 
         <p><strong>Descripción del permiso:</strong><br>' . nl2br($descripcion) . '</p>
 
-        <h4 style="color:rgb(250, 11, 2);">Para aprobar esta solicitud, por favor comuníquese con el Departamento de Recursos Humanos notificando su aprobación.</h4>
+        <h4 style="color:rgb(250, 11, 2);">Para aprobar o declinar esta solicitud, ingrese en el siguiente link.</h4>
+
+        <p><a href="https://app.grupopcr.com.pa/app/views/aprobar_vacaciones.php">Aprobar o Declinar Solicitud de Permiso</a></p>
 
         <p><strong>Canal de contacto:</strong></p>
         <ul>
