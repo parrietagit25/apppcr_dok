@@ -306,6 +306,15 @@ class Rrhh {
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
+    public function get_email_colaborador_incapacidad($id_incapacidad) {
+        $stmt = $this->pdo->prepare("SELECT c.email, c.nombre, c.apellido FROM incapacidad ct 
+                                                    INNER JOIN empleados c ON ct.code_user COLLATE utf8mb4_unicode_ci = c.codigo_empleado COLLATE utf8mb4_unicode_ci 
+                                                    WHERE ct.id = :id_incapacidad");
+        $stmt->bindParam(':id_incapacidad', $id_incapacidad, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
     public function get_email_permiso($id_permiso) {
         $stmt = $this->pdo->prepare("SELECT e.email, e.nombre, e.apellido FROM solicitud_permiso sp 
                                                     INNER JOIN empleados e ON sp.code COLLATE utf8mb4_unicode_ci = e.codigo_empleado COLLATE utf8mb4_unicode_ci 

@@ -297,9 +297,9 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
             $mensaje = 'El colaborador '.$nombre_comple.' con codigo '.$codigo.' 
             ha adjuntado una incapacidad, ingrese a la app pcr para visualizar o descargar la misma. <br>';
 
-            $copia = ["pedro.arrieta@grupopcr.com.pa", "abi.pineda@grupopcr.com.pa"];
+            //$copia = ["pedro.arrieta@grupopcr.com.pa", "abi.pineda@grupopcr.com.pa", "sofia.macias@grupopcr.com.pa"];
             //$copiacoo = ["pedro.arrieta@grupopcr.com.pa", "rrhhgpcr@grupopcr.com.pa"];
-            //$copia = ["pedro.arrieta@grupopcr.com.pa"];
+            $copia = ["pedro.arrieta@grupopcr.com.pa"];
         
             $class->enviar_correo("rrhhgpcr@grupopcr.com.pa", $copia, "Incapacidad de '".$nombre_comple."' ", $mensaje);
             
@@ -323,8 +323,17 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
 
         $class->update_incapacidad($_POST['incapacidad_id']);
 
+        /*
         $dartos_cola = $class->datos_colaborador();
         foreach ($dartos_cola as $key => $value) {
+            $nombre_comple = $value['nombre']. ' ' .$value['apellido']; 
+            $email = $value['email'];
+        }
+            */
+
+        // Obtener el correo del colaborador
+        $get_email_colab = $class->get_email_colaborador_incapacidad($_POST['incapacidad_id']);
+        foreach ($get_email_colab as $key => $value) {
             $nombre_comple = $value['nombre']. ' ' .$value['apellido']; 
             $email = $value['email'];
         }
@@ -332,8 +341,9 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
         $mensaje = 'Estimado '.$nombre_comple.' <br> 
         Se ha revisado su incapacidad por parte del departamento de RRHH <br>';
 
-        $copiacoo = ["pedro.arrieta@grupopcr.com.pa", "rrhhgpcr@grupopcr.com.pa"];
+        //$copiacoo = ["pedro.arrieta@grupopcr.com.pa", "rrhhgpcr@grupopcr.com.pa", "sofia.macias@grupopcr.com.pa"];
         //$copiacoo = ["pedro.arrieta@grupopcr.com.pa"];
+        $copiacoo = ["pedroarrieta25@hotmail.com"];
 
         $class->enviar_correo($email, $copiacoo, "Incapacidad Revisada ", $mensaje);
         
