@@ -178,8 +178,8 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
 
             if ($email_destino) {
                 $mensaje_correo = "Estimado $nombre,<br><br>Adjunto encontrará su carta de trabajo solicitada. $comentario<br><br>Saludos,<br>RRHH";
-                //$copias = ["pedro.arrieta@grupopcr.com.pa", "rrhhgpcr@grupopcr.com.pa", "sofia.macias@grupopcr.com.pa"];
-                $copia = ["pedroarrieta25@hotmail.com"];
+                $copias = ["pedro.arrieta@grupopcr.com.pa", "rrhhgpcr@grupopcr.com.pa", "sofia.macias@grupopcr.com.pa"];
+                //$copias = ["pedroarrieta25@hotmail.com"];
 
                 // Enviar con adjunto $email_destino
                 $class->enviar_correo_con_adjunto($email_destino, $copias, "Carta de Trabajo", $mensaje_correo, $ruta_archivo);
