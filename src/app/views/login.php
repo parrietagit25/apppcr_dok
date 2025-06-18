@@ -87,7 +87,6 @@
             <input type="text" name="code" placeholder="Código de Colaborador" class="form-control prefijo">
         </div>
         <br>
-        <br>
         <div class="form-group">
             <input type="password" name="password" placeholder="Password" class="form-control">
         </div>
