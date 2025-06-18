@@ -29,7 +29,7 @@
             max-width: 400px;
         }
         .login-btn {
-            background-color: #003366;
+            background-color: #0d6efd;
             color: white;
             border-radius: 10px;
             padding: 10px;
