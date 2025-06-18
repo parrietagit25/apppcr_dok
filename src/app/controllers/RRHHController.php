@@ -678,9 +678,9 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
             Forma de pago indicada: '.$forma_pago.' <br>
             ';
 
-            //$copia = ["abi.pineda@grupopcr.com.pa", "pedro.arrieta@grupopcr.com.pa", "sofia.macias@grupopcr.com.pa"];
+            $copia = ["abi.pineda@grupopcr.com.pa", "pedro.arrieta@grupopcr.com.pa", "sofia.macias@grupopcr.com.pa"];
             //$copia = ["pedro.arrieta@grupopcr.com.pa"];
-            $copia = ["pedroarrieta25@hotmail.com"];
+            //$copia = ["pedroarrieta25@hotmail.com"];
         
             $class->enviar_correo("rrhhgpcr@grupopcr.com.pa", $copia, "Calamidad de '".$nombre_comple."' ", $mensaje);
 
@@ -710,8 +710,8 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
         $mensaje = 'Estimado '.$nombre_comple.' <br> 
         La calamidad ha sido revisada por parte del departamento RRHH. <br>';
 
-        //$copia = ["pedro.arrieta@grupopcr.com.pa", "rrhhgpcr@grupopcr.com.pa", "sofia.macias@grupopcr.com.pa"];
-        $copia = ["pedroarrieta25@hotmail.com"];
+        $copia = ["pedro.arrieta@grupopcr.com.pa", "rrhhgpcr@grupopcr.com.pa", "sofia.macias@grupopcr.com.pa"];
+        //$copia = ["pedroarrieta25@hotmail.com"];
     
         $class->enviar_correo($email, $copia, "Calamidad revisada", $mensaje);
         
