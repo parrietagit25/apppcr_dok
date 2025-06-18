@@ -129,7 +129,12 @@ include __DIR__ . '/header.php';
         <br>
         <br>
         <br>
+        <br>
     </div>
+        <br>
+        <br>
+        <br>
+        <br>
 </div>
 
 <!-- Modal oculto (puedes eliminar si no se usa en esta vista) -->
