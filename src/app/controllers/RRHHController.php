@@ -678,8 +678,9 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
             Forma de pago indicada: '.$forma_pago.' <br>
             ';
 
-            $copia = ["abi.pineda@grupopcr.com.pa", "pedro.arrieta@grupopcr.com.pa"];
+            //$copia = ["abi.pineda@grupopcr.com.pa", "pedro.arrieta@grupopcr.com.pa", "sofia.macias@grupopcr.com.pa"];
             //$copia = ["pedro.arrieta@grupopcr.com.pa"];
+            $copia = ["pedroarrieta25@hotmail.com"];
         
             $class->enviar_correo("rrhhgpcr@grupopcr.com.pa", $copia, "Calamidad de '".$nombre_comple."' ", $mensaje);
 
@@ -698,16 +699,7 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
 
     if (isset($_POST['calamidad_id'])) {
 
-        //echo 'paso por dentro del controlador '.$_POST['calamidad_id'];
-
         $class->update_calamidad($_POST['calamidad_id']);
-
-        /* $dartos_cola = $class->datos_colaborador();
-        foreach ($dartos_cola as $key => $value) {
-            $nombre_comple = $value['nombre']. ' ' .$value['apellido']; 
-            $codigo = $value['codigo_empleado'];
-            $email = $value['email'];
-        }*/
 
         $get_email_colab = $class->get_email_calamidad($_POST['calamidad_id']);
         foreach ($get_email_colab as $key => $value) {
@@ -718,8 +710,8 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
         $mensaje = 'Estimado '.$nombre_comple.' <br> 
         La calamidad ha sido revisada por parte del departamento RRHH. <br>';
 
-        $copia = ["pedro.arrieta@grupopcr.com.pa", "rrhhgpcr@grupopcr.com.pa"];
-        //$copia = ["pedro.arrieta@grupopcr.com.pa"];
+        //$copia = ["pedro.arrieta@grupopcr.com.pa", "rrhhgpcr@grupopcr.com.pa", "sofia.macias@grupopcr.com.pa"];
+        $copia = ["pedroarrieta25@hotmail.com"];
     
         $class->enviar_correo($email, $copia, "Calamidad revisada", $mensaje);
         
