@@ -405,7 +405,7 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
         $cantidad_dias = $diferencia->days;
 
         $mensaje = '
-        <h4 style="color:rgb(250, 11, 2);">Aprobación pendiente: Solicitud de permiso de colaborador '.$email_feje.'</h4>
+        <h4 style="color:rgb(250, 11, 2);">Aprobación pendiente: Solicitud de permiso de colaborador </h4>
 
         <p>El colaborador <strong>' . $nombre_comple . '</strong> (Código de empleado: <strong>' . $codigo . '</strong>) ha solicitado un permiso del tipo <strong>' . $tipo_licencia . '</strong>.</p>
 
@@ -425,8 +425,8 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
         <p><em>Este es un mensaje automático. Por favor, no responda a este correo. Utilice los canales indicados para cualquier comunicación.</em></p>
         ';
 
-        //$copia = ["pedro.arrieta@grupopcr.com.pa", "abi.pineda@grupopcr.com.pa", $email_feje, "sofia.macias@grupopcr.com.pa"];
-        $copia = ["pedroarrieta25@hotmail.com"];
+        $copia = ["pedro.arrieta@grupopcr.com.pa", "abi.pineda@grupopcr.com.pa", $email_feje, "sofia.macias@grupopcr.com.pa"];
+        //$copia = ["pedroarrieta25@hotmail.com"];
 
         $class->enviar_correo("rrhhgpcr@grupopcr.com.pa", $copia, "Solicitud de permiso tipo '".$tipo_licencia."'", $mensaje); 
 
@@ -437,33 +437,15 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
         Fechas del permiso desde '.$fecha_inicio.' hasta '.$fecha_fin.' <br>
         Descripcion del permiso: '.$descripcion.'';
 
-         //$copia = ["pedro.arrieta@grupopcr.com.pa", "abi.pineda@grupopcr.com.pa", $email_feje, "sofia.macias@grupopcr.com.pa"];
-        $copia = ["pedroarrieta25@hotmail.com"];
-
+        $copia = ["pedro.arrieta@grupopcr.com.pa", "abi.pineda@grupopcr.com.pa", $email_feje, "sofia.macias@grupopcr.com.pa"];
+        //$copia = ["pedroarrieta25@hotmail.com"];
         //$copia = ["pedro.arrieta@grupopcr.com.pa"];
     
         $class->enviar_correo("rrhhgpcr@grupopcr.com.pa", $copia, "Solicitud de permiso tipo '".$tipo_licencia."'", $mensaje);
 
         }
 
-        //$copia = "pedro.arrieta@grupopcr.com.pa "."abi.pineda@grupopcr.com.pa ".$email_feje;
-
         echo "<div class='alert alert-success'>Permiso solicitado correctamente.</div>";
-
-        /* $to = "pedro.arrieta@grupopcr.com.pa";
-        $subject = "Solicitud de permiso tipo '".$tipo_licencia."'";
-        //$message = "Este es el contenido del mensaje.";
-        $headers = "From: notificaciones@grupopcr.com.pa\r\n";
-        $headers .= "Reply-To: notificaciones@grupopcr.com.pa\r\n";
-        $headers .= "X-Mailer: PHP/" . phpversion();
-
-        if(mail($to, $subject, $mensaje, $headers)) {
-            echo "<div class='alert alert-success'>Permiso solicitado correctamente.</div>";
-        } else {
-            echo "<div class='alert alert-danger'>Fallo al enviar el correo.</div>";
-        } */
-    
-        
         
     }
 
@@ -494,12 +476,6 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
             $email = $value['email'];
         }
 
-        /* foreach ($dartos_cola as $key => $value) {
-            $nombre_comple = $value['nombre']. ' ' .$value['apellido']; 
-            $codigo = $value['codigo_empleado'];
-            $email = $value['email'];
-        } */
-
         if ($_POST['respuesta_jefe'] == 'A') {
             $rep = 'Solicitud Aceptada';
         }else {
@@ -512,8 +488,8 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
         Los comentarios de su jefe directo son: '.$_POST['comentario_jefe'].'';
 
 
-        //$copiacoo = ["pedro.arrieta@grupopcr.com.pa", "abi.pineda@grupopcr.com.pa", "rrhhgpcr@grupopcr.com.pa"];
-        $copiacoo = ["pedro.arrieta@grupopcr.com.pa"];
+        $copiacoo = ["pedro.arrieta@grupopcr.com.pa", "abi.pineda@grupopcr.com.pa", "rrhhgpcr@grupopcr.com.pa", "sofia.macias@grupopcr.com.pa"];
+        //$copiacoo = ["pedro.arrieta@grupopcr.com.pa"];
 
         $class->enviar_correo($email, $copiacoo, "Respuesta a la solicitud de permiso", $mensaje);
     
