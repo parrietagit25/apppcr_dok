@@ -85,8 +85,8 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
         <br>
         Comentarios del colaborador: '.$descripcion.' <br> ';
 
-        $copia = ["abi.pineda@grupopcr.com.pa", "pedro.arrieta@grupopcr.com.pa"];
-        //$copia = ["pedro.arrieta@grupopcr.com.pa"];
+        //$copia = ["abi.pineda@grupopcr.com.pa", "pedro.arrieta@grupopcr.com.pa", "sofia.macias@grupopcr.com.pa"];
+        $copia = ["pedroarrieta25@hotmail.com"];
 
         $class->enviar_correo("rrhhgpcr@grupopcr.com.pa", $copia, "Carta de trabajo", $mensaje);
         //echo "<div class='alert alert-success'>Solicitud de Carta de trabajo enviada.</div>";
@@ -97,54 +97,6 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
     exit();
     
 } elseif (isset($_GET['carta_trabajo_aprobar'])) {
-    
-    /* if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['aprobar_carta'])) {
-        
-        $id_carta = $_POST['solicitud_id'];
-        $comentario = isset($_POST['comentario']) ? $_POST['comentario'] : '';
-        
-        // Carpeta de almacenamiento
-        $upload_dir = __DIR__ . '/../uploads/carta_trabajo/';
-        if (!is_dir($upload_dir)) {
-            mkdir($upload_dir, 0777, true);
-        }
-        
-        if (isset($_FILES['archivo']) && $_FILES['archivo']['error'] === UPLOAD_ERR_OK) {
-            $archivo_tmp = $_FILES['archivo']['tmp_name'];
-            $archivo_nombre = basename($_FILES['archivo']['name']);
-            $archivo_destino = $upload_dir . $archivo_nombre;
-
-            if (move_uploaded_file($archivo_tmp, $archivo_destino)) {
-                if ($class->aprobar_carta_trabajo($id_carta, $archivo_nombre, $comentario)) {
-                    $get_email_colab = $class->get_email_colaborador($id_carta);
-                    echo "<div class='alert alert-success'>Carta aprobada y archivo guardado correctamente.</div>";
-
-                    $dartos_cola = $class->datos_colaborador();
-                    foreach ($dartos_cola as $key => $value) {
-                        $nombre_comple = $value['nombre']. ' ' .$value['apellido']; 
-                        $codigo = $value['codigo_empleado'];
-                        $email = $value['email'];
-                    }
-                    
-                    $mensaje = 'Estimado '.$nombre_comple.'  
-                    ha solicitado, una carta de trabajo la cual fue enviada al app pcr, por favor ingrese a la plataforma para ver o descargar la carta solicitada<br> 
-                    <br> ';
-
-                    $copia = ["pedro.arrieta@grupopcr.com.pa", "rrhhgpcr@grupopcr.com.pa"];
-                    //$copia = ["pedro.arrieta@grupopcr.com.pa"];
-
-                    $class->enviar_correo($get_email_colab['email'], $copia, "Carta de trabajo Enviada", $mensaje);
-
-                } else {
-                    echo "<div class='alert alert-danger'>Error al actualizar la base de datos.</div>";
-                }
-            } else {
-                echo "<div class='alert alert-danger'>Error al mover el archivo.</div>";
-            }
-        } else {
-            echo "<div class='alert alert-danger'>No se subió ningún archivo válido.</div>";
-        }
-    } */
 
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['guardar_formulario'])) {
         $sql = "INSERT INTO carta_trabajo_formulario 
@@ -226,7 +178,8 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
 
             if ($email_destino) {
                 $mensaje_correo = "Estimado $nombre,<br><br>Adjunto encontrará su carta de trabajo solicitada. $comentario<br><br>Saludos,<br>RRHH";
-                $copias = ["pedro.arrieta@grupopcr.com.pa", "rrhhgpcr@grupopcr.com.pa"];
+                //$copias = ["pedro.arrieta@grupopcr.com.pa", "rrhhgpcr@grupopcr.com.pa", "sofia.macias@grupopcr.com.pa"];
+                $copia = ["pedroarrieta25@hotmail.com"];
 
                 // Enviar con adjunto $email_destino
                 $class->enviar_correo_con_adjunto($email_destino, $copias, "Carta de Trabajo", $mensaje_correo, $ruta_archivo);
