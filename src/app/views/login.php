@@ -93,7 +93,7 @@
         <?php if (isset($error)): ?>
             <div class="alert alert-danger mt-2"><?php echo $error; ?></div>
         <?php endif; ?>
-        <button type="submit" class="btn login-btn mt-3">Login</button>
+        <button type="submit" class="btn login-btn mt-3">Iniciar sesion</button>
     </form>
 
     <div class="link-container">
