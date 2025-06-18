@@ -130,9 +130,12 @@ include __DIR__ . '/header.php';
           </div>
           <input type="hidden" name="calamidad" value="1">
         </div>
-        <div class="modal-footer">
-          <button type="submit" class="btn btn-primary">Enviar Solicitud</button>
+
+        <div class="modal-footer d-flex align-items-center gap-2">
+          <input type="button" id="btnEnviarCalamidad" class="btn btn-primary" value="Enviar Solicitud">
+          <span id="loaderEnviarCalamidad" class="spinner-border spinner-border-sm text-primary d-none" role="status" aria-hidden="true"></span>
         </div>
+
       </form>
     </div>
   </div>
@@ -162,7 +165,7 @@ include __DIR__ . '/header.php';
                     </a>
                 </div>
                 <div class="col">
-                    <a href="<?php echo BASE_URL_CONTROLLER; ?>/MainController.php" class="text-white text-decoration-none d-block py-2">
+                    <a href="<?php echo BASE_URL_CONTROLLER; ?>/RRHHController.php" class="text-white text-decoration-none d-block py-2">
                         <i class="bi bi-arrow-left-square-fill fs-4"></i><br><small>Volver</small>
                     </a>
                 </div>
@@ -173,32 +176,52 @@ include __DIR__ . '/header.php';
 
 <!-- JS para DataTable y modal dinámico -->
 <script>
-document.addEventListener('DOMContentLoaded', function () {
-    $('#tablaCalamidades').DataTable({
-        language: {
-            url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json"
-        },
-        pageLength: 10,
-        order: [[3, 'desc']] // Ordena por la columna "Fecha" de forma descendente
-    });
+  document.addEventListener('DOMContentLoaded', function () {
+      $('#tablaCalamidades').DataTable({
+          language: {
+              url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json"
+          },
+          pageLength: 10,
+          order: [[3, 'desc']] // Ordena por la columna "Fecha" de forma descendente
+      });
 
-    const modal = document.getElementById('modalDetalles');
-    modal.addEventListener('show.bs.modal', function (event) {
-        const button = event.relatedTarget;
-        document.getElementById('modalNombre').textContent = button.getAttribute('data-nombre');
-        document.getElementById('modalFecha').textContent = button.getAttribute('data-fecha');
-        document.getElementById('modalEstado').textContent = button.getAttribute('data-estado');
-        document.getElementById('modalDescripcion').textContent = button.getAttribute('data-descripcion');
+      const modal = document.getElementById('modalDetalles');
+      modal.addEventListener('show.bs.modal', function (event) {
+          const button = event.relatedTarget;
+          document.getElementById('modalNombre').textContent = button.getAttribute('data-nombre');
+          document.getElementById('modalFecha').textContent = button.getAttribute('data-fecha');
+          document.getElementById('modalEstado').textContent = button.getAttribute('data-estado');
+          document.getElementById('modalDescripcion').textContent = button.getAttribute('data-descripcion');
 
-        const archivo = button.getAttribute('data-archivo');
-        const modalArchivo = document.getElementById('modalArchivo');
-        if (archivo && archivo !== 'NULL') {
-            modalArchivo.innerHTML = `<a href="${archivo}" target="_blank" class="btn btn-outline-primary btn-sm">Ver Archivo</a>`;
-        } else {
-            modalArchivo.textContent = "No hay archivo adjunto.";
-        }
-    });
-});
+          const archivo = button.getAttribute('data-archivo');
+          const modalArchivo = document.getElementById('modalArchivo');
+          if (archivo && archivo !== 'NULL') {
+              modalArchivo.innerHTML = `<a href="${archivo}" target="_blank" class="btn btn-outline-primary btn-sm">Ver Archivo</a>`;
+          } else {
+              modalArchivo.textContent = "No hay archivo adjunto.";
+          }
+      });
+  });
+</script>
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const formCalamidad = document.querySelector('#calamidad form');
+    const btnCalamidad = document.getElementById("btnEnviarCalamidad");
+    const loaderCalamidad = document.getElementById("loaderEnviarCalamidad");
+
+    if (formCalamidad && btnCalamidad && loaderCalamidad) {
+      btnCalamidad.addEventListener("click", function (e) {
+        btnCalamidad.disabled = true;
+        btnCalamidad.value = "Enviando...";
+        loaderCalamidad.classList.remove("d-none");
+
+        // Espera 800ms para mostrar el loader
+        setTimeout(() => {
+          formCalamidad.submit();
+        }, 800);
+      });
+    }
+  });
 </script>
 
 <?php include __DIR__ . '/footer.php'; ?>
