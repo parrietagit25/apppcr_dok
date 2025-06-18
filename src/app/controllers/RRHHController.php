@@ -333,9 +333,10 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
 
         // Obtener el correo del colaborador
         $get_email_colab = $class->get_email_colaborador_incapacidad($_POST['incapacidad_id']);
-        foreach ($get_email_colab as $key => $value) {
-            $nombre_comple = $value['nombre']. ' ' .$value['apellido']; 
-            $email = $value['email'];
+
+        if ($get_email_colab) {
+            $nombre_comple = $get_email_colab['nombre'] . ' ' . $get_email_colab['apellido'];
+            $email = $get_email_colab['email'];
         }
 
         $mensaje = 'Estimado '.$nombre_comple.' <br> 
