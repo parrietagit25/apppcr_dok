@@ -100,7 +100,7 @@ include __DIR__ . '/header.php';
         <div class="modal-body">
           <div class="mb-3">
             <label for="archivo" class="form-label">Seleccione un archivo</label>
-            <input type="file" class="form-control" name="archivo_calamidades" id="archivo" required>
+            <input type="file" class="form-control" name="archivo_calamidades" id="archivo">
           </div>
           <div class="mb-3">
             <label for="monto" class="form-label">Monto del préstamo</label>
