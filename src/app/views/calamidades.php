@@ -148,34 +148,27 @@ include __DIR__ . '/header.php';
     </button>
 </div>-->
 
-    <div class="container">
-        <div class="row text-center mb-3">
-            <div class="col-6 mb-4">
-                <a href="<?php echo BASE_URL_IMAGE; ?>imagen_carnet_mapfre/<?php  echo substr($_SESSION['code'], 2); ?>.pdf" class="text-decoration-none" target="_blank">
-                    <div style="background-color: #f8f9fa; padding: 20px; border-radius: 10px;">
-                        <img width="100" src="<?php echo BASE_URL_IMAGE; ?>carnet.svg" alt="Carnet">
-                        <div class="card-title"> <small>Mi Carnet de Mapfre</small> </div>
-                    </div>
-                </a>
-            </div>
-            <div class="col-6 mb-4">
-                <a href="https://seguros.doctor-online.co/webm/views/login.php?resource=b60aa9f45cca11ebae930242ac130002" target="_blank" class="text-decoration-none">
-                    <div style="background-color: #f8f9fa; padding: 20px; border-radius: 10px;">
-                        <img width="100" src="<?php echo BASE_URL_IMAGE; ?>dr_minutos.png" alt="Cumpleaños">
-                        <div class="card-title"><small>Doctor en Minutos</small></div>
-                    </div>
-                </a>
-            </div>
-            <div class="col-6 mb-4">
-                <a href="<?php echo BASE_URL_CONTROLLER; ?>/MainController.php?info_poliza=1" target="_blank" class="text-decoration-none">
-                    <div style="background-color: #f8f9fa; padding: 20px; border-radius: 10px;">
-                        <img width="100" src="<?php echo BASE_URL_IMAGE; ?>info.png" alt="Cumpleaños">
-                        <div class="card-title"><small>Info Mapfre</small></div>
-                    </div>
-                </a>
+    <nav class="navbar fixed-bottom navbar-light bg-primary">
+        <div class="container-fluid text-center text-white">
+            <div class="row w-100">
+                <div class="col">
+                    <a href="<?php echo BASE_URL_CONTROLLER; ?>/MainController.php" class="text-white text-decoration-none d-block py-2">
+                        <i class="bi bi-house-door-fill fs-4"></i><br><small>Inicio</small>
+                    </a>
+                </div>
+                <div class="col">
+                    <a href="#" class="text-white text-decoration-none d-block py-2">
+                        <i class="bi bi-gear-fill fs-4"></i><br><small>Ajustes</small>
+                    </a>
+                </div>
+                <div class="col">
+                    <a href="<?php echo BASE_URL_CONTROLLER; ?>/MainController.php" class="text-white text-decoration-none d-block py-2">
+                        <i class="bi bi-arrow-left-square-fill fs-4"></i><br><small>Volver</small>
+                    </a>
+                </div>
             </div>
         </div>
-    </div>
+    </nav>
 
 
 <!-- JS para DataTable y modal dinámico -->
