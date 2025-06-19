@@ -241,7 +241,7 @@ if (empty($array_datos)) {
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
-<!-- Loader + overlay -->
+<!-- Loader + overlay
 <div id="loaderOverlay" style="
     display: none;
     position: fixed;
@@ -270,7 +270,7 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 });
-</script>
+</script> -->
 
 
 </body>
