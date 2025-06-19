@@ -67,7 +67,7 @@ include __DIR__ . '/header.php';
                         echo '</tr>';
                     }
                 } else {
-                    echo '<tr><td colspan="4" class="text-center">No hay solicitudes registradas.</td></tr>';
+                    //echo '<tr><td colspan="4" class="text-center">No hay solicitudes registradas.</td></tr>';
                 }
                 ?>
             </tbody>
