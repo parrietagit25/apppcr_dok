@@ -104,8 +104,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             Ha solicitado un permiso tipo vacaciones.<br>
             La respuesta de su jefe directo fue: <strong>' . $accion . '</strong><br>';
 
-            $copiacoo = ["pedroarrieta25@hotmail.com"];
-
+            $copiacoo = ["pedroarrieta25@hotmail.com", "tayronperez17@gmail.com"];
+            echo 'Pasando 2<br>';
             enviar_correo($email, $copiacoo, "Respuesta a la solicitud de permiso", $mensaje_mail);
         }
         echo 'Pasando 0';
