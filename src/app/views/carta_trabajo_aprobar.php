@@ -186,6 +186,14 @@ function eliminarDescuento(grupoId) {
         elemento.remove();
     }
 }
+
+   $('#tablaCartasTrabajo').DataTable({
+        language: {
+            url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json"
+        },
+        pageLength: 10,
+        order: [[2, 'desc']]
+    });
 </script>
 
 <?php include __DIR__ . '/footer.php'; ?>
