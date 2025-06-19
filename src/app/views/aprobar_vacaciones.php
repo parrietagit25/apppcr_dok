@@ -3,8 +3,8 @@ if (!isset($_GET['codigo_empleado'])) {
     die("Error: Acceso restringido.");
 }
 
-include_once '/src/vendor/autoload.php';
-include_once '/src/config/config.php';
+include_once '/vendor/autoload.php';
+include_once '/config/config.php';
 
 class Database {
     private static $pdo = null;
