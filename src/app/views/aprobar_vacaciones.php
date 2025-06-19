@@ -1,13 +1,127 @@
+<?php
+if (!isset($_GET['codigo_empleado'])) {
+    die("Error: Acceso restringido.");
+}
+
+include_once '/src/vendor/autoload.php';
+include_once '/src/config/config.php';
+
+class Database {
+    private static $pdo = null;
+
+    public static function connect() {
+        if (self::$pdo === null) {
+            try {
+                self::$pdo = new PDO(
+                    "mysql:host=" . DB_HOST . ";dbname=" . DB_NAME . ";charset=utf8mb4",
+                    DB_USER,
+                    DB_PASS
+                );
+                self::$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+            } catch (PDOException $e) {
+                die("Error en la conexión a la base de datos: " . $e->getMessage());
+            }
+        }
+        return self::$pdo;
+    }
+}
+
+    function enviar_correo($email, $mail_copia, $asunto, $mensaje){
+
+        $mail = new PHPMailer(true);
+        $mail->CharSet = 'UTF-8'; 
+
+        try {
+            $mail->isSMTP();
+            $mail->Host = 'smtp-mail.outlook.com'; // Cambia esto según tu proveedor
+            $mail->SMTPAuth = true;
+            $mail->Username = 'notificaciones@grupopcr.com.pa';
+            $mail->Password = EMAIL_GLOBAL;
+            $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+            $mail->Port = 587;
+
+            $mail->setFrom('notificaciones@grupopcr.com.pa', 'PCR notificaciones');
+            $mail->addAddress($email);
+            //$mail->addCC('rrhh@grupopcr.com.pa', $mail_copia);
+            foreach ($mail_copia as $cc) {
+                $mail->addCC($cc);
+            }
+
+            $mail->isHTML(true);
+            $mail->Subject = $asunto;
+            $mail->Body = $mensaje;
+
+            $mail->send();
+            //return 'Correo enviado correctamente';
+        } catch (Exception $e) {
+            return "Error al enviar el correo: {$mail->ErrorInfo}";
+        } 
+    }
+
+    function get_email_permiso($id_permiso) {
+        $stmt = $pdo->prepare("SELECT e.email, e.nombre, e.apellido FROM solicitud_permiso sp 
+                                                    INNER JOIN empleados e ON sp.code COLLATE utf8mb4_unicode_ci = e.codigo_empleado COLLATE utf8mb4_unicode_ci 
+                                                    WHERE sp.id = :id_permiso");
+        $stmt->bindParam(':id_permiso', $id_permiso, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+$pdo = Database::connect();
+$code = $_GET['codigo_empleado'];
+$array_datos = [];
+
+$stmt_frase = $pdo->prepare("SELECT * FROM solicitud_permiso WHERE code = :code AND stat = 1 AND tipo_licencia = 'Vacaciones'");
+$stmt_frase->bindParam(':code', $code, PDO::PARAM_STR);
+$stmt_frase->execute();
+$array_datos = $stmt_frase->fetchAll(PDO::FETCH_ASSOC);
+
+// Obtener ID del permiso (solo el primero en caso de múltiples)
+$id_permiso = $array_datos[0]['id'] ?? 0;
+
+// Procesar acción POST
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $accion = $_POST['accion'] ?? '';
+    $id_post = $_POST['id_permiso'] ?? null;
+
+    if ($id_post && in_array($accion, ['aprobar', 'declinar'])) {
+        $nuevo_estado = $accion === 'aprobar' ? 2 : 3;
+        $stmt = $pdo->prepare("UPDATE solicitud_permiso SET stat = :stat WHERE id = :id");
+        $stmt->bindParam(':stat', $nuevo_estado, PDO::PARAM_INT);
+        $stmt->bindParam(':id', $id_post, PDO::PARAM_INT);
+        $stmt->execute();
+
+        $mensaje = $accion === 'aprobar' ? 'Solicitud aprobada con éxito.' : 'Solicitud declinada.';
+
+        $get_email_colab = get_email_permiso($id_permiso);
+
+        foreach ($get_email_colab as $key => $value) {
+            $nombre_comple = $value['nombre']. ' ' .$value['apellido']; 
+            $email = $value['email'];
+        }
+        
+        
+        $mensaje_mail = 'Estimado  '.$nombre_comple.' <br> 
+        ha solicitado un permiso tipo vacaciones <br>
+        La respuesta de su jefe directo fue '.$accion.' <br>';
+
+
+        //$copiacoo = ["pedro.arrieta@grupopcr.com.pa", "abi.pineda@grupopcr.com.pa", "rrhhgpcr@grupopcr.com.pa", "sofia.macias@grupopcr.com.pa"];
+        $copiacoo = ["pedroarrieta25@hotmail.com"];
+
+        enviar_correo($email, $copiacoo, "Respuesta a la solicitud de permiso", $mensaje_mail);
+        
+        header("Location: ?codigo_empleado=$code&nombre_completo={$_GET['nombre_completo']}&fecha_desde={$_GET['fecha_desde']}&fecha_hasta={$_GET['fecha_hasta']}&cantidad_dias={$_GET['cantidad_dias']}&msg=" . urlencode($mensaje));
+        exit;
+    }
+}
+?>
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="theme-color" content="#0d6efd">
-    <!-- iphone -->
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <title>Aprobar vacaciones - Gente PCR</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
@@ -20,20 +134,10 @@
             margin: 0;
         }
         .login-container {
-            /*background-color: #fff;
-            border-radius: 20px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); */
             padding: 20px;
             text-align: center;
             width: 100%;
             max-width: 400px;
-        }
-        .login-btn {
-            background-color: #0d6efd;
-            color: white;
-            border-radius: 10px;
-            padding: 10px;
-            width: 100%;
         }
         .link-container {
             margin-top: 15px;
@@ -42,7 +146,7 @@
         .link-container a {
             display: block;
             margin-top: 5px;
-            color:rgb(255, 255, 255);
+            color: white;
             text-decoration: none;
             font-weight: bold;
         }
@@ -50,42 +154,77 @@
             text-decoration: underline;
         }
     </style>
-
-    <link rel="manifest" href="/manifest.json">
-    <meta name="theme-color" content="#0d6efd">
-
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <script src="/comp/app.js"></script>
 </head>
 <body>
 <div class="login-container">
     <?php 
-
-        if (isset($_GET['msg'])) {
-            echo '<div class="alert alert-success alert-dismissible fade show" role="alert">
-                    <strong>'.$_GET['msg'].'</strong>
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                   </div>';
-        }
+    if (isset($_GET['msg'])) {
+        echo '<div class="alert alert-success alert-dismissible fade show" role="alert">
+                <strong>'.htmlspecialchars($_GET['msg']).'</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+              </div>';
+    }
     ?>
     <img src="/src/public/images/ico_login.png" alt="" width="300">
-    <form action="" method="POST">
-        <div class="form-group">
-            <button type="submit" class="btn btn-primary mt-3">Aprobar</button>
-        </div>
-        <br>
-        <div class="form-group">
-            <button type="submit" class="btn btn-danger mt-3">Declinar</button>
-        </div>
-    </form>
+    <p>El colaborador: <strong><?= htmlspecialchars($_GET['nombre_completo'] ?? '') ?></strong> con código: <strong><?= htmlspecialchars($_GET['codigo_empleado'] ?? '') ?></strong></p>
+    <p>Ha solicitado vacaciones desde: <strong><?= htmlspecialchars($_GET['fecha_desde'] ?? '') ?></strong> hasta <strong><?= htmlspecialchars($_GET['fecha_hasta'] ?? '') ?></strong></p>
+    <p>Cantidad de días: <strong><?= htmlspecialchars($_GET['cantidad_dias'] ?? '') ?></strong></p>
 
-    <div class="link-container">
-        <a href="<?php echo BASE_URL_CONTROLLER; ?>/RegcolaController.php?reg_col=1">Registrar Colaborador</a>
-        <a href="<?php echo BASE_URL_CONTROLLER; ?>/RegcolaController.php?restore_pass=1">Recuperar Contraseña</a>
-    </div>
+    <!-- Botones para abrir modales -->
+    <button type="button" class="btn btn-primary mt-3" data-bs-toggle="modal" data-bs-target="#modalAprobar">
+        Aprobar
+    </button>
+    <br><br>
+    <button type="button" class="btn btn-danger mt-3" data-bs-toggle="modal" data-bs-target="#modalDeclinar">
+        Declinar
+    </button>
 </div>
 
+<!-- Modal Aprobar -->
+<div class="modal fade" id="modalAprobar" tabindex="-1" aria-labelledby="modalAprobarLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <form method="POST">
+        <input type="hidden" name="accion" value="aprobar">
+        <input type="hidden" name="id_permiso" value="<?= $id_permiso ?>">
+        <div class="modal-header">
+          <h5 class="modal-title" id="modalAprobarLabel">Confirmar aprobación</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          ¿Estás seguro de aprobar esta solicitud?
+        </div>
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-success">Sí, aprobar</button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Declinar -->
+<div class="modal fade" id="modalDeclinar" tabindex="-1" aria-labelledby="modalDeclinarLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <form method="POST">
+        <input type="hidden" name="accion" value="declinar">
+        <input type="hidden" name="id_permiso" value="<?= $id_permiso ?>">
+        <div class="modal-header">
+          <h5 class="modal-title" id="modalDeclinarLabel">Confirmar rechazo</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          ¿Estás seguro de declinar esta solicitud?
+        </div>
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-danger">Sí, declinar</button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
