@@ -43,8 +43,8 @@ include __DIR__ . '/header.php';
                 if (!empty($solicitudes)) {
                     foreach ($solicitudes as $row) {
 
-                        $desc_seguro = $row['desc_seguro'] * 0.0975;
-                        $desc_educativo = $row['desc_educativo'] * 0.0125;
+                        $desc_seguro = $row['salario_pactado'] * 0.0975;
+                        $desc_educativo = $row['salario_pactado'] * 0.0125;
 
                         echo "<tr>
                                 <td>" . htmlspecialchars($row['nombre'] . ' ' . $row['apellido']) . "</td>
