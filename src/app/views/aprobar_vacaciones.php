@@ -114,17 +114,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             enviar_correo($email, $copiacoo, "Respuesta a la solicitud de permiso", $mensaje_mail);
         }
         
-        /*
-        $mensaje_mail = 'Estimado  '.$nombre_comple.' <br> 
-        ha solicitado un permiso tipo vacaciones <br>
-        La respuesta de su jefe directo fue '.$accion.' <br>';
-
-
-        //$copiacoo = ["pedro.arrieta@grupopcr.com.pa", "abi.pineda@grupopcr.com.pa", "rrhhgpcr@grupopcr.com.pa", "sofia.macias@grupopcr.com.pa"];
-        $copiacoo = ["pedroarrieta25@hotmail.com"];
-
-        enviar_correo($email, $copiacoo, "Respuesta a la solicitud de permiso", $mensaje_mail); */
-        
         header("Location: ?codigo_empleado=$code&nombre_completo={$_GET['nombre_completo']}&fecha_desde={$_GET['fecha_desde']}&fecha_hasta={$_GET['fecha_hasta']}&cantidad_dias={$_GET['cantidad_dias']}&msg=" . urlencode($mensaje));
         exit;
     }
