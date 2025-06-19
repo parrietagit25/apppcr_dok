@@ -124,15 +124,15 @@ include __DIR__ . '/header.php';
                                                 </div>
                                                 <div class='col-md-6'>
                                                     <label class='form-label'>Salario</label>
-                                                    <input type='number' step='0.01' class='form-control' name='salario' value='" . htmlspecialchars($row['salario_pactado'] ?? '0.00') . "' required>
+                                                    <input type='number' id='salario' onkeyup='calcular_deducciones()' step='0.01' class='form-control' name='salario' value='" . htmlspecialchars($row['salario_pactado'] ?? '0.00') . "' required>
                                                 </div>
                                                 <div class='col-md-4'>
                                                     <label class='form-label'>Seguro Social (desc)</label>
-                                                    <input type='number' step='0.01' class='form-control' name='desc_seguro' value='" . htmlspecialchars($row['desc_seguro'] ?? '0.00') . "'>
+                                                    <input type='number' step='0.01' class='form-control' name='desc_seguro' value='" . htmlspecialchars($row['desc_seguro'] * 0.0975 ?? '0.00') . "'>
                                                 </div>
                                                 <div class='col-md-4'>
                                                     <label class='form-label'>Seguro Educativo</label>
-                                                    <input type='number' step='0.01' class='form-control' name='desc_educativo' value='" . htmlspecialchars($row['desc_educativo'] ?? '0.00') . "'>
+                                                    <input type='number' step='0.01' class='form-control' name='desc_educativo' value='" . htmlspecialchars($row['desc_educativo'] * 0.0125 ?? '0.00') . "'>
                                                 </div>
                                                 <div class='col-md-4'>
                                                     <label class='form-label'>Imp. Renta</label>
@@ -215,6 +215,16 @@ document.addEventListener('DOMContentLoaded', function () {
         order: [[1, 'desc']]  // Orden descendente por fecha
     });
 });
+</script>
+<script>
+    funciton calcular_deducciones() {
+        const salario = parseFloat(document.getElementById('salario').value) || 0;
+        const descSeguro = (salario * 0.0975).toFixed(2);
+        const descEducativo = (salario * 0.0125).toFixed(2);
+
+        document.querySelector('input[name="desc_seguro"]').value = descSeguro;
+        document.querySelector('input[name="desc_educativo"]').value = descEducativo;
+    }
 </script>
 
 <?php include __DIR__ . '/footer.php'; ?>
