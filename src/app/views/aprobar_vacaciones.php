@@ -240,5 +240,38 @@ if (empty($array_datos)) {
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- Loader + overlay -->
+<div id="loaderOverlay" style="
+    display: none;
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background-color: rgba(0,0,0,0.5);
+    z-index: 9999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    font-size: 1.5rem;
+    flex-direction: column;
+">
+    <div class="spinner-border text-light" role="status" style="width: 3rem; height: 3rem;">
+      <span class="visually-hidden">Cargando...</span>
+    </div>
+    <p class="mt-3">Procesando solicitud...</p>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    // Selecciona todos los formularios (modales)
+    document.querySelectorAll('form').forEach(form => {
+        form.addEventListener('submit', function () {
+            document.getElementById('loaderOverlay').style.display = 'flex';
+        });
+    });
+});
+</script>
+
+
 </body>
 </html>
