@@ -4,6 +4,8 @@ if (!isset($_GET['codigo_empleado'])) {
 }
 
 include_once __DIR__ . '/../../vendor/autoload.php';
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
 include_once __DIR__ . '/../../config/config.php';
 
 class Database {
@@ -99,12 +101,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         $get_email_colab = get_email_permiso($id_permiso);
 
-        foreach ($get_email_colab as $key => $value) {
-            $nombre_comple = $value['nombre']. ' ' .$value['apellido']; 
-            $email = $value['email'];
+        if ($get_email_colab && is_array($get_email_colab)) {
+            $nombre_comple = $get_email_colab['nombre'] . ' ' . $get_email_colab['apellido'];
+            $email = $get_email_colab['email'];
+
+            $mensaje_mail = 'Estimado ' . $nombre_comple . '<br> 
+            Ha solicitado un permiso tipo vacaciones.<br>
+            La respuesta de su jefe directo fue: <strong>' . $accion . '</strong><br>';
+
+            $copiacoo = ["pedroarrieta25@hotmail.com"];
+
+            enviar_correo($email, $copiacoo, "Respuesta a la solicitud de permiso", $mensaje_mail);
         }
         
-        
+        /*
         $mensaje_mail = 'Estimado  '.$nombre_comple.' <br> 
         ha solicitado un permiso tipo vacaciones <br>
         La respuesta de su jefe directo fue '.$accion.' <br>';
@@ -113,7 +123,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         //$copiacoo = ["pedro.arrieta@grupopcr.com.pa", "abi.pineda@grupopcr.com.pa", "rrhhgpcr@grupopcr.com.pa", "sofia.macias@grupopcr.com.pa"];
         $copiacoo = ["pedroarrieta25@hotmail.com"];
 
-        enviar_correo($email, $copiacoo, "Respuesta a la solicitud de permiso", $mensaje_mail);
+        enviar_correo($email, $copiacoo, "Respuesta a la solicitud de permiso", $mensaje_mail); */
         
         header("Location: ?codigo_empleado=$code&nombre_completo={$_GET['nombre_completo']}&fecha_desde={$_GET['fecha_desde']}&fecha_hasta={$_GET['fecha_hasta']}&cantidad_dias={$_GET['cantidad_dias']}&msg=" . urlencode($mensaje));
         exit;
