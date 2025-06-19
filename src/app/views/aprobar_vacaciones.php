@@ -82,6 +82,13 @@ $stmt_frase->bindParam(':code', $code, PDO::PARAM_STR);
 $stmt_frase->execute();
 $array_datos = $stmt_frase->fetchAll(PDO::FETCH_ASSOC);
 
+if (empty($array_datos)) {
+    echo '<div style="background-color:#003399; color: white; padding: 40px; text-align: center; font-size: 1.5rem; height: 100vh;">
+            Esta solicitud ya fue procesada.
+          </div>';
+    exit; // ⚠️ Detiene la ejecución del resto del HTML
+}
+
 // Obtener ID del permiso (solo el primero en caso de múltiples)
 $id_permiso = $array_datos[0]['id'] ?? 0;
 
