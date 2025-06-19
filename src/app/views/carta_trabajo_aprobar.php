@@ -128,11 +128,11 @@ include __DIR__ . '/header.php';
                                                 </div>
                                                 <div class='col-md-4'>
                                                     <label class='form-label'>Seguro Social (desc)</label>
-                                                    <input type='number' step='0.01' class='form-control' name='desc_seguro' value='" . htmlspecialchars($row['desc_seguro'] * 0.0975 ?? '0.00') . "'>
+                                                    <input type='number' step='0.01' class='form-control' name='desc_seguro' value='" . htmlspecialchars(($row['desc_seguro'] * 0.0975) ?? '0.00') . "'>
                                                 </div>
                                                 <div class='col-md-4'>
                                                     <label class='form-label'>Seguro Educativo</label>
-                                                    <input type='number' step='0.01' class='form-control' name='desc_educativo' value='" . htmlspecialchars($row['desc_educativo'] * 0.0125 ?? '0.00') . "'>
+                                                    <input type='number' step='0.01' class='form-control' name='desc_educativo' value='" . htmlspecialchars(($row['desc_educativo'] * 0.0125) ?? '0.00') . "'>
                                                 </div>
                                                 <div class='col-md-4'>
                                                     <label class='form-label'>Imp. Renta</label>
