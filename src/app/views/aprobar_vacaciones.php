@@ -167,8 +167,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
     ?>
     <img src="/src/public/images/ico_login.png" alt="" width="300">
-    <p>El colaborador: <strong><?= htmlspecialchars($_GET['nombre_completo'] ?? '') ?></strong> con código: <strong><?= htmlspecialchars($_GET['codigo_empleado'] ?? '') ?></strong></p>
+    <p>El colaborador: <strong><?= htmlspecialchars($_GET['nombre_completo'] ?? '') ?></strong> <br> con código: <strong><?= htmlspecialchars($_GET['codigo_empleado'] ?? '') ?></strong></p>
     <p>Ha solicitado vacaciones desde: <strong><?= htmlspecialchars($_GET['fecha_desde'] ?? '') ?></strong> hasta <strong><?= htmlspecialchars($_GET['fecha_hasta'] ?? '') ?></strong></p>
+    <br>
     <p>Cantidad de días: <strong><?= htmlspecialchars($_GET['cantidad_dias'] ?? '') ?></strong></p>
 
     <!-- Botones para abrir modales -->
