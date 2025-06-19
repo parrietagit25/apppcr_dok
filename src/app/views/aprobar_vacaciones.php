@@ -94,7 +94,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         $mensaje = $accion === 'aprobar' ? 'Solicitud aprobada con éxito.' : 'Solicitud declinada.';
 
-        $get_email_colab = get_email_permiso($id_permiso);
+        $get_email_colab = get_email_permiso($id_post);
 
         if ($get_email_colab && is_array($get_email_colab)) {
             $nombre_comple = $get_email_colab['nombre'] . ' ' . $get_email_colab['apellido'];
