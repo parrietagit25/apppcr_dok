@@ -152,7 +152,7 @@ include __DIR__ . '/header.php';
                                                         + Agregar descuento
                                                     </button>
                                                 </div>
-                                                
+
                                             </div>
                                         </div>
                                         <div class='modal-footer'>
@@ -247,17 +247,28 @@ function agregarOtroDescuento(id) {
     const index = container.querySelectorAll('.grupo-descuento').length;
 
     const html = `
-        <div class="row g-3 grupo-descuento mt-2">
+        <div class="row g-3 grupo-descuento mt-2 align-items-end" id="grupo_${id}_${index}">
             <div class="col-md-8">
                 <input type="text" class="form-control" name="otros_descuentos[${index}][acreedor]" placeholder="Nombre del acreedor" required>
             </div>
-            <div class="col-md-4">
+            <div class="col-md-3">
                 <input type="number" step="0.01" class="form-control" name="otros_descuentos[${index}][monto]" placeholder="Monto" required>
+            </div>
+            <div class="col-md-1 text-end">
+                <button type="button" class="btn btn-danger btn-sm" onclick="eliminarDescuento('grupo_${id}_${index}')">×</button>
             </div>
         </div>
     `;
     container.insertAdjacentHTML('beforeend', html);
 }
+
+function eliminarDescuento(grupoId) {
+    const elemento = document.getElementById(grupoId);
+    if (elemento) {
+        elemento.remove();
+    }
+}
 </script>
+
 
 <?php include __DIR__ . '/footer.php'; ?>
