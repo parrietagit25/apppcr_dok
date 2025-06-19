@@ -48,25 +48,30 @@ include __DIR__ . '/header.php';
                 </tr>
             </thead>
             <tbody>
-                <?php
+            <?php
                 $status = '';
                 $permisos = $class->select_permisos() ?? [];
-                if (!empty($permisos)) {
-                    foreach ($permisos as $row) {
-                        $status = $row['stat'] == 1 ? 'Solicitado' : ($row['stat'] == 2 ? 'Aprobado' : 'Declinado');
 
-                        echo "<tr>
-                                <td>" . htmlspecialchars($row['nombre'] . ' ' . $row['apellido']) . "</td>
-                                <td>" . htmlspecialchars($row['descripcion']) . "</td>
-                                <td>" . htmlspecialchars($row['fecha_log']) . "</td>
-                                <td>" . htmlspecialchars($status) . "</td>
-                            </tr>";
+                if (is_array($permisos) && count($permisos) > 0) {
+                    foreach ($permisos as $row) {
+                        $status = match($row['stat']) {
+                            1 => 'Solicitado',
+                            2 => 'Aprobado',
+                            default => 'Declinado'
+                        };
+                        echo '<tr>';
+                        echo '<td>' . htmlspecialchars($row['nombre'] . ' ' . $row['apellido']) . '</td>';
+                        echo '<td>' . htmlspecialchars($row['descripcion']) . '</td>';
+                        echo '<td>' . htmlspecialchars($row['fecha_log']) . '</td>';
+                        echo '<td>' . htmlspecialchars($status) . '</td>';
+                        echo '</tr>';
                     }
                 } else {
-                    echo "<tr><td colspan='4' class='text-center'>No hay solicitudes registradas.</td></tr>";
+                    echo '<tr><td colspan="4" class="text-center">No hay solicitudes registradas.</td></tr>';
                 }
                 ?>
             </tbody>
+
         </table>
     </div>
 </div>
