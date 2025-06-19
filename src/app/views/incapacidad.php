@@ -59,7 +59,7 @@ include __DIR__ . '/header.php';
                             </tr>";
                     }
                 } else {
-                    echo "<tr><td colspan='4' class='text-center'>No hay solicitudes registradas.</td></tr>";
+                    //echo "<tr><td colspan='4' class='text-center'>No hay solicitudes registradas.</td></tr>";
                 }
                 ?>
             </tbody>
