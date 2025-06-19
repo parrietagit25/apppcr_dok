@@ -198,7 +198,7 @@ if (empty($array_datos)) {
     <div class="modal-content">
       <form method="POST">
         <input type="hidden" name="accion" value="aprobar">
-        <input type="hidden" name="id_permiso" value="<?= $id_permiso ?>">
+        <input type="hidden" name="id_permiso" value="<?= htmlspecialchars($array_datos[0]['id'] ?? '') ?>">
         <div class="modal-header">
           <h5 class="modal-title" id="modalAprobarLabel">Confirmar aprobación</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
@@ -221,7 +221,7 @@ if (empty($array_datos)) {
     <div class="modal-content">
       <form method="POST">
         <input type="hidden" name="accion" value="declinar">
-        <input type="hidden" name="id_permiso" value="<?= $id_permiso ?>">
+        <input type="hidden" name="id_permiso" value="<?= htmlspecialchars($array_datos[0]['id'] ?? '') ?>">
         <div class="modal-header">
           <h5 class="modal-title" id="modalDeclinarLabel">Confirmar rechazo</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
