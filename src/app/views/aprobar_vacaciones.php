@@ -52,7 +52,6 @@ class Database {
             $mail->isHTML(true);
             $mail->Subject = $asunto;
             $mail->Body = $mensaje;
-            echo '<br>Pasando 1';
             $mail->send();
             //return 'Correo enviado correctamente';
         } catch (Exception $e) {
@@ -94,6 +93,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         $mensaje = $accion === 'aprobar' ? 'Solicitud aprobada con éxito.' : 'Solicitud declinada.';
 
+        $mensaje_email = $accion === 'aprobar' ? 'Aprobada.' : 'Declinada.';
+
         $get_email_colab = get_email_permiso($id_post);
 
         if ($get_email_colab && is_array($get_email_colab)) {
@@ -102,14 +103,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             $mensaje_mail = 'Estimado ' . $nombre_comple . '<br> 
             Ha solicitado un permiso tipo vacaciones.<br>
-            La respuesta de su jefe directo fue: <strong>' . $accion . '</strong><br>';
+            La respuesta de su jefe directo fue: <strong>' . $mensaje_email . '</strong><br>';
 
-            $copiacoo = ["pedroarrieta25@hotmail.com", "tayronperez17@gmail.com"];
-            echo 'Pasando 2<br>';
+            $copiacoo = ["pedro.arrieta@grupopcr.com.pa", "abi.pineda@grupopcr.com.pa", "sofia.macias@grupopcr.com.pa"];
+            
             enviar_correo($email, $copiacoo, "Respuesta a la solicitud de permiso", $mensaje_mail);
         }
-        echo 'Pasando 0';
-        //header("Location: ?codigo_empleado=$code&nombre_completo={$_GET['nombre_completo']}&fecha_desde={$_GET['fecha_desde']}&fecha_hasta={$_GET['fecha_hasta']}&cantidad_dias={$_GET['cantidad_dias']}&msg=" . urlencode($mensaje));
+        
+        header("Location: ?codigo_empleado=$code&nombre_completo={$_GET['nombre_completo']}&fecha_desde={$_GET['fecha_desde']}&fecha_hasta={$_GET['fecha_hasta']}&cantidad_dias={$_GET['cantidad_dias']}&msg=" . urlencode($mensaje));
         exit;
     }
 }
