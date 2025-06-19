@@ -38,7 +38,7 @@ include __DIR__ . '/header.php';
 
     <div class="row mt-5">
         <h5 class="text-center">Solicitudes de Permiso</h5>
-        <table id="tablaPermisos" class="table table-striped table-bordered mt-3">
+        <table id="tablaPermisos" class="table table-striped table-bordered mt-3" style="width: 100%;">
             <thead class="table-dark text-center">
                 <tr>
                     <th>Nombre</th>
