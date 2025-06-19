@@ -142,15 +142,17 @@ include __DIR__ . '/header.php';
                                                     <label class='form-label'>Imp. Renta</label>
                                                     <input type='number' step='0.01' class='form-control' name='desc_renta' value='" . htmlspecialchars($row['desc_renta'] ?? '0.00') . "'>
                                                 </div>
+
                                                 <div class='col-12 mt-4'>
                                                     <label class='form-label'><strong>Otros descuentos</strong></label>
                                                     <div id='otros_descuentos_" .$row['id']. "'>
                                                         <!-- Aquí se añadirán los campos dinámicamente -->
                                                     </div>
-                                                    <button type='button' class='btn btn-outline-secondary mt-2' onclick='agregarOtroDescuento('".$row['id']."')'>
+                                                    <button type='button' class='btn btn-outline-secondary mt-2' onclick=\"agregarOtroDescuento('{$row['id']}')\">
                                                         + Agregar descuento
                                                     </button>
                                                 </div>
+                                                
                                             </div>
                                         </div>
                                         <div class='modal-footer'>
