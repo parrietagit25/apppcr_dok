@@ -142,6 +142,15 @@ include __DIR__ . '/header.php';
                                                     <label class='form-label'>Imp. Renta</label>
                                                     <input type='number' step='0.01' class='form-control' name='desc_renta' value='" . htmlspecialchars($row['desc_renta'] ?? '0.00') . "'>
                                                 </div>
+                                                <div class='col-12 mt-4'>
+                                                    <label class='form-label'><strong>Otros descuentos</strong></label>
+                                                    <div id='otros_descuentos_" .$row['id']. "'>
+                                                        <!-- Aquí se añadirán los campos dinámicamente -->
+                                                    </div>
+                                                    <button type='button' class='btn btn-outline-secondary mt-2' onclick='agregarOtroDescuento('".$row['id']."')'>
+                                                        + Agregar descuento
+                                                    </button>
+                                                </div>
                                             </div>
                                         </div>
                                         <div class='modal-footer'>
@@ -229,6 +238,24 @@ document.addEventListener('DOMContentLoaded', function () {
         document.querySelector('input[name="desc_seguro"]').value = descSeguro;
         document.querySelector('input[name="desc_educativo"]').value = descEducativo;
     }
+</script>
+<script>
+function agregarOtroDescuento(id) {
+    const container = document.getElementById(`otros_descuentos_${id}`);
+    const index = container.querySelectorAll('.grupo-descuento').length;
+
+    const html = `
+        <div class="row g-3 grupo-descuento mt-2">
+            <div class="col-md-8">
+                <input type="text" class="form-control" name="otros_descuentos[${index}][acreedor]" placeholder="Nombre del acreedor" required>
+            </div>
+            <div class="col-md-4">
+                <input type="number" step="0.01" class="form-control" name="otros_descuentos[${index}][monto]" placeholder="Monto" required>
+            </div>
+        </div>
+    `;
+    container.insertAdjacentHTML('beforeend', html);
+}
 </script>
 
 <?php include __DIR__ . '/footer.php'; ?>
