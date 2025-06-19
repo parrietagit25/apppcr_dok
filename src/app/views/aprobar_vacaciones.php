@@ -52,7 +52,7 @@ class Database {
             $mail->isHTML(true);
             $mail->Subject = $asunto;
             $mail->Body = $mensaje;
-
+            echo '<br>Pasando 1';
             $mail->send();
             //return 'Correo enviado correctamente';
         } catch (Exception $e) {
@@ -76,18 +76,6 @@ class Database {
 $pdo = Database::connect();
 $code = $_GET['codigo_empleado'];
 $array_datos = [];
-
-$stmt_frase = $pdo->prepare("SELECT * FROM solicitud_permiso WHERE code = :code AND stat = 1 AND tipo_licencia = 'Vacaciones'");
-$stmt_frase->bindParam(':code', $code, PDO::PARAM_STR);
-$stmt_frase->execute();
-$array_datos = $stmt_frase->fetchAll(PDO::FETCH_ASSOC);
-
-if (empty($array_datos)) {
-    echo '<div style="background-color:#003399; color: white; padding: 40px; text-align: center; font-size: 1.5rem; height: 100vh;">
-            Esta solicitud ya fue procesada.
-          </div>';
-    exit; // ⚠️ Detiene la ejecución del resto del HTML
-}
 
 // Obtener ID del permiso (solo el primero en caso de múltiples)
 $id_permiso = $array_datos[0]['id'] ?? 0;
@@ -120,10 +108,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             enviar_correo($email, $copiacoo, "Respuesta a la solicitud de permiso", $mensaje_mail);
         }
-        
+        echo 'Pasando 0';
         header("Location: ?codigo_empleado=$code&nombre_completo={$_GET['nombre_completo']}&fecha_desde={$_GET['fecha_desde']}&fecha_hasta={$_GET['fecha_hasta']}&cantidad_dias={$_GET['cantidad_dias']}&msg=" . urlencode($mensaje));
         exit;
     }
+}
+
+$stmt_frase = $pdo->prepare("SELECT * FROM solicitud_permiso WHERE code = :code AND stat = 1 AND tipo_licencia = 'Vacaciones'");
+$stmt_frase->bindParam(':code', $code, PDO::PARAM_STR);
+$stmt_frase->execute();
+$array_datos = $stmt_frase->fetchAll(PDO::FETCH_ASSOC);
+
+if (empty($array_datos)) {
+    echo '<div style="background-color:#003399; color: white; padding: 40px; text-align: center; font-size: 1.5rem; height: 100vh;">
+            Esta solicitud ya fue procesada.
+          </div>';
+    exit; // ⚠️ Detiene la ejecución del resto del HTML
 }
 ?>
 
