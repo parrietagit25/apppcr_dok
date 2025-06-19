@@ -1066,6 +1066,13 @@ class Rrhh {
         }
     }
 
+    public function get_otros_descuentos_por_carta($carta_id) {
+        $stmt = $this->pdo->prepare("SELECT acreedor, monto FROM carta_trabajo_descuentos WHERE carta_id = :id");
+        $stmt->execute([':id' => $carta_id]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+
 }
 
 

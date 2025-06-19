@@ -129,6 +129,22 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
             ':descripcion' => $_POST['descripcion']
         ]);
 
+        if (!empty($_POST['otros_descuentos']) && is_array($_POST['otros_descuentos'])) {
+            $sql_insert_desc = "INSERT INTO carta_trabajo_descuentos (carta_id, acreedor, monto) VALUES (:carta_id, :acreedor, :monto)";
+            $stmt_desc = $class->pdo->prepare($sql_insert_desc);
+
+            foreach ($_POST['otros_descuentos'] as $descuento) {
+                if (!empty($descuento['acreedor']) && is_numeric($descuento['monto'])) {
+                    $stmt_desc->execute([
+                        ':carta_id' => $_POST['solicitud_id'],
+                        ':acreedor' => $descuento['acreedor'],
+                        ':monto' => $descuento['monto']
+                    ]);
+                }
+            }
+        }
+
+
         echo "<script>alert('Datos guardados correctamente');</script>";
     }
 
@@ -212,6 +228,17 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
 
         $fecha_actual = date("d/m/Y");
         extract($datos); // $nombre, $cedula, $seguro, etc.
+        $otros_descuentos = $class->get_otros_descuentos_por_carta($id_carta);
+
+        $html_dinamico = "";
+        if (!empty($otros_descuentos)) {
+            $html_dinamico .= "<li><strong>Otros descuentos:</strong></li>";
+            foreach ($otros_descuentos as $desc) {
+                $acreedor = htmlspecialchars($desc['acreedor']);
+                $monto = number_format($desc['monto'], 2);
+                $html_dinamico .= "<li>$acreedor: B/. $monto</li>";
+            }
+        }
 
         $html = "
             <style> body { font-family: DejaVu Sans, sans-serif; font-size: 12pt; } </style>
@@ -223,6 +250,7 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
                 <li>Seguro Social: B/. $desc_seguro</li>
                 <li>Seguro Educativo: B/. $desc_educativo</li>
                 <li>Impuesto sobre la Renta: B/. $desc_renta</li>
+                $html_dinamico
             </ul>
             <p>$descripcion</p>
             <br><br>
