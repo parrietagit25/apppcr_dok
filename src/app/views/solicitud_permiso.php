@@ -186,8 +186,12 @@ document.addEventListener("DOMContentLoaded", function () {
             url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json"
         },
         pageLength: 10,
-        order: [[2, 'desc']] // Orden por "Fecha de Solicitud" (índice 2) descendente
+        order: [[2, 'desc']],
+        initComplete: function () {
+            console.log("Tabla inicializada correctamente");
+        }
     });
+    
 });
 </script>
 
