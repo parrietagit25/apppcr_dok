@@ -60,9 +60,11 @@ class Database {
 
     function get_email_permiso($id_permiso) {
         $pdo = Database::connect(); // ✅ obtener conexión dentro de la función
-        $stmt = $pdo->prepare("SELECT e.email, e.nombre, e.apellido FROM solicitud_permiso sp 
-                                INNER JOIN empleados e ON sp.code COLLATE utf8mb4_unicode_ci = e.codigo_empleado COLLATE utf8mb4_unicode_ci 
-                                WHERE sp.id = :id_permiso");
+        $stmt = $pdo->prepare("SELECT e.email, e.nombre, e.apellido 
+                       FROM solicitud_permiso sp 
+                       INNER JOIN empleados e 
+                           ON CONVERT(sp.code USING utf8mb4) = CONVERT(e.codigo_empleado USING utf8mb4)
+                       WHERE sp.id = :id_permiso");
         $stmt->bindParam(':id_permiso', $id_permiso, PDO::PARAM_INT);
         $stmt->execute();
         return $stmt->fetch(PDO::FETCH_ASSOC);
