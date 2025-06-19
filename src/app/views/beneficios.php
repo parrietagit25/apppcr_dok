@@ -45,7 +45,10 @@ include __DIR__ . '/header.php';
     </div>
 
 </div>
-
+<br>
+<br>
+<br>
+<br>
 <!-- Footer de navegación -->
 <nav class="navbar fixed-bottom bg-primary text-white">
     <div class="container-fluid text-center">
