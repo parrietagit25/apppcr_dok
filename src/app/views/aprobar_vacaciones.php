@@ -134,6 +134,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             margin: 0;
         }
         .login-container {
+            background-color:rgb(168, 179, 202);
             padding: 20px;
             text-align: center;
             width: 100%;
