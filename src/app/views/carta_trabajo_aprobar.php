@@ -217,7 +217,7 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 </script>
 <script>
-    funciton calcular_deducciones() {
+    function calcular_deducciones() {
         const salario = parseFloat(document.getElementById('salario').value) || 0;
         const descSeguro = (salario * 0.0975).toFixed(2);
         const descEducativo = (salario * 0.0125).toFixed(2);
