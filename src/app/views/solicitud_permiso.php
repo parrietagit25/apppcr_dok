@@ -50,7 +50,7 @@ include __DIR__ . '/header.php';
             <tbody>
                 <?php
                 $status = '';
-                $permisos = $class->select_permisos();
+                $permisos = $class->select_permisos() ?? [];
                 if (!empty($permisos)) {
                     foreach ($permisos as $row) {
                         $status = $row['stat'] == 1 ? 'Solicitado' : ($row['stat'] == 2 ? 'Aprobado' : 'Declinado');
