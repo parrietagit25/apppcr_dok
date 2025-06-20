@@ -84,8 +84,7 @@ include __DIR__ . '/header.php';
 
                         echo "<div class='modal fade' id='modalGenerarCarta{$row['id']}' tabindex='-1' aria-labelledby='modalLabelGenerarCarta{$row['id']}' aria-hidden='true'>
                                 <div class='modal-dialog modal-lg'>
-                                    <div class='modal-content'>"; ?>
-                                
+                                    <div class='modal-content'>
                                         <form method='POST'>
                                             <div class='modal-header'>
                                                 <h5 class='modal-title' id='modalLabelGenerarCarta{$row['id']}'>Generar Carta de Trabajo</h5>
@@ -140,8 +139,7 @@ include __DIR__ . '/header.php';
                                                 <button type='submit' formaction='/app/views/generar_carta_pdf.php' formtarget='_blank' class='btn btn-success'>Generar PDF</button>
                                             </div>
                                         </form>
-
-                                   <?php echo "</div>
+                                    </div>
                                 </div>
                             </div>";
                     }
