@@ -112,24 +112,24 @@ include __DIR__ . '/header.php';
                                                     <div class='col-12 mt-4'>
                                                         <label class='form-label'><strong>Otros descuentos</strong></label>
                                                         <div id='otros_descuentos_{$row['id']}'>";
-                                            if (!empty($row['otros_descuentos'])) {
-                                                foreach ($row['otros_descuentos'] as $i => $desc) {
-                                                    $acreedor = htmlspecialchars($desc['acreedor']);
-                                                    $monto = htmlspecialchars($desc['monto']);
-                                                    echo "<div class='row g-3 grupo-descuento mt-2 align-items-end' id='grupo_{$row['id']}_{$i}'>
-                                                            <div class='col-md-8'>
-                                                                <input type='text' class='form-control' name='otros_descuentos[{$i}][acreedor]' value='{$acreedor}' placeholder='Nombre del acreedor' required>
-                                                            </div>
-                                                            <div class='col-md-3'>
-                                                                <input type='number' step='0.01' class='form-control' name='otros_descuentos[{$i}][monto]' value='{$monto}' placeholder='Monto' required>
-                                                            </div>
-                                                            <div class='col-md-1 text-end'>
-                                                                <button type='button' class='btn btn-danger btn-sm' onclick=\"eliminarDescuento('grupo_{$row['id']}_{$i}')\">&times;</button>
-                                                            </div>
-                                                        </div>";
-                                                }
-                                            }
-                                            echo "</div>
+                                                        if (!empty($row['otros_descuentos'])) {
+                                                            foreach ($row['otros_descuentos'] as $i => $desc) {
+                                                                $acreedor = htmlspecialchars($desc['acreedor']);
+                                                                $monto = htmlspecialchars($desc['monto']);
+                                                                echo "<div class='row g-3 grupo-descuento mt-2 align-items-end' id='grupo_{$row['id']}_{$i}'>
+                                                                        <div class='col-md-8'>
+                                                                            <input type='text' class='form-control' name='otros_descuentos[{$i}][acreedor]' value='{$acreedor}' placeholder='Nombre del acreedor' required>
+                                                                        </div>
+                                                                        <div class='col-md-3'>
+                                                                            <input type='number' step='0.01' class='form-control' name='otros_descuentos[{$i}][monto]' value='{$monto}' placeholder='Monto' required>
+                                                                        </div>
+                                                                        <div class='col-md-1 text-end'>
+                                                                            <button type='button' class='btn btn-danger btn-sm' onclick=\"eliminarDescuento('grupo_{$row['id']}_{$i}')\">&times;</button>
+                                                                        </div>
+                                                                    </div>";
+                                                            }
+                                                        }
+                                                echo "</div>
                                                         <button type='button' class='btn btn-outline-secondary mt-2' onclick=\"agregarOtroDescuento('{$row['id']}')\">+ Agregar descuento</button>
                                                     </div>
                                                 </div>
@@ -142,6 +142,7 @@ include __DIR__ . '/header.php';
                                     </div>
                                 </div>
                             </div>";
+
                     }
                 } else {
                     echo "<tr><td colspan='4' class='text-center'>No hay solicitudes registradas.</td></tr>";
