@@ -138,7 +138,7 @@ include __DIR__ . '/header.php';
                                             </div>
                                         </div>
                                         <div class="modal-footer">
-                                            <button type="submit" class="btn btn-primary" name="guardar_formulario">Guardar</button>
+                                            <button type="button" class="btn btn-primary" onclick="guardarCartaSinForm(<?php echo $row['id']; ?>)">Guardar</button>
                                             <button type="submit" formaction="/app/views/generar_carta_pdf.php" formtarget="_blank" class="btn btn-success">Generar PDF</button>
                                         </div>
                                     </form>
@@ -224,5 +224,54 @@ function eliminarDescuento(grupoId) {
         order: [[2, 'desc']]
     });
 </script>
+<script>
+function guardarCartaSinForm(id) {
+    const formData = new FormData();
+
+    // Campos fijos (seleccionados por ID o name dentro del modal)
+    const prefix = `modalGenerarCarta${id}`;
+    const modal = document.getElementById(prefix);
+
+    formData.append('guardar_formulario', '1');
+    formData.append('solicitud_id', id);
+    formData.append('nombre', modal.querySelector('[name="nombre"]').value);
+    formData.append('cedula', modal.querySelector('[name="cedula"]').value);
+    formData.append('seguro', modal.querySelector('[name="seguro"]').value);
+    formData.append('fecha_ingreso', modal.querySelector('[name="fecha_ingreso"]').value);
+    formData.append('cargo', modal.querySelector('[name="cargo"]').value);
+    formData.append('salario', modal.querySelector('[name="salario"]').value);
+    formData.append('desc_seguro', modal.querySelector('[name="desc_seguro"]').value);
+    formData.append('desc_educativo', modal.querySelector('[name="desc_educativo"]').value);
+    formData.append('desc_renta', modal.querySelector('[name="desc_renta"]').value);
+    formData.append('descripcion', modal.querySelector('[name="descripcion"]').value);
+
+    // Campos dinámicos de descuentos
+    const descuentosContainer = modal.querySelector(`#otros_descuentos_${id}`);
+    const grupos = descuentosContainer.querySelectorAll('.grupo-descuento');
+
+    grupos.forEach((grupo, index) => {
+        const acreedor = grupo.querySelector('[name^="otros_descuentos"][name*="[acreedor]"]').value;
+        const monto = grupo.querySelector('[name^="otros_descuentos"][name*="[monto]"]').value;
+        formData.append(`otros_descuentos[${index}][acreedor]`, acreedor);
+        formData.append(`otros_descuentos[${index}][monto]`, monto);
+    });
+
+    // Enviar al backend
+    fetch('', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.text())
+    .then(result => {
+        console.log('Resultado del servidor:', result);
+        alert("Datos guardados correctamente");
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert("Hubo un error al guardar");
+    });
+}
+</script>
+
 
 <?php include __DIR__ . '/footer.php'; ?>
