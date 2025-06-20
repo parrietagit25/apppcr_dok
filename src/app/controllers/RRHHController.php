@@ -99,6 +99,7 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
 } elseif (isset($_GET['carta_trabajo_aprobar'])) {
 
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['guardar_formulario'])) {
+        echo 'Pasando por aqui 1<br>';
         $sql = "INSERT INTO carta_trabajo_formulario 
             (carta_id, nombre, cedula, seguro, fecha_ingreso, cargo, salario, desc_seguro, desc_educativo, desc_renta, descripcion)
             VALUES (:carta_id, :nombre, :cedula, :seguro, :fecha_ingreso, :cargo, :salario, :desc_seguro, :desc_educativo, :desc_renta, :descripcion)
@@ -130,11 +131,14 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
         ]);
 
         if (!empty($_POST['otros_descuentos']) && is_array($_POST['otros_descuentos'])) {
+            echo 'Pasando por aqui 2<br>';
             $sql_insert_desc = "INSERT INTO carta_trabajo_descuentos (carta_id, acreedor, monto) VALUES (:carta_id, :acreedor, :monto)";
             $stmt_desc = $class->pdo->prepare($sql_insert_desc);
 
             foreach ($_POST['otros_descuentos'] as $descuento) {
+                echo 'Pasando por aqui 3<br>';
                 if (!empty($descuento['acreedor']) && is_numeric($descuento['monto'])) {
+                    echo 'Pasando por aqui 4<br>';
                     $stmt_desc->execute([
                         ':carta_id' => $_POST['solicitud_id'],
                         ':acreedor' => $descuento['acreedor'],
