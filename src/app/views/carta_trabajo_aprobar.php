@@ -112,7 +112,7 @@ include __DIR__ . '/header.php';
                                                     <div class='col-12 mt-4'>
                                                         <label class='form-label'><strong>Otros descuentos</strong></label>
                                                         <div id='otros_descuentos_{$row['id']}'>";
-                                           /* if (!empty($row['otros_descuentos'])) {
+                                            if (!empty($row['otros_descuentos'])) {
                                                 foreach ($row['otros_descuentos'] as $i => $desc) {
                                                     $acreedor = htmlspecialchars($desc['acreedor']);
                                                     $monto = htmlspecialchars($desc['monto']);
@@ -128,7 +128,7 @@ include __DIR__ . '/header.php';
                                                             </div>
                                                         </div>";
                                                 }
-                                            }*/
+                                            }
                                             echo "</div>
                                                         <button type='button' class='btn btn-outline-secondary mt-2' onclick=\"agregarOtroDescuento('{$row['id']}')\">+ Agregar descuento</button>
                                                     </div>
@@ -175,7 +175,6 @@ include __DIR__ . '/header.php';
 </nav>
 
 <script>
-    /*
 function calcular_deducciones() {
     const salario = parseFloat(document.getElementById('salario').value) || 0;
     const descSeguro = (salario * 0.0975).toFixed(2);
@@ -217,7 +216,6 @@ function eliminarDescuento(grupoId) {
         pageLength: 10,
         order: [[2, 'desc']]
     });
-    */
 </script>
 
 <?php include __DIR__ . '/footer.php'; ?>
