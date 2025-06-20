@@ -117,8 +117,8 @@ include __DIR__ . '/header.php';
                                                 <div class="col-12 mt-4">
                                                     <label class="form-label"><strong>Otros descuentos</strong></label>
                                                     <div id="otros_descuentos_<?php echo $row['id']; ?>">
-                                                        <?php if (!empty($row['otros_descuentos'])):
-                                                            foreach ($row['otros_descuentos'] as $i => $desc): ?>
+                                                        <?php if (!empty($row['otros_descuentos'])){
+                                                            foreach ($row['otros_descuentos'] as $i => $desc){ ?>
                                                                 <div class="row g-3 grupo-descuento mt-2 align-items-end" id="grupo_<?php echo $row['id']; ?>_<?php echo $i; ?>">
                                                                     <div class="col-md-8">
                                                                         <input type="text" class="form-control" name="otros_descuentos[<?php echo $i; ?>][acreedor]" value="<?php echo htmlspecialchars($desc['acreedor']); ?>" placeholder="Nombre del acreedor" required>
@@ -130,7 +130,8 @@ include __DIR__ . '/header.php';
                                                                         <button type="button" class="btn btn-danger btn-sm" onclick="eliminarDescuento('grupo_<?php echo $row['id']; ?>_<?php echo $i; ?>')">×</button>
                                                                     </div>
                                                                 </div>
-                                                        <?php endforeach; endif; ?>
+                                                        <?php } ?> 
+                                                        <?php } ?>
                                                     </div>
                                                     <button type="button" class="btn btn-outline-secondary mt-2" onclick="agregarOtroDescuento('<?php echo $row['id']; ?>')">+ Agregar descuento</button>
                                                 </div>
