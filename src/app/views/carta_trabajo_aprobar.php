@@ -175,6 +175,7 @@ include __DIR__ . '/header.php';
 </nav>
 
 <script>
+    /*
 function calcular_deducciones() {
     const salario = parseFloat(document.getElementById('salario').value) || 0;
     const descSeguro = (salario * 0.0975).toFixed(2);
@@ -216,6 +217,7 @@ function eliminarDescuento(grupoId) {
         pageLength: 10,
         order: [[2, 'desc']]
     });
+    */
 </script>
 
 <?php include __DIR__ . '/footer.php'; ?>
