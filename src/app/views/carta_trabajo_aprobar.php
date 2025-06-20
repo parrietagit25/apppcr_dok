@@ -113,7 +113,7 @@ include __DIR__ . '/header.php';
                                                         <label class='form-label'><strong>Otros descuentos</strong></label>
                                                         <div id='otros_descuentos_{$row['id']}'>";
                                             if (!empty($row['otros_descuentos'])) {
-                                                foreach ($row['otros_descuentos'] as $i => $desc) {
+                                                /*foreach ($row['otros_descuentos'] as $i => $desc) {
                                                     $acreedor = htmlspecialchars($desc['acreedor']);
                                                     $monto = htmlspecialchars($desc['monto']);
                                                     echo "<div class='row g-3 grupo-descuento mt-2 align-items-end' id='grupo_{$row['id']}_{$i}'>
@@ -127,7 +127,7 @@ include __DIR__ . '/header.php';
                                                                 <button type='button' class='btn btn-danger btn-sm' onclick=\"eliminarDescuento('grupo_{$row['id']}_{$i}')\">&times;</button>
                                                             </div>
                                                         </div>";
-                                                }
+                                                }*/
                                             }
                                             echo "</div>
                                                         <button type='button' class='btn btn-outline-secondary mt-2' onclick=\"agregarOtroDescuento('{$row['id']}')\">+ Agregar descuento</button>
