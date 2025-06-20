@@ -82,6 +82,8 @@ include __DIR__ . '/header.php';
                                 </div>
                             </div>";
 
+                            /*
+
                         echo "<div class='modal fade' id='modalGenerarCarta{$row['id']}' tabindex='-1' aria-labelledby='modalLabelGenerarCarta{$row['id']}' aria-hidden='true'>
                                 <div class='modal-dialog modal-lg'>
                                     <div class='modal-content'>
@@ -141,7 +143,70 @@ include __DIR__ . '/header.php';
                                         </form>
                                     </div>
                                 </div>
-                            </div>";
+                            </div>";*/
+                            ?>
+
+                        <div class="modal fade" id="modalGenerarCarta<?= $row['id'] ?>" tabindex="-1" aria-labelledby="modalLabelGenerarCarta<?= $row['id'] ?>" aria-hidden="true">
+                            <div class="modal-dialog modal-lg">
+                                <div class="modal-content">
+                                    <form method="POST">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="modalLabelGenerarCarta<?= $row['id'] ?>">Generar Carta de Trabajo</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <input type="hidden" name="solicitud_id" value="<?= $row['id'] ?>">
+
+                                            <div class="mb-3">
+                                                <label class="form-label"><strong>Descripción editable:</strong></label>
+                                                <textarea class="form-control" name="descripcion" rows="3"><?= htmlspecialchars($row['descripcion'] ?? '') ?></textarea>
+                                                <p class="mt-2"><strong>Fecha de solicitud:</strong> <?= htmlspecialchars(date("d-m-Y", strtotime($row['fecha_log'] ?? date('Y-m-d')))) ?></p>
+                                            </div>
+
+                                            <div class="row g-3">
+                                                <div class="col-md-6"><label class="form-label">Nombre completo</label><input type="text" class="form-control" name="nombre" value="<?= htmlspecialchars($row['nombre']) ?>" required></div>
+                                                <div class="col-md-6"><label class="form-label">Cédula</label><input type="text" class="form-control" name="cedula" value="<?= htmlspecialchars($row['cedula']) ?>" required></div>
+                                                <div class="col-md-6"><label class="form-label">Seguro Social</label><input type="text" class="form-control" name="seguro" value="<?= htmlspecialchars($row['seguro_social']) ?>"></div>
+                                                <div class="col-md-6"><label class="form-label">Fecha de ingreso</label><input type="date" class="form-control" name="fecha_ingreso" value="<?= htmlspecialchars($row['fecha_ingreso']) ?>" required></div>
+                                                <div class="col-md-6"><label class="form-label">Cargo</label><input type="text" class="form-control" name="cargo" value="<?= htmlspecialchars($row['nombre_cargo']) ?>" required></div>
+                                                <div class="col-md-6"><label class="form-label">Salario</label><input type="number" id="salario" onkeyup="calcular_deducciones()" step="0.01" class="form-control" name="salario" value="<?= htmlspecialchars($row['salario_pactado']) ?>" required></div>
+                                                <div class="col-md-4"><label class="form-label">Seguro Social (desc)</label><input type="number" step="0.01" class="form-control" name="desc_seguro" value="<?= htmlspecialchars($desc_seguro) ?>"></div>
+                                                <div class="col-md-4"><label class="form-label">Seguro Educativo</label><input type="number" step="0.01" class="form-control" name="desc_educativo" value="<?= htmlspecialchars($desc_educativo) ?>"></div>
+                                                <div class="col-md-4"><label class="form-label">Imp. Renta</label><input type="number" step="0.01" class="form-control" name="desc_renta" value="<?= htmlspecialchars($row['desc_renta'] ?? '0.00') ?>"></div>
+
+                                                <div class="col-12 mt-4">
+                                                    <label class="form-label"><strong>Otros descuentos</strong></label>
+                                                    <div id="otros_descuentos_<?= $row['id'] ?>">
+                                                        <?php if (!empty($row['otros_descuentos'])):
+                                                            foreach ($row['otros_descuentos'] as $i => $desc): ?>
+                                                                <div class="row g-3 grupo-descuento mt-2 align-items-end" id="grupo_<?= $row['id'] ?>_<?= $i ?>">
+                                                                    <div class="col-md-8">
+                                                                        <input type="text" class="form-control" name="otros_descuentos[<?= $i ?>][acreedor]" value="<?= htmlspecialchars($desc['acreedor']) ?>" placeholder="Nombre del acreedor" required>
+                                                                    </div>
+                                                                    <div class="col-md-3">
+                                                                        <input type="number" step="0.01" class="form-control" name="otros_descuentos[<?= $i ?>][monto]" value="<?= htmlspecialchars($desc['monto']) ?>" placeholder="Monto" required>
+                                                                    </div>
+                                                                    <div class="col-md-1 text-end">
+                                                                        <button type="button" class="btn btn-danger btn-sm" onclick="eliminarDescuento('grupo_<?= $row['id'] ?>_<?= $i ?>')">×</button>
+                                                                    </div>
+                                                                </div>
+                                                        <?php endforeach; endif; ?>
+                                                    </div>
+                                                    <button type="button" class="btn btn-outline-secondary mt-2" onclick="agregarOtroDescuento('<?= $row['id'] ?>')">+ Agregar descuento</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="submit" class="btn btn-primary" name="guardar_formulario">Guardar</button>
+                                            <button type="submit" formaction="/app/views/generar_carta_pdf.php" formtarget="_blank" class="btn btn-success">Generar PDF</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+
+
+                            <?php 
 
                     }
                 } else {
