@@ -100,6 +100,7 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
 
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['guardar_formulario'])) {
         echo 'Pasando por aqui 1<br>';
+        var_dump($_POST);
         $sql = "INSERT INTO carta_trabajo_formulario 
             (carta_id, nombre, cedula, seguro, fecha_ingreso, cargo, salario, desc_seguro, desc_educativo, desc_renta, descripcion)
             VALUES (:carta_id, :nombre, :cedula, :seguro, :fecha_ingreso, :cargo, :salario, :desc_seguro, :desc_educativo, :desc_renta, :descripcion)
