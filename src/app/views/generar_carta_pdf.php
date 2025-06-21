@@ -40,9 +40,10 @@ if (!empty($otros_descuentos)) {
 $path_logo = 'https://apppcr.net/public/images/carta/logo.png';
 $path_footer = 'https://apppcr.net/public/images/carta/foot.png';
 
+/*
 if (!file_exists($path_logo) || !file_exists($path_footer)) {
     die("No se encontraron las imágenes del membrete.");
-}
+}*/
 
 $logo_superior = base64_encode(file_get_contents($path_logo));
 $logo_pie = base64_encode(file_get_contents($path_footer));
