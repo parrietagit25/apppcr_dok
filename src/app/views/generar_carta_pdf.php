@@ -37,8 +37,8 @@ if (!empty($otros_descuentos)) {
     }
 }
 
-$logo_superior = base64_encode(file_get_contents('/../../public/images/logo.png'));
-$logo_pie = base64_encode(file_get_contents('/../../public/images/foot.png'));
+$logo_superior = base64_encode(file_get_contents('/../../public/images/carta/logo.png'));
+$logo_pie = base64_encode(file_get_contents('/../../public/images/carta/foot.png'));
 
 $img_logo_superior = 'data:image/png;base64,' . $logo_superior;
 $img_logo_pie = 'data:image/png;base64,' . $logo_pie;
