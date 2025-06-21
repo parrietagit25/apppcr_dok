@@ -58,7 +58,7 @@ $html = "
 
     <div class='encabezado'>
         <div class='logo'>
-            <img src='" . __DIR__ . "/../../public/images/carta/logo.png' width='150'>
+            <img src='https://apppcr.net/public/images/carta/logo.png'>
         </div>
         <div class='texto-superior'>
             Tocumen Commercial Park<br>
