@@ -154,6 +154,7 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
         echo "<script>alert('Datos guardados correctamente');</script>";
     }
 
+    /* 
     if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['enviar_carta_pdf'])) {
 
         $id_carta = $_POST['solicitud_id'];
@@ -221,7 +222,9 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
     require_once __DIR__ . '/../views/carta_trabajo_aprobar.php';
     exit();
 
-}elseif ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['enviar_carta_pdf'])) {
+} */
+
+elseif ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['enviar_carta_pdf'])) {
     $id_carta = $_POST['solicitud_id'];
     $comentario = $_POST['comentario'] ?? '';
 
