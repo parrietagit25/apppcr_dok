@@ -40,7 +40,7 @@ if (!empty($otros_descuentos)) {
 $logo_superior = __DIR__ . '/../../public/images/carta/logo.png';
 $logo_pie = __DIR__ . '/../../public/images/carta/foot.png';
 
-if (!file_exists($path_logo) || !file_exists($path_footer)) {
+if (!file_exists($logo_superior) || !file_exists($logo_pie)) {
     die("No se encontraron las imágenes del membrete.");
 }
 
