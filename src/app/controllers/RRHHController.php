@@ -1,16 +1,17 @@
 <?php
 // app/controllers/RRHHController.php   
 require_once __DIR__ . '/../../vendor/autoload.php'; 
+
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
-use Dompdf\Dompdf;
+use Dompdf\Dompdf;        // Se mantiene porque otras funciones lo usan
+use Mpdf\Mpdf;            // Se agrega para usar en nuevas funciones
 
 session_start();
 require_once __DIR__ . '/../../config/config.php';
 require_once __DIR__ . '/../core/Database.php';
 require_once __DIR__ . '/../models/Rrhh.php';
 require_once __DIR__ . '/../models/User.php';
-
 
 
 if (!isset($_SESSION['code'])) {
