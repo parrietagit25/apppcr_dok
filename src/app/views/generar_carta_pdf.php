@@ -92,7 +92,7 @@ $html = "
     </div>
 
     <div class='footer-img'>
-        <img src='" . __DIR__ . "/../../public/images/carta/foot.png' width='150'>
+        <img src='https://apppcr.net/public/images/carta/foot.png' width='150'>
     </div>
 ";
 
