@@ -74,7 +74,12 @@ $html = "
 ";
 
 // Generar PDF con mPDF
-$mpdf = new \Mpdf\Mpdf(['default_font' => 'dejavusans']);
+$mpdf = new \Mpdf\Mpdf([
+    'default_font' => 'dejavusans',
+    'tempDir' => __DIR__ . '/../../tmp/mpdf' // ✅ ruta absoluta desde el script actual
+]);
 $mpdf->WriteHTML($html);
 $mpdf->Output("carta_trabajo.pdf", \Mpdf\Output\Destination::INLINE); // Muestra en navegador
 exit;
+
+
