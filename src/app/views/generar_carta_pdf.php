@@ -107,9 +107,6 @@ $html = "
     </footer>
 ";
 
-echo $html; // Para depurar el HTML antes de generar el PDF
-die(); // Descomentar para ver el HTML generado antes de crear el PDF
-
 // Inicializa Dompdf
 $dompdf = new Dompdf();
 $dompdf->loadHtml($html);
