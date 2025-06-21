@@ -96,6 +96,9 @@ $html = "
     </div>
 ";
 
+echo $html; // Para depurar, puedes comentar esta línea si no quieres ver el HTML
+die(); // Termina la ejecución aquí si solo quieres ver el HTML
+
 // Inicializa Dompdf
 $dompdf = new Dompdf();
 $dompdf->loadHtml($html);
