@@ -71,7 +71,7 @@ $html = "
     </style>
 
     <header class='encabezado'>
-        <img src='$img_logo_superior'>
+        <img src='$logo_superior'>
         <div class='texto'>
             Tocumen Commercial Park<br>
             Tel: 279-2700<br>
@@ -103,7 +103,7 @@ $html = "
     </main>
 
     <footer>
-        <img src='$img_logo_pie'>
+        <img src='$logo_pie'>
     </footer>
 ";
 
