@@ -37,49 +37,48 @@ if (!empty($otros_descuentos)) {
     }
 }
 
-$path_logo = __DIR__ . '/../../public/images/carta/logo.png';
-$path_footer = __DIR__ . '/../../public/images/carta/foot.png';
+$logo_superior = __DIR__ . '/../../public/images/carta/logo.png';
+$logo_pie = __DIR__ . '/../../public/images/carta/foot.png';
 
 if (!file_exists($path_logo) || !file_exists($path_footer)) {
     die("No se encontraron las imágenes del membrete.");
 }
 
-$logo_superior = base64_encode(file_get_contents($path_logo));
-$logo_pie = base64_encode(file_get_contents($path_footer));
+$img_logo_superior = 'data:image/png;base64,' . $logo_superior;
+$img_logo_pie = 'data:image/png;base64,' . $logo_pie;
 
-
-
-// Contenido HTML de la carta
 $html = "
     <style>
-        body { font-family: DejaVu Sans, sans-serif; font-size: 12pt; margin: 40px; position: relative; }
-        header, footer { width: 100%; }
-        .encabezado { display: flex; justify-content: space-between; align-items: top; margin-bottom: 20px; }
-        .encabezado img { width: 150px; }
-        .encabezado .texto { text-align: right; font-size: 10pt; line-height: 1.2; }
-        p { text-align: justify; line-height: 1.6; }
+        body { font-family: DejaVu Sans, sans-serif; font-size: 12pt; margin: 40px; }
+        .encabezado { width: 100%; }
+        .logo { float: left; width: 40%; }
+        .texto-superior { float: right; width: 55%; text-align: right; font-size: 10pt; line-height: 1.3; }
+        .clear { clear: both; }
+        .contenido { margin-top: 30px; }
         ul { line-height: 1.6; }
-
-        footer img {
-            position: absolute;
-            bottom: 30px;
-            left: 50%;
-            transform: translateX(-50%);
+        .footer-img {
+            margin-top: 60px;
+            text-align: center;
+        }
+        .footer-img img {
             width: 100%;
             max-height: 80px;
         }
     </style>
 
-    <header class='encabezado'>
-        <img src='$logo_superior'>
-        <div class='texto'>
+    <div class='encabezado'>
+        <div class='logo'>
+            <img src='$img_logo_superior' width='150'>
+        </div>
+        <div class='texto-superior'>
             Tocumen Commercial Park<br>
             Tel: 279-2700<br>
             Grupopcr.com.pa
         </div>
-    </header>
+    </div>
+    <div class='clear'></div>
 
-    <main>
+    <div class='contenido'>
         <p>Panamá, $fecha_actual</p>
 
         <p><strong>A quien pueda interesar:</strong></p>
@@ -100,11 +99,11 @@ $html = "
 
         <br><br><br>
         <p><strong>Departamento de Planilla</strong></p>
-    </main>
+    </div>
 
-    <footer>
-        <img src='$logo_pie'>
-    </footer>
+    <div class='footer-img'>
+        <img src='$img_logo_pie'>
+    </div>
 ";
 
 // Inicializa Dompdf
