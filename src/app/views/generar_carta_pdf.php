@@ -5,12 +5,12 @@ require_once __DIR__ . '/../models/Rrhh.php';
 
 use Dompdf\Dompdf;
 
-// Verifica que lleguen los datos
+// Validación de entrada
 if (!isset($_POST['solicitud_id'])) {
     die("Solicitud inválida.");
 }
 
-// Recibe los datos del formulario
+// Recibir datos del formulario
 $nombre = $_POST['nombre'] ?? '';
 $cedula = $_POST['cedula'] ?? '';
 $seguro = $_POST['seguro'] ?? '';
@@ -23,8 +23,9 @@ $desc_renta = number_format($_POST['desc_renta'] ?? 0, 2);
 $descripcion = $_POST['descripcion'] ?? '';
 $fecha_actual = date("d/m/Y");
 
-$pdo = conexion();             // función definida en conexion.php
-$class = new Rrhh($pdo);       // clase Rrhh que espera $pdo
+// Obtener descuentos adicionales
+$pdo = conexion();
+$class = new Rrhh($pdo);
 $otros_descuentos = $class->get_otros_descuentos_por_carta($_POST['solicitud_id']);
 
 $html_dinamico = "";
@@ -37,6 +38,18 @@ if (!empty($otros_descuentos)) {
     }
 }
 
+// Rutas absolutas a imágenes dentro del contenedor Docker
+$path_logo = __DIR__ . '/../../public/images/carta/logo.png';
+$path_footer = __DIR__ . '/../../public/images/carta/foot.png';
+
+if (!file_exists($path_logo) || !file_exists($path_footer)) {
+    die("Imágenes de membrete no encontradas.");
+}
+
+$logo_src = 'file://' . realpath($path_logo);
+$footer_src = 'file://' . realpath($path_footer);
+
+// Plantilla HTML para la carta
 $html = "
     <style>
         body { font-family: DejaVu Sans, sans-serif; font-size: 12pt; margin: 40px; }
@@ -46,19 +59,13 @@ $html = "
         .clear { clear: both; }
         .contenido { margin-top: 30px; }
         ul { line-height: 1.6; }
-        .footer-img {
-            margin-top: 60px;
-            text-align: center;
-        }
-        .footer-img img {
-            width: 100%;
-            max-height: 80px;
-        }
+        .footer-img { margin-top: 60px; text-align: center; }
+        .footer-img img { width: 100%; max-height: 80px; }
     </style>
 
     <div class='encabezado'>
         <div class='logo'>
-            <img src='https://apppcr.net/public/images/carta/logo.png'>
+            <img src='$logo_src' width='200'>
         </div>
         <div class='texto-superior'>
             Tocumen Commercial Park<br>
@@ -92,23 +99,14 @@ $html = "
     </div>
 
     <div class='footer-img'>
-        <img src='https://apppcr.net/public/images/carta/foot.png'>
+        <img src='$footer_src'>
     </div>
 ";
-
-echo $html; // Para depurar, puedes comentar esta línea si no quieres ver el HTML
-die(); // Termina la ejecución aquí si solo quieres ver el HTML
 
 // Inicializa Dompdf
 $dompdf = new Dompdf();
 $dompdf->loadHtml($html);
-
-// Configuración del papel
 $dompdf->setPaper('A4', 'portrait');
-
-// Renderiza el PDF
 $dompdf->render();
-
-// Muestra en el navegador
 $dompdf->stream("carta_trabajo.pdf", ["Attachment" => false]); // true = descarga directa
 exit;
