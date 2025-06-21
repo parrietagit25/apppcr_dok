@@ -37,11 +37,16 @@ if (!empty($otros_descuentos)) {
     }
 }
 
-$logo_superior = base64_encode(file_get_contents('/../../public/images/carta/logo.png'));
-$logo_pie = base64_encode(file_get_contents('/../../public/images/carta/foot.png'));
+$path_logo = __DIR__ . '/../../public/images/carta/logo.png';
+$path_footer = __DIR__ . '/../../public/images/carta/foot.png';
 
-$img_logo_superior = 'data:image/png;base64,' . $logo_superior;
-$img_logo_pie = 'data:image/png;base64,' . $logo_pie;
+if (!file_exists($path_logo) || !file_exists($path_footer)) {
+    die("No se encontraron las imágenes del membrete.");
+}
+
+$logo_superior = base64_encode(file_get_contents($path_logo));
+$logo_pie = base64_encode(file_get_contents($path_footer));
+
 
 
 // Contenido HTML de la carta
