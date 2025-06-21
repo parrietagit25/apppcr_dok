@@ -40,7 +40,7 @@ $html = "
 </style>
 
 <div class='encabezado'>
-    <img src='../../public/images/carta/logo.png' width='150' alt='Logo'>
+    <img src='../../public/images/carta/logo.png' width='50' alt='Logo'>
     <div style='text-align: right; font-size: 10pt;'>
         Tocumen Commercial Park<br>
         Tel: 279-2700<br>
