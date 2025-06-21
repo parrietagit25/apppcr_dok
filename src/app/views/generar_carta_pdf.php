@@ -37,34 +37,69 @@ if (!empty($otros_descuentos)) {
     }
 }
 
+$logo_superior = base64_encode(file_get_contents('/../../public/images/logo.png'));
+$logo_pie = base64_encode(file_get_contents('/../../public/images/foot.png'));
+
+$img_logo_superior = 'data:image/png;base64,' . $logo_superior;
+$img_logo_pie = 'data:image/png;base64,' . $logo_pie;
+
+
 // Contenido HTML de la carta
 $html = "
     <style>
-        body { font-family: DejaVu Sans, sans-serif; font-size: 12pt; }
-        h2 { text-align: center; }
-        p { text-align: justify; line-height: 1.5; }
+        body { font-family: DejaVu Sans, sans-serif; font-size: 12pt; margin: 40px; position: relative; }
+        header, footer { width: 100%; }
+        .encabezado { display: flex; justify-content: space-between; align-items: top; margin-bottom: 20px; }
+        .encabezado img { width: 150px; }
+        .encabezado .texto { text-align: right; font-size: 10pt; line-height: 1.2; }
+        p { text-align: justify; line-height: 1.6; }
+        ul { line-height: 1.6; }
+
+        footer img {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            max-height: 80px;
+        }
     </style>
 
-    <p>Panamá, $fecha_actual</p>
+    <header class='encabezado'>
+        <img src='$img_logo_superior'>
+        <div class='texto'>
+            Tocumen Commercial Park<br>
+            Tel: 279-2700<br>
+            Grupopcr.com.pa
+        </div>
+    </header>
 
-    <p><strong>A quien pueda interesar:</strong></p>
+    <main>
+        <p>Panamá, $fecha_actual</p>
 
-    <p>Por medio de la presente, hacemos constar que el(la) Sr(a). <strong>$nombre</strong>, con cédula <strong>$cedula</strong> y seguro social <strong>$seguro</strong>, labora en nuestra empresa desde el <strong>$fecha_ingreso</strong>, desempeñando el cargo de <strong>$cargo</strong>.</p>
+        <p><strong>A quien pueda interesar:</strong></p>
 
-    <p>El salario mensual pactado es de B/. $salario, con las siguientes deducciones aproximadas:</p>
-    <ul>
-        <li>Seguro Social: B/. $desc_seguro</li>
-        <li>Seguro Educativo: B/. $desc_educativo</li>
-        <li>Impuesto sobre la Renta: B/. $desc_renta</li>
-        $html_dinamico
-    </ul>
+        <p>Por medio de la presente, hacemos constar que el(la) Sr(a). <strong>$nombre</strong>, con cédula <strong>$cedula</strong> y seguro social <strong>$seguro</strong>, labora en nuestra empresa desde el <strong>$fecha_ingreso</strong>, desempeñando el cargo de <strong>$cargo</strong>.</p>
 
-    <p>$descripcion</p>
+        <p>El salario mensual pactado es de B/. $salario, con las siguientes deducciones aproximadas:</p>
+        <ul>
+            <li>Seguro Social: B/. $desc_seguro</li>
+            <li>Seguro Educativo: B/. $desc_educativo</li>
+            <li>Impuesto sobre la Renta: B/. $desc_renta</li>
+            $html_dinamico
+        </ul>
 
-    <p>Se expide la presente para los fines que estime convenientes.</p>
+        <p>$descripcion</p>
 
-    <br><br><br>
-    <p><strong>Departamento de Planilla</strong></p>
+        <p>Se expide la presente para los fines que estime convenientes.</p>
+
+        <br><br><br>
+        <p><strong>Departamento de Planilla</strong></p>
+    </main>
+
+    <footer>
+        <img src='$img_logo_pie'>
+    </footer>
 ";
 
 // Inicializa Dompdf
