@@ -194,6 +194,7 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
             // Enviar correo con el PDF adjunto
             $class->enviar_correo_con_adjunto($email_destino, $copias, "Carta de Trabajo", $mensaje_correo, $ruta_archivo);
             echo "<div class='alert alert-success'>Carta generada y enviada exitosamente a $email_destino.</div>";
+            $class->aprobar_carta_trabajo($id_carta);
         } else {
             echo "<div class='alert alert-warning'>No se pudo obtener el correo del colaborador.</div>";
         }
