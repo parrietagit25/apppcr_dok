@@ -40,8 +40,8 @@ $html = "
 </style>
 
 <div class='encabezado'>
-    <img src='../../public/images/carta/logo.png' width='150' alt='Logo'>
-    <div style='text-align: right; font-size: 10pt;'>
+    <img src='../../public/images/carta/logo.png' width='200' alt='Logo'>
+    <div style='text-align: right; font-size: 10pt; margin-top: -80px;'>
         Tocumen Commercial Park<br>
         Tel: 279-2700<br>
         Grupopcr.com.pa
