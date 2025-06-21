@@ -137,7 +137,7 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
         </style>
 
         <div class='encabezado'>
-            <img src='$logo_src' width='200' alt='Logo'>
+            <img src='file:///var/www/html/public/images/carta/logo.png' width='200' alt='Logo'>
             <div style='text-align: right; font-size: 10pt; position: relative; top: -60px;'>
                 Tocumen Commercial Park<br>
                 Tel: 279-2700<br>
@@ -167,7 +167,7 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
         <p><strong>Departamento de Planilla</strong></p>
 
         <div class='footer-img'>
-            <img src='$footer_src'>
+            <img src='file:///var/www/html/public/images/carta/foot.png'
         </div>
         ";
 
