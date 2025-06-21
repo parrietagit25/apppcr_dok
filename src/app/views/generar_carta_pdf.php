@@ -37,8 +37,8 @@ if (!empty($otros_descuentos)) {
     }
 }
 
-$path_logo = __DIR__ . '/../../public/images/carta/logo.png';
-$path_footer = __DIR__ . '/../../public/images/carta/foot.png';
+$path_logo = 'https://apppcr.net/public/images/carta/logo.png';
+$path_footer = 'https://apppcr.net/public/images/carta/foot.png';
 
 if (!file_exists($path_logo) || !file_exists($path_footer)) {
     die("No se encontraron las imágenes del membrete.");
