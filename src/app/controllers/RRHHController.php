@@ -138,7 +138,7 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
 
         <div class='encabezado'>
             <img src='file:///var/www/html/public/images/carta/logo.png' width='200' alt='Logo'>
-            <div style='text-align: right; font-size: 10pt; position: relative; top: -60px;'>
+            <div style='text-align: right; font-size: 10pt; position: relative; margin-top: -80px;'>
                 Tocumen Commercial Park<br>
                 Tel: 279-2700<br>
                 Grupopcr.com.pa
