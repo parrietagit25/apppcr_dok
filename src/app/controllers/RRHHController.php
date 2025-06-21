@@ -167,7 +167,7 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
         <p><strong>Departamento de Planilla</strong></p>
 
         <div class='footer-img'>
-            <img src='file:///var/www/html/public/images/carta/foot.png'
+            <img src='file:///var/www/html/public/images/carta/foot.png' alt='Logo'>
         </div>
         ";
 
