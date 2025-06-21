@@ -1,5 +1,7 @@
 <?php
 require_once __DIR__ . '/../../vendor/autoload.php';
+require_once __DIR__ . '/../../config/conexion.php';
+require_once __DIR__ . '/../models/Rrhh.php';
 
 use Dompdf\Dompdf;
 
@@ -21,6 +23,20 @@ $desc_renta = number_format($_POST['desc_renta'] ?? 0, 2);
 $descripcion = $_POST['descripcion'] ?? '';
 $fecha_actual = date("d/m/Y");
 
+$pdo = conexion();             // función definida en conexion.php
+$class = new Rrhh($pdo);       // clase Rrhh que espera $pdo
+$otros_descuentos = $class->get_otros_descuentos_por_carta($_POST['solicitud_id']);
+
+$html_dinamico = "";
+if (!empty($otros_descuentos)) {
+    $html_dinamico .= "<li><strong>Otros descuentos:</strong></li>";
+    foreach ($otros_descuentos as $desc) {
+        $acreedor = htmlspecialchars($desc['acreedor']);
+        $monto = number_format($desc['monto'], 2);
+        $html_dinamico .= "<li>$acreedor: B/. $monto</li>";
+    }
+}
+
 // Contenido HTML de la carta
 $html = "
     <style>
@@ -40,6 +56,7 @@ $html = "
         <li>Seguro Social: B/. $desc_seguro</li>
         <li>Seguro Educativo: B/. $desc_educativo</li>
         <li>Impuesto sobre la Renta: B/. $desc_renta</li>
+        $html_dinamico
     </ul>
 
     <p>$descripcion</p>
