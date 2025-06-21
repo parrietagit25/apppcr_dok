@@ -172,9 +172,10 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
         ";
 
         // Generar PDF con mPDF
+
         $mpdf = new \Mpdf\Mpdf([
             'default_font' => 'dejavusans',
-            'tempDir' => __DIR__ . '/../tmp/mpdf'
+            'tempDir' => __DIR__ . '/../../tmp/mpdf' // ruta corregida y real
         ]);
 
         $mpdf->WriteHTML($html);
