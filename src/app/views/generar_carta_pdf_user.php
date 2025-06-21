@@ -20,6 +20,18 @@ $class = new Rrhh($pdo);       // clase Rrhh que espera $pdo
 $id_carta = $_GET['id'];
 $datos = $class->get_datos_formulario_carta($id_carta);
 
+$otros_descuentos = $class->get_otros_descuentos_por_carta($id_carta);
+
+$html_dinamico = "";
+if (!empty($otros_descuentos)) {
+    $html_dinamico .= "<li><strong>Otros descuentos:</strong></li>";
+    foreach ($otros_descuentos as $desc) {
+        $acreedor = htmlspecialchars($desc['acreedor']);
+        $monto = number_format($desc['monto'], 2);
+        $html_dinamico .= "<li>$acreedor: B/. $monto</li>";
+    }
+}
+
 if (!$datos) {
     die("Carta no encontrada o no disponible.");
 }
@@ -42,6 +54,7 @@ $html = "
         <li>Seguro Social: B/. $desc_seguro</li>
         <li>Seguro Educativo: B/. $desc_educativo</li>
         <li>Impuesto sobre la Renta: B/. $desc_renta</li>
+        $html_dinamico
     </ul>
     <p>$descripcion</p>
     <br><br>
