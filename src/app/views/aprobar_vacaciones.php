@@ -166,6 +166,22 @@ if (empty($array_datos)) {
             text-decoration: underline;
         }
     </style>
+    <style>
+        #loaderOverlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 9999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-size: 1.5rem;
+            flex-direction: column;
+        }
+    </style>
 </head>
 <body>
 <div class="login-container">
@@ -241,20 +257,8 @@ if (empty($array_datos)) {
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
-<!-- Loader + overlay -->
-<div id="loaderOverlay" style="
-    display: none;
-    position: fixed;
-    top: 0; left: 0; width: 100%; height: 100%;
-    background-color: rgba(0,0,0,0.5);
-    z-index: 9999;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    color: white;
-    font-size: 1.5rem;
-    flex-direction: column;
-">
+
+<div id="loaderOverlay">
     <div class="spinner-border text-light" role="status" style="width: 3rem; height: 3rem;">
       <span class="visually-hidden">Cargando...</span>
     </div>
