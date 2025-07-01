@@ -275,6 +275,19 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 });
 </script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    // Oculta el overlay al cargar la página
+    document.getElementById('loaderOverlay').style.display = 'none';
+
+    // Activa solo al enviar formulario
+    document.querySelectorAll('.modal form').forEach(form => {
+        form.addEventListener('submit', function () {
+            document.getElementById('loaderOverlay').style.display = 'flex';
+        });
+    });
+});
+</script>
 
 
 </body>
