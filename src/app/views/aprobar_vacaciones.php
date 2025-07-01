@@ -241,7 +241,7 @@ if (empty($array_datos)) {
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
-<!-- Loader + overlay
+<!-- Loader + overlay -->
 <div id="loaderOverlay" style="
     display: none;
     position: fixed;
@@ -263,14 +263,14 @@ if (empty($array_datos)) {
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-    // Selecciona todos los formularios (modales)
-    document.querySelectorAll('form').forEach(form => {
+    // Selecciona todos los formularios dentro de los modales
+    document.querySelectorAll('.modal form').forEach(form => {
         form.addEventListener('submit', function () {
             document.getElementById('loaderOverlay').style.display = 'flex';
         });
     });
 });
-</script> -->
+</script>
 
 
 </body>
