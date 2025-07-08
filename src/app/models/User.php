@@ -9,41 +9,20 @@ class User {
     public function authenticate($code, $password) {
 
         if ($code == '001326') {
-            $code = '1326'; // Código de administrador pa ricardo de la guardia
+            $code = '1326'; // Código de administrador
         }
 
         try {
-            $sql = "
-                SELECT el.pass
-                FROM   empleado_log      el
-                JOIN   empleados         e   ON e.codigo_empleado = el.codigo
-                WHERE  el.codigo = :code
-                AND  el.stat  = 1
-                AND (
-                        -- Empleados activos o vigentes
-                        e.estatus_empleado IN ('A','V')
-
-                        -- O bien, empleados con estatus C
-                        -- que estén registrados y activos (stat = 1)
-                        OR EXISTS (
-                                SELECT 1
-                                FROM   usuarios_fuera_planilla ufp
-                                WHERE  ufp.codigo_empleado = e.codigo_empleado
-                                AND  ufp.stat = 1
-                        )
-                    )
-            ";
-
-            $stmt = $this->pdo->prepare($sql);
+            $stmt = $this->pdo->prepare("SELECT pass FROM empleado_log el inner join empleados e on el.codigo = e.codigo_empleado WHERE el.codigo = :code AND el.stat = 1 AND e.estatus_empleado in ('A', 'V')");
             $stmt->bindParam(':code', $code, PDO::PARAM_STR);
             $stmt->execute();
-
+    
             $user = $stmt->fetch(PDO::FETCH_ASSOC);
-
+    
             if ($user && password_verify($password, $user['pass'])) {
-                return 1;          // Autenticación exitosa
+                return 1; // La autenticación fue exitosa
             } else {
-                return false;      // Código o contraseña incorrectos
+                return false; // Código incorrecto o contraseña inválida
             }
         } catch (PDOException $e) {
             error_log("Error en autenticación: " . $e->getMessage());
