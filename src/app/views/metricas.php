@@ -51,7 +51,7 @@ include __DIR__ . '/header.php';
             <div class="col-4 mb-3">
                 <a href="#" class="text-decoration-none">
                     <h2><?= number_format($vacaciones) ?></h2>
-                    <div class="text-muted small">Vacaciones Solicitadas</div>
+                    <div class="text-muted small">Permisos por Vacaciones</div>
                 </a>
             </div>
             <div class="col-4 mb-3">
@@ -71,21 +71,41 @@ include __DIR__ . '/header.php';
             <div class="col-4 mb-3">
                 <a href="#" class="text-decoration-none">
                     <h2><?= number_format($compensatorio) ?></h2>
-                    <div class="text-muted small">Solicitudes de Compensarotios</div>
+                    <div class="text-muted small">Permisos por Compensarotios</div>
                 </a>
             </div>
             <div class="col-4 mb-3">
                 <a href="#" class="text-decoration-none">
                     <h2><?= number_format($cita_medica) ?></h2>
-                    <div class="text-muted small">Citas medicas Solicitadas</div>
+                    <div class="text-muted small">Permisos por Citas medicas</div>
                 </a>
             </div>
             <div class="col-4 mb-3">
                 <a href="#" class="text-decoration-none">
                     <h2><?= number_format($enfermedad) ?></h2>
-                    <div class="text-muted small">Permiso por enfermedad</div>
+                    <div class="text-muted small">Permisos por enfermedad</div>
                 </a>
             </div>
+
+            <div class="col-4 mb-3">
+                <a href="#" class="text-decoration-none">
+                    <h2><?= number_format($tele_trabajo) ?></h2>
+                    <div class="text-muted small">Permisos por Teletrabajo</div>
+                </a>
+            </div>
+            <div class="col-4 mb-3">
+                <a href="#" class="text-decoration-none">
+                    <h2><?= number_format($duelo) ?></h2>
+                    <div class="text-muted small">Permisos por Duelo</div>
+                </a>
+            </div>
+            <div class="col-4 mb-3">
+                <a href="#" class="text-decoration-none">
+                    <h2><?= number_format($tiempo_sin_pago) ?></h2>
+                    <div class="text-muted small">Permisos por Tiempo sin pago</div>
+                </a>
+            </div>
+
         </div>
     </div>
 
