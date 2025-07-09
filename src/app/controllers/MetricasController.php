@@ -30,6 +30,22 @@ if (isset($_GET['metricas'])) {
 
     $permisos = $class_rrhh->count_permisos();
 
+    $incapacidades = $class_rrhh->count_incapacidades();
+
+    $vacaciones = $class_rrhh->count_type_permiso('Vacaciones');
+
+    $compensatorio = $class_rrhh->count_type_permiso('Compensatorio');
+
+    $cita_medica = $class_rrhh->count_type_permiso('Cita Medica');
+
+    $enfermedad = $class_rrhh->count_type_permiso('Enfermedad');
+
+    $tele_trabajo = $class_rrhh->count_type_permiso('Teletrabajo');
+
+    $duelo = $class_rrhh->count_type_permiso('Duelo');
+
+    $tiempo_sin_pago = $class_rrhh->count_type_permiso('Tiempo Sin Pago');
+
     require_once __DIR__ . '/../views/metricas.php';
     exit();
 }

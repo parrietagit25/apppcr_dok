@@ -1090,6 +1090,18 @@ class Rrhh {
         return $stmt->fetchColumn();
     }
 
+    public function count_incapacidades() {
+        $stmt = $this->pdo->prepare("SELECT COUNT(*) AS total FROM incapacidad");
+        $stmt->execute();
+        return $stmt->fetchColumn();
+    }
+
+    public function count_type_permiso($type_permiso) {
+        $stmt = $this->pdo->prepare("SELECT COUNT(*) AS total FROM solicitud_permiso WHERE tipo_licencia = :type_permiso");
+        $stmt->bindParam(':type_permiso', $type_permiso, PDO::PARAM_STR);
+        $stmt->execute();
+        return $stmt->fetchColumn();
+    }
 
 }
 

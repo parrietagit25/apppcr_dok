@@ -50,7 +50,7 @@ include __DIR__ . '/header.php';
         <div class="row text-center mt-3">
             <div class="col-4 mb-3">
                 <a href="#" class="text-decoration-none">
-                    <h2></h2>
+                    <h2><?= number_format($vacaciones) ?></h2>
                     <div class="text-muted small">Vacaciones Solicitadas</div>
                 </a>
             </div>
@@ -62,17 +62,30 @@ include __DIR__ . '/header.php';
             </div>
             <div class="col-4 mb-3">
                 <a href="#" class="text-decoration-none">
-                    
+                    <h2><?= number_format($incapacidades) ?></h2>
                     <div class="text-muted small">Incapacidades Registradas</div>
                 </a>
             </div>
             
-            <!--<div class="col-4 mb-3">
-                <a href="https://seguros.doctor-online.co/webm/views/login.php?resource=b60aa9f45cca11ebae930242ac130002" class="text-decoration-none">
-                    <img src="<?php echo BASE_URL_IMAGE; ?>dr_minutos.png" width="45">
-                    <div class="text-muted small">Dr. en Minutos</div>
+
+            <div class="col-4 mb-3">
+                <a href="#" class="text-decoration-none">
+                    <h2><?= number_format($compensatorio) ?></h2>
+                    <div class="text-muted small">Solicitudes de Compensarotios</div>
                 </a>
-            </div>-->
+            </div>
+            <div class="col-4 mb-3">
+                <a href="#" class="text-decoration-none">
+                    <h2><?= number_format($cita_medica) ?></h2>
+                    <div class="text-muted small">Citas medicas Solicitadas</div>
+                </a>
+            </div>
+            <div class="col-4 mb-3">
+                <a href="#" class="text-decoration-none">
+                    <h2><?= number_format($enfermedad) ?></h2>
+                    <div class="text-muted small">Permiso por enfermedad</div>
+                </a>
+            </div>
         </div>
     </div>
 
