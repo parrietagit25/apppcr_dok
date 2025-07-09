@@ -117,6 +117,14 @@ include __DIR__ . '/header.php';
             </div>
         </div>
     </div>
+
+    <div class="card my-3">
+        <div class="card-header text-center">Totales generales</div>
+        <div class="card-body">
+            <canvas id="totalesChart" height="270"></canvas>
+        </div>
+    </div>
+
     <br>
     <br>
     <br>
@@ -182,5 +190,39 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 </script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const totLabels = <?= json_encode(array_keys($dashboardTotals)) ?>;
+  const totData   = <?= json_encode(array_values($dashboardTotals)) ?>;
+
+  new Chart(document.getElementById('totalesChart'), {
+      type: 'bar',
+      data: {
+          labels: totLabels,
+          datasets: [{
+              data: totData,
+              // Chart.js generará colores por defecto;
+              // si quieres fijarlos, añade `backgroundColor: [...]`
+          }]
+      },
+      options: {
+          indexAxis: 'y',               //  ←   barras horizontales
+          responsive: true,
+          scales: {
+              x: { beginAtZero: true }
+          },
+          plugins: {
+              legend: { display: false },
+              tooltip: {
+                  callbacks: {
+                      label: ctx => `${ctx.raw} solicitudes`
+                  }
+              }
+          }
+      }
+  });
+});
+</script>
+
 
 <?php include __DIR__ . '/footer.php'; ?>

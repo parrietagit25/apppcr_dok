@@ -56,6 +56,14 @@ if (isset($_GET['metricas'])) {
         'Tiempo sin pago'   => $class_rrhh->count_permisos_by_type('Tiempo sin pago'),
     ];
 
+    $dashboardTotals = [
+        'Actualización de Datos'   => 41, // 41
+        'Cartas de trabajo'        => $class_rrhh->count_cartas_trabajo(), // 54
+        'Calamidades'              => $class_rrhh->count_calamidades(),    // 16
+        'Permisos solicitados'     => $class_rrhh->count_permisos_totales(), // 123
+        'Incapacidades'            => $class_rrhh->count_incapacidades(),     // 53
+    ];
+
     require_once __DIR__ . '/../views/metricas.php';
     exit();
 }
