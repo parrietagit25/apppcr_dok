@@ -60,7 +60,7 @@ if (isset($_GET['metricas'])) {
         'Actualización de Datos'   => 41, // 41
         'Cartas de trabajo'        => $class_rrhh->count_cartas_trabajo(), // 54
         'Calamidades'              => $class_rrhh->count_calamidades(),    // 16
-        'Permisos solicitados'     => $class_rrhh->count_permisos_totales(), // 123
+        'Permisos solicitados'     => $class_rrhh->count_permisos(), // 123
         'Incapacidades'            => $class_rrhh->count_incapacidades(),     // 53
     ];
 
