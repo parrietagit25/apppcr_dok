@@ -24,15 +24,17 @@ include __DIR__ . '/header.php';
         <h6 class="fw-bold text-secondary">INFORMACIÓN PERSONAL</h6>
         <div class="row text-center mt-3">
             <div class="col-4 mb-3">
-                <a href="<?php echo BASE_URL_CONTROLLER; ?>RRHHController.php?mis_datos=1" class="text-decoration-none">
-                    <img src="<?php echo BASE_URL_IMAGE; ?>misdatos.svg" width="45">
-                    <div class="text-muted small">Mis Datos</div>
+                <a href="#" class="text-decoration-none">
+                    <h2>41</h2>
+                    <div class="text-muted small">Actualizacion de  Datos</div>
                 </a>
             </div>
             <div class="col-4 mb-3">
-                <a href="<?php echo BASE_URL_CONTROLLER; ?>/RRHHController.php?carta_trabajo=1" class="text-decoration-none">
-                    <img src="<?php echo BASE_URL_IMAGE; ?>ico_carta_trabajo.png" width="45">
-                    <div class="text-muted small">Solicitar Carta</div>
+                <a href="#" class="text-decoration-none">
+                     <?php foreach ($cartas_trabajos as $key => $value): ?> 
+                    <h2><?php echo $value['total']; ?></h2>
+                    <?php endforeach; ?>
+                    <div class="text-muted small">Solicitud de Carta de trabajo</div>
                 </a>
             </div>
             <div class="col-4 mb-3">

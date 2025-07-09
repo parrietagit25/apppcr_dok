@@ -1072,6 +1072,12 @@ class Rrhh {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    public function count_cartas_trabajo() {
+        $stmt = $this->pdo->prepare("SELECT COUNT(*) AS total FROM carta_trabajo WHERE stat = 1");
+        $stmt->execute();
+        return $stmt->fetchColumn();
+    }
+
 
 }
 

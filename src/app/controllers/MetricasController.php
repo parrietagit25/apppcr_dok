@@ -24,6 +24,8 @@ $tipo_usuario = $userModel->get_tyte_user();
 
 if (isset($_GET['metricas'])) {
 
+    $cartas_trabajos = $class_rrhh->count_cartas_trabajo();
+
 }
 
 require_once __DIR__ . '/../views/metricas.php';
