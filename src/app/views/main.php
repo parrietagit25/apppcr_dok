@@ -118,7 +118,7 @@ include __DIR__ . '/header.php';
                 <a href="<?php echo BASE_URL_CONTROLLER; ?>/MetricasController.php?metricas=1" class="text-decoration-none">
                     <div class="card-icon">
                         <img src="<?php echo BASE_URL_IMAGE; ?>metricas.png" alt="Carnet">
-                        <div class="card-title"> <small>Verificar Carnet</small> </div>
+                        <div class="card-title"> <small>Metricas</small> </div>
                     </div>
                 </a>
             </div>
