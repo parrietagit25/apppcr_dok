@@ -50,23 +50,22 @@ include __DIR__ . '/header.php';
         <div class="row text-center mt-3">
             <div class="col-4 mb-3">
                 <a href="#" class="text-decoration-none">
-                    <h2><?= number_format($vacaciones) ?></h2>
-                    <div class="text-muted small">Permisos por Vacaciones</div>
+                    <h2><?= number_format($incapacidades) ?></h2>
+                    <div class="text-muted small">Incapacidades Registradas</div>
                 </a>
             </div>
             <div class="col-4 mb-3">
                 <a href="#" class="text-decoration-none">
                     <h2><?= number_format($permisos) ?></h2>
-                    <div class="text-muted small">Permisos Solicitados</div>
+                    <div class="text-muted small">Total de Permisos Solicitados</div>
                 </a>
             </div>
             <div class="col-4 mb-3">
                 <a href="#" class="text-decoration-none">
-                    <h2><?= number_format($incapacidades) ?></h2>
-                    <div class="text-muted small">Incapacidades Registradas</div>
+                    <h2><?= number_format($vacaciones) ?></h2>
+                    <div class="text-muted small">Permisos por Vacaciones</div>
                 </a>
             </div>
-            
 
             <div class="col-4 mb-3">
                 <a href="#" class="text-decoration-none">
