@@ -1103,6 +1103,13 @@ class Rrhh {
         return $stmt->fetchColumn();
     }
 
+    public function count_permisos_by_type(string $codigo){
+        $sql  = "SELECT COUNT(*) FROM solicitud_permiso WHERE tipo_licencia = ?";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute([$codigo]);
+        return (int) $stmt->fetchColumn();
+    }
+
 }
 
 

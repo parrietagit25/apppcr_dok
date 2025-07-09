@@ -110,13 +110,11 @@ include __DIR__ . '/header.php';
 
     <!-- Vacantes -->
     <div class="bg-white p-3 rounded shadow-sm mb-4 d-flex align-items-center justify-content-between">
-        <div>
-            <p class="mb-1 text-muted small">Da el siguiente paso en tu carrera,<br>explora nuestras vacantes internas.</p>
-        </div>
-        <div>
-            <a href="https://www.konzerta.com/empleos-busqueda-panama-car-rental.html" target="_blank">
-                <img width="80" src="<?php echo BASE_URL_IMAGE; ?>ico_vacantes.svg" width="65" alt="Vacantes PCR">
-            </a>
+        <div class="card my-3">
+            <div class="card-header text-center">Distribución de permisos solicitados</div>
+            <div class="card-body">
+                <canvas id="permisosChart" height="250"></canvas>
+            </div>
         </div>
     </div>
     <br>
@@ -147,5 +145,42 @@ include __DIR__ . '/header.php';
         </div>
     </div>
 </nav>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    // PHP → JS
+    const labels = <?= json_encode(array_keys($permisosChartData)) ?>;
+    const data   = <?= json_encode(array_values($permisosChartData)) ?>;
+
+    const ctx = document.getElementById('permisosChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'pie',
+        data: {
+            labels: labels,
+            datasets: [{
+                data: data,
+                // Chart.js asigna colores por defecto; los podrías personalizar si lo deseas
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { position: 'bottom' },
+                tooltip: {
+                    callbacks: {
+                        label: (context) => {
+                            const total = data.reduce((a, b) => a + b, 0);
+                            const value = context.parsed;
+                            const pct   = (value * 100 / total).toFixed(1);
+                            return `${context.label}: ${value} (${pct} %)`;
+                        }
+                    }
+                }
+            }
+        }
+    });
+});
+</script>
 
 <?php include __DIR__ . '/footer.php'; ?>
