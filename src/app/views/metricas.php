@@ -31,7 +31,7 @@ include __DIR__ . '/header.php';
             </div>
             <div class="col-4 mb-3">
                 <a href="#" class="text-decoration-none">
-                    <h2><?php echo $cartas_trabajos[0]['total']; ?></h2>
+                    <h2><?= number_format($cartas_trabajos) ?></h2>
                     <div class="text-muted small">Solicitud de Carta de trabajo</div>
                 </a>
             </div>
