@@ -11,6 +11,10 @@ $userModel = new User($pdo);
 $pdo_rrhh = Database::connect();
 $class_rrhh = new Rrhh($pdo_rrhh);
 
+/* nombre de usuario */
+$nombre = $userModel->nombre_colaborador();
+$tipo_usuario = $userModel->get_tyte_user();
+
 if (!isset($_SESSION['code'])) {
     header("Location: salir.php");
     exit();
