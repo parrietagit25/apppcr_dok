@@ -19,15 +19,15 @@ class User {
                                             WHERE  el.codigo = :code
                                             AND  el.stat  = 1
                                             AND (
-                                                    e.estatus_empleado IN ('A','V')
-                                                    OR EXISTS (
-                                                        SELECT 1
-                                                        FROM   usuarios_fuera_planilla ufp
-                                                        WHERE  ufp.codigo_empleado COLLATE utf8mb4_unicode_ci
-                                                                    = e.codigo_empleado COLLATE utf8mb4_unicode_ci
-                                                            AND  ufp.stat = 1
-                                                    )
-                                                )");
+                                                e.estatus_empleado IN ('A','V')
+                                                OR EXISTS (
+                                                    SELECT 1
+                                                    FROM   usuarios_fuera_planilla ufp
+                                                    WHERE  ufp.codigo_empleado COLLATE utf8mb4_unicode_ci
+                                                                = e.codigo_empleado COLLATE utf8mb4_unicode_ci
+                                                        AND  ufp.stat = 1
+                                                )
+                                            )");
                                                 
             $stmt->bindParam(':code', $code, PDO::PARAM_STR);
             $stmt->execute();
