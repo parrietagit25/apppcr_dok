@@ -1073,13 +1073,19 @@ class Rrhh {
     }
 
     public function count_cartas_trabajo() {
-        $stmt = $this->pdo->prepare("SELECT COUNT(*) AS total FROM carta_trabajo WHERE stat = 1");
+        $stmt = $this->pdo->prepare("SELECT COUNT(*) AS total FROM carta_trabajo");
         $stmt->execute();
         return $stmt->fetchColumn();
     }
 
     public function count_calamidades() {
-        $stmt = $this->pdo->prepare("SELECT COUNT(*) AS total FROM calamidades WHERE stat = 1");
+        $stmt = $this->pdo->prepare("SELECT COUNT(*) AS total FROM calamidades");
+        $stmt->execute();
+        return $stmt->fetchColumn();
+    }
+
+    public function count_permisos() {
+        $stmt = $this->pdo->prepare("SELECT COUNT(*) AS total FROM solicitud_permiso");
         $stmt->execute();
         return $stmt->fetchColumn();
     }

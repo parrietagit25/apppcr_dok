@@ -36,25 +36,11 @@ include __DIR__ . '/header.php';
                 </a>
             </div>
             <div class="col-4 mb-3">
-                <a href="<?php echo BASE_URL_CONTROLLER; ?>/RRHHController.php?calamidad=1" class="text-decoration-none">
-                    <?= number_format($calamidades) ?>
-                    <div class="text-muted small">Solicitar Calamidad</div>
+                <a href="#" class="text-decoration-none">
+                    <h2><?= number_format($calamidades) ?></h2>
+                    <div class="text-muted small">Solicitud de Calamidades</div>
                 </a>
             </div>
-            <?php if ($tipo_usuario == 1 || $tipo_usuario == 4) { ?>
-            <div class="col-4 mb-3">
-                <a href="<?php echo BASE_URL_CONTROLLER; ?>/RRHHController.php?carta_trabajo_aprobar=1" class="text-decoration-none">
-                    <img src="<?php echo BASE_URL_IMAGE; ?>ico_carta_trabajo.svg" width="45">
-                    <div class="text-muted small">V-Carta Trabajo</div>
-                </a>
-            </div>
-            <div class="col-4 mb-3">
-                <a href="<?php echo BASE_URL_CONTROLLER; ?>/RRHHController.php?calamidad_vrrhh=1" class="text-decoration-none">
-                    <img src="<?php echo BASE_URL_IMAGE; ?>calamidad.svg" width="45">
-                    <div class="text-muted small">V-Calamidades</div>
-                </a>
-            </div>
-            <?php } ?>
         </div>
     </div>
 
@@ -63,39 +49,24 @@ include __DIR__ . '/header.php';
         <h6 class="fw-bold text-secondary">GESTIÓN DE TIEMPO Y AUSENCIAS</h6>
         <div class="row text-center mt-3">
             <div class="col-4 mb-3">
-                <a href="<?php echo BASE_URL_CONTROLLER; ?>/RRHHController.php?mis_vacaciones=1" class="text-decoration-none">
-                    <img src="<?php echo BASE_URL_IMAGE; ?>ico_vacaciones.svg" width="45">
-                    <div class="text-muted small">Mis Vacaciones</div>
+                <a href="#" class="text-decoration-none">
+                    <h2></h2>
+                    <div class="text-muted small">Vacaciones Solicitadas</div>
                 </a>
             </div>
             <div class="col-4 mb-3">
-                <a href="<?php echo BASE_URL_CONTROLLER; ?>/RRHHController.php?solicitud_permiso=1" class="text-decoration-none">
-                    <img src="<?php echo BASE_URL_IMAGE; ?>permiso1.svg" width="45">
-                    <div class="text-muted small">Solicitar Permiso</div>
+                <a href="#" class="text-decoration-none">
+                    <h2><?= number_format($permisos) ?></h2>
+                    <div class="text-muted small">Permisos Solicitados</div>
                 </a>
             </div>
             <div class="col-4 mb-3">
-                <a href="<?php echo BASE_URL_CONTROLLER; ?>/RRHHController.php?incapacidad=1" class="text-decoration-none">
-                    <img src="<?php echo BASE_URL_IMAGE; ?>ico_incapacidades.png" width="45">
-                    <div class="text-muted small">Mis Incapacidades</div>
+                <a href="#" class="text-decoration-none">
+                    
+                    <div class="text-muted small">Incapacidades Registradas</div>
                 </a>
             </div>
-            <?php if ($tipo_usuario == 1 || $tipo_usuario == 3 || $tipo_usuario == 4) { ?>
-            <div class="col-4 mb-3">
-                <a href="<?php echo BASE_URL_CONTROLLER; ?>/RRHHController.php?solicitud_permiso_admin=1" class="text-decoration-none">
-                    <img src="<?php echo BASE_URL_IMAGE; ?>permiso1.png" width="45">
-                    <div class="text-muted small">V-Permisos</div>
-                </a>
-            </div>
-            <?php } ?>
-            <?php if ($tipo_usuario == 1 || $tipo_usuario == 4) { ?>
-            <div class="col-4 mb-3">
-                <a href="<?php echo BASE_URL_CONTROLLER; ?>/RRHHController.php?incapacidad_vrrhh=1" class="text-decoration-none">
-                    <img src="<?php echo BASE_URL_IMAGE; ?>ico_incapacidades.svg" width="45">
-                    <div class="text-muted small">V-Incapacidades</div>
-                </a>
-            </div>
-            <?php } ?>
+            
             <!--<div class="col-4 mb-3">
                 <a href="https://seguros.doctor-online.co/webm/views/login.php?resource=b60aa9f45cca11ebae930242ac130002" class="text-decoration-none">
                     <img src="<?php echo BASE_URL_IMAGE; ?>dr_minutos.png" width="45">

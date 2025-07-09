@@ -28,6 +28,8 @@ if (isset($_GET['metricas'])) {
 
     $calamidades = $class_rrhh->count_calamidades();
 
+    $permisos = $class_rrhh->count_permisos();
+
     require_once __DIR__ . '/../views/metricas.php';
     exit();
 }
