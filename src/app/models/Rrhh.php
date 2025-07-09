@@ -1078,6 +1078,12 @@ class Rrhh {
         return $stmt->fetchColumn();
     }
 
+    public function count_calamidades() {
+        $stmt = $this->pdo->prepare("SELECT COUNT(*) AS total FROM calamidades WHERE stat = 1");
+        $stmt->execute();
+        return $stmt->fetchColumn();
+    }
+
 
 }
 

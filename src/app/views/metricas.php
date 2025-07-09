@@ -37,7 +37,7 @@ include __DIR__ . '/header.php';
             </div>
             <div class="col-4 mb-3">
                 <a href="<?php echo BASE_URL_CONTROLLER; ?>/RRHHController.php?calamidad=1" class="text-decoration-none">
-                    <img src="<?php echo BASE_URL_IMAGE; ?>solicitudva.png" width="45">
+                    <?= number_format($calamidades) ?>
                     <div class="text-muted small">Solicitar Calamidad</div>
                 </a>
             </div>
