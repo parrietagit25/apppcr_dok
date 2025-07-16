@@ -223,6 +223,4 @@ public function nombre_colaborador() {
         }
     }
 
-    
-    
 }
