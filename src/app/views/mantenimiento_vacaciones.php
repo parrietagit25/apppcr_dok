@@ -25,30 +25,22 @@ include __DIR__ . '/header.php';
                 <th>Estado</th>
                 <th>Respuesta Jefe</th>
                 <th>Comentario Jefe</th>
-                <th>Archivo</th>
             </tr>
         </thead>
         <tbody>
         <?php foreach ($vacaciones as $v): ?>
             <tr>
-                <td><?= htmlspecialchars($v['id']) ?></td>
-                <td><?= htmlspecialchars($v['codigo_empleado']) ?></td>
-                <td><?= htmlspecialchars($v['nombre']) ?></td>
-                <td><?= htmlspecialchars($v['apellido']) ?></td>
-                <td><?= htmlspecialchars($v['fecha_log']) ?></td>
-                <td><?= htmlspecialchars($v['descripcion']) ?></td>
-                <td><?= htmlspecialchars($v['fecha_inicio']) ?></td>
-                <td><?= htmlspecialchars($v['fecha_fin']) ?></td>
-                <td><?= htmlspecialchars($v['stat']) ?></td>
-                <td><?= htmlspecialchars($v['respuesta_jefe']) ?></td>
-                <td><?= htmlspecialchars($v['comentario_jefe']) ?></td>
-                <td>
-                    <?php if ($v['archivo_adjunto']): ?>
-                        <a href="/ruta/archivos/<?= urlencode($v['archivo_adjunto']) ?>" target="_blank">Ver</a>
-                    <?php else: ?>
-                        -
-                    <?php endif; ?>
-                </td>
+                <td><?= htmlspecialchars($v['id'] ?? '') ?></td>
+                <td><?= htmlspecialchars($v['codigo_empleado'] ?? '') ?></td>
+                <td><?= htmlspecialchars($v['nombre'] ?? '') ?></td>
+                <td><?= htmlspecialchars($v['apellido'] ?? '') ?></td>
+                <td><?= htmlspecialchars($v['fecha_log'] ?? '') ?></td>
+                <td><?= htmlspecialchars($v['descripcion'] ?? '') ?></td>
+                <td><?= htmlspecialchars($v['fecha_inicio'] ?? '') ?></td>
+                <td><?= htmlspecialchars($v['fecha_fin'] ?? '') ?></td>
+                <td><?= htmlspecialchars($v['stat'] ?? '') ?></td>
+                <td><?= htmlspecialchars($v['respuesta_jefe'] ?? '') ?></td>
+                <td><?= htmlspecialchars($v['comentario_jefe'] ?? '') ?></td>
             </tr>
         <?php endforeach; ?>
         </tbody>
