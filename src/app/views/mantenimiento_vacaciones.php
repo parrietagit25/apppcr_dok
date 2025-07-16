@@ -11,7 +11,7 @@ include __DIR__ . '/header.php';
 <div class="container mt-4">
     <h2>Solicitudes de Vacaciones</h2>
     <a href="https://apppcr.net/app/views/exportar_vacaciones_excel.php" target="_BLANK" class="btn btn-success mb-3">Exportar a Excel</a>
-    <table class="table table-bordered table-striped">
+    <table id="tablaSolicitudes" class="table table-bordered table-striped">
         <thead>
             <tr>
                 <th>ID</th>
@@ -46,4 +46,13 @@ include __DIR__ . '/header.php';
         </tbody>
     </table>
 </div>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        $('#tablaSolicitudes').DataTable({
+            language: {
+                url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json"
+            }
+        });
+    });
+</script>
 <?php include __DIR__ . '/footer.php'; ?>
