@@ -26,7 +26,7 @@ try {
 $sql = "
     SELECT 
         sp.id,
-        e.codigo_empleado,
+        e.codigo_empleado AS codigo,
         e.nombre,
         e.apellido,
         sp.fecha_log,
@@ -37,7 +37,7 @@ $sql = "
         sp.stat,
         sp.respuesta_jefe,
         sp.comentario_jefe,
-        sp.archivo_adjunto
+        sp.archivo_adjunto AS file_add
     FROM solicitud_permiso sp
     INNER JOIN empleados e 
         ON CONVERT(e.codigo_empleado USING utf8mb4) COLLATE utf8mb4_unicode_ci = 
@@ -46,15 +46,14 @@ $sql = "
     ORDER BY sp.fecha_log DESC
 ";
 
-
 $stmt = $pdo->prepare($sql);
 $stmt->execute();
-$solicitudes = $stmt->fetchAll();
+$vacaciones = $stmt->fetchAll();
 
 // Crear Excel
 $spreadsheet = new Spreadsheet();
 $sheet = $spreadsheet->getActiveSheet();
-$sheet->setTitle('Solicitudes');
+$sheet->setTitle('Vacaciones');
 
 // Encabezados
 $sheet->fromArray(
@@ -87,7 +86,7 @@ foreach ($vacaciones as $v) {
 
 // Descargar el archivo
 header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-header('Content-Disposition: attachment;filename="vacaciones.xlsx"');
+header('Content-Disposition: attachment;filename=\"vacaciones.xlsx\"');
 header('Cache-Control: max-age=0');
 
 $writer = new Xlsx($spreadsheet);
