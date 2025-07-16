@@ -32,43 +32,63 @@ $sql = "
 $stmt = $pdo->prepare($sql);
 $stmt->execute();
 $vacaciones = $stmt->fetchAll(PDO::FETCH_ASSOC);
+?>
 
-$spreadsheet = new Spreadsheet();
-$sheet = $spreadsheet->getActiveSheet();
-$sheet->setTitle('Vacaciones');
-
-// Encabezados
-$headers = [
-    'ID', 'Código', 'Nombre', 'Apellido', 'Fecha Solicitud', 'Descripción',
-    'Tipo Licencia', 'Fecha Inicio', 'Fecha Fin', 'Estado', 'Respuesta Jefe', 'Comentario Jefe', 'Archivo'
-];
-$sheet->fromArray($headers, NULL, 'A1');
-
-// Datos
-$row = 2;
-foreach ($vacaciones as $v) {
-    $sheet->fromArray([
-        $v['id'],
-        $v['codigo_empleado'],
-        $v['nombre'],
-        $v['apellido'],
-        $v['fecha_log'],
-        $v['descripcion'],
-        $v['tipo_licencia'],
-        $v['fecha_inicio'],
-        $v['fecha_fin'],
-        $v['stat'],
-        $v['respuesta_jefe'],
-        $v['comentario_jefe'],
-        $v['archivo_adjunto']
-    ], NULL, 'A' . $row++);
-}
-
-// Descargar
-header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-header('Content-Disposition: attachment;filename="vacaciones.xlsx"');
-header('Cache-Control: max-age=0');
-
-$writer = new Xlsx($spreadsheet);
-$writer->save('php://output');
-exit;
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Solicitudes de Vacaciones</title>
+    <link rel="stylesheet" href="/public/css/bootstrap.min.css">
+</head>
+<body>
+<div class="container mt-4">
+    <h2>Solicitudes Registradas</h2>
+    <a href="exportar_vacaciones_excel.php" class="btn btn-success mb-3">Exportar a Excel</a>
+    <div class="table-responsive">
+        <table class="table table-bordered table-striped">
+            <thead class="table-dark">
+                <tr>
+                    <th>ID</th>
+                    <th>Código</th>
+                    <th>Nombre</th>
+                    <th>Apellido</th>
+                    <th>Fecha Solicitud</th>
+                    <th>Descripción</th>
+                    <th>Fecha Inicio</th>
+                    <th>Fecha Fin</th>
+                    <th>Estado</th>
+                    <th>Respuesta Jefe</th>
+                    <th>Comentario Jefe</th>
+                    <th>Archivo</th>
+                </tr>
+            </thead>
+            <tbody>
+            <?php foreach ($vacaciones as $v): ?>
+                <tr>
+                    <td><?= htmlspecialchars($v['id'] ?? '') ?></td>
+                    <td><?= htmlspecialchars($v['codigo_empleado'] ?? '') ?></td>
+                    <td><?= htmlspecialchars($v['nombre'] ?? '') ?></td>
+                    <td><?= htmlspecialchars($v['apellido'] ?? '') ?></td>
+                    <td><?= htmlspecialchars($v['fecha_log'] ?? '') ?></td>
+                    <td><?= htmlspecialchars($v['descripcion'] ?? '') ?></td>
+                    <td><?= htmlspecialchars($v['fecha_inicio'] ?? '') ?></td>
+                    <td><?= htmlspecialchars($v['fecha_fin'] ?? '') ?></td>
+                    <td><?= htmlspecialchars($v['stat'] ?? '') ?></td>
+                    <td><?= htmlspecialchars($v['respuesta_jefe'] ?? '') ?></td>
+                    <td><?= htmlspecialchars($v['comentario_jefe'] ?? '') ?></td>
+                    <td>
+                        <?php if (!empty($v['archivo_adjunto'])): ?>
+                            <a href="/ruta/archivos/<?= urlencode($v['archivo_adjunto']) ?>" target="_blank">Ver</a>
+                        <?php else: ?>
+                            -
+                        <?php endif; ?>
+                    </td>
+                </tr>
+            <?php endforeach; ?>
+            </tbody>
+        </table>
+    </div>
+</div>
+</body>
+</html>

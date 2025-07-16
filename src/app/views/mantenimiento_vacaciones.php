@@ -1,47 +1,16 @@
 <?php
-require_once __DIR__ . '/../core/Database.php';
+// app/views/solicitudes_registradas.php
+if (!isset($_SESSION['code'])) {
+    header("Location: salir.php");
+    exit();
+}
 
-$pdo = Database::connect();
-
-// Consulta solo vacaciones
-$sql = "
-    SELECT 
-        sp.id,
-        e.codigo_empleado,
-        e.nombre,
-        e.apellido,
-        sp.fecha_log,
-        sp.descripcion,
-        sp.tipo_licencia,
-        sp.fecha_inicio,
-        sp.fecha_fin,
-        sp.stat,
-        sp.respuesta_jefe,
-        sp.comentario_jefe,
-        sp.archivo_adjunto
-    FROM solicitud_permiso sp
-    INNER JOIN empleados e 
-        ON CONVERT(e.codigo_empleado USING utf8mb4) COLLATE utf8mb4_unicode_ci = 
-           CONVERT(sp.code USING utf8mb4) COLLATE utf8mb4_unicode_ci
-    WHERE sp.tipo_licencia = 'Vacaciones'
-    ORDER BY sp.fecha_log DESC
-";
-$stmt = $pdo->prepare($sql);
-$stmt->execute();
-$vacaciones = $stmt->fetchAll(PDO::FETCH_ASSOC);
+include __DIR__ . '/header.php';
 ?>
 
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <title>Reporte de Vacaciones</title>
-    <link rel="stylesheet" href="/public/css/bootstrap.min.css">
-</head>
-<body>
 <div class="container mt-4">
     <h2>Solicitudes de Vacaciones</h2>
-    <a href="exportar_vacaciones_excel.php" class="btn btn-success mb-3">Exportar a Excel</a>
+    <a href="https://apppcr.net/app/views/exportar_vacaciones_excel.php" target="_BLANK" class="btn btn-success mb-3">Exportar a Excel</a>
     <table class="table table-bordered table-striped">
         <thead>
             <tr>
@@ -85,5 +54,4 @@ $vacaciones = $stmt->fetchAll(PDO::FETCH_ASSOC);
         </tbody>
     </table>
 </div>
-</body>
-</html>
+<?php include __DIR__ . '/footer.php'; ?>
