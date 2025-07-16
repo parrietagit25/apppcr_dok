@@ -85,6 +85,12 @@ if (isset($_GET['mantenimiento_usuarios'])) {
     exit();
 }
 
+if (isset($_GET['mantenimiento_vacaciones'])) {
+    $vacaciones = $class_rrhh->reporte_vacaciones();
+    require_once __DIR__ . '/../views/mantenimiento_vacaciones.php';
+    exit();
+}
+
 if (isset($_GET['cambiar_estado_usuario'])) {
 
     $codigo = $_POST['codigo_empleado'];

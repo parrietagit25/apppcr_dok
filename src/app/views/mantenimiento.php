@@ -49,6 +49,21 @@ include __DIR__ . '/header.php';
                 </div>
             </a>
         </div>
+
+        <div class="col-4">
+            <a href="<?php echo BASE_URL_CONTROLLER; ?>/MainController.php?mantenimiento_vacaciones=1" class="text-decoration-none">
+                <div class="p-2">
+                    <!-- Usa la opción que prefieras -->
+                    <img src="<?php echo BASE_URL_IMAGE; ?>vacaciones.png" alt="Vacaciones" class="mb-2" width="50">
+                    <!-- O FontAwesome -->
+                    <!-- <i class="fas fa-umbrella-beach mb-2" style="font-size:50px;color:#f4b400;"></i> -->
+                    <!-- O Emoji -->
+                    <!-- <div style="font-size:50px;">🏖️</div> -->
+                    <p>Vacaciones</p>
+                </div>
+            </a>
+        </div>
+
         <?php } ?>
     <br>
     <br><br><br><br>

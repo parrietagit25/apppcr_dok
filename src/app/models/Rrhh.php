@@ -1110,6 +1110,32 @@ class Rrhh {
         return (int) $stmt->fetchColumn();
     }
 
+    public function reporte_vacaciones(){
+        $sql = "SELECT 
+                    sp.id,
+                    e.codigo_empleado,
+                    e.nombre,
+                    e.apellido,
+                    sp.fecha_log,
+                    sp.descripcion,
+                    sp.tipo_licencia,
+                    sp.fecha_inicio,
+                    sp.fecha_fin,
+                    sp.stat,
+                    sp.respuesta_jefe,
+                    sp.comentario_jefe,
+                    sp.archivo_adjunto
+                FROM solicitud_permiso sp
+                INNER JOIN empleados e 
+                    ON CONVERT(e.codigo_empleado USING utf8mb4) COLLATE utf8mb4_unicode_ci = 
+                    CONVERT(sp.code USING utf8mb4) COLLATE utf8mb4_unicode_ci
+                WHERE sp.tipo_licencia = 'Vacaciones'
+                ORDER BY sp.fecha_log DESC";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
 }
 
 
