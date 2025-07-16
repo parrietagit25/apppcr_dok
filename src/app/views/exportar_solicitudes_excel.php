@@ -57,7 +57,7 @@ $sql = "
     UNION ALL
 
     SELECT 
-        'Permiso' AS tipo,
+        sp.tipo_licencia AS tipo,
         e.codigo_empleado AS codigo,
         e.nombre,
         e.apellido,
