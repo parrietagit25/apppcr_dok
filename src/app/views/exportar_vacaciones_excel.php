@@ -1,11 +1,27 @@
 <?php
 require '../../vendor/autoload.php';
-require_once __DIR__ . '/../core/Database.php';
 
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
-$pdo = Database::connect();
+// Configuración de conexión
+$host = 'db';
+$db   = 'apppcr';
+$user = 'appuser';
+$pass = 'apppass';
+$charset = 'utf8mb4';
+
+$dsn = "mysql:host=$host;dbname=$db;charset=$charset";
+$options = [
+    PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
+    PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+];
+
+try {
+    $pdo = new PDO($dsn, $user, $pass, $options);
+} catch (\PDOException $e) {
+    die("Error de conexión: " . $e->getMessage());
+}
 
 $sql = "
     SELECT 
@@ -29,66 +45,51 @@ $sql = "
     WHERE sp.tipo_licencia = 'Vacaciones'
     ORDER BY sp.fecha_log DESC
 ";
+
+
 $stmt = $pdo->prepare($sql);
 $stmt->execute();
-$vacaciones = $stmt->fetchAll(PDO::FETCH_ASSOC);
-?>
+$solicitudes = $stmt->fetchAll();
 
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <title>Solicitudes de Vacaciones</title>
-    <link rel="stylesheet" href="/public/css/bootstrap.min.css">
-</head>
-<body>
-<div class="container mt-4">
-    <h2>Solicitudes Registradas</h2>
-    <a href="exportar_vacaciones_excel.php" class="btn btn-success mb-3">Exportar a Excel</a>
-    <div class="table-responsive">
-        <table class="table table-bordered table-striped">
-            <thead class="table-dark">
-                <tr>
-                    <th>ID</th>
-                    <th>Código</th>
-                    <th>Nombre</th>
-                    <th>Apellido</th>
-                    <th>Fecha Solicitud</th>
-                    <th>Descripción</th>
-                    <th>Fecha Inicio</th>
-                    <th>Fecha Fin</th>
-                    <th>Estado</th>
-                    <th>Respuesta Jefe</th>
-                    <th>Comentario Jefe</th>
-                    <th>Archivo</th>
-                </tr>
-            </thead>
-            <tbody>
-            <?php foreach ($vacaciones as $v): ?>
-                <tr>
-                    <td><?= htmlspecialchars($v['id'] ?? '') ?></td>
-                    <td><?= htmlspecialchars($v['codigo_empleado'] ?? '') ?></td>
-                    <td><?= htmlspecialchars($v['nombre'] ?? '') ?></td>
-                    <td><?= htmlspecialchars($v['apellido'] ?? '') ?></td>
-                    <td><?= htmlspecialchars($v['fecha_log'] ?? '') ?></td>
-                    <td><?= htmlspecialchars($v['descripcion'] ?? '') ?></td>
-                    <td><?= htmlspecialchars($v['fecha_inicio'] ?? '') ?></td>
-                    <td><?= htmlspecialchars($v['fecha_fin'] ?? '') ?></td>
-                    <td><?= htmlspecialchars($v['stat'] ?? '') ?></td>
-                    <td><?= htmlspecialchars($v['respuesta_jefe'] ?? '') ?></td>
-                    <td><?= htmlspecialchars($v['comentario_jefe'] ?? '') ?></td>
-                    <td>
-                        <?php if (!empty($v['archivo_adjunto'])): ?>
-                            <a href="/ruta/archivos/<?= urlencode($v['archivo_adjunto']) ?>" target="_blank">Ver</a>
-                        <?php else: ?>
-                            -
-                        <?php endif; ?>
-                    </td>
-                </tr>
-            <?php endforeach; ?>
-            </tbody>
-        </table>
-    </div>
-</div>
-</body>
-</html>
+// Crear Excel
+$spreadsheet = new Spreadsheet();
+$sheet = $spreadsheet->getActiveSheet();
+$sheet->setTitle('Solicitudes');
+
+// Encabezados
+$sheet->fromArray(
+    [
+        'ID', 'Código', 'Nombre', 'Apellido', 'Fecha Solicitud', 'Descripción',
+        'Tipo Licencia', 'Fecha Inicio', 'Fecha Fin', 'Estado', 'Respuesta Jefe', 'Comentario Jefe', 'Archivo'
+    ],
+    NULL,
+    'A1'
+);
+
+// Llenar datos
+$row = 2;
+foreach ($vacaciones as $v) {
+    $sheet->setCellValue("A$row", $v['id']);
+    $sheet->setCellValue("B$row", $v['codigo']);
+    $sheet->setCellValue("C$row", $v['nombre']);
+    $sheet->setCellValue("D$row", $v['apellido']);
+    $sheet->setCellValue("E$row", $v['fecha_log']);
+    $sheet->setCellValue("F$row", $v['descripcion']);
+    $sheet->setCellValue("G$row", $v['tipo_licencia']);
+    $sheet->setCellValue("H$row", $v['fecha_inicio']);
+    $sheet->setCellValue("I$row", $v['fecha_fin']);
+    $sheet->setCellValue("J$row", $v['stat']);
+    $sheet->setCellValue("K$row", $v['respuesta_jefe']);
+    $sheet->setCellValue("L$row", $v['comentario_jefe']);
+    $sheet->setCellValue("M$row", $v['file_add']);
+    $row++;
+}
+
+// Descargar el archivo
+header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+header('Content-Disposition: attachment;filename="vacaciones.xlsx"');
+header('Cache-Control: max-age=0');
+
+$writer = new Xlsx($spreadsheet);
+$writer->save('php://output');
+exit;
