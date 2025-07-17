@@ -492,6 +492,7 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
         $fin = new DateTime($fecha_fin);
         $diferencia = $inicio->diff($fin);
         $cantidad_dias = $diferencia->days;
+        $cantidad_dias = $cantidad_dias + 1;
 
         $mensaje = '
         <h4 style="color:rgb(250, 11, 2);">Aprobación pendiente: Solicitud de permiso de colaborador </h4>
