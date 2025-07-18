@@ -105,8 +105,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             Ha solicitado un permiso tipo vacaciones.<br>
             La respuesta de su jefe directo fue: <strong>' . $mensaje_email . '</strong><br>';
 
-            $copiacoo = ["pedro.arrieta@grupopcr.com.pa", "abi.pineda@grupopcr.com.pa", "sofia.macias@grupopcr.com.pa"];
-            
+            //$copiacoo = ["pedro.arrieta@grupopcr.com.pa", "abi.pineda@grupopcr.com.pa", "sofia.macias@grupopcr.com.pa"];
+            $copiacoo = ["abi.pineda@grupopcr.com.pa", "sofia.macias@grupopcr.com.pa"];
+
             enviar_correo($email, $copiacoo, "Respuesta a la solicitud de permiso", $mensaje_mail);
         }
         
