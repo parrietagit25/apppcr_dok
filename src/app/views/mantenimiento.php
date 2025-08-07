@@ -22,7 +22,7 @@ include __DIR__ . '/header.php';
 
     <div class="row text-center mb-4">
         
-        <?php if ($tipo_usuario == 1 || $tipo_usuario == 4) { ?>
+        <?php if ($tipo_usuario == 1 || $tipo_usuario == 4 || $tipo_usuario == 5) { ?>
         <div class="col-4">
             <a href="<?php echo BASE_URL_CONTROLLER; ?>/MainController.php?mantenimiento_usuarios=1" class="text-decoration-none">
                 <div class="p-2">

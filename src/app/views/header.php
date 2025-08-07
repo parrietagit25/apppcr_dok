@@ -200,7 +200,7 @@
                     <li class="nav-item">
                         <a class="nav-link" href="#">Contacto</a>
                     </li> -->
-                    <?php if ($tipo_usuario == 1 || $tipo_usuario == 4) { ?>
+                    <?php if ($tipo_usuario == 1 || $tipo_usuario == 4 || $tipo_usuario == 5) { ?>
                         <li class="nav-item">
                             <a class="nav-link" href="<?php echo BASE_URL_CONTROLLER; ?>MainController.php?mantenimineto=1">Mantenimiento</a>
                         </li>
