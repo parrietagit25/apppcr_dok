@@ -579,6 +579,7 @@ class Rrhh {
             WHERE MONTH(fecha_nacimiento) = MONTH(CURDATE())
             AND DAY(fecha_nacimiento) >= DAY(CURDATE())
             AND estatus_empleado = 'A'
+            AND codigo_empleado not in('002567')
 
             UNION ALL
 
