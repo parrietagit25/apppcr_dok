@@ -24,20 +24,6 @@ include __DIR__ . '/header.php';
     <iframe src="https://embed.kumu.io/ea1c28614ef97a7b78a3adb433b22db1" width="100%" height="600" frameborder="0"></iframe>
     </div>
 
-    <!-- GESTIÓN DE TIEMPO Y AUSENCIAS -->
-    <div class="bg-white p-3 rounded shadow-sm mb-4">
-
-    </div>
-
-    <!-- Vacantes -->
-    <div class="bg-white p-3 rounded shadow-sm mb-4 d-flex align-items-center justify-content-between">
-
-    </div>
-
-    <div class="card my-3">
-
-    </div>
-
     <br>
     <br>
     <br>
