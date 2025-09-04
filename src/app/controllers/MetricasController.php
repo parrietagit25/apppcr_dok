@@ -68,4 +68,9 @@ if (isset($_GET['metricas'])) {
     exit();
 }
 
+if (isset($_GET['organigrama'])) {
+    require_once __DIR__ . '/../views/organigrama.php';
+    exit();
+}
+
 require_once __DIR__ . '/../views/metricas.php';
