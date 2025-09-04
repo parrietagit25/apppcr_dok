@@ -21,7 +21,7 @@ include __DIR__ . '/header.php';
 
     <!-- INFORMACIÓN PERSONAL -->
     <div class="bg-white p-3 rounded shadow-sm mb-4">
-    <iframe src="https://embed.kumu.io/ea1c28614ef97a7b78a3adb433b22db1" width="940" height="600" frameborder="0"></iframe>
+    <iframe src="https://embed.kumu.io/ea1c28614ef97a7b78a3adb433b22db1" width="100%" height="600" frameborder="0"></iframe>
     </div>
 
     <!-- GESTIÓN DE TIEMPO Y AUSENCIAS -->
