@@ -138,9 +138,9 @@ if (isset($_GET['mantenimiento_usuarios_no_listados'])) {
         $resultado = $userSimple->registrar_usuario_simple($codigo, $nombre, $apellido, $fecha_nacimiento, $password, $cedula, $email, $telefono1, $nombre_departamento, $nombre_cargo, $fecha_ingreso, $salario_pactado, $estatus_empleado, $seguro_social, $sexo, $nacionalidad, $stat, $type_user);
 
         if ($resultado) {
-            echo "<div class='alert alert-success'>Usuario registrado exitosamente.</div>";
+            echo "<div class='alert alert-success'>Usuario registrado exitosamente como externo.</div>";
         } else {
-            echo "<div class='alert alert-danger'>Error al registrar el usuario. Verifique que el campo 'es_externo' existe en la tabla empleados y que todos los campos requeridos estén presentes.</div>";
+            echo "<div class='alert alert-danger'>Error al registrar el usuario. Verifique que todos los campos requeridos estén presentes y que el código no esté duplicado.</div>";
         }
     }
 
