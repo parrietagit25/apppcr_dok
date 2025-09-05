@@ -1,5 +1,5 @@
 <?php
-// Test minimal para verificar inserción
+// Test con inserción mínima - solo campos esenciales
 require_once 'config/config.php';
 require_once 'app/core/Database.php';
 
@@ -9,75 +9,32 @@ try {
     $test_code = 'TEST' . time();
     $nombre = 'Test';
     $apellido = 'User';
-    $fecha_nacimiento = '1990-01-01';
-    $cedula = '123456789';
-    $email = 'test@test.com';
-    $telefono1 = '1234567890';
-    $nombre_departamento = 'IT';
-    $nombre_cargo = 'Desarrollador';
-    $fecha_ingreso = '2024-01-01';
-    $salario_pactado = 1000.00;
-    $estatus_empleado = 'A';
-    $seguro_social = '123456789';
-    $sexo = 'M';
-    $nacionalidad = 'Panameña';
     
-    echo "<h3>Probando inserción minimal:</h3>";
+    echo "<h3>Probando inserción mínima:</h3>";
     
-    // Solo los campos esenciales con placeholders
+    // SQL ultra simple - solo campos básicos
     $sql = "INSERT INTO empleados (
-        codigo_empleado, nombre, apellido, fecha_nacimiento, cedula, email, 
-        telefono1, nombre_departamento, nombre_cargo, fecha_ingreso, 
-        salario_pactado, estatus_empleado, seguro_social, sexo, nacionalidad, 
-        es_externo,
-        ncodcia, codigo_horario, tarjeta_reloj, dv, cedula_rep_empleador, 
-        cedula_reportada, estado_civil, grupo_isr, cantidad_dependientes, 
-        tipo_empleado, tipo_sangre, direccion1, direccion2, apartado_postal, 
-        telefono2, extension_telefono, tipo_salario, horas_regulares, 
-        horas_st_acumuladas, salario_hora, metodo_calculo_isr, 
-        hace_declaracion_renta, grupo_pago, codigo_sucursal, codigo_departamento, 
-        codigo_division, codigo_centro_costo, codigo_proyecto, codigo_fase, 
-        forma_pago, dias_no_trabajados, dias_licencia, pertenece_sindicato, 
-        tipo_trabajador, tipo_cuenta, numero_cuenta_ach, numero_banco, 
-        subcuenta_mayor_general, referencia_deposito_direc, tiene_vale, 
-        es_pasaporte, codigo_custom1, codigo_custom2, codigo_custom3, 
-        es_jefe_cuadrilla, es_marino, observaciones, codigo_cargo, 
-        codigo_emp_interface1, codigo_emp_interface2
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 
-        1, '000000', '000000000000000000', '00', '00000000000000000', 
-        '00000000000000000', 'S', '1', 0, '1', 'O+', 'Dirección por defecto', 
-        '', '', 'usuario@empresa.com', '0000000000', '0000000000', '1', 
-        8.00, 0.00, 0.00, '1', 0, '000000', '001', '000000', '000000', 
-        '000000', '0000000000000000000000000', '0000000000000000000000000', 
-        '1', 0, 0, 0, 0, '1', '1', '00000000000000000000', '000000000', 
-        '000000', '000000000000000', 0, 0, '000000000000000000000000000000', 
-        '000000000000000000000000000000', '000000000000000000000000000000', 
-        0, 0, 'Sin observaciones', '000000', '000000000000000000000000000000', 
-        '000000000000000000000000000000')";
+        codigo_empleado, 
+        nombre, 
+        apellido, 
+        es_externo
+    ) VALUES (?, ?, ?, ?)";
     
-    // Contar placeholders
-    $placeholder_count = substr_count($sql, '?');
-    echo "<p>Número de placeholders (?): " . $placeholder_count . "</p>";
+    echo "<p>SQL: " . $sql . "</p>";
+    echo "<p>4 columnas, 4 placeholders - debería funcionar</p>";
     
     $stmt = $pdo->prepare($sql);
+    $params = [$test_code, $nombre, $apellido, 1];
     
-    // Array con exactamente 16 parámetros
-    $params = [
-        $test_code, $nombre, $apellido, $fecha_nacimiento, $cedula, $email,
-        $telefono1, $nombre_departamento, $nombre_cargo, $fecha_ingreso,
-        $salario_pactado, $estatus_empleado, $seguro_social, $sexo, $nacionalidad
-    ];
-    
-    echo "<p>Número de parámetros: " . count($params) . "</p>";
     echo "<p>Parámetros: " . implode(', ', $params) . "</p>";
     
     $result = $stmt->execute($params);
     
     if ($result) {
-        echo "<p style='color: green;'>✅ Inserción exitosa!</p>";
+        echo "<p style='color: green;'>✅ Inserción mínima exitosa!</p>";
         
         // Verificar que se insertó
-        $stmt = $pdo->prepare("SELECT * FROM empleados WHERE codigo_empleado = ?");
+        $stmt = $pdo->prepare("SELECT codigo_empleado, nombre, apellido, es_externo FROM empleados WHERE codigo_empleado = ?");
         $stmt->execute([$test_code]);
         $user = $stmt->fetch(PDO::FETCH_ASSOC);
         
@@ -90,11 +47,15 @@ try {
         $stmt = $pdo->prepare("DELETE FROM empleados WHERE codigo_empleado = ?");
         $stmt->execute([$test_code]);
         echo "<p>Registro de prueba eliminado.</p>";
+        
+        echo "<p style='color: green; font-weight: bold;'>🎉 ¡La inserción básica funciona! Ahora probemos con más campos.</p>";
+        
     } else {
-        echo "<p style='color: red;'>❌ Error en inserción.</p>";
+        echo "<p style='color: red;'>❌ Error en inserción mínima.</p>";
     }
     
 } catch (Exception $e) {
     echo "<p style='color: red;'>❌ Error: " . $e->getMessage() . "</p>";
+    echo "<p>Detalles: " . $e->getTraceAsString() . "</p>";
 }
 ?>
