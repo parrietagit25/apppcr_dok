@@ -25,6 +25,7 @@ include __DIR__ . '/header.php';
     </div>
 
     <?php print_r($_SESSION); ?>
+    <?php print_r($tipo_usuario); ?>
 
     <table id="tablaCalamidades" class="table table-bordered table-striped">
         <thead class="table-dark text-center">
