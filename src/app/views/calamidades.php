@@ -24,6 +24,8 @@ include __DIR__ . '/header.php';
         </button>
     </div>
 
+    <?php print_r($_SESSION); ?>
+
     <table id="tablaCalamidades" class="table table-bordered table-striped">
         <thead class="table-dark text-center">
             <tr>
