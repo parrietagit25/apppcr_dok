@@ -15,18 +15,13 @@ class User {
         try {
             $stmt = $this->pdo->prepare("SELECT el.pass
                                             FROM   empleado_log el
-                                            JOIN   empleados    e   ON e.codigo_empleado = el.codigo
+                                            LEFT JOIN   empleados    e   ON e.codigo_empleado = el.codigo
+                                            LEFT JOIN   encargados_colab ec ON ec.code_empleado = el.codigo
                                             WHERE  el.codigo = :code
                                             AND  el.stat  = 1
                                             AND (
-                                                e.estatus_empleado IN ('A','V')
-                                                OR EXISTS (
-                                                    SELECT 1
-                                                    FROM   usuarios_fuera_planilla ufp
-                                                    WHERE  ufp.codigo_empleado COLLATE utf8mb4_unicode_ci
-                                                                = e.codigo_empleado COLLATE utf8mb4_unicode_ci
-                                                        AND  ufp.stat = 1
-                                                )
+                                                (e.estatus_empleado IN ('A','V') AND el.type_user IN (1,2,4,5))
+                                                OR (ec.code_empleado IS NOT NULL AND el.type_user = 6)
                                             )");
                                                 
             $stmt->bindParam(':code', $code, PDO::PARAM_STR);
@@ -53,7 +48,7 @@ class User {
     }
 
 
-public function nombre_colaborador() {
+    public function nombre_colaborador() {
     $code = $_SESSION['code'];
 
     // Buscar primero en la tabla de empleados normal
@@ -65,8 +60,8 @@ public function nombre_colaborador() {
         return $row['nombre']; //. ' ' . $row['apellido'];
     }
 
-    // Si no se encuentra, buscar en colaboradores_externos
-    $stmt = $this->pdo->prepare("SELECT nombre, apellido FROM colaboradores_externos WHERE codigo_empleado = :code");
+    // Si no se encuentra, buscar en encargados_colab (usuarios fuera de planilla)
+    $stmt = $this->pdo->prepare("SELECT nombre, apellido FROM encargados_colab WHERE code_empleado = :code");
     $stmt->bindParam(':code', $code, PDO::PARAM_STR);
     $stmt->execute();
 
@@ -185,26 +180,26 @@ public function nombre_colaborador() {
     }
 
     public function usuarios_no_listados(){
-        $stmt = $this->pdo->prepare("SELECT * FROM empleado_log el inner join colaboradores_externos e on el.codigo = e.codigo_empleado WHERE el.stat = 1");
+        $stmt = $this->pdo->prepare("SELECT * FROM empleado_log el inner join encargados_colab e on el.codigo = e.code_empleado WHERE el.stat = 1 AND el.type_user = 6");
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public function editar_usuario($code, $nombre, $apellido, $fecha_nacimiento) {
-        $sql = "UPDATE colaboradores_externos SET nombre = ?, apellido = ?, fecha_nacimiento = ? WHERE codigo_empleado = ?";
+    public function editar_usuario($code, $nombre, $apellido, $departamento, $email, $gerente_area) {
+        $sql = "UPDATE encargados_colab SET nombre = ?, apellido = ?, departamento = ?, email = ?, gerente_area = ? WHERE code_empleado = ?";
         $stmt = $this->pdo->prepare($sql);
-        return $stmt->execute([$nombre, $apellido, $fecha_nacimiento, $code]);
+        return $stmt->execute([$nombre, $apellido, $departamento, $email, $gerente_area, $code]);
     }
 
-    public function registrar_usuario_no_listado($codigo, $nombre, $apellido, $fecha_nacimiento, $password, $stat = 1, $type_user = 2){
+    public function registrar_usuario_no_listado($codigo, $nombre, $apellido, $departamento, $email, $gerente_area, $password, $stat = 1, $type_user = 6){
 
         try {
             $this->pdo->beginTransaction();
 
-            // Insertar en colaboradores_externos
-            $stmt1 = $this->pdo->prepare("INSERT INTO colaboradores_externos (codigo_empleado, nombre, apellido, fecha_nacimiento) 
-                                        VALUES (?, ?, ?, ?)");
-            $stmt1->execute([$codigo, $nombre, $apellido, $fecha_nacimiento]);
+            // Insertar en encargados_colab
+            $stmt1 = $this->pdo->prepare("INSERT INTO encargados_colab (code_empleado, nombre, apellido, departamento, email, gerente_area) 
+                                        VALUES (?, ?, ?, ?, ?, ?)");
+            $stmt1->execute([$codigo, $nombre, $apellido, $departamento, $email, $gerente_area]);
 
             // Encriptar contraseña
             $pass_hash = password_hash($password, PASSWORD_BCRYPT);
