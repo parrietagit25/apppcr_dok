@@ -44,6 +44,8 @@ class UserSimple {
         } catch (Exception $e) {
             $this->pdo->rollBack();
             error_log("Error al registrar usuario simple: " . $e->getMessage());
+            error_log("Código SQL: " . $e->getCode());
+            error_log("Detalles: " . $e->getTraceAsString());
             return false;
         }
     }
