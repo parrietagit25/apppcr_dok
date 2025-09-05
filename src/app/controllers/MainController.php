@@ -132,12 +132,15 @@ if (isset($_GET['mantenimiento_usuarios_no_listados'])) {
         $stat = 1;
         $type_user = 2;
 
-        $resultado = $userModel->registrar_usuario_completo($codigo, $nombre, $apellido, $fecha_nacimiento, $password, $cedula, $email, $telefono1, $telefono2, $direccion1, $estado_civil, $nombre_departamento, $nombre_cargo, $fecha_ingreso, $salario_pactado, $estatus_empleado, $seguro_social, $sexo, $nacionalidad, $stat, $type_user);
+        // Usar versión simplificada que maneja campos NOT NULL
+        require_once __DIR__ . '/../models/User_simple.php';
+        $userSimple = new UserSimple($pdo);
+        $resultado = $userSimple->registrar_usuario_simple($codigo, $nombre, $apellido, $fecha_nacimiento, $password, $cedula, $email, $telefono1, $nombre_departamento, $nombre_cargo, $fecha_ingreso, $salario_pactado, $estatus_empleado, $seguro_social, $sexo, $nacionalidad, $stat, $type_user);
 
         if ($resultado) {
             echo "<div class='alert alert-success'>Usuario registrado exitosamente.</div>";
         } else {
-            echo "<div class='alert alert-danger'>Error al registrar el usuario.</div>";
+            echo "<div class='alert alert-danger'>Error al registrar el usuario. Verifique que el campo 'es_externo' existe en la tabla empleados y que todos los campos requeridos estén presentes.</div>";
         }
     }
 

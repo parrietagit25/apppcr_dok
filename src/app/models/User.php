@@ -277,6 +277,9 @@ public function nombre_colaborador() {
 
         } catch (Exception $e) {
             $this->pdo->rollBack();
+            // Log del error para debugging
+            error_log("Error al registrar usuario completo: " . $e->getMessage());
+            error_log("Código: " . $codigo . ", Nombre: " . $nombre);
             return false;
         }
     }
