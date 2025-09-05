@@ -18,15 +18,16 @@ class UserSimple {
                 sexo, seguro_social, nacionalidad, email, telefono1, estatus_empleado, 
                 salario_pactado, nombre_departamento, nombre_centro_costo, 
                 nombre_division, nombre_proyecto, nombre_fase, nombre_sucursal, 
-                nombre_cargo, fecha_nacimiento, fecha_ingreso
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                nombre_cargo, observaciones, fecha_nacimiento, fecha_ingreso
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
             
-            // 22 parámetros para los campos NOT NULL
+            // 23 parámetros para los campos NOT NULL
             $stmt1->execute([
                 $codigo, $nombre, $apellido, 1, 1, $cedula,  // es_externo=1, ncodcia=1
                 $sexo, $seguro_social, $nacionalidad, $email, $telefono1, $estatus_empleado,
                 $salario_pactado, $nombre_departamento, 'Centro Costo', 'División', 
-                'Proyecto', 'Fase', 'Sucursal', $nombre_cargo, $fecha_nacimiento, $fecha_ingreso
+                'Proyecto', 'Fase', 'Sucursal', $nombre_cargo, 'Sin observaciones', 
+                $fecha_nacimiento, $fecha_ingreso
             ]);
 
             // Encriptar contraseña
