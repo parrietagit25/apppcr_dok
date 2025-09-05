@@ -238,51 +238,149 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $conn->commit(); // COMMIT para temp_empleados
             escribir_log("Transacción COMMIT para `{$tabla_temporal}`. Filas intentadas: {$filas_intentadas_temp}. Insertadas: {$filas_realmente_insertadas_temp}. Ignoradas: {$filas_ignoradas_temp}.", 'INFO');
             
-            // --- INICIO: Transferencia a Tabla de Producción ---
-            escribir_log("Iniciando transferencia de datos de `{$tabla_temporal}` a `{$tabla_produccion}`.", 'INFO');
+            // --- INICIO: UPSERT a Tabla de Producción (SIN BORRAR DATOS EXISTENTES) ---
+            escribir_log("Iniciando UPSERT de datos de `{$tabla_temporal}` a `{$tabla_produccion}`.", 'INFO');
             
             if ($filas_realmente_insertadas_temp > 0 || ($filas_intentadas_temp > 0 && $filas_ignoradas_temp == $filas_intentadas_temp && empty($data) == false )) { 
                 // Proceder si se insertaron filas O si se intentaron filas y todas fueron ignoradas (lo que significa que temp_empleados podría no estar vacía si hubo datos previos válidos)
-                // Una comprobación más simple es si temp_empleados no está vacía, pero usemos las filas insertadas por ahora.
-                // O, mejor aún, solo proceder si la carga a temporal se considera "exitosa en su conjunto",
-                // y si `temp_empleados` efectivamente tiene datos que transferir.
-                // El `INSERT IGNORE` significa que `$errores_carga_temporal` estará vacío si solo hubo duplicados.
 
                 $conn->begin_transaction(); // Nueva transacción para la tabla de producción
-                escribir_log("Iniciando transacción para `{$tabla_produccion}`.", 'INFO');
+                escribir_log("Iniciando transacción UPSERT para `{$tabla_produccion}`.", 'INFO');
                 try {
-                    escribir_log("Truncando tabla de producción: `{$tabla_produccion}`", 'INFO');
-                    if (!$conn->query("TRUNCATE TABLE `{$tabla_produccion}`")) {
-                        throw new Exception("Error al truncar `{$tabla_produccion}`: " . $conn->error);
-                    }
-                    escribir_log("Tabla `{$tabla_produccion}` truncada exitosamente.", 'INFO');
+                    // NO TRUNCAR - Mantener datos existentes que no vienen en el pase
+                    escribir_log("Manteniendo datos existentes en `{$tabla_produccion}` - Solo actualizando/insertando registros del pase.", 'INFO');
 
-                    $sql_transfer = "INSERT INTO `{$tabla_produccion}` ({$sql_column_names_string}) SELECT {$sql_column_names_string} FROM `{$tabla_temporal}`";
-                    escribir_log("Ejecutando transferencia: {$sql_transfer}", 'DEBUG');
+                    // Crear sentencia UPSERT que actualiza si existe, inserta si no existe
+                    $sql_upsert = "INSERT INTO `{$tabla_produccion}` ({$sql_column_names_string}) 
+                                   SELECT {$sql_column_names_string} FROM `{$tabla_temporal}`
+                                   ON DUPLICATE KEY UPDATE 
+                                       nombre = VALUES(nombre),
+                                       apellido = VALUES(apellido),
+                                       fecha_nacimiento = VALUES(fecha_nacimiento),
+                                       cedula = VALUES(cedula),
+                                       dv = VALUES(dv),
+                                       cedula_rep_empleador = VALUES(cedula_rep_empleador),
+                                       cedula_reportada = VALUES(cedula_reportada),
+                                       estado_civil = VALUES(estado_civil),
+                                       sexo = VALUES(sexo),
+                                       seguro_social = VALUES(seguro_social),
+                                       grupo_isr = VALUES(grupo_isr),
+                                       cantidad_dependientes = VALUES(cantidad_dependientes),
+                                       tipo_empleado = VALUES(tipo_empleado),
+                                       nacionalidad = VALUES(nacionalidad),
+                                       tipo_sangre = VALUES(tipo_sangre),
+                                       direccion1 = VALUES(direccion1),
+                                       direccion2 = VALUES(direccion2),
+                                       apartado_postal = VALUES(apartado_postal),
+                                       email = VALUES(email),
+                                       telefono1 = VALUES(telefono1),
+                                       telefono2 = VALUES(telefono2),
+                                       extension_telefono = VALUES(extension_telefono),
+                                       estatus_empleado = VALUES(estatus_empleado),
+                                       tipo_salario = VALUES(tipo_salario),
+                                       horas_regulares = VALUES(horas_regulares),
+                                       horas_st_acumuladas = VALUES(horas_st_acumuladas),
+                                       salario_pactado = VALUES(salario_pactado),
+                                       salario_hora = VALUES(salario_hora),
+                                       metodo_calculo_isr = VALUES(metodo_calculo_isr),
+                                       monto_isr_fijo_salario = VALUES(monto_isr_fijo_salario),
+                                       isr_adicional = VALUES(isr_adicional),
+                                       hace_declaracion_renta = VALUES(hace_declaracion_renta),
+                                       porc_max_descuentos = VALUES(porc_max_descuentos),
+                                       otros_ingreso1 = VALUES(otros_ingreso1),
+                                       otros_ingreso2 = VALUES(otros_ingreso2),
+                                       otros_ingreso3 = VALUES(otros_ingreso3),
+                                       monto_ajuste = VALUES(monto_ajuste),
+                                       horas_ajuste = VALUES(horas_ajuste),
+                                       gasto_representacion = VALUES(gasto_representacion),
+                                       transporte = VALUES(transporte),
+                                       viaticos = VALUES(viaticos),
+                                       otros_gastos1 = VALUES(otros_gastos1),
+                                       otros_gastos2 = VALUES(otros_gastos2),
+                                       otros_gastos3 = VALUES(otros_gastos3),
+                                       otros_gastos4 = VALUES(otros_gastos4),
+                                       otros_gastos5 = VALUES(otros_gastos5),
+                                       grupo_pago = VALUES(grupo_pago),
+                                       codigo_sucursal = VALUES(codigo_sucursal),
+                                       codigo_departamento = VALUES(codigo_departamento),
+                                       codigo_division = VALUES(codigo_division),
+                                       codigo_centro_costo = VALUES(codigo_centro_costo),
+                                       codigo_proyecto = VALUES(codigo_proyecto),
+                                       codigo_fase = VALUES(codigo_fase),
+                                       forma_pago = VALUES(forma_pago),
+                                       fecha_ingreso = VALUES(fecha_ingreso),
+                                       fecha_vence_contrato = VALUES(fecha_vence_contrato),
+                                       fecha_liquidacion = VALUES(fecha_liquidacion),
+                                       fecha_ultimo_aumento = VALUES(fecha_ultimo_aumento),
+                                       dias_no_trabajados = VALUES(dias_no_trabajados),
+                                       dias_licencia = VALUES(dias_licencia),
+                                       fecha_vac_inicia = VALUES(fecha_vac_inicia),
+                                       fecha_vac_final = VALUES(fecha_vac_final),
+                                       vac_dinero_fecha_hasta = VALUES(vac_dinero_fecha_hasta),
+                                       vac_tiempo_fecha_hasta = VALUES(vac_tiempo_fecha_hasta),
+                                       ultimo_dia_pagado = VALUES(ultimo_dia_pagado),
+                                       ultima_modificacion = VALUES(ultima_modificacion),
+                                       pertenece_sindicato = VALUES(pertenece_sindicato),
+                                       tipo_trabajador = VALUES(tipo_trabajador),
+                                       tipo_cuenta = VALUES(tipo_cuenta),
+                                       numero_cuenta_ach = VALUES(numero_cuenta_ach),
+                                       numero_banco = VALUES(numero_banco),
+                                       subcuenta_mayor_general = VALUES(subcuenta_mayor_general),
+                                       referencia_deposito_direc = VALUES(referencia_deposito_direc),
+                                       tiene_vale = VALUES(tiene_vale),
+                                       es_pasaporte = VALUES(es_pasaporte),
+                                       codigo_custom1 = VALUES(codigo_custom1),
+                                       codigo_custom2 = VALUES(codigo_custom2),
+                                       codigo_custom3 = VALUES(codigo_custom3),
+                                       es_jefe_cuadrilla = VALUES(es_jefe_cuadrilla),
+                                       es_marino = VALUES(es_marino),
+                                       observaciones = VALUES(observaciones),
+                                       monto_isr_fijo_gastorep = VALUES(monto_isr_fijo_gastorep),
+                                       numero_banco_ach = VALUES(numero_banco_ach),
+                                       codigo_cargo = VALUES(codigo_cargo),
+                                       codigo_emp_interface1 = VALUES(codigo_emp_interface1),
+                                       codigo_emp_interface2 = VALUES(codigo_emp_interface2),
+                                       monto_vale = VALUES(monto_vale),
+                                       nombre_departamento = VALUES(nombre_departamento),
+                                       nombre_centro_costo = VALUES(nombre_centro_costo),
+                                       nombre_division = VALUES(nombre_division),
+                                       nombre_proyecto = VALUES(nombre_proyecto),
+                                       nombre_fase = VALUES(nombre_fase),
+                                       nombre_sucursal = VALUES(nombre_sucursal),
+                                       nombre_cargo = VALUES(nombre_cargo),
+                                       fondo_incapacidad = VALUES(fondo_incapacidad),
+                                       salario_acu_vacacion = VALUES(salario_acu_vacacion),
+                                       gasto_rep_acu_vacacion = VALUES(gasto_rep_acu_vacacion),
+                                       dias_vaca_acu_tiempo = VALUES(dias_vaca_acu_tiempo),
+                                       salario_acu_xiii = VALUES(salario_acu_xiii),
+                                       gasto_rep_acu_xiii = VALUES(gasto_rep_acu_xiii),
+                                       dias_vaca_acu_dinero = VALUES(dias_vaca_acu_dinero)";
                     
-                    if (!$conn->query($sql_transfer)) {
-                        throw new Exception("Error al transferir datos a `{$tabla_produccion}`: " . $conn->error);
+                    escribir_log("Ejecutando UPSERT: {$sql_upsert}", 'DEBUG');
+                    
+                    if (!$conn->query($sql_upsert)) {
+                        throw new Exception("Error al ejecutar UPSERT en `{$tabla_produccion}`: " . $conn->error);
                     }
                     
-                    $filas_transferidas_produccion = $conn->affected_rows;
-                    escribir_log("Datos transferidos exitosamente a `{$tabla_produccion}`. Filas afectadas: {$filas_transferidas_produccion}.", 'INFO');
+                    $filas_afectadas_upsert = $conn->affected_rows;
+                    escribir_log("UPSERT ejecutado exitosamente en `{$tabla_produccion}`. Filas afectadas: {$filas_afectadas_upsert}.", 'INFO');
                     
                     $conn->commit(); // COMMIT para la tabla de producción
                     escribir_log("Transacción COMMIT para `{$tabla_produccion}`.", 'INFO');
                     
                     $response['status'] = 'success';
-                    $response['message'] = "Datos cargados a `{$tabla_temporal}` (Insertadas: {$filas_realmente_insertadas_temp}, Ignoradas: {$filas_ignoradas_temp}) y transferidos a `{$tabla_produccion}` (Transferidas: {$filas_transferidas_produccion}).";
+                    $response['message'] = "Datos cargados a `{$tabla_temporal}` (Insertadas: {$filas_realmente_insertadas_temp}, Ignoradas: {$filas_ignoradas_temp}) y sincronizados con `{$tabla_produccion}` (Filas afectadas: {$filas_afectadas_upsert}). Los datos existentes que no vienen en el pase se mantienen intactos.";
                     $response['temporal_insertadas'] = $filas_realmente_insertadas_temp;
                     $response['temporal_ignoradas'] = $filas_ignoradas_temp;
-                    $response['produccion_transferidas'] = $filas_transferidas_produccion;
+                    $response['produccion_afectadas'] = $filas_afectadas_upsert;
 
                 } catch (Exception $e_prod) {
                     $conn->rollback(); // ROLLBACK para la tabla de producción
-                    $exception_msg_prod = "Error durante la transferencia a `{$tabla_produccion}`: " . $e_prod->getMessage();
+                    $exception_msg_prod = "Error durante el UPSERT en `{$tabla_produccion}`: " . $e_prod->getMessage();
                     escribir_log($exception_msg_prod, 'CRITICAL');
                     $response['status'] = 'error';
-                    $response['message'] = "Carga a `{$tabla_temporal}` correcta (Insertadas: {$filas_realmente_insertadas_temp}, Ignoradas: {$filas_ignoradas_temp}), PERO FALLÓ transferencia a producción. Error: " . $e_prod->getMessage();
-                    $response['production_transfer_error'] = $e_prod->getMessage();
+                    $response['message'] = "Carga a `{$tabla_temporal}` correcta (Insertadas: {$filas_realmente_insertadas_temp}, Ignoradas: {$filas_ignoradas_temp}), PERO FALLÓ UPSERT en producción. Error: " . $e_prod->getMessage();
+                    $response['production_upsert_error'] = $e_prod->getMessage();
                     if (!headers_sent()) { http_response_code(500); }
                 }
             } else if (empty($data) && $filas_intentadas_temp == 0) {
@@ -294,12 +392,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             else {
                  // No se insertaron filas nuevas en temp_empleados (quizás todas eran duplicados o hubo otros problemas no críticos)
                  // O el array $data original estaba vacío.
-                escribir_log("No hay filas nuevas en `{$tabla_temporal}` para transferir a `{$tabla_produccion}` (Insertadas: {$filas_realmente_insertadas_temp}). La tabla de producción no fue modificada.", 'INFO');
+                escribir_log("No hay filas nuevas en `{$tabla_temporal}` para sincronizar con `{$tabla_produccion}` (Insertadas: {$filas_realmente_insertadas_temp}). La tabla de producción no fue modificada.", 'INFO');
                 $response['status'] = 'success'; // La carga a temporal se considera éxito si no hubo errores críticos
-                $response['message'] = "Carga a `{$tabla_temporal}` completada (Insertadas: {$filas_realmente_insertadas_temp}, Ignoradas: {$filas_ignoradas_temp}). No hay filas nuevas para transferir o no se insertaron filas en temporal. Tabla de producción no modificada.";
+                $response['message'] = "Carga a `{$tabla_temporal}` completada (Insertadas: {$filas_realmente_insertadas_temp}, Ignoradas: {$filas_ignoradas_temp}). No hay filas nuevas para sincronizar o no se insertaron filas en temporal. Tabla de producción no modificada - datos existentes se mantienen intactos.";
                 $response['temporal_insertadas'] = $filas_realmente_insertadas_temp;
                 $response['temporal_ignoradas'] = $filas_ignoradas_temp;
-                $response['produccion_transferidas'] = 0;
+                $response['produccion_afectadas'] = 0;
             }
             // --- FIN: Transferencia a Tabla de Producción ---
 

@@ -111,12 +111,28 @@ if (isset($_GET['mantenimiento_usuarios_no_listados'])) {
         $apellido = $_POST['apellido'];
         $fecha_nacimiento = $_POST['fecha_nacimiento'];
         $password = $_POST['password'];
+        
+        // Nuevos campos
+        $cedula = $_POST['cedula'] ?? '';
+        $email = $_POST['email'] ?? '';
+        $telefono1 = $_POST['telefono1'] ?? '';
+        $telefono2 = $_POST['telefono2'] ?? '';
+        $direccion1 = $_POST['direccion1'] ?? '';
+        $estado_civil = $_POST['estado_civil'] ?? '';
+        $nombre_departamento = $_POST['nombre_departamento'] ?? '';
+        $nombre_cargo = $_POST['nombre_cargo'] ?? '';
+        $fecha_ingreso = $_POST['fecha_ingreso'] ?? '';
+        $salario_pactado = $_POST['salario_pactado'] ?? 0;
+        $estatus_empleado = $_POST['estatus_empleado'] ?? 'A';
+        $seguro_social = $_POST['seguro_social'] ?? '';
+        $sexo = $_POST['sexo'] ?? '';
+        $nacionalidad = $_POST['nacionalidad'] ?? 'Panameña';
 
         // Estado y tipo por defecto
         $stat = 1;
         $type_user = 2;
 
-        $resultado = $userModel->registrar_usuario_no_listado($codigo, $nombre, $apellido, $fecha_nacimiento, $password, $stat, $type_user);
+        $resultado = $userModel->registrar_usuario_completo($codigo, $nombre, $apellido, $fecha_nacimiento, $password, $cedula, $email, $telefono1, $telefono2, $direccion1, $estado_civil, $nombre_departamento, $nombre_cargo, $fecha_ingreso, $salario_pactado, $estatus_empleado, $seguro_social, $sexo, $nacionalidad, $stat, $type_user);
 
         if ($resultado) {
             echo "<div class='alert alert-success'>Usuario registrado exitosamente.</div>";
@@ -144,12 +160,28 @@ if (isset($_GET['mantenimiento_usuarios_no_listados'])) {
         $nombre = $_POST['nombre'];
         $apellido = $_POST['apellido'];
         $fecha_nacimiento = $_POST['fecha_nacimiento'];
+        
+        // Nuevos campos
+        $cedula = $_POST['cedula'] ?? '';
+        $email = $_POST['email'] ?? '';
+        $telefono1 = $_POST['telefono1'] ?? '';
+        $telefono2 = $_POST['telefono2'] ?? '';
+        $direccion1 = $_POST['direccion1'] ?? '';
+        $estado_civil = $_POST['estado_civil'] ?? '';
+        $nombre_departamento = $_POST['nombre_departamento'] ?? '';
+        $nombre_cargo = $_POST['nombre_cargo'] ?? '';
+        $fecha_ingreso = $_POST['fecha_ingreso'] ?? '';
+        $salario_pactado = $_POST['salario_pactado'] ?? 0;
+        $estatus_empleado = $_POST['estatus_empleado'] ?? 'A';
+        $seguro_social = $_POST['seguro_social'] ?? '';
+        $sexo = $_POST['sexo'] ?? '';
+        $nacionalidad = $_POST['nacionalidad'] ?? 'Panameña';
 
-        $resultado = $userModel->editar_usuario($code, $nombre, $apellido, $fecha_nacimiento);
+        $resultado = $userModel->editar_usuario_completo($code, $nombre, $apellido, $fecha_nacimiento, $cedula, $email, $telefono1, $telefono2, $direccion1, $estado_civil, $nombre_departamento, $nombre_cargo, $fecha_ingreso, $salario_pactado, $estatus_empleado, $seguro_social, $sexo, $nacionalidad);
         if ($resultado) {
-            echo "<div class='alert alert-success'>Regsitro Actualizado.</div>";
+            echo "<div class='alert alert-success'>Registro Actualizado.</div>";
         } else {
-            echo "<div class='alert alert-danger'>Error al actalizar.</div>";
+            echo "<div class='alert alert-danger'>Error al actualizar.</div>";
         }
     }
 

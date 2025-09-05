@@ -196,6 +196,25 @@ public function nombre_colaborador() {
         return $stmt->execute([$nombre, $apellido, $fecha_nacimiento, $code]);
     }
 
+    public function editar_usuario_completo($code, $nombre, $apellido, $fecha_nacimiento, $cedula, $email, $telefono1, $telefono2, $direccion1, $estado_civil, $nombre_departamento, $nombre_cargo, $fecha_ingreso, $salario_pactado, $estatus_empleado, $seguro_social, $sexo, $nacionalidad) {
+        $sql = "UPDATE colaboradores_externos SET 
+                nombre = ?, apellido = ?, fecha_nacimiento = ?, cedula = ?, email = ?,
+                telefono1 = ?, telefono2 = ?, direccion1 = ?, estado_civil = ?, 
+                nombre_departamento = ?, nombre_cargo = ?, fecha_ingreso = ?, 
+                salario_pactado = ?, estatus_empleado = ?, seguro_social = ?, 
+                sexo = ?, nacionalidad = ?
+                WHERE codigo_empleado = ?";
+        
+        $stmt = $this->pdo->prepare($sql);
+        return $stmt->execute([
+            $nombre, $apellido, $fecha_nacimiento, $cedula, $email,
+            $telefono1, $telefono2, $direccion1, $estado_civil,
+            $nombre_departamento, $nombre_cargo, $fecha_ingreso,
+            $salario_pactado, $estatus_empleado, $seguro_social,
+            $sexo, $nacionalidad, $code
+        ]);
+    }
+
     public function registrar_usuario_no_listado($codigo, $nombre, $apellido, $fecha_nacimiento, $password, $stat = 1, $type_user = 2){
 
         try {
@@ -205,6 +224,43 @@ public function nombre_colaborador() {
             $stmt1 = $this->pdo->prepare("INSERT INTO colaboradores_externos (codigo_empleado, nombre, apellido, fecha_nacimiento) 
                                         VALUES (?, ?, ?, ?)");
             $stmt1->execute([$codigo, $nombre, $apellido, $fecha_nacimiento]);
+
+            // Encriptar contraseña
+            $pass_hash = password_hash($password, PASSWORD_BCRYPT);
+
+            // Insertar en empleado_log
+            $stmt2 = $this->pdo->prepare("INSERT INTO empleado_log (codigo, pass, stat, type_user) 
+                                        VALUES (?, ?, ?, ?)");
+            $stmt2->execute([$codigo, $pass_hash, $stat, $type_user]);
+
+            $this->pdo->commit();
+            return true;
+
+        } catch (Exception $e) {
+            $this->pdo->rollBack();
+            return false;
+        }
+    }
+
+    public function registrar_usuario_completo($codigo, $nombre, $apellido, $fecha_nacimiento, $password, $cedula, $email, $telefono1, $telefono2, $direccion1, $estado_civil, $nombre_departamento, $nombre_cargo, $fecha_ingreso, $salario_pactado, $estatus_empleado, $seguro_social, $sexo, $nacionalidad, $stat = 1, $type_user = 2){
+
+        try {
+            $this->pdo->beginTransaction();
+
+            // Insertar en colaboradores_externos con todos los campos
+            $stmt1 = $this->pdo->prepare("INSERT INTO colaboradores_externos (
+                codigo_empleado, nombre, apellido, fecha_nacimiento, cedula, email, 
+                telefono1, telefono2, direccion1, estado_civil, nombre_departamento, 
+                nombre_cargo, fecha_ingreso, salario_pactado, estatus_empleado, 
+                seguro_social, sexo, nacionalidad
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+            
+            $stmt1->execute([
+                $codigo, $nombre, $apellido, $fecha_nacimiento, $cedula, $email,
+                $telefono1, $telefono2, $direccion1, $estado_civil, $nombre_departamento,
+                $nombre_cargo, $fecha_ingreso, $salario_pactado, $estatus_empleado,
+                $seguro_social, $sexo, $nacionalidad
+            ]);
 
             // Encriptar contraseña
             $pass_hash = password_hash($password, PASSWORD_BCRYPT);
