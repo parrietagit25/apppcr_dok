@@ -1,5 +1,5 @@
 <?php
-// Test usando el modelo User_simple.php con ncodcia
+// Test final usando el modelo User_simple.php actualizado
 require_once 'config/config.php';
 require_once 'app/core/Database.php';
 require_once 'app/models/User_simple.php';
@@ -25,11 +25,13 @@ try {
     $sexo = 'M';
     $nacionalidad = 'Panameña';
     
-    echo "<h3>Probando registro con modelo User_simple:</h3>";
+    echo "<h3>Probando registro con modelo User_simple actualizado:</h3>";
     
     echo "<p>Código: " . $test_code . " (longitud: " . strlen($test_code) . ")</p>";
     echo "<p>Nombre: " . $nombre . " " . $apellido . "</p>";
     echo "<p>Email: " . $email . "</p>";
+    echo "<p>Departamento: " . $nombre_departamento . "</p>";
+    echo "<p>Cargo: " . $nombre_cargo . "</p>";
     
     $result = $userModel->registrar_usuario_simple(
         $test_code, $nombre, $apellido, $fecha_nacimiento, $password, $cedula, 
@@ -41,7 +43,7 @@ try {
         echo "<p style='color: green;'>✅ Usuario registrado exitosamente!</p>";
         
         // Verificar que se insertó en empleados
-        $stmt = $pdo->prepare("SELECT codigo_empleado, nombre, apellido, es_externo, ncodcia FROM empleados WHERE codigo_empleado = ?");
+        $stmt = $pdo->prepare("SELECT codigo_empleado, nombre, apellido, es_externo, ncodcia, nombre_departamento, nombre_cargo FROM empleados WHERE codigo_empleado = ?");
         $stmt->execute([$test_code]);
         $user = $stmt->fetch(PDO::FETCH_ASSOC);
         
@@ -49,6 +51,8 @@ try {
             echo "<p>Usuario en empleados: " . $user['nombre'] . " " . $user['apellido'] . "</p>";
             echo "<p>Es externo: " . ($user['es_externo'] ? 'Sí' : 'No') . "</p>";
             echo "<p>Ncodcia: " . $user['ncodcia'] . "</p>";
+            echo "<p>Departamento: " . $user['nombre_departamento'] . "</p>";
+            echo "<p>Cargo: " . $user['nombre_cargo'] . "</p>";
         }
         
         // Verificar que se insertó en empleado_log
@@ -67,7 +71,7 @@ try {
         $stmt->execute([$test_code]);
         echo "<p>Registros de prueba eliminados.</p>";
         
-        echo "<p style='color: green; font-weight: bold;'>🎉 ¡El sistema funciona! Ahora puedes probar el registro en el formulario.</p>";
+        echo "<p style='color: green; font-weight: bold;'>🎉 ¡El sistema funciona perfectamente! Ahora puedes probar el registro en el formulario.</p>";
         
     } else {
         echo "<p style='color: red;'>❌ Error al registrar usuario.</p>";

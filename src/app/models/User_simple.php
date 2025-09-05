@@ -12,43 +12,21 @@ class UserSimple {
         try {
             $this->pdo->beginTransaction();
 
-            // Insertar en empleados con campos mínimos requeridos
+            // Insertar en empleados con solo campos NOT NULL requeridos
             $stmt1 = $this->pdo->prepare("INSERT INTO empleados (
-                codigo_empleado, nombre, apellido, fecha_nacimiento, cedula, email, 
-                telefono1, nombre_departamento, nombre_cargo, fecha_ingreso, 
-                salario_pactado, estatus_empleado, seguro_social, sexo, nacionalidad, 
-                es_externo,
-                ncodcia, codigo_horario, tarjeta_reloj, dv, cedula_rep_empleador, 
-                cedula_reportada, estado_civil, grupo_isr, cantidad_dependientes, 
-                tipo_empleado, tipo_sangre, direccion1, direccion2, apartado_postal, 
-                telefono2, extension_telefono, tipo_salario, horas_regulares, 
-                horas_st_acumuladas, salario_hora, metodo_calculo_isr, 
-                hace_declaracion_renta, grupo_pago, codigo_sucursal, codigo_departamento, 
-                codigo_division, codigo_centro_costo, codigo_proyecto, codigo_fase, 
-                forma_pago, dias_no_trabajados, dias_licencia, pertenece_sindicato, 
-                tipo_trabajador, tipo_cuenta, numero_cuenta_ach, numero_banco, 
-                subcuenta_mayor_general, referencia_deposito_direc, tiene_vale, 
-                es_pasaporte, codigo_custom1, codigo_custom2, codigo_custom3, 
-                es_jefe_cuadrilla, es_marino, observaciones, codigo_cargo, 
-                codigo_emp_interface1, codigo_emp_interface2
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 
-                1, '000000', '000000000000000000', '00', '00000000000000000', 
-                '00000000000000000', 'S', '1', 0, '1', 'O+', 'Dirección por defecto', 
-                '', '', 'usuario@empresa.com', '0000000000', '0000000000', '1', 
-                8.00, 0.00, 0.00, '1', 0, '000000', '001', '000000', '000000', 
-                '000000', '0000000000000000000000000', '0000000000000000000000000', 
-                '1', 0, 0, 0, 0, '1', '1', '00000000000000000000', '000000000', 
-                '000000', '000000000000000', 0, 0, '000000000000000000000000000000', 
-                '000000000000000000000000000000', '000000000000000000000000000000', 
-                0, 0, 'Sin observaciones', '000000', '000000000000000000000000000000', 
-                '000000000000000000000000000000')");
+                codigo_empleado, nombre, apellido, es_externo, ncodcia, cedula, 
+                sexo, seguro_social, nacionalidad, email, telefono1, estatus_empleado, 
+                salario_pactado, nombre_departamento, nombre_centro_costo, 
+                nombre_division, nombre_proyecto, nombre_fase, nombre_sucursal, 
+                nombre_cargo, fecha_nacimiento, fecha_ingreso
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
             
-            // 16 parámetros para los campos dinámicos
+            // 22 parámetros para los campos NOT NULL
             $stmt1->execute([
-                $codigo, $nombre, $apellido, $fecha_nacimiento, $cedula, $email,
-                $telefono1, $nombre_departamento, $nombre_cargo, $fecha_ingreso,
-                $salario_pactado, $estatus_empleado, $seguro_social, $sexo, $nacionalidad,
-                1  // es_externo = 1
+                $codigo, $nombre, $apellido, 1, 1, $cedula,  // es_externo=1, ncodcia=1
+                $sexo, $seguro_social, $nacionalidad, $email, $telefono1, $estatus_empleado,
+                $salario_pactado, $nombre_departamento, 'Centro Costo', 'División', 
+                'Proyecto', 'Fase', 'Sucursal', $nombre_cargo, $fecha_nacimiento, $fecha_ingreso
             ]);
 
             // Encriptar contraseña
