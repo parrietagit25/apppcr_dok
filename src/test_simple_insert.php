@@ -6,7 +6,7 @@ require_once 'app/core/Database.php';
 try {
     $pdo = Database::connect();
     
-    $test_code = 'TEST' . time();
+    $test_code = 'T' . (time() % 100000); // Máximo 6 caracteres
     $nombre = 'Test';
     $apellido = 'User';
     $fecha_nacimiento = '1990-01-01';

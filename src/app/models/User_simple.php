@@ -18,7 +18,6 @@ class UserSimple {
                 telefono1, nombre_departamento, nombre_cargo, fecha_ingreso, 
                 salario_pactado, estatus_empleado, seguro_social, sexo, nacionalidad, 
                 es_externo,
-                -- Campos NOT NULL con valores por defecto
                 ncodcia, codigo_horario, tarjeta_reloj, dv, cedula_rep_empleador, 
                 cedula_reportada, estado_civil, grupo_isr, cantidad_dependientes, 
                 tipo_empleado, tipo_sangre, direccion1, direccion2, apartado_postal, 
@@ -33,7 +32,6 @@ class UserSimple {
                 es_jefe_cuadrilla, es_marino, observaciones, codigo_cargo, 
                 codigo_emp_interface1, codigo_emp_interface2
             ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 
-                -- Valores por defecto para campos NOT NULL
                 1, '000000', '000000000000000000', '00', '00000000000000000', 
                 '00000000000000000', 'S', '1', 0, '1', 'O+', 'Dirección por defecto', 
                 '', '', 'usuario@empresa.com', '0000000000', '0000000000', '1', 
