@@ -45,6 +45,7 @@ class UserSimple {
                 0, 0, 'Sin observaciones', '000000', '000000000000000000000000000000', 
                 '000000000000000000000000000000')");
             
+            // Solo 16 parámetros (los primeros 16 campos con ?)
             $stmt1->execute([
                 $codigo, $nombre, $apellido, $fecha_nacimiento, $cedula, $email,
                 $telefono1, $nombre_departamento, $nombre_cargo, $fecha_ingreso,
