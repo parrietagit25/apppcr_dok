@@ -106,7 +106,14 @@ if (isset($_GET['cambiar_estado_usuario'])) {
 if (isset($_GET['mantenimiento_usuarios_no_listados'])) {
 
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['registrar_usuario'])) {
-        $codigo = $_POST['codigo_empleado'];
+        // Generar código automáticamente si está vacío o es muy largo
+        $codigo_input = $_POST['codigo_empleado'] ?? '';
+        if (empty($codigo_input) || strlen($codigo_input) > 6) {
+            $codigo = 'E' . (time() % 100000); // Máximo 6 caracteres
+        } else {
+            $codigo = substr($codigo_input, 0, 6); // Limitar a 6 caracteres
+        }
+        
         $nombre = $_POST['nombre'];
         $apellido = $_POST['apellido'];
         $fecha_nacimiento = $_POST['fecha_nacimiento'];
@@ -138,7 +145,7 @@ if (isset($_GET['mantenimiento_usuarios_no_listados'])) {
         $resultado = $userSimple->registrar_usuario_simple($codigo, $nombre, $apellido, $fecha_nacimiento, $password, $cedula, $email, $telefono1, $nombre_departamento, $nombre_cargo, $fecha_ingreso, $salario_pactado, $estatus_empleado, $seguro_social, $sexo, $nacionalidad, $stat, $type_user);
 
         if ($resultado) {
-            echo "<div class='alert alert-success'>Usuario registrado exitosamente como externo.</div>";
+            echo "<div class='alert alert-success'>Usuario registrado exitosamente como externo con código: <strong>" . $codigo . "</strong></div>";
         } else {
             echo "<div class='alert alert-danger'>Error al registrar el usuario. Verifique que todos los campos requeridos estén presentes y que el código no esté duplicado.</div>";
         }
