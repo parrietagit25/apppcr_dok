@@ -185,7 +185,9 @@ public function nombre_colaborador() {
     }
 
     public function usuarios_no_listados(){
-        $stmt = $this->pdo->prepare("SELECT * FROM empleado_log el inner join colaboradores_externos e on el.codigo = e.codigo_empleado WHERE el.stat = 1");
+        $stmt = $this->pdo->prepare("SELECT * FROM empleado_log el 
+                                    INNER JOIN empleados e ON el.codigo = e.codigo_empleado 
+                                    WHERE el.stat = 1 AND e.es_externo = 1");
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
@@ -197,13 +199,13 @@ public function nombre_colaborador() {
     }
 
     public function editar_usuario_completo($code, $nombre, $apellido, $fecha_nacimiento, $cedula, $email, $telefono1, $telefono2, $direccion1, $estado_civil, $nombre_departamento, $nombre_cargo, $fecha_ingreso, $salario_pactado, $estatus_empleado, $seguro_social, $sexo, $nacionalidad) {
-        $sql = "UPDATE colaboradores_externos SET 
+        $sql = "UPDATE empleados SET 
                 nombre = ?, apellido = ?, fecha_nacimiento = ?, cedula = ?, email = ?,
                 telefono1 = ?, telefono2 = ?, direccion1 = ?, estado_civil = ?, 
                 nombre_departamento = ?, nombre_cargo = ?, fecha_ingreso = ?, 
                 salario_pactado = ?, estatus_empleado = ?, seguro_social = ?, 
                 sexo = ?, nacionalidad = ?
-                WHERE codigo_empleado = ?";
+                WHERE codigo_empleado = ? AND es_externo = 1";
         
         $stmt = $this->pdo->prepare($sql);
         return $stmt->execute([
@@ -247,13 +249,13 @@ public function nombre_colaborador() {
         try {
             $this->pdo->beginTransaction();
 
-            // Insertar en colaboradores_externos con todos los campos
-            $stmt1 = $this->pdo->prepare("INSERT INTO colaboradores_externos (
+            // Insertar en empleados con todos los campos (marcado como externo)
+            $stmt1 = $this->pdo->prepare("INSERT INTO empleados (
                 codigo_empleado, nombre, apellido, fecha_nacimiento, cedula, email, 
                 telefono1, telefono2, direccion1, estado_civil, nombre_departamento, 
                 nombre_cargo, fecha_ingreso, salario_pactado, estatus_empleado, 
-                seguro_social, sexo, nacionalidad
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                seguro_social, sexo, nacionalidad, es_externo
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1)");
             
             $stmt1->execute([
                 $codigo, $nombre, $apellido, $fecha_nacimiento, $cedula, $email,
