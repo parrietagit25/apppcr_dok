@@ -109,16 +109,14 @@ if (isset($_GET['mantenimiento_usuarios_no_listados'])) {
         $codigo = $_POST['codigo_empleado'];
         $nombre = $_POST['nombre'];
         $apellido = $_POST['apellido'];
-        $departamento = $_POST['departamento'];
-        $email = $_POST['email'];
-        $gerente_area = $_POST['gerente_area'];
+        $fecha_nacimiento = $_POST['fecha_nacimiento'];
         $password = $_POST['password'];
 
         // Estado y tipo por defecto
         $stat = 1;
-        $type_user = 6; // Tipo 6 para usuarios fuera de planilla
+        $type_user = 2;
 
-        $resultado = $userModel->registrar_usuario_no_listado($codigo, $nombre, $apellido, $departamento, $email, $gerente_area, $password, $stat, $type_user);
+        $resultado = $userModel->registrar_usuario_no_listado($codigo, $nombre, $apellido, $fecha_nacimiento, $password, $stat, $type_user);
 
         if ($resultado) {
             echo "<div class='alert alert-success'>Usuario registrado exitosamente.</div>";
@@ -145,15 +143,13 @@ if (isset($_GET['mantenimiento_usuarios_no_listados'])) {
         $code = $_POST['codigo_empleado'];
         $nombre = $_POST['nombre'];
         $apellido = $_POST['apellido'];
-        $departamento = $_POST['departamento'];
-        $email = $_POST['email'];
-        $gerente_area = $_POST['gerente_area'];
+        $fecha_nacimiento = $_POST['fecha_nacimiento'];
 
-        $resultado = $userModel->editar_usuario($code, $nombre, $apellido, $departamento, $email, $gerente_area);
+        $resultado = $userModel->editar_usuario($code, $nombre, $apellido, $fecha_nacimiento);
         if ($resultado) {
-            echo "<div class='alert alert-success'>Registro Actualizado.</div>";
+            echo "<div class='alert alert-success'>Regsitro Actualizado.</div>";
         } else {
-            echo "<div class='alert alert-danger'>Error al actualizar.</div>";
+            echo "<div class='alert alert-danger'>Error al actalizar.</div>";
         }
     }
 
