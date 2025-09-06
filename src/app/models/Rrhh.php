@@ -436,7 +436,7 @@ class Rrhh {
 
         $stmt = $this->pdo->prepare("SELECT * FROM calamidades 
                                      inner join 
-                                     empleados ON CONCAT('00', c.code_user) = empleados.codigo_empleado 
+                                     empleados ON CONCAT('00', calamidades.code_user) = empleados.codigo_empleado 
                                      WHERE 
                                      empleados.nombre_departamento in(:departamento)");
 
