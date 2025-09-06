@@ -438,9 +438,9 @@ class Rrhh {
                                      inner join 
                                      empleados ON CONCAT('00', calamidades.code_user) = empleados.codigo_empleado 
                                      WHERE 
-                                     empleados.nombre_departamento in(:departamento)");
+                                     empleados.nombre_departamento in('OPERACIONES', 'AUXILIARES DE MANT', 'TALLER')");
 
-        $stmt->bindParam(':departamento', $departamento, PDO::PARAM_STR);
+        //$stmt->bindParam(':departamento', $departamento, PDO::PARAM_STR);
         $stmt->execute();
         $array_datos = [];
         while ($list_code = $stmt->fetch(PDO::FETCH_ASSOC)) {
