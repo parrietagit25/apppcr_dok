@@ -60,6 +60,38 @@ include __DIR__ . '/header.php';
                 </table>
             </div>
         <?php endif; ?>
+
+        <?php if ($tipo_usuario == 6): ?>
+            <div class="row mt-5">
+                <h5 class="text-center">Vacaciones Acumuladas.</h5>
+                <table id="tablaVacaciones" class="table table-striped table-bordered mt-3">
+                    <thead class="table-dark text-center">
+                        <tr>
+                            <th>Código</th>
+                            <th>Nombre</th>
+                            <th>Apellido</th>
+                            <th>Días Acu.</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php if (!empty($all_vacas_gerentes)) {
+                            foreach ($all_vacas_gerentes as $value) {
+                                echo "<tr>
+                                        <td>" . htmlspecialchars($value['codigo_empleado']) . "</td>
+                                        <td>" . htmlspecialchars($value['nombre']) . "</td>
+                                        <td>" . htmlspecialchars($value['apellido']) . "</td>
+                                        <td>" . htmlspecialchars($value['dias_vaca_acu_tiempo']) . "</td>
+                                      </tr>";
+                            }
+                        } else {
+                            echo "<tr><td colspan='4' class='text-center'>No hay registros registrados.</td></tr>";
+                        } ?>
+                    </tbody>
+                </table>
+            </div>
+        <?php endif; ?>
+
+
     </div>
 </div>
 

@@ -117,6 +117,25 @@ class Rrhh {
         return $array_datos;
     }
 
+    public function mis_vacaciones_all_employe_gerentes($code) {
+        
+        if (!isset($_SESSION['code'])) {
+            die("Error: No hay sesión iniciada.");
+        }
+
+        $shit_get_departamento = $this->get_departamento($code);
+        $departamento = $shit_get_departamento[0]['nombre_departamento'];
+
+        $stmt = $this->pdo->prepare("SELECT codigo_empleado, nombre, apellido, dias_vaca_acu_tiempo FROM empleados WHERE estatus_empleado = 'A' AND nombre_departamento = :departamento");
+        $stmt->bindParam(':departamento', $departamento, PDO::PARAM_STR);
+        $stmt->execute();
+        $array_datos = [];
+        while ($list_code = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            $array_datos[] = $list_code;
+        }
+        return $array_datos;
+    }
+
     public function carta_trabajo($descripcion) {
         
         $code_user = $_SESSION['code']; 
