@@ -431,7 +431,7 @@ class Rrhh {
         $departamento = $shit_get_departamento[0]['nombre_departamento']; */
 
         if ($code == '009999') {
-            $departamento = 'OPERACIONES', 'AUXILIARES DE MANT', 'TALLER';
+            $departamento = "'OPERACIONES', 'AUXILIARES DE MANT', 'TALLER'";
         }
 
         $stmt = $this->pdo->prepare("SELECT * FROM calamidades 
