@@ -50,7 +50,13 @@ include __DIR__ . '/header.php';
             <tbody>
             <?php
                 $status = '';
-                $permisos = $class->select_permisos() ?? [];
+                
+                
+                if($tipo_usuario == 6){
+                    $permisos = $class->select_permisos_gerentes($_SESSION['code']) ?? [];
+                }else{
+                    $permisos = $class->select_permisos() ?? [];
+                }
 
                 if (is_array($permisos) && count($permisos) > 0) {
                     foreach ($permisos as $row) {

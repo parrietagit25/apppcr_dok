@@ -118,7 +118,7 @@ class Rrhh {
     }
 
     public function mis_vacaciones_all_employe_gerentes($code) {
-        
+
         if (!isset($_SESSION['code'])) {
             die("Error: No hay sesión iniciada.");
         }
@@ -464,6 +464,8 @@ class Rrhh {
         return $array_datos;
     }
 
+
+
     public function calamidades_rrhh() {
 
         $stmt = $this->pdo->prepare("SELECT 
@@ -668,6 +670,21 @@ class Rrhh {
         $array_datos = [];
         $code = $_SESSION['code'];
         $stmt_frase = $this->pdo->prepare("SELECT p.*, e.nombre, e.apellido FROM solicitud_permiso p inner join empleados e on p.code = e.codigo_empleado  where p.code = '".$code."'");
+        $stmt_frase->execute();
+        while ($list_code = $stmt_frase->fetch(PDO::FETCH_ASSOC)) {
+            $array_datos[] = $list_code;
+        }
+        return $array_datos;
+    }
+
+        public function select_permisos_gerentes($code){
+
+        $shit_get_departamento = $this->get_departamento($code);
+        $departamento = $shit_get_departamento[0]['nombre_departamento'];
+
+        $array_datos = [];
+        //$code = $_SESSION['code'];
+        $stmt_frase = $this->pdo->prepare("SELECT p.*, e.nombre, e.apellido FROM solicitud_permiso p inner join empleados e on p.code = e.codigo_empleado  where p.id_jefe = '".$code."'");
         $stmt_frase->execute();
         while ($list_code = $stmt_frase->fetch(PDO::FETCH_ASSOC)) {
             $array_datos[] = $list_code;
