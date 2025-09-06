@@ -427,14 +427,19 @@ class Rrhh {
 
     public function calamidades_gerentes($code) {
 
-        $shit_get_departamento = $this->get_departamento($code);
-        $departamento = $shit_get_departamento[0]['nombre_departamento'];
+        /*$shit_get_departamento = $this->get_departamento($code);
+        $departamento = $shit_get_departamento[0]['nombre_departamento']; */
+
+        if ($code == '009999') {
+            $departamento = 'OPERACIONES', 'AUXILIARES DE MANT', 'TALLER';
+        }
 
         $stmt = $this->pdo->prepare("SELECT * FROM calamidades 
                                      inner join 
-                                     empleados on calamidades.code_user = empleados.codigo_empleado 
+                                     empleados ON CONCAT('00', c.code_user) = empleados.codigo_empleado 
                                      WHERE 
-                                     empleados.nombre_departamento = :departamento");
+                                     empleados.nombre_departamento in(:departamento)");
+
         $stmt->bindParam(':departamento', $departamento, PDO::PARAM_STR);
         $stmt->execute();
         $array_datos = [];
