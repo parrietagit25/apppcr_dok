@@ -38,7 +38,7 @@ include __DIR__ . '/header.php';
         <tbody>
             <?php
             if($tipo_usuario == 6){
-                $calamidades = $class->calamidades_gerentes($codigo_empleado);
+                $calamidades = $class->calamidades_gerentes($_SESSION['code']);
             }else{
                 $calamidades = $class->calamidades();
             }
