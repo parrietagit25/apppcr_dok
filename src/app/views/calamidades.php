@@ -24,9 +24,6 @@ include __DIR__ . '/header.php';
         </button>
     </div>
 
-    <?php print_r($_SESSION); ?>
-    <?php print_r($tipo_usuario); ?>
-
     <table id="tablaCalamidades" class="table table-bordered table-striped">
         <thead class="table-dark text-center">
             <tr>
@@ -40,7 +37,11 @@ include __DIR__ . '/header.php';
         </thead>
         <tbody>
             <?php
-            $calamidades = $class->calamidades();
+            if($tipo_usuario == 6){
+                $calamidades = $class->calamidades_gerentes($codigo_empleado);
+            }else{
+                $calamidades = $class->calamidades();
+            }
             foreach ($calamidades as $c):
                 $archivo = (!empty($c['file_add']))
                     ? BASE_URL_FILES_UPDATE_CALAMIDADES . '/' . $c['file_add']

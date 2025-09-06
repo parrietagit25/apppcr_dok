@@ -425,6 +425,25 @@ class Rrhh {
         return $array_datos;
     }
 
+    public function calamidades_gerentes($code) {
+
+        $shit_get_departamento = $this->get_departamento($code);
+        $departamento = $shit_get_departamento[0]['nombre_departamento'];
+
+        $stmt = $this->pdo->prepare("SELECT * FROM calamidades 
+                                     inner join 
+                                     empleados on calamidades.code_user = empleados.codigo_empleado 
+                                     WHERE 
+                                     empleados.nombre_departamento = :departamento");
+        $stmt->bindParam(':departamento', $departamento, PDO::PARAM_STR);
+        $stmt->execute();
+        $array_datos = [];
+        while ($list_code = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            $array_datos[] = $list_code;
+        }
+        return $array_datos;
+    }
+
     public function calamidades_rrhh() {
 
         $stmt = $this->pdo->prepare("SELECT 
