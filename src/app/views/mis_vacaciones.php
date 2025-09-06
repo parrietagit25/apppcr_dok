@@ -63,7 +63,6 @@ include __DIR__ . '/header.php';
 
         <?php if ($tipo_usuario == 6): ?>
             <div class="row mt-5">
-                <h5 class="text-center">Vacaciones Acumuladas.</h5>
                 <table id="tablaVacaciones" class="table table-striped table-bordered mt-3">
                     <thead class="table-dark text-center">
                         <tr>
