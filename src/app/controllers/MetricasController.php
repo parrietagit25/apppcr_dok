@@ -24,44 +24,54 @@ $tipo_usuario = $userModel->get_tyte_user();
 
 if (isset($_GET['metricas'])) {
 
-    $cartas_trabajos = $class_rrhh->count_cartas_trabajo();
+    // Obtener filtros de fecha
+    $fecha_desde = isset($_GET['fecha_desde']) && !empty($_GET['fecha_desde']) ? $_GET['fecha_desde'] : null;
+    $fecha_hasta = isset($_GET['fecha_hasta']) && !empty($_GET['fecha_hasta']) ? $_GET['fecha_hasta'] : null;
 
-    $calamidades = $class_rrhh->count_calamidades();
+    // Si no hay fechas especificadas, usar el mes actual por defecto
+    if (!$fecha_desde && !$fecha_hasta) {
+        $fecha_desde = date('Y-m-01'); // Primer día del mes actual
+        $fecha_hasta = date('Y-m-d'); // Día actual
+    }
 
-    $permisos = $class_rrhh->count_permisos();
+    $cartas_trabajos = $class_rrhh->count_cartas_trabajo($fecha_desde, $fecha_hasta);
 
-    $incapacidades = $class_rrhh->count_incapacidades();
+    $calamidades = $class_rrhh->count_calamidades($fecha_desde, $fecha_hasta);
 
-    $vacaciones = $class_rrhh->count_type_permiso('Vacaciones');
+    $permisos = $class_rrhh->count_permisos($fecha_desde, $fecha_hasta);
 
-    $compensatorio = $class_rrhh->count_type_permiso('Compensatorio');
+    $incapacidades = $class_rrhh->count_incapacidades($fecha_desde, $fecha_hasta);
 
-    $cita_medica = $class_rrhh->count_type_permiso('Cita Medica');
+    $vacaciones = $class_rrhh->count_type_permiso('Vacaciones', $fecha_desde, $fecha_hasta);
 
-    $enfermedad = $class_rrhh->count_type_permiso('Enfermedad');
+    $compensatorio = $class_rrhh->count_type_permiso('Compensatorio', $fecha_desde, $fecha_hasta);
 
-    $tele_trabajo = $class_rrhh->count_type_permiso('Teletrabajo');
+    $cita_medica = $class_rrhh->count_type_permiso('Cita Medica', $fecha_desde, $fecha_hasta);
 
-    $duelo = $class_rrhh->count_type_permiso('Duelo');
+    $enfermedad = $class_rrhh->count_type_permiso('Enfermedad', $fecha_desde, $fecha_hasta);
 
-    $tiempo_sin_pago = $class_rrhh->count_type_permiso('Tiempo Sin Pago');
+    $tele_trabajo = $class_rrhh->count_type_permiso('Teletrabajo', $fecha_desde, $fecha_hasta);
+
+    $duelo = $class_rrhh->count_type_permiso('Duelo', $fecha_desde, $fecha_hasta);
+
+    $tiempo_sin_pago = $class_rrhh->count_type_permiso('Tiempo Sin Pago', $fecha_desde, $fecha_hasta);
 
     $permisosChartData = [
-        'Vacaciones'        => $class_rrhh->count_permisos_by_type('Vacaciones'),
-        'Compensatorios'    => $class_rrhh->count_permisos_by_type('Compensatorio'),
-        'Citas médicas'     => $class_rrhh->count_permisos_by_type('Cita Medica'),
-        'Enfermedad'        => $class_rrhh->count_permisos_by_type('Enfermedad'),
-        'Teletrabajo'       => $class_rrhh->count_permisos_by_type('Teletrabajo'),
-        'Duelo'             => $class_rrhh->count_permisos_by_type('Duelo'),
-        'Tiempo sin pago'   => $class_rrhh->count_permisos_by_type('Tiempo sin pago'),
+        'Vacaciones'        => $class_rrhh->count_permisos_by_type('Vacaciones', $fecha_desde, $fecha_hasta),
+        'Compensatorios'    => $class_rrhh->count_permisos_by_type('Compensatorio', $fecha_desde, $fecha_hasta),
+        'Citas médicas'     => $class_rrhh->count_permisos_by_type('Cita Medica', $fecha_desde, $fecha_hasta),
+        'Enfermedad'        => $class_rrhh->count_permisos_by_type('Enfermedad', $fecha_desde, $fecha_hasta),
+        'Teletrabajo'       => $class_rrhh->count_permisos_by_type('Teletrabajo', $fecha_desde, $fecha_hasta),
+        'Duelo'             => $class_rrhh->count_permisos_by_type('Duelo', $fecha_desde, $fecha_hasta),
+        'Tiempo sin pago'   => $class_rrhh->count_permisos_by_type('Tiempo sin pago', $fecha_desde, $fecha_hasta),
     ];
 
     $dashboardTotals = [
-        'Actualización de Datos'   => 41, // 41
-        'Cartas de trabajo'        => $class_rrhh->count_cartas_trabajo(), // 54
-        'Calamidades'              => $class_rrhh->count_calamidades(),    // 16
-        'Permisos solicitados'     => $class_rrhh->count_permisos(), // 123
-        'Incapacidades'            => $class_rrhh->count_incapacidades(),     // 53
+        'Actualización de Datos'   => 41, // 41 - valor fijo
+        'Cartas de trabajo'        => $cartas_trabajos,
+        'Calamidades'              => $calamidades,
+        'Permisos solicitados'     => $permisos,
+        'Incapacidades'            => $incapacidades,
     ];
 
     require_once __DIR__ . '/../views/metricas.php';
@@ -70,6 +80,61 @@ if (isset($_GET['metricas'])) {
 
 if (isset($_GET['organigrama'])) {
     require_once __DIR__ . '/../views/organigrama.php';
+    exit();
+}
+
+if (isset($_GET['exportar_excel'])) {
+    // Obtener filtros de fecha
+    $fecha_desde = isset($_GET['fecha_desde']) && !empty($_GET['fecha_desde']) ? $_GET['fecha_desde'] : null;
+    $fecha_hasta = isset($_GET['fecha_hasta']) && !empty($_GET['fecha_hasta']) ? $_GET['fecha_hasta'] : null;
+
+    // Si no hay fechas especificadas, usar el mes actual por defecto
+    if (!$fecha_desde && !$fecha_hasta) {
+        $fecha_desde = date('Y-m-01');
+        $fecha_hasta = date('Y-m-d');
+    }
+
+    // Obtener datos para exportar
+    $cartas_trabajos = $class_rrhh->count_cartas_trabajo($fecha_desde, $fecha_hasta);
+    $calamidades = $class_rrhh->count_calamidades($fecha_desde, $fecha_hasta);
+    $permisos = $class_rrhh->count_permisos($fecha_desde, $fecha_hasta);
+    $incapacidades = $class_rrhh->count_incapacidades($fecha_desde, $fecha_hasta);
+    $vacaciones = $class_rrhh->count_type_permiso('Vacaciones', $fecha_desde, $fecha_hasta);
+    $compensatorio = $class_rrhh->count_type_permiso('Compensatorio', $fecha_desde, $fecha_hasta);
+    $cita_medica = $class_rrhh->count_type_permiso('Cita Medica', $fecha_desde, $fecha_hasta);
+    $enfermedad = $class_rrhh->count_type_permiso('Enfermedad', $fecha_desde, $fecha_hasta);
+    $tele_trabajo = $class_rrhh->count_type_permiso('Teletrabajo', $fecha_desde, $fecha_hasta);
+    $duelo = $class_rrhh->count_type_permiso('Duelo', $fecha_desde, $fecha_hasta);
+    $tiempo_sin_pago = $class_rrhh->count_type_permiso('Tiempo Sin Pago', $fecha_desde, $fecha_hasta);
+
+    // Configurar headers para descarga de Excel
+    $filename = 'metricas_pcr_' . date('Y-m-d') . '.xls';
+    header('Content-Type: application/vnd.ms-excel');
+    header('Content-Disposition: attachment; filename="' . $filename . '"');
+    header('Cache-Control: max-age=0');
+
+    // Generar contenido Excel
+    echo "<table border='1'>";
+    echo "<tr><th colspan='2'><h2>Métricas PCR - Período: " . 
+         ($fecha_desde ? date('d/m/Y', strtotime($fecha_desde)) : 'Inicio') . 
+         " - " . 
+         ($fecha_hasta ? date('d/m/Y', strtotime($fecha_hasta)) : 'Hoy') . 
+         "</h2></th></tr>";
+    
+    echo "<tr><th>Concepto</th><th>Cantidad</th></tr>";
+    echo "<tr><td>Actualización de Datos</td><td>41</td></tr>";
+    echo "<tr><td>Solicitud de Carta de trabajo</td><td>" . $cartas_trabajos . "</td></tr>";
+    echo "<tr><td>Solicitud de Calamidades</td><td>" . $calamidades . "</td></tr>";
+    echo "<tr><td>Incapacidades Registradas</td><td>" . $incapacidades . "</td></tr>";
+    echo "<tr><td>Total de Permisos Solicitados</td><td>" . $permisos . "</td></tr>";
+    echo "<tr><td>Permisos por Vacaciones</td><td>" . $vacaciones . "</td></tr>";
+    echo "<tr><td>Permisos por Compensatorios</td><td>" . $compensatorio . "</td></tr>";
+    echo "<tr><td>Permisos por Citas médicas</td><td>" . $cita_medica . "</td></tr>";
+    echo "<tr><td>Permisos por Enfermedad</td><td>" . $enfermedad . "</td></tr>";
+    echo "<tr><td>Permisos por Teletrabajo</td><td>" . $tele_trabajo . "</td></tr>";
+    echo "<tr><td>Permisos por Duelo</td><td>" . $duelo . "</td></tr>";
+    echo "<tr><td>Permisos por Tiempo sin pago</td><td>" . $tiempo_sin_pago . "</td></tr>";
+    echo "</table>";
     exit();
 }
 

@@ -19,6 +19,52 @@ include __DIR__ . '/header.php';
         </div>
     </div>
 
+    <!-- Filtros de Fecha -->
+    <div class="bg-white p-3 rounded shadow-sm mb-4">
+        <h6 class="fw-bold text-secondary mb-3">
+            <i class="bi bi-funnel"></i> Filtros de Fecha
+        </h6>
+        <form method="GET" action="" id="filtrosForm">
+            <div class="row">
+                <div class="col-md-4 mb-2">
+                    <label for="fecha_desde" class="form-label small">Desde:</label>
+                    <input type="date" class="form-control form-control-sm" id="fecha_desde" name="fecha_desde" 
+                           value="<?= isset($_GET['fecha_desde']) ? $_GET['fecha_desde'] : '' ?>">
+                </div>
+                <div class="col-md-4 mb-2">
+                    <label for="fecha_hasta" class="form-label small">Hasta:</label>
+                    <input type="date" class="form-control form-control-sm" id="fecha_hasta" name="fecha_hasta" 
+                           value="<?= isset($_GET['fecha_hasta']) ? $_GET['fecha_hasta'] : '' ?>">
+                </div>
+                <div class="col-md-4 mb-2 d-flex align-items-end">
+                    <div class="btn-group w-100" role="group">
+                        <button type="submit" class="btn btn-primary btn-sm">
+                            <i class="bi bi-search"></i> Filtrar
+                        </button>
+                        <button type="button" class="btn btn-outline-secondary btn-sm" onclick="limpiarFiltros()">
+                            <i class="bi bi-arrow-clockwise"></i> Limpiar
+                        </button>
+                        <button type="button" class="btn btn-success btn-sm" onclick="exportarMetricas()">
+                            <i class="bi bi-file-excel"></i> Excel
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <input type="hidden" name="metricas" value="1">
+        </form>
+    </div>
+
+    <!-- Rango de fechas seleccionado -->
+    <?php if (isset($_GET['fecha_desde']) || isset($_GET['fecha_hasta'])): ?>
+    <div class="alert alert-info mb-3">
+        <i class="bi bi-calendar-range"></i> 
+        <strong>Período seleccionado:</strong> 
+        <?= isset($_GET['fecha_desde']) ? date('d/m/Y', strtotime($_GET['fecha_desde'])) : 'Inicio' ?> 
+        - 
+        <?= isset($_GET['fecha_hasta']) ? date('d/m/Y', strtotime($_GET['fecha_hasta'])) : 'Hoy' ?>
+    </div>
+    <?php endif; ?>
+
     <!-- INFORMACIÓN PERSONAL -->
     <div class="bg-white p-3 rounded shadow-sm mb-4">
         <h6 class="fw-bold text-secondary">INFORMACIÓN PERSONAL</h6>
@@ -222,6 +268,58 @@ document.addEventListener('DOMContentLoaded', () => {
       }
   });
 });
+</script>
+
+<script>
+// Función para limpiar los filtros de fecha
+function limpiarFiltros() {
+    document.getElementById('fecha_desde').value = '';
+    document.getElementById('fecha_hasta').value = '';
+    document.getElementById('filtrosForm').submit();
+}
+
+// Validación de fechas
+document.getElementById('filtrosForm').addEventListener('submit', function(e) {
+    const fechaDesde = document.getElementById('fecha_desde').value;
+    const fechaHasta = document.getElementById('fecha_hasta').value;
+    
+    if (fechaDesde && fechaHasta && fechaDesde > fechaHasta) {
+        e.preventDefault();
+        alert('La fecha "Desde" no puede ser mayor que la fecha "Hasta"');
+        return false;
+    }
+});
+
+// Establecer fecha por defecto si no hay filtros
+document.addEventListener('DOMContentLoaded', function() {
+    const fechaDesde = document.getElementById('fecha_desde').value;
+    const fechaHasta = document.getElementById('fecha_hasta').value;
+    
+    if (!fechaDesde && !fechaHasta) {
+        // Establecer fecha de inicio del mes actual como por defecto
+        const hoy = new Date();
+        const primerDia = new Date(hoy.getFullYear(), hoy.getMonth(), 1);
+        document.getElementById('fecha_desde').value = primerDia.toISOString().split('T')[0];
+        document.getElementById('fecha_hasta').value = hoy.toISOString().split('T')[0];
+    }
+});
+
+// Función para exportar métricas a Excel
+function exportarMetricas() {
+    const fechaDesde = document.getElementById('fecha_desde').value;
+    const fechaHasta = document.getElementById('fecha_hasta').value;
+    
+    let url = '<?= BASE_URL_CONTROLLER ?>/MetricasController.php?exportar_excel=1';
+    
+    if (fechaDesde) {
+        url += '&fecha_desde=' + encodeURIComponent(fechaDesde);
+    }
+    if (fechaHasta) {
+        url += '&fecha_hasta=' + encodeURIComponent(fechaHasta);
+    }
+    
+    window.open(url, '_blank');
+}
 </script>
 
 

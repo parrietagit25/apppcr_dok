@@ -1129,41 +1129,117 @@ class Rrhh {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public function count_cartas_trabajo() {
-        $stmt = $this->pdo->prepare("SELECT COUNT(*) AS total FROM carta_trabajo");
-        $stmt->execute();
-        return $stmt->fetchColumn();
-    }
-
-    public function count_calamidades() {
-        $stmt = $this->pdo->prepare("SELECT COUNT(*) AS total FROM calamidades");
-        $stmt->execute();
-        return $stmt->fetchColumn();
-    }
-
-    public function count_permisos() {
-        $stmt = $this->pdo->prepare("SELECT COUNT(*) AS total FROM solicitud_permiso");
-        $stmt->execute();
-        return $stmt->fetchColumn();
-    }
-
-    public function count_incapacidades() {
-        $stmt = $this->pdo->prepare("SELECT COUNT(*) AS total FROM incapacidad");
-        $stmt->execute();
-        return $stmt->fetchColumn();
-    }
-
-    public function count_type_permiso($type_permiso) {
-        $stmt = $this->pdo->prepare("SELECT COUNT(*) AS total FROM solicitud_permiso WHERE tipo_licencia = :type_permiso");
-        $stmt->bindParam(':type_permiso', $type_permiso, PDO::PARAM_STR);
-        $stmt->execute();
-        return $stmt->fetchColumn();
-    }
-
-    public function count_permisos_by_type(string $codigo){
-        $sql  = "SELECT COUNT(*) FROM solicitud_permiso WHERE tipo_licencia = ?";
+    public function count_cartas_trabajo($fecha_desde = null, $fecha_hasta = null) {
+        $sql = "SELECT COUNT(*) AS total FROM carta_trabajo WHERE 1=1";
+        $params = [];
+        
+        if ($fecha_desde) {
+            $sql .= " AND DATE(fecha_log) >= :fecha_desde";
+            $params[':fecha_desde'] = $fecha_desde;
+        }
+        
+        if ($fecha_hasta) {
+            $sql .= " AND DATE(fecha_log) <= :fecha_hasta";
+            $params[':fecha_hasta'] = $fecha_hasta;
+        }
+        
         $stmt = $this->pdo->prepare($sql);
-        $stmt->execute([$codigo]);
+        $stmt->execute($params);
+        return $stmt->fetchColumn();
+    }
+
+    public function count_calamidades($fecha_desde = null, $fecha_hasta = null) {
+        $sql = "SELECT COUNT(*) AS total FROM calamidades WHERE 1=1";
+        $params = [];
+        
+        if ($fecha_desde) {
+            $sql .= " AND DATE(fecha_log) >= :fecha_desde";
+            $params[':fecha_desde'] = $fecha_desde;
+        }
+        
+        if ($fecha_hasta) {
+            $sql .= " AND DATE(fecha_log) <= :fecha_hasta";
+            $params[':fecha_hasta'] = $fecha_hasta;
+        }
+        
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute($params);
+        return $stmt->fetchColumn();
+    }
+
+    public function count_permisos($fecha_desde = null, $fecha_hasta = null) {
+        $sql = "SELECT COUNT(*) AS total FROM solicitud_permiso WHERE 1=1";
+        $params = [];
+        
+        if ($fecha_desde) {
+            $sql .= " AND DATE(fecha_log) >= :fecha_desde";
+            $params[':fecha_desde'] = $fecha_desde;
+        }
+        
+        if ($fecha_hasta) {
+            $sql .= " AND DATE(fecha_log) <= :fecha_hasta";
+            $params[':fecha_hasta'] = $fecha_hasta;
+        }
+        
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute($params);
+        return $stmt->fetchColumn();
+    }
+
+    public function count_incapacidades($fecha_desde = null, $fecha_hasta = null) {
+        $sql = "SELECT COUNT(*) AS total FROM incapacidad WHERE 1=1";
+        $params = [];
+        
+        if ($fecha_desde) {
+            $sql .= " AND DATE(fecha_log) >= :fecha_desde";
+            $params[':fecha_desde'] = $fecha_desde;
+        }
+        
+        if ($fecha_hasta) {
+            $sql .= " AND DATE(fecha_log) <= :fecha_hasta";
+            $params[':fecha_hasta'] = $fecha_hasta;
+        }
+        
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute($params);
+        return $stmt->fetchColumn();
+    }
+
+    public function count_type_permiso($type_permiso, $fecha_desde = null, $fecha_hasta = null) {
+        $sql = "SELECT COUNT(*) AS total FROM solicitud_permiso WHERE tipo_licencia = :type_permiso";
+        $params = [':type_permiso' => $type_permiso];
+        
+        if ($fecha_desde) {
+            $sql .= " AND DATE(fecha_log) >= :fecha_desde";
+            $params[':fecha_desde'] = $fecha_desde;
+        }
+        
+        if ($fecha_hasta) {
+            $sql .= " AND DATE(fecha_log) <= :fecha_hasta";
+            $params[':fecha_hasta'] = $fecha_hasta;
+        }
+        
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute($params);
+        return $stmt->fetchColumn();
+    }
+
+    public function count_permisos_by_type(string $codigo, $fecha_desde = null, $fecha_hasta = null){
+        $sql = "SELECT COUNT(*) FROM solicitud_permiso WHERE tipo_licencia = ?";
+        $params = [$codigo];
+        
+        if ($fecha_desde) {
+            $sql .= " AND DATE(fecha_log) >= ?";
+            $params[] = $fecha_desde;
+        }
+        
+        if ($fecha_hasta) {
+            $sql .= " AND DATE(fecha_log) <= ?";
+            $params[] = $fecha_hasta;
+        }
+        
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute($params);
         return (int) $stmt->fetchColumn();
     }
 
