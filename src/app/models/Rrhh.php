@@ -805,6 +805,22 @@ class Rrhh {
     
         return $array_datos;
     }
+
+    public function select_permisos_all_admin($code) {
+
+        $shit_get_departamento = $this->get_departamento($code);
+        $departamento = $shit_get_departamento[0]['nombre_departamento'];
+
+        $array_datos = [];
+        $stmt_frase = $this->pdo->prepare("SELECT p.*, e.nombre, e.apellido FROM solicitud_permiso p inner join empleados e on p.code = e.codigo_empleado
+        WHERE e.nombre_departamento LIKE :departamento");
+        $stmt_frase->bindParam(':departamento', $departamento, PDO::PARAM_STR);
+        $stmt_frase->execute();
+        while ($list_code = $stmt_frase->fetch(PDO::FETCH_ASSOC)) {
+            $array_datos[] = $list_code;
+        }
+        return $array_datos;
+    }
     
 
     public function update_permiso($respuesta, $comentario, $permiso_id){

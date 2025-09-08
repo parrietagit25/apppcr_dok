@@ -595,6 +595,13 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
     require_once __DIR__ . '/../views/solicitud_permiso_aprobar.php';
     exit();
 
+}elseif (isset($_GET['administrar_permiso_admin'])) {
+
+    $permisos = $class->select_permisos_all();
+
+    require_once __DIR__ . '/../views/administrar_permiso_admin.php';
+    exit();
+
 }elseif (isset($_GET['solicitus_vacaciones'])) {
 
     if (isset($_POST['solicitud_vacaciones'])) {
