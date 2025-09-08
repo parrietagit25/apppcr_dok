@@ -597,7 +597,43 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
 
 }elseif (isset($_GET['administrar_permiso_admin'])) {
 
-    $permisos = $class->select_permisos_all();
+    if (isset($_POST['aprobar_permiso'])) {
+        $class->update_permiso($_POST['respuesta_jefe'], $_POST['comentario_jefe'], $_POST['permiso_id']);
+        //echo "<div class='alert alert-success'>Permiso actualizado correctamente.</div>";
+
+        $id_permiso = $_POST['permiso_id'];
+
+        //$dartos_cola = $class->datos_colaborador();
+
+        $get_email_colab = $class->get_email_permiso($id_permiso);
+
+        foreach ($get_email_colab as $key => $value) {
+            $nombre_comple = $value['nombre']. ' ' .$value['apellido']; 
+            $email = $value['email'];
+        }
+
+        if ($_POST['respuesta_jefe'] == 'A') {
+            $rep = 'Solicitud Aceptada';
+        }else {
+            $rep = 'Solicitud declinada';
+        }
+
+        $mensaje = 'Estimado  '.$nombre_comple.' <br> 
+        ha solicitado un permiso tipo '.$_POST['tipo_licencia'].' <br>
+        La respuesta de su jefe directo fue '.$rep.' <br>
+        Los comentarios de su jefe directo son: '.$_POST['comentario_jefe'].'';
+
+
+        $copiacoo = ["abi.pineda@grupopcr.com.pa", "sofia.macias@grupopcr.com.pa"];
+        //$copiacoo = ["pedro.arrieta@grupopcr.com.pa"];
+
+        $class->enviar_correo($email, $copiacoo, "Respuesta a la solicitud de permiso", $mensaje);
+    
+        echo "<div class='alert alert-success'>Permiso actualizado correctamente.</div>";
+
+    }
+
+    $permisos = $class->select_permisos_all_admin($_SESSION['code']);
 
     require_once __DIR__ . '/../views/administrar_permiso_admin.php';
     exit();
