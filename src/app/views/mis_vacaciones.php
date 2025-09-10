@@ -47,10 +47,10 @@ include __DIR__ . '/header.php';
                         <?php if (!empty($all_vacas)) {
                             foreach ($all_vacas as $value) {
                                 echo "<tr>
-                                        <td>" . htmlspecialchars($value['codigo_empleado']) . "</td>
-                                        <td>" . htmlspecialchars($value['nombre']) . "</td>
-                                        <td>" . htmlspecialchars($value['apellido']) . "</td>
-                                        <td>" . htmlspecialchars($value['dias_vaca_acu_tiempo']) . "</td>
+                                        <td>" . $value['codigo_empleado'] . "</td>
+                                        <td>" . $value['nombre'] . "</td>
+                                        <td>" . $value['apellido'] . "</td>
+                                        <td>" . $value['dias_vaca_acu_tiempo'] . "</td>
                                       </tr>";
                             }
                         } else {
