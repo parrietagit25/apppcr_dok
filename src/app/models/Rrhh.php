@@ -352,14 +352,22 @@ class Rrhh {
 
         $code = $_SESSION['code'];
 
-        $stmt = $this->pdo->prepare("SELECT ct.id, ct.descripcion, ct.fecha_log, 
+        $stmt = $this->pdo->prepare("SELECT 
+                                        ct.id, 
+                                        ct.descripcion, 
+                                        ct.fecha_log, 
                                         CASE ct.stat
                                             WHEN 1 THEN 'Enviado'
                                             WHEN 2 THEN 'Revisado'
                                             WHEN 3 THEN 'Anulado'
                                         END AS estado, 
-                                        c.nombre,
-                                        ct.file_add FROM incapacidad ct inner join col_datos_generales c on ct.code_user = c.codigo");
+                                        CONCAT(e.nombre, ' ', e.apellido) AS nombre,
+                                        ct.file_add
+                                    FROM incapacidad ct
+                                    INNER JOIN empleados e 
+                                        ON ct.code_user = RIGHT(e.codigo_empleado, LEN(e.codigo_empleado) - 2)");
+
+
         $stmt->execute();
         $array_datos = [];
         while ($list_code = $stmt->fetch(PDO::FETCH_ASSOC)) {
