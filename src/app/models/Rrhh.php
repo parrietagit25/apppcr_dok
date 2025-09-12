@@ -365,7 +365,7 @@ class Rrhh {
                                         ct.file_add
                                     FROM incapacidad ct
                                     INNER JOIN empleados e 
-                                        ON ct.code_user = RIGHT(e.codigo_empleado, LEN(e.codigo_empleado) - 2)");
+                                        ON ct.code_user = RIGHT(e.codigo_empleado, CHAR_LENGTH(e.codigo_empleado) - 2)");
 
 
         $stmt->execute();
