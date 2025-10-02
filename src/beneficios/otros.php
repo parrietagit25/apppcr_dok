@@ -107,6 +107,25 @@
         </div>
       </div>
 
+      <!-- Beneficio Gi|TECH -->
+      <div class="card mb-4 border-info">
+        <img src="image/gitech_promo.jpg" class="card-img-top" alt="Gi|TECH - Descuento en Electrodomésticos">
+        <div class="card-body">
+          <h4 class="card-title">Gi|TECH - Descuento en Electrodomésticos y Electrónicos</h4>
+          <p><strong>15% de descuento en compras al contado</strong> para colaboradores de Grupo PCR en electrodomésticos y electrónicos.</p>
+          <ul>
+            <li><strong>Productos disponibles:</strong> Electrodomésticos de cocina, PlayStation 5, refrigeradores Samsung, lavadoras, laptops y más.</li>
+            <li><strong>Programa de fidelización:</strong> Recibe un certificado para diciembre con tu compra.</li>
+            <li><strong>Válido para:</strong> Colaboradores de Grupo PCR con carnet vigente.</li>
+            <li><strong>Contacto:</strong> WhatsApp 6090-5031 para más información.</li>
+            <li><strong>Políticas:</strong> Consulta las políticas específicas en el punto de venta.</li>
+          </ul>
+          <div class="alert alert-success">
+            <strong>¡Oferta especial!</strong> Presenta tu carnet de colaborador y disfruta de descuentos exclusivos en la mejor tecnología y electrodomésticos.
+          </div>
+        </div>
+      </div>
+
 
     </div>
 
