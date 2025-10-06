@@ -134,7 +134,7 @@ include __DIR__ . '/header.php';
             <div class="col-4 mb-3">
                 <a href="https://micajadigital.css.gob.pa/Auth/SignIn" class="text-decoration-none" target="_blank">
                     <div class="card-icon">
-                        <img src="<?php echo BASE_URL_IMAGE; ?>css.png" alt="Carnet">
+                        <img src="<?php echo BASE_URL_IMAGE; ?>css.jpg" alt="Carnet">
                         <div class="card-title"> <small>Mi Caja Digital</small> </div>
                     </div>
                 </a>
