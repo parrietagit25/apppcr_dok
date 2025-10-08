@@ -643,6 +643,20 @@ class Rrhh {
             WHERE MONTH(fecha_nacimiento) = MONTH(CURDATE())
             AND DAY(fecha_nacimiento) >= DAY(CURDATE())
 
+            UNION ALL
+
+            SELECT 
+                codigo_empleado COLLATE utf8mb4_unicode_ci AS codigo_empleado,
+                nombre COLLATE utf8mb4_unicode_ci AS nombre,
+                apellido COLLATE utf8mb4_unicode_ci AS apellido,
+                fecha_nacimiento,
+                'empleado' AS tipo,
+                DAY(fecha_nacimiento) AS dia_cumpleaños
+            FROM empleados
+            WHERE MONTH(fecha_nacimiento) = MONTH(CURDATE())
+            AND DAY(fecha_nacimiento) >= DAY(CURDATE())
+            AND codigo_empleado in('002465')
+
             ORDER BY dia_cumpleaños;
         ";
 
