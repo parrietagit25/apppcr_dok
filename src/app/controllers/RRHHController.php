@@ -293,10 +293,13 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
         
         if (!file_exists($path_footer)) {
             error_log("Footer no encontrado en: " . $path_footer);
+            error_log("Verificando directorio padre: " . dirname($path_footer));
+            error_log("Archivos en directorio carta: " . print_r(scandir(dirname($path_footer)), true));
             $footer_src = '';
         } else {
             $footer_src = 'file://' . realpath($path_footer);
             error_log("Footer encontrado: " . $footer_src);
+            error_log("Tamaño del archivo footer: " . filesize($path_footer) . " bytes");
         }
         
         $qr_src = 'file://' . realpath($temp_qr_path);
@@ -402,6 +405,7 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
         </div>";
 
         $html .= "
+        <!-- CONTENIDO -->
         <div class='content'>
             <p style='text-align: right; margin-bottom: 20pt;'>Panamá, $fecha_actual</p>
 
@@ -423,7 +427,7 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
             <p>Se expide la presente para los fines que el(la) interesado(a) estime conveniente.</p>
         </div>
 
-        
+        <!-- FIRMA -->
         <div class='firma'>
             <p><strong>Atentamente,</strong></p>
             <br><br><br>
@@ -432,24 +436,20 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
             Grupo PCR</p>
         </div>
 
-        
+        <!-- CÓDIGO QR DE VERIFICACIÓN -->
         <div class='qr-container'>
             <img src='$qr_src' alt='Código QR de Verificación'>
             <p><strong>Escanea este código para verificar la autenticidad</strong></p>
             <p style='font-size: 7pt; color: #999;'>Ref: " . substr($hash_verificacion, 0, 12) . "</p>
         </div>
 
-        
-        <div class='footer'>";
+        <!-- PIE DE PÁGINA -->";
         
         if ($footer_src) {
-            $html .= "<img src='$footer_src' alt='Footer' style='max-width: 600px;'>";
+            $html .= "<div class='footer'><img src='$footer_src' alt='Footer' style='max-width: 600px;'></div>";
         } else {
-            $html .= "<div style='width: 100%; height: 80px; border: 1px solid #ccc; display: flex; align-items: center; justify-content: center; font-size: 10pt; color: #666;'>FOOTER PCR</div>";
+            $html .= "<div class='footer'><div style='width: 100%; height: 80px; border: 1px solid #ccc; display: flex; align-items: center; justify-content: center; font-size: 10pt; color: #666;'>FOOTER PCR</div></div>";
         }
-        
-        $html .= "
-        </div>
 
         <!-- INFORMACIÓN DE VERIFICACIÓN -->
         <div class='verification-info'>
