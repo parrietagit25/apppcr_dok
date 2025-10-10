@@ -68,8 +68,26 @@ try {
         WHERE id = :id");
     $stmt_update->execute([':id' => $carta['id']]);
 
+    // Construir ruta de la foto del colaborador
+    $codigo_empleado = str_pad($carta['codigo_empleado'], 4, '0', STR_PAD_LEFT); // Asegurar 4 dígitos
+    
+    // Buscar foto en diferentes extensiones posibles
+    $extensiones = ['jpeg', 'jpg', 'png', 'gif'];
+    $foto_url = null;
+    
+    foreach ($extensiones as $ext) {
+        $foto_path = __DIR__ . '/fotos/' . $codigo_empleado . '.' . $ext;
+        if (file_exists($foto_path)) {
+            $foto_url = '/carta/fotos/' . $codigo_empleado . '.' . $ext;
+            break;
+        }
+    }
+    
+    // Verificar si existe la foto
+    $tiene_foto = ($foto_url !== null);
+    
     // Mostrar página de verificación exitosa
-    mostrarVerificacionExitosa($carta, $deducciones);
+    mostrarVerificacionExitosa($carta, $deducciones, $tiene_foto ? $foto_url : null);
 
 } catch (Exception $e) {
     error_log("Error en verificación: " . $e->getMessage());
@@ -116,7 +134,7 @@ function mostrarError($mensaje, $carta = null) {
     <?php
 }
 
-function mostrarVerificacionExitosa($carta, $deducciones) {
+function mostrarVerificacionExitosa($carta, $deducciones, $foto_url = null) {
     ?>
     <!DOCTYPE html>
     <html lang="es">
@@ -162,6 +180,16 @@ function mostrarVerificacionExitosa($carta, $deducciones) {
 
             <div class="info-section">
                 <h2>Información del Colaborador</h2>
+                
+                <?php if ($foto_url): ?>
+                <div style="text-align: center; margin-bottom: 20px;">
+                    <img src="<?php echo htmlspecialchars($foto_url); ?>" 
+                         alt="Foto de <?php echo htmlspecialchars($carta['nombre'] . ' ' . $carta['apellido']); ?>"
+                         style="width: 150px; height: 150px; border-radius: 50%; object-fit: cover; border: 4px solid #007bff; box-shadow: 0 4px 8px rgba(0,0,0,0.2);"
+                         onerror="this.style.display='none'; this.parentElement.innerHTML='<p style=\'color:#999;\'>📷 Foto no disponible</p>';">
+                </div>
+                <?php endif; ?>
+                
                 <div class="info-row">
                     <div class="info-label">Nombre Completo:</div>
                     <div class="info-value"><?php echo htmlspecialchars($carta['nombre'] . ' ' . $carta['apellido']); ?></div>

@@ -18,7 +18,8 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 
 // Verificar autenticación
 $headers = getallheaders();
-$auth_key = $headers['X-API-Key'] ?? '';
+// Apache puede normalizar headers, buscar en diferentes formatos
+$auth_key = $headers['X-API-Key'] ?? $headers['X-Api-Key'] ?? $headers['x-api-key'] ?? '';
 
 if ($auth_key !== API_SECRET_KEY) {
     http_response_code(401);

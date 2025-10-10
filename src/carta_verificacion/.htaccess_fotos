@@ -1,0 +1,17 @@
+# Protección para carpeta de fotos
+# Este archivo debe copiarse como /public_html/carta/fotos/.htaccess
+
+<FilesMatch "\.(jpeg|jpg|png|gif)$">
+    Order Allow,Deny
+    Allow from all
+</FilesMatch>
+
+# Denegar acceso a otros tipos de archivos
+<FilesMatch "^\.ht">
+    Order Allow,Deny
+    Deny from all
+</FilesMatch>
+
+# Desactivar listado de directorio
+Options -Indexes
+
