@@ -451,6 +451,8 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
             $html .= "<div class='footer'><div style='width: 100%; height: 80px; border: 1px solid #ccc; display: flex; align-items: center; justify-content: center; font-size: 10pt; color: #666;'>FOOTER PCR</div></div>";
         }
 
+        $html .= "
+
         <!-- INFORMACIÓN DE VERIFICACIÓN -->
         <div class='verification-info'>
             <p><strong>VERIFICACIÓN DE AUTENTICIDAD:</strong> Escanee el código QR o visite https://grupopcr.com.pa/carta/</p>
