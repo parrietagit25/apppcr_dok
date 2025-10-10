@@ -273,11 +273,32 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
             }
         }
 
-        // Rutas absolutas a las imágenes
-        $path_logo = __DIR__ . '/../public/images/carta/logo.png';
-        $path_footer = __DIR__ . '/../public/images/carta/foot.png';
-        $logo_src = 'file://' . realpath($path_logo);
-        $footer_src = 'file://' . realpath($path_footer);
+        // Rutas absolutas a las imágenes para Docker
+        $path_logo = $_SERVER['DOCUMENT_ROOT'] . '/public/images/carta/logo.png';
+        $path_footer = $_SERVER['DOCUMENT_ROOT'] . '/public/images/carta/foot.png';
+        
+        // Debug: Log de rutas para troubleshooting
+        error_log("DOCUMENT_ROOT: " . $_SERVER['DOCUMENT_ROOT']);
+        error_log("Intentando cargar logo desde: " . $path_logo);
+        error_log("Intentando cargar footer desde: " . $path_footer);
+        
+        // Verificar que las imágenes existen
+        if (!file_exists($path_logo)) {
+            error_log("Logo no encontrado en: " . $path_logo);
+            $logo_src = '';
+        } else {
+            $logo_src = 'file://' . realpath($path_logo);
+            error_log("Logo encontrado: " . $logo_src);
+        }
+        
+        if (!file_exists($path_footer)) {
+            error_log("Footer no encontrado en: " . $path_footer);
+            $footer_src = '';
+        } else {
+            $footer_src = 'file://' . realpath($path_footer);
+            error_log("Footer encontrado: " . $footer_src);
+        }
+        
         $qr_src = 'file://' . realpath($temp_qr_path);
 
         // HTML del PDF con diseño mejorado
@@ -361,8 +382,15 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
 
         <!-- ENCABEZADO -->
         <div class='header'>
-            <div class='header-logo'>
-                <img src='$logo_src' width='180' alt='Logo Grupo PCR'>
+            <div class='header-logo'>";
+        
+        if ($logo_src) {
+            $html .= "<img src='$logo_src' width='180' alt='Logo Grupo PCR'>";
+        } else {
+            $html .= "<div style='width: 180px; height: 60px; border: 1px solid #ccc; display: flex; align-items: center; justify-content: center; font-size: 10pt; color: #666;'>LOGO PCR</div>";
+        }
+        
+        $html .= "
             </div>
             <div class='header-info'>
                 <strong>Grupo PCR</strong><br>
@@ -371,7 +399,7 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
                 www.grupopcr.com.pa
             </div>
             <div class='clear'></div>
-        </div>
+        </div>";
 
         <!-- CONTENIDO -->
         <div class='content'>
@@ -412,9 +440,16 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
         </div>
 
         <!-- PIE DE PÁGINA -->
-        <div class='footer'>
-            <img src='$footer_src' alt='Footer' style='max-width: 600px;'>
-        </div>
+        <div class='footer'>";
+        
+        if ($footer_src) {
+            $html .= "<img src='$footer_src' alt='Footer' style='max-width: 600px;'>";
+        } else {
+            $html .= "<div style='width: 100%; height: 80px; border: 1px solid #ccc; display: flex; align-items: center; justify-content: center; font-size: 10pt; color: #666;'>FOOTER PCR</div>";
+        }
+        
+        $html .= "
+        </div>";
 
         <!-- INFORMACIÓN DE VERIFICACIÓN -->
         <div class='verification-info'>
