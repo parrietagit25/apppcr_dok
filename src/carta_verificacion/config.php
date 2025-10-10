@@ -1,10 +1,10 @@
 <?php
 // Configuración de conexión a la base de datos externa (GoDaddy)
 // ⚠️ IMPORTANTE: Cambiar 'localhost' por el hostname de GoDaddy si la BD está allí
-define('DB_EXTERNAL_HOST', 'localhost'); // Cambiar a: 'grupopcr.com.pa' o la IP de GoDaddy si es externo
+define('DB_EXTERNAL_HOST', 'db'); // Cambiar a: 'grupopcr.com.pa' o la IP de GoDaddy si es externo
 define('DB_EXTERNAL_NAME', 'apppcr');
-define('DB_EXTERNAL_USER', 'pedropcr');
-define('DB_EXTERNAL_PASS', '');
+define('DB_EXTERNAL_USER', 'appuser');
+define('DB_EXTERNAL_PASS', 'apppass');
 define('DB_EXTERNAL_CHARSET', 'utf8mb4');
 
 // URL base de verificación
