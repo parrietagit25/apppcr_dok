@@ -280,70 +280,146 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
         $footer_src = 'file://' . realpath($path_footer);
         $qr_src = 'file://' . realpath($temp_qr_path);
 
-        // HTML del PDF con código QR integrado
+        // HTML del PDF con diseño mejorado
         $html = "
         <style>
-            body { font-family: sans-serif; font-size: 12pt; }
-            .encabezado { width: 100%; margin-bottom: 20px; }
-            .encabezado img { height: 80px; }
-            .footer-img { text-align: center; margin-top: 40px; }
-            ul { padding-left: 20px; line-height: 1.6; }
-            .qr-section { 
-                position: fixed; 
-                top: 20px; 
-                right: 20px; 
-                text-align: center; 
-                border: 2px solid #007bff;
-                padding: 10px;
-                background: #f8f9fa;
+            body { 
+                font-family: 'DejaVu Sans', Arial, sans-serif; 
+                font-size: 11pt; 
+                line-height: 1.5;
+                margin: 20px;
             }
-            .qr-section img { width: 120px; height: 120px; }
-            .qr-section p { font-size: 8pt; margin: 5px 0 0 0; color: #666; }
+            .header {
+                width: 100%;
+                margin-bottom: 30px;
+                border-bottom: 2px solid #0066cc;
+                padding-bottom: 15px;
+            }
+            .header-logo {
+                float: left;
+                width: 200px;
+            }
+            .header-info {
+                float: right;
+                text-align: right;
+                font-size: 9pt;
+                color: #333;
+                margin-top: 10px;
+            }
+            .clear { clear: both; }
+            .content {
+                margin-top: 20px;
+                text-align: justify;
+            }
+            .content p {
+                margin-bottom: 12pt;
+            }
+            ul {
+                margin-left: 30px;
+                line-height: 1.8;
+            }
+            ul li {
+                margin-bottom: 5pt;
+            }
+            .firma {
+                margin-top: 50px;
+                text-align: left;
+            }
+            .qr-container {
+                text-align: center;
+                margin: 40px 0 20px 0;
+                padding: 15px;
+                border: 1px solid #ddd;
+                background-color: #f9f9f9;
+            }
+            .qr-container img {
+                width: 130px;
+                height: 130px;
+            }
+            .qr-container p {
+                margin: 8px 0 0 0;
+                font-size: 9pt;
+                color: #555;
+            }
+            .footer {
+                text-align: center;
+                margin-top: 20px;
+            }
+            .footer img {
+                max-width: 100%;
+                height: auto;
+            }
+            .verification-info {
+                margin-top: 15px;
+                padding-top: 10px;
+                border-top: 1px solid #ccc;
+                font-size: 8pt;
+                color: #666;
+                text-align: center;
+            }
         </style>
 
-        <div class='qr-section'>
-            <img src='$qr_src' alt='QR de Verificación'>
-            <p><strong>Escanea para verificar</strong></p>
-            <p style='font-size: 7pt;'>Ref: " . substr($hash_verificacion, 0, 8) . "</p>
-        </div>
-
-        <div class='encabezado'>
-            <img src='$logo_src' width='200' alt='Logo'>
-            <div style='text-align: right; font-size: 10pt; margin-top: -60px;'>
+        <!-- ENCABEZADO -->
+        <div class='header'>
+            <div class='header-logo'>
+                <img src='$logo_src' width='180' alt='Logo Grupo PCR'>
+            </div>
+            <div class='header-info'>
+                <strong>Grupo PCR</strong><br>
                 Tocumen Commercial Park<br>
                 Tel: 279-2700<br>
-                Grupopcr.com.pa
+                www.grupopcr.com.pa
             </div>
+            <div class='clear'></div>
         </div>
 
-        <p>Panamá, $fecha_actual</p>
+        <!-- CONTENIDO -->
+        <div class='content'>
+            <p style='text-align: right; margin-bottom: 20pt;'>Panamá, $fecha_actual</p>
 
-        <p><strong>A quien pueda interesar:</strong></p>
+            <p><strong>A QUIEN PUEDA INTERESAR:</strong></p>
 
-        <p>Por medio de la presente, hacemos constar que el(la) Sr(a). <strong>" . htmlspecialchars($nombre . ' ' . $apellido) . "</strong>, con cédula <strong>" . htmlspecialchars($cedula) . "</strong> y seguro social <strong>" . htmlspecialchars($seguro) . "</strong>, labora en nuestra empresa desde el <strong>" . htmlspecialchars($fecha_ingreso) . "</strong>, desempeñando el cargo de <strong>" . htmlspecialchars($cargo) . "</strong>.</p>
+            <p>Por medio de la presente, hacemos constar que el(la) Sr(a). <strong>" . htmlspecialchars($nombre . ' ' . $apellido) . "</strong>, portador(a) de la cédula <strong>" . htmlspecialchars($cedula) . "</strong> y seguro social <strong>" . htmlspecialchars($seguro) . "</strong>, labora en nuestra empresa desde el <strong>" . date('d/m/Y', strtotime($fecha_ingreso)) . "</strong>, desempeñando el cargo de <strong>" . htmlspecialchars($cargo) . "</strong>.</p>
 
-        <p>El salario mensual pactado es de B/. " . number_format($salario, 2) . ", con las siguientes deducciones aproximadas:</p>
-        <ul>
-            <li>Seguro Social: B/. " . number_format($desc_seguro, 2) . "</li>
-            <li>Seguro Educativo: B/. " . number_format($desc_educativo, 2) . "</li>
-            <li>Impuesto sobre la Renta: B/. " . number_format($desc_renta, 2) . "</li>
-            $html_dinamico
-        </ul>
+            <p>El salario mensual pactado es de <strong>B/. " . number_format($salario, 2) . "</strong>, con las siguientes deducciones aproximadas:</p>
+            
+            <ul>
+                <li>Seguro Social: <strong>B/. " . number_format($desc_seguro, 2) . "</strong></li>
+                <li>Seguro Educativo: <strong>B/. " . number_format($desc_educativo, 2) . "</strong></li>
+                <li>Impuesto sobre la Renta: <strong>B/. " . number_format($desc_renta, 2) . "</strong></li>
+                $html_dinamico
+            </ul>
 
-        <p>" . htmlspecialchars($descripcion) . "</p>
+            <p>" . htmlspecialchars($descripcion) . "</p>
 
-        <p>Se expide la presente para los fines que estime convenientes.</p>
-
-        <br><br><br>
-        <p><strong>Departamento de Planilla</strong></p>
-
-        <div class='footer-img'>
-            <img src='$footer_src' alt='Footer'>
+            <p>Se expide la presente para los fines que el(la) interesado(a) estime conveniente.</p>
         </div>
-        
-        <div style='margin-top: 30px; font-size: 8pt; color: #666; text-align: center; border-top: 1px solid #ccc; padding-top: 10px;'>
-            <p>Para verificar la autenticidad de este documento, escanee el código QR o visite: https://grupopcr.com.pa/carta/</p>
-            <p>Hash de verificación: " . substr($hash_verificacion, 0, 16) . "... | Código: " . htmlspecialchars($codigo_empleado) . "</p>
+
+        <!-- FIRMA -->
+        <div class='firma'>
+            <p><strong>Atentamente,</strong></p>
+            <br><br><br>
+            <p style='border-top: 1px solid #000; width: 250px; display: inline-block;'></p><br>
+            <p><strong>Departamento de Recursos Humanos</strong><br>
+            Grupo PCR</p>
+        </div>
+
+        <!-- CÓDIGO QR DE VERIFICACIÓN -->
+        <div class='qr-container'>
+            <img src='$qr_src' alt='Código QR de Verificación'>
+            <p><strong>Escanea este código para verificar la autenticidad</strong></p>
+            <p style='font-size: 7pt; color: #999;'>Ref: " . substr($hash_verificacion, 0, 12) . "</p>
+        </div>
+
+        <!-- PIE DE PÁGINA -->
+        <div class='footer'>
+            <img src='$footer_src' alt='Footer' style='max-width: 600px;'>
+        </div>
+
+        <!-- INFORMACIÓN DE VERIFICACIÓN -->
+        <div class='verification-info'>
+            <p><strong>VERIFICACIÓN DE AUTENTICIDAD:</strong> Escanee el código QR o visite https://grupopcr.com.pa/carta/</p>
+            <p>Hash: " . substr($hash_verificacion, 0, 16) . "... | Código Empleado: " . htmlspecialchars($codigo_empleado) . " | Fecha Emisión: $fecha_actual</p>
         </div>
         ";
 

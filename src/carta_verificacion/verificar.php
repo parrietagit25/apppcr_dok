@@ -181,14 +181,12 @@ function mostrarVerificacionExitosa($carta, $deducciones, $foto_url = null) {
             <div class="info-section">
                 <h2>Información del Colaborador</h2>
                 
-                <?php if ($foto_url): ?>
+                <?php//if ($foto_url): ?>
                 <div style="text-align: center; margin-bottom: 20px;">
-                    <img src="<?php echo htmlspecialchars($foto_url); ?>" 
-                         alt="Foto de <?php echo htmlspecialchars($carta['nombre'] . ' ' . $carta['apellido']); ?>"
-                         style="width: 150px; height: 150px; border-radius: 50%; object-fit: cover; border: 4px solid #007bff; box-shadow: 0 4px 8px rgba(0,0,0,0.2);"
-                         onerror="this.style.display='none'; this.parentElement.innerHTML='<p style=\'color:#999;\'>📷 Foto no disponible</p>';">
+                    <img width="250" src="<?php echo 'fotos/'.ltrim($carta['codigo_empleado'], '0').'.jpeg'; ?>" 
+                         alt="Foto de <?php echo htmlspecialchars($carta['nombre'] . ' ' . $carta['apellido']); ?>">
                 </div>
-                <?php endif; ?>
+                <?php// endif; ?>
                 
                 <div class="info-row">
                     <div class="info-label">Nombre Completo:</div>
@@ -305,6 +303,17 @@ function mostrarVerificacionExitosa($carta, $deducciones, $foto_url = null) {
                 <p style="margin-top: 15px; font-size: 12px;">
                     Para validar la autenticidad de este documento, escanee el código QR en la carta original<br>
                     o contacte al Departamento de Recursos Humanos de <?php echo EMPRESA_NOMBRE; ?>
+                </p>
+            </div>
+            
+            <div style="background: #fff3cd; border: 2px solid #ffc107; border-radius: 8px; padding: 20px; margin-top: 30px; text-align: center;">
+                <p style="margin: 0; color: #856404; font-size: 14px; line-height: 1.6;">
+                    🔒 <strong>IMPORTANTE - VERIFICACIÓN DE AUTENTICIDAD:</strong><br>
+                    <span style="font-size: 15px; font-weight: bold; color: #000;">grupopcr.com.pa</span> es el <strong>único dominio legítimo</strong> de <?php echo EMPRESA_NOMBRE; ?>.<br>
+                    Si está visualizando esta carta en este dominio, puede <strong>confirmar su autenticidad</strong>.<br>
+                    <span style="font-size: 12px; color: #666; margin-top: 5px; display: inline-block;">
+                        Cualquier verificación fuera de este dominio oficial debe considerarse <strong>no válida</strong>.
+                    </span>
                 </p>
             </div>
         </div>
