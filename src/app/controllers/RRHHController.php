@@ -101,7 +101,7 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
 }elseif ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['enviar_carta_pdf'])) {
     // Validar entrada
     $id_carta = filter_input(INPUT_POST, 'solicitud_id', FILTER_VALIDATE_INT);
-    $comentario = filter_input(INPUT_POST, 'comentario', FILTER_SANITIZE_STRING) ?? '';
+    $comentario = isset($_POST['comentario']) ? htmlspecialchars(trim($_POST['comentario']), ENT_QUOTES, 'UTF-8') : '';
 
     if (!$id_carta) {
         echo "<div class='alert alert-danger'>ID de solicitud inválido.</div>";
@@ -140,8 +140,16 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
         $otros_descuentos = $class->get_otros_descuentos_por_carta($id_carta);
 
         // ========== NUEVO: Integración con sistema de verificación externo ==========
-        require_once __DIR__ . '/../../../carta_verificacion/config.php';
-        require_once __DIR__ . '/../../../carta_verificacion/CartaVerificacionService.php';
+        // Determinar ruta correcta a carta_verificacion
+        $carta_verificacion_path = $_SERVER['DOCUMENT_ROOT'] . '/carta_verificacion/';
+        
+        if (!file_exists($carta_verificacion_path . 'config.php')) {
+            throw new Exception("No se encontró el sistema de verificación en: " . $carta_verificacion_path);
+        }
+        
+        require_once $carta_verificacion_path . 'config.php';
+        require_once $carta_verificacion_path . 'DatabaseExternal.php';
+        require_once $carta_verificacion_path . 'CartaVerificacionService.php';
         
         $verificacionService = new CartaVerificacionService();
         

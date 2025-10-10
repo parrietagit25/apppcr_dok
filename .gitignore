@@ -1,9 +1,8 @@
 .env
 *.key
-*config.php
 src/prueba_mail.php
 src/mail.php
 initdb/
 /mysql/
-# Carpeta de verificación externa de cartas (servidor remoto)
-carta_verificacion/
+# Excluir config.php de src pero permitir el de carta_verificacion
+src/config/config.php
