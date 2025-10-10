@@ -401,7 +401,7 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
             <div class='clear'></div>
         </div>";
 
-        <!-- CONTENIDO -->
+        $html .= "
         <div class='content'>
             <p style='text-align: right; margin-bottom: 20pt;'>Panamá, $fecha_actual</p>
 
@@ -423,7 +423,7 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
             <p>Se expide la presente para los fines que el(la) interesado(a) estime conveniente.</p>
         </div>
 
-        <!-- FIRMA -->
+        
         <div class='firma'>
             <p><strong>Atentamente,</strong></p>
             <br><br><br>
@@ -432,14 +432,14 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
             Grupo PCR</p>
         </div>
 
-        <!-- CÓDIGO QR DE VERIFICACIÓN -->
+        
         <div class='qr-container'>
             <img src='$qr_src' alt='Código QR de Verificación'>
             <p><strong>Escanea este código para verificar la autenticidad</strong></p>
             <p style='font-size: 7pt; color: #999;'>Ref: " . substr($hash_verificacion, 0, 12) . "</p>
         </div>
 
-        <!-- PIE DE PÁGINA -->
+        
         <div class='footer'>";
         
         if ($footer_src) {
@@ -449,7 +449,7 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
         }
         
         $html .= "
-        </div>";
+        </div>
 
         <!-- INFORMACIÓN DE VERIFICACIÓN -->
         <div class='verification-info'>
