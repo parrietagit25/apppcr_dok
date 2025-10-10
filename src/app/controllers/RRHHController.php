@@ -99,19 +99,152 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
     exit();
     
 }elseif ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['enviar_carta_pdf'])) {
-    $id_carta = $_POST['solicitud_id'];
-    $comentario = $_POST['comentario'] ?? '';
+    // Validar entrada
+    $id_carta = filter_input(INPUT_POST, 'solicitud_id', FILTER_VALIDATE_INT);
+    $comentario = filter_input(INPUT_POST, 'comentario', FILTER_SANITIZE_STRING) ?? '';
+
+    if (!$id_carta) {
+        echo "<div class='alert alert-danger'>ID de solicitud inválido.</div>";
+        $solicitudes = $class->solicitudes_aprobar();
+        require_once __DIR__ . '/../views/carta_trabajo_aprobar.php';
+        exit;
+    }
 
     // Obtener los datos del colaborador y de la carta
     $datos = $class->get_datos_formulario_carta($id_carta);
 
     if (!$datos) {
         echo "<div class='alert alert-danger'>No se encontraron datos para generar la carta.</div>";
-    } else {
+        $solicitudes = $class->solicitudes_aprobar();
+        require_once __DIR__ . '/../views/carta_trabajo_aprobar.php';
+        exit;
+    }
+
+    try {
         $fecha_actual = date("d/m/Y");
-        extract($datos); // $nombre, $cedula, $seguro, etc.
+        
+        // Extraer datos (usar acceso explícito en lugar de extract)
+        $nombre = $datos['nombre'] ?? '';
+        $apellido = $datos['apellido'] ?? '';
+        $cedula = $datos['cedula'] ?? '';
+        $seguro = $datos['seguro'] ?? '';
+        $fecha_ingreso = $datos['fecha_ingreso'] ?? '';
+        $cargo = $datos['cargo'] ?? '';
+        $salario = $datos['salario'] ?? '';
+        $desc_seguro = $datos['desc_seguro'] ?? '0';
+        $desc_educativo = $datos['desc_educativo'] ?? '0';
+        $desc_renta = $datos['desc_renta'] ?? '0';
+        $descripcion = $datos['descripcion'] ?? '';
+        $codigo_empleado = $datos['codigo_empleado'] ?? '';
+        
         $otros_descuentos = $class->get_otros_descuentos_por_carta($id_carta);
 
+        // ========== NUEVO: Integración con sistema de verificación externo ==========
+        require_once __DIR__ . '/../../../carta_verificacion/config.php';
+        require_once __DIR__ . '/../../../carta_verificacion/CartaVerificacionService.php';
+        
+        $verificacionService = new CartaVerificacionService();
+        
+        // Generar token encriptado para el QR
+        $token_qr = $verificacionService->encriptarToken($id_carta . '_' . time());
+        
+        // Generar hash de verificación
+        $hash_verificacion = $verificacionService->generarHashVerificacion($id_carta, $codigo_empleado, $cedula);
+        
+        // Preparar deducciones para BD externa
+        $deducciones_para_bd = [];
+        $orden = 1;
+        
+        if ($desc_seguro > 0) {
+            $deducciones_para_bd[] = [
+                'tipo' => 'seguro_social',
+                'descripcion' => 'Seguro Social',
+                'monto' => $desc_seguro,
+                'orden' => $orden++
+            ];
+        }
+        
+        if ($desc_educativo > 0) {
+            $deducciones_para_bd[] = [
+                'tipo' => 'seguro_educativo',
+                'descripcion' => 'Seguro Educativo',
+                'monto' => $desc_educativo,
+                'orden' => $orden++
+            ];
+        }
+        
+        if ($desc_renta > 0) {
+            $deducciones_para_bd[] = [
+                'tipo' => 'impuesto_renta',
+                'descripcion' => 'Impuesto sobre la Renta',
+                'monto' => $desc_renta,
+                'orden' => $orden++
+            ];
+        }
+        
+        // Agregar otros descuentos
+        if (!empty($otros_descuentos)) {
+            foreach ($otros_descuentos as $desc) {
+                $deducciones_para_bd[] = [
+                    'tipo' => 'otro',
+                    'descripcion' => $desc['acreedor'],
+                    'monto' => $desc['monto'],
+                    'orden' => $orden++
+                ];
+            }
+        }
+        
+        // Obtener email del colaborador
+        $get_email_colab = $class->get_email_colaborador($id_carta);
+        $email_destino = $get_email_colab['email'] ?? '';
+        
+        // Preparar datos para insertar en BD externa
+        $datos_carta_bd = [
+            'id_carta_original' => $id_carta,
+            'hash_verificacion' => $hash_verificacion,
+            'token_qr' => $token_qr,
+            'codigo_empleado' => $codigo_empleado,
+            'nombre' => $nombre,
+            'apellido' => $apellido,
+            'cedula' => $cedula,
+            'seguro_social' => $seguro,
+            'email' => $email_destino,
+            'cargo' => $cargo,
+            'fecha_ingreso' => $fecha_ingreso,
+            'salario_bruto' => $salario,
+            'incluye_desglose_salarial' => !empty($deducciones_para_bd) ? 1 : 0,
+            'descripcion' => $descripcion,
+            'comentario_rrhh' => $comentario,
+            'nombre_archivo_pdf' => '',  // Se actualizará después
+            'hash_pdf' => '',  // Se actualizará después
+            'estado' => 'activa',
+            'fecha_emision' => date('Y-m-d H:i:s'),
+            'fecha_expiracion' => date('Y-m-d H:i:s', strtotime('+' . DIAS_EXPIRACION_CARTA . ' days')),
+            'empresa' => EMPRESA_NOMBRE,
+            'ip_generacion' => $verificacionService->obtenerIPCliente()
+        ];
+        
+        // Insertar en BD externa
+        $carta_bd_id = $verificacionService->insertarCarta($datos_carta_bd, $deducciones_para_bd);
+        
+        if (!$carta_bd_id) {
+            throw new Exception("Error al registrar carta en sistema de verificación");
+        }
+        
+        // Generar URL del QR
+        $url_qr = $verificacionService->generarURLQR($token_qr);
+        
+        // Descargar imagen del QR
+        $temp_qr_path = __DIR__ . '/../uploads/carta_trabajo/temp_qr_' . $id_carta . '.png';
+        $qr_descargado = $verificacionService->descargarImagenQR($url_qr, $temp_qr_path);
+        
+        if (!$qr_descargado) {
+            throw new Exception("Error al generar código QR");
+        }
+        
+        // ========== FIN: Sistema de verificación ==========
+
+        // Construir HTML dinámico de deducciones
         $html_dinamico = "";
         if (!empty($otros_descuentos)) {
             $html_dinamico .= "<li><strong>Otros descuentos:</strong></li>";
@@ -127,19 +260,38 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
         $path_footer = __DIR__ . '/../public/images/carta/foot.png';
         $logo_src = 'file://' . realpath($path_logo);
         $footer_src = 'file://' . realpath($path_footer);
+        $qr_src = 'file://' . realpath($temp_qr_path);
 
+        // HTML del PDF con código QR integrado
         $html = "
         <style>
             body { font-family: sans-serif; font-size: 12pt; }
-            .encabezado { width: 100%; display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+            .encabezado { width: 100%; margin-bottom: 20px; }
             .encabezado img { height: 80px; }
             .footer-img { text-align: center; margin-top: 40px; }
             ul { padding-left: 20px; line-height: 1.6; }
+            .qr-section { 
+                position: fixed; 
+                top: 20px; 
+                right: 20px; 
+                text-align: center; 
+                border: 2px solid #007bff;
+                padding: 10px;
+                background: #f8f9fa;
+            }
+            .qr-section img { width: 120px; height: 120px; }
+            .qr-section p { font-size: 8pt; margin: 5px 0 0 0; color: #666; }
         </style>
 
+        <div class='qr-section'>
+            <img src='$qr_src' alt='QR de Verificación'>
+            <p><strong>Escanea para verificar</strong></p>
+            <p style='font-size: 7pt;'>Ref: " . substr($hash_verificacion, 0, 8) . "</p>
+        </div>
+
         <div class='encabezado'>
-            <img src='file:///var/www/html/public/images/carta/logo.png' width='200' alt='Logo'>
-            <div style='text-align: right; font-size: 10pt; position: relative; margin-top: -80px;'>
+            <img src='$logo_src' width='200' alt='Logo'>
+            <div style='text-align: right; font-size: 10pt; margin-top: -60px;'>
                 Tocumen Commercial Park<br>
                 Tel: 279-2700<br>
                 Grupopcr.com.pa
@@ -150,17 +302,17 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
 
         <p><strong>A quien pueda interesar:</strong></p>
 
-        <p>Por medio de la presente, hacemos constar que el(la) Sr(a). <strong>$nombre $apellido</strong>, con cédula <strong>$cedula</strong> y seguro social <strong>$seguro</strong>, labora en nuestra empresa desde el <strong>$fecha_ingreso</strong>, desempeñando el cargo de <strong>$cargo</strong>.</p>
+        <p>Por medio de la presente, hacemos constar que el(la) Sr(a). <strong>" . htmlspecialchars($nombre . ' ' . $apellido) . "</strong>, con cédula <strong>" . htmlspecialchars($cedula) . "</strong> y seguro social <strong>" . htmlspecialchars($seguro) . "</strong>, labora en nuestra empresa desde el <strong>" . htmlspecialchars($fecha_ingreso) . "</strong>, desempeñando el cargo de <strong>" . htmlspecialchars($cargo) . "</strong>.</p>
 
-        <p>El salario mensual pactado es de B/. $salario, con las siguientes deducciones aproximadas:</p>
+        <p>El salario mensual pactado es de B/. " . number_format($salario, 2) . ", con las siguientes deducciones aproximadas:</p>
         <ul>
-            <li>Seguro Social: B/. $desc_seguro</li>
-            <li>Seguro Educativo: B/. $desc_educativo</li>
-            <li>Impuesto sobre la Renta: B/. $desc_renta</li>
+            <li>Seguro Social: B/. " . number_format($desc_seguro, 2) . "</li>
+            <li>Seguro Educativo: B/. " . number_format($desc_educativo, 2) . "</li>
+            <li>Impuesto sobre la Renta: B/. " . number_format($desc_renta, 2) . "</li>
             $html_dinamico
         </ul>
 
-        <p>$descripcion</p>
+        <p>" . htmlspecialchars($descripcion) . "</p>
 
         <p>Se expide la presente para los fines que estime convenientes.</p>
 
@@ -168,37 +320,68 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
         <p><strong>Departamento de Planilla</strong></p>
 
         <div class='footer-img'>
-            <img src='file:///var/www/html/public/images/carta/foot.png' alt='Logo'>
+            <img src='$footer_src' alt='Footer'>
+        </div>
+        
+        <div style='margin-top: 30px; font-size: 8pt; color: #666; text-align: center; border-top: 1px solid #ccc; padding-top: 10px;'>
+            <p>Para verificar la autenticidad de este documento, escanee el código QR o visite: https://grupopcr.com.pa/carta/</p>
+            <p>Hash de verificación: " . substr($hash_verificacion, 0, 16) . "... | Código: " . htmlspecialchars($codigo_empleado) . "</p>
         </div>
         ";
 
         // Generar PDF con mPDF
-
         $mpdf = new \Mpdf\Mpdf([
             'default_font' => 'dejavusans',
-            'tempDir' => __DIR__ . '/../../tmp/mpdf' // ruta corregida y real
+            'tempDir' => __DIR__ . '/../../tmp/mpdf'
         ]);
 
         $mpdf->WriteHTML($html);
-        $nombreArchivo = 'Carta_' . preg_replace('/[^a-zA-Z0-9]/', "", $nombre) . '.pdf';
+        $nombreArchivo = 'Carta_' . preg_replace('/[^a-zA-Z0-9]/', "", $nombre) . '_' . $id_carta . '_' . date('Ymd') . '.pdf';
         $ruta_archivo = __DIR__ . '/../uploads/carta_trabajo/' . $nombreArchivo;
         $mpdf->Output($ruta_archivo, \Mpdf\Output\Destination::FILE);
+        
+        // Eliminar QR temporal
+        if (file_exists($temp_qr_path)) {
+            unlink($temp_qr_path);
+        }
 
-        // Obtener el correo del colaborador
-        $get_email_colab = $class->get_email_colaborador($id_carta);
-        $email_destino = $get_email_colab['email'] ?? '';
+        // Actualizar BD externa con hash del PDF y nombre de archivo
+        $hash_pdf = $verificacionService->generarHashPDF($ruta_archivo);
+        $pdo_external = $verificacionService->getConnection();
+        $stmt_update = $pdo_external->prepare("UPDATE cartas_trabajo_verificacion 
+            SET nombre_archivo_pdf = :nombre, hash_pdf = :hash 
+            WHERE id = :id");
+        $stmt_update->execute([
+            ':nombre' => $nombreArchivo,
+            ':hash' => $hash_pdf,
+            ':id' => $carta_bd_id
+        ]);
 
-        if ($email_destino) {
-            $mensaje_correo = "Estimado $nombre,<br><br>Adjunto encontrará su carta de trabajo solicitada. $comentario<br><br>Saludos,<br>RRHH";
-            $copias = ["abi.pineda@grupopcr.com.pa", "sofia.macias@grupopcr.com.pa"];
+        // Enviar correo
+        if ($email_destino && filter_var($email_destino, FILTER_VALIDATE_EMAIL)) {
+            $mensaje_correo = "Estimado " . htmlspecialchars($nombre) . ",<br><br>Adjunto encontrará su carta de trabajo solicitada.<br><br>" . 
+                             "Esta carta incluye un código QR que permite verificar su autenticidad escaneándolo con cualquier dispositivo móvil.<br><br>" .
+                             htmlspecialchars($comentario) . "<br><br>Saludos,<br>Departamento de RRHH - Grupo PCR";
+            
+            //$copias = ["abi.pineda@grupopcr.com.pa", "sofia.macias@grupopcr.com.pa"];
+            $copias = ["pedroarrieta25@hotmail.com"];
 
-            // Enviar correo con el PDF adjunto
-            $class->enviar_correo_con_adjunto($email_destino, $copias, "Carta de Trabajo", $mensaje_correo, $ruta_archivo);
-            echo "<div class='alert alert-success'>Carta generada y enviada exitosamente a $email_destino.</div>";
+            $class->enviar_correo_con_adjunto($email_destino, $copias, "Carta de Trabajo - Grupo PCR", $mensaje_correo, $ruta_archivo);
+            echo "<div class='alert alert-success'>
+                    <strong>✓ Carta generada exitosamente</strong><br>
+                    - Enviada a: " . htmlspecialchars($email_destino) . "<br>
+                    - Código QR de verificación incluido<br>
+                    - Registrada en sistema de verificación
+                  </div>";
+            
             $class->aprobar_carta_trabajo($id_carta);
         } else {
-            echo "<div class='alert alert-warning'>No se pudo obtener el correo del colaborador.</div>";
+            echo "<div class='alert alert-warning'>Carta generada pero no se pudo obtener un email válido del colaborador.</div>";
         }
+
+    } catch (Exception $e) {
+        error_log("Error en enviar_carta_pdf: " . $e->getMessage());
+        echo "<div class='alert alert-danger'>Error: " . htmlspecialchars($e->getMessage()) . "</div>";
     }
 
     $solicitudes = $class->solicitudes_aprobar();

@@ -1112,6 +1112,7 @@ class Rrhh {
             IFNULL(ctf.descripcion, ct.descripcion) AS descripcion,
             IFNULL(ctf.nombre, c.nombre) AS nombre,
             c.apellido,
+            c.codigo_empleado, 
             IFNULL(ctf.salario, c.salario_pactado) AS salario,
             IFNULL(ctf.fecha_ingreso, c.fecha_ingreso) AS fecha_ingreso,
             IFNULL(ctf.cedula, c.cedula) AS cedula,

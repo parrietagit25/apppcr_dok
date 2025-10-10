@@ -5,3 +5,5 @@ src/prueba_mail.php
 src/mail.php
 initdb/
 /mysql/
+# Carpeta de verificación externa de cartas (servidor remoto)
+carta_verificacion/
