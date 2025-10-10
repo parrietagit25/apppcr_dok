@@ -24,3 +24,7 @@ define('QR_API_URL', 'https://api.qrserver.com/v1/create-qr-code/');
 define('QR_SIZE', '300x300');
 define('QR_FORMAT', 'png');
 
+// API de sincronización con GoDaddy
+define('API_GODADDY_URL', 'https://grupopcr.com.pa/carta/api_recibir_carta.php');
+define('API_SECRET_KEY', 'PCR_API_KEY_2025_SECURE_CHANGE_THIS'); // ⚠️ Cambiar por una clave segura única
+

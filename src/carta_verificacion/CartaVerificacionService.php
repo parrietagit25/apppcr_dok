@@ -214,5 +214,65 @@ class CartaVerificacionService {
             return $_SERVER['REMOTE_ADDR'] ?? 'unknown';
         }
     }
+
+    /**
+     * Envía los datos de la carta a GoDaddy vía API
+     */
+    public function enviarAGoDaddy($datos_carta, $deducciones = []) {
+        // URL de la API en GoDaddy (desde config.php)
+        $api_url = API_GODADDY_URL;
+        
+        // Clave de API (desde config.php)
+        $api_key = API_SECRET_KEY;
+        
+        // Preparar datos para enviar
+        $payload = [
+            'carta' => $datos_carta,
+            'deducciones' => $deducciones
+        ];
+        
+        $json_data = json_encode($payload);
+        
+        // Configurar cURL
+        $ch = curl_init($api_url);
+        curl_setopt_array($ch, [
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_POST => true,
+            CURLOPT_POSTFIELDS => $json_data,
+            CURLOPT_HTTPHEADER => [
+                'Content-Type: application/json',
+                'X-API-Key: ' . $api_key,
+                'Content-Length: ' . strlen($json_data)
+            ],
+            CURLOPT_TIMEOUT => 30,
+            CURLOPT_SSL_VERIFYPEER => true
+        ]);
+        
+        // Ejecutar request
+        $response = curl_exec($ch);
+        $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $curl_error = curl_error($ch);
+        curl_close($ch);
+        
+        // Verificar respuesta
+        if ($curl_error) {
+            error_log("Error cURL enviando a GoDaddy: " . $curl_error);
+            throw new Exception("Error de conexión con servidor de verificación: " . $curl_error);
+        }
+        
+        if ($http_code !== 201 && $http_code !== 200) {
+            error_log("Error HTTP al enviar a GoDaddy. Código: $http_code. Respuesta: $response");
+            throw new Exception("Error al sincronizar con servidor de verificación (HTTP $http_code)");
+        }
+        
+        $result = json_decode($response, true);
+        
+        if (!$result || !isset($result['success'])) {
+            error_log("Respuesta inválida de GoDaddy: " . $response);
+            throw new Exception("Respuesta inválida del servidor de verificación");
+        }
+        
+        return $result;
+    }
 }
 

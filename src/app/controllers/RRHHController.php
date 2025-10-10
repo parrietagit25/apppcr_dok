@@ -232,11 +232,21 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
             'ip_generacion' => $verificacionService->obtenerIPCliente()
         ];
         
-        // Insertar en BD externa
+        // Insertar en BD local (Docker)
         $carta_bd_id = $verificacionService->insertarCarta($datos_carta_bd, $deducciones_para_bd);
         
         if (!$carta_bd_id) {
-            throw new Exception("Error al registrar carta en sistema de verificación");
+            throw new Exception("Error al registrar carta en sistema de verificación local");
+        }
+        
+        // Enviar datos a GoDaddy vía API
+        try {
+            $resultado_godaddy = $verificacionService->enviarAGoDaddy($datos_carta_bd, $deducciones_para_bd);
+            error_log("Carta sincronizada con GoDaddy. ID local: $carta_bd_id, ID remoto: " . $resultado_godaddy['carta_id']);
+        } catch (Exception $e) {
+            // Log del error pero no falla la generación de carta
+            error_log("ADVERTENCIA: No se pudo sincronizar con GoDaddy: " . $e->getMessage());
+            // La carta ya está guardada localmente, así que continuamos
         }
         
         // Generar URL del QR
