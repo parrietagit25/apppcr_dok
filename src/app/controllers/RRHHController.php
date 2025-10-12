@@ -425,14 +425,13 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
             <p>" . htmlspecialchars($descripcion) . "</p>
 
             <p>Se expide la presente para los fines que el(la) interesado(a) estime conveniente.</p>
+        
+            <!-- FIRMA -->
+            <div class='firma'>
+                <p><strong>Departamento de Recursos Humanos</strong><br>
+                Grupo PCR</p>
+            </div>
         </div>
-
-        <!-- FIRMA -->
-        <div class='firma'>
-            <p><strong>Departamento de Recursos Humanos</strong><br>
-            Grupo PCR</p>
-        </div>
-
         <!-- CÓDIGO QR DE VERIFICACIÓN -->
         <div class='qr-container'>
             <img src='$qr_src' alt='Código QR de Verificación'>
@@ -441,12 +440,13 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
         </div>
 
         <!-- PIE DE PÁGINA -->";
-        
+        /*
         if ($footer_src) {
             $html .= "<div class='footer'><img src='$footer_src' alt='Footer' style='max-width: 600px;'></div>";
         } else {
             $html .= "<div class='footer'><div style='width: 100%; height: 80px; border: 1px solid #ccc; display: flex; align-items: center; justify-content: center; font-size: 10pt; color: #666;'>FOOTER PCR</div></div>";
         }
+        */
 
         $html .= "
 
