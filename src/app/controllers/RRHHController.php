@@ -309,15 +309,15 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
         <style>
             body { 
                 font-family: 'DejaVu Sans', Arial, sans-serif; 
-                font-size: 11pt; 
-                line-height: 1.5;
-                margin: 20px;
+                font-size: 10pt; 
+                line-height: 1.4;
+                margin: 15px;
             }
             .header {
                 width: 100%;
-                margin-bottom: 30px;
+                margin-bottom: 20px;
                 border-bottom: 2px solid #0066cc;
-                padding-bottom: 15px;
+                padding-bottom: 10px;
             }
             .header-logo {
                 float: left;
@@ -332,52 +332,52 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
             }
             .clear { clear: both; }
             .content {
-                margin-top: 20px;
+                margin-top: 10px;
                 text-align: justify;
             }
             .content p {
-                margin-bottom: 12pt;
+                margin-bottom: 8pt;
             }
             ul {
                 margin-left: 30px;
-                line-height: 1.8;
+                line-height: 1.5;
             }
             ul li {
-                margin-bottom: 5pt;
+                margin-bottom: 3pt;
             }
             .firma {
-                margin-top: 50px;
+                margin-top: 30px;
                 text-align: left;
             }
             .qr-container {
                 text-align: center;
-                margin: 40px 0 20px 0;
-                padding: 15px;
+                margin: 20px 0 10px 0;
+                padding: 10px;
                 border: 1px solid #ddd;
                 background-color: #f9f9f9;
             }
             .qr-container img {
-                width: 130px;
-                height: 130px;
+                width: 100px;
+                height: 100px;
             }
             .qr-container p {
-                margin: 8px 0 0 0;
-                font-size: 9pt;
+                margin: 5px 0 0 0;
+                font-size: 8pt;
                 color: #555;
             }
             .footer {
                 text-align: center;
-                margin-top: 20px;
+                margin-top: 10px;
             }
             .footer img {
                 max-width: 100%;
                 height: auto;
             }
             .verification-info {
-                margin-top: 15px;
-                padding-top: 10px;
+                margin-top: 10px;
+                padding-top: 5px;
                 border-top: 1px solid #ccc;
-                font-size: 8pt;
+                font-size: 7pt;
                 color: #666;
                 text-align: center;
             }
@@ -429,9 +429,6 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
 
         <!-- FIRMA -->
         <div class='firma'>
-            <p><strong>Atentamente,</strong></p>
-            <br><br><br>
-            <p style='border-top: 1px solid #000; width: 250px; display: inline-block;'></p><br>
             <p><strong>Departamento de Recursos Humanos</strong><br>
             Grupo PCR</p>
         </div>
