@@ -1126,10 +1126,10 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
                                 <b>Observaciones:</b> $observacion<br><br>
                                 Por favor, revise la solicitud en el sistema.";
                     
-                    $copia = ["abi.pineda@grupopcr.com.pa", "yissell.perez@grupopcr.com.pa", "pedro.arrieta@grupopcr.com.pa"];
+                    $copia = ["abi.pineda@grupopcr.com.pa", "yissell.perez@grupopcr.com.pa"];
                     $class->enviar_correo("sofia.macias@grupopcr.com.pa", $copia, "Nueva solicitud de uniforme", $mensaje);
                 }
-                
+
             } else {
                 echo "<div class='alert alert-danger'>Error al procesar la solicitud.</div>";
             }
