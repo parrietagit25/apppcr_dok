@@ -9,24 +9,27 @@ include __DIR__ . '/header.php';
 
 <!-- DataTables CSS -->
 <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
 
 <style>
     .badge-solicitado { background-color: #ffc107; color: #000; }
     .badge-proceso { background-color: #0dcaf0; color: #000; }
     .badge-entregado { background-color: #198754; color: #fff; }
+    
+    /* Optimización para móvil */
+    @media (max-width: 768px) {
+        .table { font-size: 0.85rem; }
+        .btn-sm { font-size: 0.7rem; padding: 0.25rem 0.5rem; }
+    }
 </style>
 
 <div class="container mt-4">
-
+    
     <!-- Título -->
     <div id="carouselExampleSlidesOnly" class="carousel slide mb-4" data-bs-ride="carousel">
         <div class="carousel-inner">
             <div class="carousel-item active">
                 <div class="p-3 bg-light rounded">
                     <h5 class="fw-bold">👕 Solicitud de Uniformes</h5>
-                    <p class="mb-0 small text-muted">Gestiona tus solicitudes de uniformes corporativos</p>
                 </div>
             </div>
         </div>
@@ -42,32 +45,22 @@ include __DIR__ . '/header.php';
     <!-- Tabla de Solicitudes -->
     <div class="row mt-5">
         <div class="col-12">
-            <h5 class="text-center mb-3">
-                <?php echo ($tipo_usuario == 1 || $tipo_usuario == 4) ? 'Todas las Solicitudes' : 'Mis Solicitudes'; ?>
-            </h5>
+            <h5 class="text-center mb-3">Mis Solicitudes</h5>
             <div class="table-responsive">
                 <table id="tablaUniformes" class="table table-striped table-bordered table-hover mt-3" style="width: 100%;">
-            <thead class="table-dark text-center">
-                <tr>
-                            <?php if ($tipo_usuario == 1 || $tipo_usuario == 4): ?>
-                            <th>Código</th>
-                            <?php endif; ?>
-                    <th>Nombre</th>
-                            <?php if ($tipo_usuario == 1 || $tipo_usuario == 4): ?>
-                            <th>Departamento</th>
-                            <?php endif; ?>
-                    <th>Tipo</th>
-                    <th>Talla</th>
+                    <thead class="table-dark text-center">
+                        <tr>
+                            <th>Tipo</th>
+                            <th>Talla</th>
                             <th>Fecha</th>
-                    <th>Estado</th>
-                            <th>Observaciones</th>
+                            <th>Estado</th>
                             <?php if ($tipo_usuario == 1 || $tipo_usuario == 4): ?>
-                            <th>Acciones</th>
+                            <th>Acción</th>
                             <?php endif; ?>
-                </tr>
-            </thead>
-            <tbody>
-            <?php
+                        </tr>
+                    </thead>
+                    <tbody>
+                    <?php
                         if (is_array($uniformes) && count($uniformes) > 0) {
                             foreach ($uniformes as $row) {
                                 $status_badge = match($row['stat']) {
@@ -77,52 +70,40 @@ include __DIR__ . '/header.php';
                                     default => '<span class="badge bg-secondary">Desconocido</span>'
                                 };
                                 
-                        echo '<tr>';
-                                
-                                if ($tipo_usuario == 1 || $tipo_usuario == 4) {
-                                    echo '<td>' . htmlspecialchars($row['codigo_empleado']) . '</td>';
-                                }
-                                
-                        echo '<td>' . htmlspecialchars($row['nombre'] . ' ' . $row['apellido']) . '</td>';
-                                
-                                if ($tipo_usuario == 1 || $tipo_usuario == 4) {
-                                    echo '<td>' . htmlspecialchars($row['nombre_departamento'] ?? 'N/A') . '</td>';
-                                }
-                                
-                                echo '<td><strong>' . htmlspecialchars($row['tipo']) . '</strong></td>';
+                                echo '<tr>';
+                                echo '<td><strong>' . htmlspecialchars(ucfirst($row['tipo'])) . '</strong></td>';
                                 echo '<td class="text-center">' . htmlspecialchars($row['talla']) . '</td>';
-                                echo '<td>' . date('d/m/Y H:i', strtotime($row['fecha_log'])) . '</td>';
+                                echo '<td>' . date('d/m/Y', strtotime($row['fecha_log'])) . '</td>';
                                 echo '<td class="text-center">' . $status_badge . '</td>';
-                                echo '<td><small>' . htmlspecialchars($row['observacion'] ?? 'Sin observaciones') . '</small></td>';
                                 
                                 if ($tipo_usuario == 1 || $tipo_usuario == 4):
                                     echo '<td class="text-center text-nowrap">';
                                     if ($row['stat'] == 1): // Solicitado
                                         echo '<button class="btn btn-sm btn-info mb-1" onclick="cambiarEstado(' . $row['id'] . ', 2)" title="Marcar en proceso">
-                                                <i class="bi bi-arrow-repeat"></i> Proceso
+                                                ⚙️ Proceso
                                               </button><br>';
                                         echo '<button class="btn btn-sm btn-success" onclick="cambiarEstado(' . $row['id'] . ', 3)" title="Marcar como entregado">
-                                                <i class="bi bi-check-circle"></i> Entregar
+                                                ✓ Entregar
                                               </button>';
                                     elseif ($row['stat'] == 2): // En proceso
                                         echo '<button class="btn btn-sm btn-success" onclick="cambiarEstado(' . $row['id'] . ', 3)" title="Marcar como entregado">
-                                                <i class="bi bi-check-circle"></i> Entregar
+                                                ✓ Entregar
                                               </button>';
                                     else: // Entregado
-                                        echo '<span class="text-muted">✓ Completado</span>';
+                                        echo '<span class="text-muted small">Completado</span>';
                                     endif;
                                     echo '</td>';
                                 endif;
                                 
-                        echo '</tr>';
-                    }
-                } else {
-                            $colspan = ($tipo_usuario == 1 || $tipo_usuario == 4) ? '9' : '6';
+                                echo '</tr>';
+                            }
+                        } else {
+                            $colspan = ($tipo_usuario == 1 || $tipo_usuario == 4) ? '5' : '4';
                             echo '<tr><td colspan="' . $colspan . '" class="text-center text-muted">No hay solicitudes registradas</td></tr>';
-                }
-                ?>
-            </tbody>
-        </table>
+                        }
+                    ?>
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
@@ -172,7 +153,7 @@ include __DIR__ . '/header.php';
                     <!-- Observaciones -->
                     <div class="mb-3">
                         <label class="form-label fw-bold">Observaciones</label>
-                        <textarea name="observacion" id="observacion" class="form-control" rows="3" placeholder="Información adicional sobre tu solicitud (opcional)"></textarea>
+                        <textarea name="observacion" id="observacion" class="form-control" rows="3" placeholder="Información adicional sobre tu solicitud (opcional)" maxlength="250"></textarea>
                         <small class="text-muted">Máximo 250 caracteres</small>
                     </div>
 
@@ -226,7 +207,7 @@ $(document).ready(function() {
             url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json"
         },
         pageLength: 10,
-        order: [[<?php echo ($tipo_usuario == 1 || $tipo_usuario == 4) ? '5' : '3'; ?>, 'desc']], // Ordenar por fecha
+        order: [[2, 'desc']], // Ordenar por fecha (columna 2)
         responsive: true
     });
 
@@ -286,14 +267,6 @@ $(document).ready(function() {
         $talla.prop('required', true);
     });
     
-    // Limitar caracteres en observaciones
-    $('#observacion').on('input', function() {
-        const maxLength = 250;
-        if (this.value.length > maxLength) {
-            this.value = this.value.substring(0, maxLength);
-        }
-    });
-    
     // Validar formulario antes de enviar
     $('#formUniforme').on('submit', function(e) {
         const tipo = $('#tipo_uniforme').val();
@@ -341,5 +314,8 @@ function cambiarEstado(uniformeId, nuevoEstado) {
     }
 }
 </script>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 <?php include __DIR__ . '/footer.php'; ?>
