@@ -47,7 +47,7 @@ include __DIR__ . '/header.php';
         <div class="col-12">
             <h5 class="text-center mb-3">Mis Solicitudes</h5>
             <div class="table-responsive">
-                <table id="tablaUniformes" class="table table-striped table-bordered table-hover mt-3" style="width: 100%;">
+                <table id="tablaUniformes" class="table table-striped table-bordered table-hover mt-3">
                     <thead class="table-dark text-center">
                         <tr>
                             <th>Tipo</th>
@@ -79,16 +79,10 @@ include __DIR__ . '/header.php';
                                 if ($tipo_usuario == 1 || $tipo_usuario == 4):
                                     echo '<td class="text-center text-nowrap">';
                                     if ($row['stat'] == 1): // Solicitado
-                                        echo '<button class="btn btn-sm btn-info mb-1" onclick="cambiarEstado(' . $row['id'] . ', 2)" title="Marcar en proceso">
-                                                ⚙️ Proceso
-                                              </button><br>';
-                                        echo '<button class="btn btn-sm btn-success" onclick="cambiarEstado(' . $row['id'] . ', 3)" title="Marcar como entregado">
-                                                ✓ Entregar
-                                              </button>';
+                                        echo '<button class="btn btn-sm btn-info mb-1" onclick="cambiarEstado(' . $row['id'] . ', 2)" title="Marcar en proceso">⚙️ Proceso</button><br>';
+                                        echo '<button class="btn btn-sm btn-success" onclick="cambiarEstado(' . $row['id'] . ', 3)" title="Marcar como entregado">✓ Entregar</button>';
                                     elseif ($row['stat'] == 2): // En proceso
-                                        echo '<button class="btn btn-sm btn-success" onclick="cambiarEstado(' . $row['id'] . ', 3)" title="Marcar como entregado">
-                                                ✓ Entregar
-                                              </button>';
+                                        echo '<button class="btn btn-sm btn-success" onclick="cambiarEstado(' . $row['id'] . ', 3)" title="Marcar como entregado">✓ Entregar</button>';
                                     else: // Entregado
                                         echo '<span class="text-muted small">Completado</span>';
                                     endif;
@@ -139,7 +133,7 @@ include __DIR__ . '/header.php';
                     <!-- Talla (dinámico) -->
                     <div class="mb-3" id="contenedorTalla" style="display: none;">
                         <label class="form-label fw-bold">Talla <span class="text-danger">*</span></label>
-                        <select name="talla" id="talla" class="form-select" required>
+                        <select name="talla" id="talla" class="form-select">
                             <option value="">-- Seleccione primero el tipo --</option>
                         </select>
                     </div>
@@ -198,25 +192,45 @@ include __DIR__ . '/header.php';
     </div>
 </nav>
 
-<!-- JavaScript -->
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- JavaScript - DEBE IR DESPUÉS DE CARGAR JQUERY EN HEADER -->
 <script>
-$(document).ready(function() {
+// Esperar a que el DOM esté listo
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOM cargado');
+    
+    // Verificar que jQuery esté disponible
+    if (typeof jQuery === 'undefined') {
+        console.error('jQuery no está cargado');
+        return;
+    }
+    
+    console.log('jQuery versión:', jQuery.fn.jquery);
+    
     // Inicializar DataTable
-    $('#tablaUniformes').DataTable({
-        language: {
-            url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json"
-        },
-        pageLength: 10,
-        order: [[2, 'desc']], // Ordenar por fecha (columna 2)
-        responsive: true
-    });
+    try {
+        jQuery('#tablaUniformes').DataTable({
+            language: {
+                url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json"
+            },
+            pageLength: 10,
+            order: [[2, 'desc']], // Ordenar por fecha (columna índice 2)
+            responsive: true
+        });
+        console.log('DataTable inicializado correctamente');
+    } catch(e) {
+        console.error('Error al inicializar DataTable:', e);
+    }
 
     // Cambio de tipo de uniforme - actualizar tallas
-    $('#tipo_uniforme').on('change', function() {
-        const tipo = $(this).val();
-        const $talla = $('#talla');
-        const $contenedorTalla = $('#contenedorTalla');
-        const $alertaGorra = $('#alertaGorra');
+    jQuery('#tipo_uniforme').on('change', function() {
+        console.log('Tipo seleccionado:', this.value);
+        const tipo = jQuery(this).val();
+        const $talla = jQuery('#talla');
+        const $contenedorTalla = jQuery('#contenedorTalla');
+        const $alertaGorra = jQuery('#alertaGorra');
         
         // Limpiar select de tallas
         $talla.empty().append('<option value="">-- Seleccione una talla --</option>');
@@ -257,9 +271,11 @@ $(document).ready(function() {
                 break;
         }
         
+        console.log('Tallas disponibles:', tallas);
+        
         // Agregar opciones de tallas
         tallas.forEach(function(talla) {
-            $talla.append(`<option value="${talla}">${talla}</option>`);
+            $talla.append('<option value="' + talla + '">' + talla + '</option>');
         });
         
         // Mostrar contenedor de tallas
@@ -268,9 +284,9 @@ $(document).ready(function() {
     });
     
     // Validar formulario antes de enviar
-    $('#formUniforme').on('submit', function(e) {
-        const tipo = $('#tipo_uniforme').val();
-        const talla = $('#talla').val();
+    jQuery('#formUniforme').on('submit', function(e) {
+        const tipo = jQuery('#tipo_uniforme').val();
+        const talla = jQuery('#talla').val();
         
         if (!tipo || !talla) {
             e.preventDefault();
@@ -279,15 +295,15 @@ $(document).ready(function() {
         }
         
         // Deshabilitar botón para evitar doble clic
-        $('#btnEnviarSolicitud').prop('disabled', true).html('<span class="spinner-border spinner-border-sm"></span> Enviando...');
+        jQuery('#btnEnviarSolicitud').prop('disabled', true).html('<span class="spinner-border spinner-border-sm"></span> Enviando...');
     });
     
     // Resetear formulario al cerrar modal
-    $('#modalUniforme').on('hidden.bs.modal', function () {
-        $('#formUniforme')[0].reset();
-        $('#contenedorTalla').hide();
-        $('#alertaGorra').addClass('d-none');
-        $('#btnEnviarSolicitud').prop('disabled', false).html('<i class="bi bi-send"></i> Enviar Solicitud');
+    jQuery('#modalUniforme').on('hidden.bs.modal', function () {
+        document.getElementById('formUniforme').reset();
+        jQuery('#contenedorTalla').hide();
+        jQuery('#alertaGorra').addClass('d-none');
+        jQuery('#btnEnviarSolicitud').prop('disabled', false).html('<i class="bi bi-send"></i> Enviar Solicitud');
     });
 });
 
@@ -299,23 +315,18 @@ function cambiarEstado(uniformeId, nuevoEstado) {
         3: 'entregado'
     };
     
-    const mensaje = `¿Está seguro de marcar este uniforme como "${estadoTexto[nuevoEstado]}"?`;
+    const mensaje = '¿Está seguro de marcar este uniforme como "' + estadoTexto[nuevoEstado] + '"?';
     
     if (confirm(mensaje)) {
         const form = document.createElement('form');
         form.method = 'POST';
-        form.innerHTML = `
-            <input type="hidden" name="update_uniforme" value="1">
-            <input type="hidden" name="uniforme_id" value="${uniformeId}">
-            <input type="hidden" name="nuevo_estado" value="${nuevoEstado}">
-        `;
+        form.innerHTML = '<input type="hidden" name="update_uniforme" value="1">' +
+                        '<input type="hidden" name="uniforme_id" value="' + uniformeId + '">' +
+                        '<input type="hidden" name="nuevo_estado" value="' + nuevoEstado + '">';
         document.body.appendChild(form);
         form.submit();
     }
 }
 </script>
-
-<!-- Bootstrap JS -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 <?php include __DIR__ . '/footer.php'; ?>
