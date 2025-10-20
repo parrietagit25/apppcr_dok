@@ -491,8 +491,8 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
                              "Esta carta incluye un código QR que permite verificar su autenticidad escaneándolo con cualquier dispositivo móvil.<br><br>" .
                              htmlspecialchars($comentario) . "<br><br>Saludos,<br>Departamento de RRHH - Grupo PCR";
             
-            $copias = ["abi.pineda@grupopcr.com.pa", "sofia.macias@grupopcr.com.pa"];
-            //$copias = ["pedroarrieta25@hotmail.com"];
+            //$copias = ["abi.pineda@grupopcr.com.pa", "sofia.macias@grupopcr.com.pa"];
+            $copias = ["pedroarrieta25@hotmail.com"];
 
             $class->enviar_correo_con_adjunto($email_destino, $copias, "Carta de Trabajo - Grupo PCR", $mensaje_correo, $ruta_archivo);
             echo "<div class='alert alert-success'>
