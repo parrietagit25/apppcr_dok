@@ -1324,6 +1324,7 @@ class Rrhh {
                 u.id,
                 u.tipo,
                 u.talla,
+                u.cantidad,
                 u.stat,
                 u.fecha_log,
                 u.codigo_empleado,
@@ -1357,6 +1358,7 @@ class Rrhh {
                 u.id,
                 u.tipo,
                 u.talla,
+                u.cantidad,
                 u.stat,
                 u.fecha_log,
                 u.codigo_empleado,
@@ -1382,9 +1384,9 @@ class Rrhh {
     }
     
     /**
-     * Crear nueva solicitud de uniforme
+     * Crear nueva solicitud de uniforme (un solo producto)
      */
-    public function solicitar_uniforme($tipo, $talla, $observacion = '') {
+    public function solicitar_uniforme($tipo, $talla, $cantidad = 1, $observacion = '') {
         if (!isset($_SESSION['code'])) {
             die("Error: No hay sesión iniciada.");
         }
@@ -1392,17 +1394,57 @@ class Rrhh {
         
         $stmt = $this->pdo->prepare("
             INSERT INTO uniformes 
-            (codigo_empleado, tipo, talla, observacion, stat, fecha_log)
+            (codigo_empleado, tipo, talla, cantidad, observacion, stat, fecha_log)
             VALUES 
-            (:codigo_empleado, :tipo, :talla, :observacion, 1, NOW())
+            (:codigo_empleado, :tipo, :talla, :cantidad, :observacion, 1, NOW())
         ");
         
         $stmt->bindParam(':codigo_empleado', $code, PDO::PARAM_STR);
         $stmt->bindParam(':tipo', $tipo, PDO::PARAM_STR);
         $stmt->bindParam(':talla', $talla, PDO::PARAM_STR);
+        $stmt->bindParam(':cantidad', $cantidad, PDO::PARAM_INT);
         $stmt->bindParam(':observacion', $observacion, PDO::PARAM_STR);
         
         return $stmt->execute();
+    }
+    
+    /**
+     * Crear múltiples solicitudes de uniformes en una sola transacción
+     */
+    public function solicitar_uniformes_multiples($productos, $observacion = '') {
+        if (!isset($_SESSION['code'])) {
+            die("Error: No hay sesión iniciada.");
+        }
+        $code = $_SESSION['code'];
+        
+        try {
+            $this->pdo->beginTransaction();
+            
+            $stmt = $this->pdo->prepare("
+                INSERT INTO uniformes 
+                (codigo_empleado, tipo, talla, cantidad, observacion, stat, fecha_log)
+                VALUES 
+                (:codigo_empleado, :tipo, :talla, :cantidad, :observacion, 1, NOW())
+            ");
+            
+            foreach ($productos as $producto) {
+                $stmt->execute([
+                    ':codigo_empleado' => $code,
+                    ':tipo' => $producto['tipo'],
+                    ':talla' => $producto['talla'],
+                    ':cantidad' => $producto['cantidad'],
+                    ':observacion' => $observacion
+                ]);
+            }
+            
+            $this->pdo->commit();
+            return true;
+            
+        } catch (Exception $e) {
+            $this->pdo->rollBack();
+            error_log("Error al insertar uniformes múltiples: " . $e->getMessage());
+            return false;
+        }
     }
     
     /**
@@ -1430,6 +1472,7 @@ class Rrhh {
                 u.id,
                 u.tipo,
                 u.talla,
+                u.cantidad,
                 u.stat,
                 u.fecha_log,
                 u.codigo_empleado,

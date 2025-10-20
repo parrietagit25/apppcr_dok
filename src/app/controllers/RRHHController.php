@@ -1104,37 +1104,49 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
 
 }elseif(isset($_GET['uniforme'])){
 
-    // Procesar solicitud de uniforme
+    // Procesar solicitud de uniformes (múltiples productos)
     if (isset($_POST['solicitar_uniforme'])) {
-        $tipo = $_POST['tipo_uniforme'] ?? '';
-        $talla = $_POST['talla'] ?? '';
         $observacion = $_POST['observacion'] ?? '';
+        $productos_json = $_POST['productos'] ?? '';
         
-        if (!empty($tipo) && !empty($talla)) {
-            if ($class->solicitar_uniforme($tipo, $talla, $observacion)) {
-                echo "<div class='alert alert-success'>Solicitud de uniforme enviada correctamente.</div>";
-                
-                // Enviar correo a RRHH
-                $datos_cola = $class->datos_colaborador();
-                if (!empty($datos_cola)) {
-                    $nombre_completo = $datos_cola[0]['nombre'] . ' ' . $datos_cola[0]['apellido'];
-                    $codigo_emp = $datos_cola[0]['codigo_empleado'];
+        if (!empty($productos_json)) {
+            $productos = json_decode($productos_json, true);
+            
+            if (is_array($productos) && count($productos) > 0) {
+                if ($class->solicitar_uniformes_multiples($productos, $observacion)) {
+                    echo "<div class='alert alert-success'>Solicitud de uniformes enviada correctamente. Total: " . count($productos) . " producto(s).</div>";
                     
-                    $mensaje = "El colaborador <b>$nombre_completo</b> (Código: $codigo_emp) ha solicitado un uniforme:<br><br>
-                                <b>Tipo:</b> $tipo<br>
-                                <b>Talla:</b> $talla<br>
-                                <b>Observaciones:</b> $observacion<br><br>
-                                Por favor, revise la solicitud en el sistema.";
-                    
-                    $copia = ["abi.pineda@grupopcr.com.pa", "yissell.perez@grupopcr.com.pa"];
-                    $class->enviar_correo("sofia.macias@grupopcr.com.pa", $copia, "Nueva solicitud de uniforme", $mensaje);
+                    // Enviar correo a RRHH
+                    $datos_cola = $class->datos_colaborador();
+                    if (!empty($datos_cola)) {
+                        $nombre_completo = $datos_cola[0]['nombre'] . ' ' . $datos_cola[0]['apellido'];
+                        $codigo_emp = $datos_cola[0]['codigo_empleado'];
+                        
+                        // Construir lista de productos
+                        $lista_productos = "<ul>";
+                        foreach ($productos as $producto) {
+                            $lista_productos .= "<li><b>" . ucfirst($producto['tipo']) . "</b> - Talla: " . $producto['talla'] . " - Cantidad: " . $producto['cantidad'] . "</li>";
+                        }
+                        $lista_productos .= "</ul>";
+                        
+                        $mensaje = "El colaborador <b>$nombre_completo</b> (Código: $codigo_emp) ha solicitado uniformes:<br><br>
+                                    <b>Productos solicitados:</b><br>
+                                    $lista_productos
+                                    <br>
+                                    <b>Observaciones:</b> $observacion<br><br>
+                                    Por favor, revise la solicitud en el sistema.";
+                        
+                        $copia = ["abi.pineda@grupopcr.com.pa", "yissell.perez@grupopcr.com.pa"];
+                        $class->enviar_correo("sofia.macias@grupopcr.com.pa", $copia, "Nueva solicitud de uniformes", $mensaje);
+                    }
+                } else {
+                    echo "<div class='alert alert-danger'>Error al procesar la solicitud.</div>";
                 }
-
             } else {
-                echo "<div class='alert alert-danger'>Error al procesar la solicitud.</div>";
+                echo "<div class='alert alert-warning'>Debe agregar al menos un producto al carrito.</div>";
             }
         } else {
-            echo "<div class='alert alert-warning'>Por favor, complete todos los campos requeridos.</div>";
+            echo "<div class='alert alert-warning'>Debe agregar al menos un producto al carrito.</div>";
         }
     }
 
