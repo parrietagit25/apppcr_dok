@@ -433,7 +433,7 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
             </div>
         </div>
         <!-- CÓDIGO QR DE VERIFICACIÓN -->
-        <div class='qr-container'>
+        <div class='qr-container' width='100'>
             <img src='$qr_src' alt='Código QR de Verificación'>
             <p><strong>Escanea este código para verificar la autenticidad</strong></p>
             <p style='font-size: 7pt; color: #999;'>Ref: " . substr($hash_verificacion, 0, 12) . "</p>
