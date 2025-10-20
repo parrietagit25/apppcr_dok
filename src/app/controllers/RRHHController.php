@@ -1147,15 +1147,16 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
 
     // Actualizar estado de uniforme (RRHH)
     if (isset($_POST['actualizar_uniforme'])) {
-        $uniforme_id = $_POST['uniforme_id'] ?? 0;
-        $nuevo_estado = $_POST['nuevo_estado'] ?? 0;
+        $uniforme_id = (int)($_POST['uniforme_id'] ?? 0);
+        $nuevo_estado = (int)($_POST['nuevo_estado'] ?? 0);
         
-        if ($uniforme_id > 0 && in_array($nuevo_estado, [1, 2, 3])) {
+        if ($uniforme_id > 0 && in_array($nuevo_estado, [1, 2, 3], true)) {
             if ($class->update_uniforme($uniforme_id, $nuevo_estado)) {
                 $estado_texto = match($nuevo_estado) {
                     1 => 'solicitado',
                     2 => 'en proceso',
                     3 => 'entregado',
+                    default => 'desconocido'
                 };
                 echo "<div class='alert alert-success'>Uniforme marcado como <b>$estado_texto</b>.</div>";
             } else {
