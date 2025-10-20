@@ -14,9 +14,9 @@ register_shutdown_function(function () {
   }
 });
 
-$host = "localhost";
-$user = "pedropcr";
-$pass = "elchamo1787$$$";
+$host = "db";  // Contenedor Docker MySQL
+$user = "appuser";
+$pass = "apppass";
 $db   = "apppcr";
 
 try {

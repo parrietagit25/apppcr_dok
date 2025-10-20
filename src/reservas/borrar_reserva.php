@@ -3,9 +3,9 @@ header("Content-Type: application/json");
 
 // Configuración de la base de datos
 
-$host = "localhost";
-$usuario = "pedropcr";
-$contraseña = 'elchamo1787$$$';
+$host = "db";  // Contenedor Docker MySQL
+$usuario = "appuser";
+$contraseña = "apppass";
 $dbname = "apppcr";
 
 // Conectar a MySQL
