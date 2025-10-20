@@ -409,7 +409,7 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
         <div class='content'>
             <p style='text-align: right; margin-bottom: 20pt;'>Panamá, $fecha_actual</p>
 
-            <p><strong>A QUIEN PUEDA INTERESAR:</strong></p>
+            <p><strong>A QUIEN CONCIERNE:</strong></p>
 
             <p>Por medio de la presente, hacemos constar que el(la) Sr(a). <strong>" . htmlspecialchars($nombre . ' ' . $apellido) . "</strong>, portador(a) de la cédula <strong>" . htmlspecialchars($cedula) . "</strong> y seguro social <strong>" . htmlspecialchars($seguro) . "</strong>, labora en nuestra empresa desde el <strong>" . date('d/m/Y', strtotime($fecha_ingreso)) . "</strong>, desempeñando el cargo de <strong>" . htmlspecialchars($cargo) . "</strong>.</p>
 
