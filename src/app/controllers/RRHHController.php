@@ -1102,6 +1102,72 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
     require_once __DIR__ . '/../views/calamidad_rrhh.php';
     exit();
 
+}elseif(isset($_GET['uniforme'])){
+
+    // Procesar solicitud de uniforme
+    if (isset($_POST['solicitar_uniforme'])) {
+        $tipo = $_POST['tipo_uniforme'] ?? '';
+        $talla = $_POST['talla'] ?? '';
+        $observacion = $_POST['observacion'] ?? '';
+        
+        if (!empty($tipo) && !empty($talla)) {
+            if ($class->solicitar_uniforme($tipo, $talla, $observacion)) {
+                echo "<div class='alert alert-success'>Solicitud de uniforme enviada correctamente.</div>";
+                
+                // Enviar correo a RRHH
+                $datos_cola = $class->datos_colaborador();
+                if (!empty($datos_cola)) {
+                    $nombre_completo = $datos_cola[0]['nombre'] . ' ' . $datos_cola[0]['apellido'];
+                    $codigo_emp = $datos_cola[0]['codigo_empleado'];
+                    
+                    $mensaje = "El colaborador <b>$nombre_completo</b> (Código: $codigo_emp) ha solicitado un uniforme:<br><br>
+                                <b>Tipo:</b> $tipo<br>
+                                <b>Talla:</b> $talla<br>
+                                <b>Observaciones:</b> $observacion<br><br>
+                                Por favor, revise la solicitud en el sistema.";
+                    
+                    $copia = ["abi.pineda@grupopcr.com.pa"];
+                    $class->enviar_correo("sofia.macias@grupopcr.com.pa", $copia, "Nueva solicitud de uniforme", $mensaje);
+                }
+            } else {
+                echo "<div class='alert alert-danger'>Error al procesar la solicitud.</div>";
+            }
+        } else {
+            echo "<div class='alert alert-warning'>Por favor, complete todos los campos requeridos.</div>";
+        }
+    }
+    
+    // Actualizar estado de uniforme (RRHH)
+    if (isset($_POST['update_uniforme'])) {
+        $uniforme_id = $_POST['uniforme_id'] ?? 0;
+        $nuevo_estado = $_POST['nuevo_estado'] ?? 0;
+        
+        if ($uniforme_id > 0 && in_array($nuevo_estado, [1, 2, 3])) {
+            if ($class->update_uniforme($uniforme_id, $nuevo_estado)) {
+                $estado_texto = match($nuevo_estado) {
+                    1 => 'solicitado',
+                    2 => 'en proceso',
+                    3 => 'entregado',
+                };
+                echo "<div class='alert alert-success'>Uniforme marcado como <b>$estado_texto</b>.</div>";
+            } else {
+                echo "<div class='alert alert-danger'>Error al actualizar el estado.</div>";
+            }
+        }
+    }
+
+    // Obtener datos para la vista según el tipo de usuario
+    if ($tipo_usuario == 1 || $tipo_usuario == 4) {
+        // RRHH ve todas las solicitudes
+        $uniformes = $class->uniformes_todas();
+    } else {
+        // Colaborador ve solo sus solicitudes
+        $uniformes = $class->uniformes();
+    }
+
+    require_once __DIR__ . '/../views/uniforme_rrhh.php';
+    exit();
+
 }else {
     $code_lomg = strlen($_SESSION['code']);
     require_once __DIR__ . '/../views/rrhh.php';

@@ -1308,6 +1308,119 @@ class Rrhh {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    // ========== MÓDULO DE UNIFORMES ==========
+    
+    /**
+     * Obtener solicitudes de uniformes del colaborador actual
+     */
+    public function uniformes() {
+        if (!isset($_SESSION['code'])) {
+            die("Error: No hay sesión iniciada.");
+        }
+        $code = $_SESSION['code'];
+        
+        $stmt = $this->pdo->prepare("
+            SELECT 
+                u.id,
+                u.tipo,
+                u.talla,
+                u.stat,
+                u.fecha_log,
+                u.codigo_empleado,
+                u.observacion,
+                e.nombre,
+                e.apellido,
+                e.nombre_departamento
+            FROM uniformes u
+            INNER JOIN empleados e ON u.codigo_empleado COLLATE utf8mb4_unicode_ci = e.codigo_empleado COLLATE utf8mb4_unicode_ci
+            WHERE u.codigo_empleado = :code
+            ORDER BY u.fecha_log DESC
+        ");
+        
+        $stmt->bindParam(':code', $code, PDO::PARAM_STR);
+        $stmt->execute();
+        
+        $array_datos = [];
+        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            $array_datos[] = $row;
+        }
+        
+        return $array_datos;
+    }
+    
+    /**
+     * Obtener todas las solicitudes de uniformes (para RRHH)
+     */
+    public function uniformes_todas() {
+        $stmt = $this->pdo->prepare("
+            SELECT 
+                u.id,
+                u.tipo,
+                u.talla,
+                u.stat,
+                u.fecha_log,
+                u.codigo_empleado,
+                u.observacion,
+                e.nombre,
+                e.apellido,
+                e.nombre_departamento,
+                e.nombre_cargo
+            FROM uniformes u
+            INNER JOIN empleados e ON u.codigo_empleado COLLATE utf8mb4_unicode_ci = e.codigo_empleado COLLATE utf8mb4_unicode_ci
+            WHERE u.stat IN (1, 2, 3)
+            ORDER BY u.fecha_log DESC
+        ");
+        
+        $stmt->execute();
+        
+        $array_datos = [];
+        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            $array_datos[] = $row;
+        }
+        
+        return $array_datos;
+    }
+    
+    /**
+     * Crear nueva solicitud de uniforme
+     */
+    public function solicitar_uniforme($tipo, $talla, $observacion = '') {
+        if (!isset($_SESSION['code'])) {
+            die("Error: No hay sesión iniciada.");
+        }
+        $code = $_SESSION['code'];
+        
+        $stmt = $this->pdo->prepare("
+            INSERT INTO uniformes 
+            (codigo_empleado, tipo, talla, observacion, stat, fecha_log)
+            VALUES 
+            (:codigo_empleado, :tipo, :talla, :observacion, 1, NOW())
+        ");
+        
+        $stmt->bindParam(':codigo_empleado', $code, PDO::PARAM_STR);
+        $stmt->bindParam(':tipo', $tipo, PDO::PARAM_STR);
+        $stmt->bindParam(':talla', $talla, PDO::PARAM_STR);
+        $stmt->bindParam(':observacion', $observacion, PDO::PARAM_STR);
+        
+        return $stmt->execute();
+    }
+    
+    /**
+     * Actualizar estado de solicitud de uniforme
+     */
+    public function update_uniforme($uniforme_id, $nuevo_estado) {
+        $stmt = $this->pdo->prepare("
+            UPDATE uniformes 
+            SET stat = :stat
+            WHERE id = :uniforme_id
+        ");
+        
+        $stmt->bindParam(':stat', $nuevo_estado, PDO::PARAM_INT);
+        $stmt->bindParam(':uniforme_id', $uniforme_id, PDO::PARAM_INT);
+        
+        return $stmt->execute();
+    }
+    
 }
 
 

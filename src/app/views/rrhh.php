@@ -55,6 +55,14 @@ include __DIR__ . '/header.php';
                 </a>
             </div>
             <?php } ?>
+
+            <div class="col-4 mb-3">
+                <a href="<?php echo BASE_URL_CONTROLLER; ?>/RRHHController.php?uniforme=1" class="text-decoration-none">
+                    <img src="<?php echo BASE_URL_IMAGE; ?>uniformes.png" width="45">
+                    <div class="text-muted small">Solicitar Uniforme</div>
+                </a>
+            </div>
+
         </div>
     </div>
 
