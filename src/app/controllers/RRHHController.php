@@ -1136,9 +1136,17 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
             echo "<div class='alert alert-warning'>Por favor, complete todos los campos requeridos.</div>";
         }
     }
-    
+
+    // Colaborador ve solo sus solicitudes
+    $uniformes = $class->uniformes();
+
+    require_once __DIR__ . '/../views/uniforme_rrhh.php';
+    exit();
+
+}elseif(isset($_GET['uniforme_vrrhh'])){
+
     // Actualizar estado de uniforme (RRHH)
-    if (isset($_POST['update_uniforme'])) {
+    if (isset($_POST['actualizar_uniforme'])) {
         $uniforme_id = $_POST['uniforme_id'] ?? 0;
         $nuevo_estado = $_POST['nuevo_estado'] ?? 0;
         
@@ -1156,16 +1164,10 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
         }
     }
 
-    // Obtener datos para la vista según el tipo de usuario
-    if ($tipo_usuario == 1 || $tipo_usuario == 4) {
-        // RRHH ve todas las solicitudes
-        $uniformes = $class->uniformes_todas();
-    } else {
-        // Colaborador ve solo sus solicitudes
-        $uniformes = $class->uniformes();
-    }
+    // RRHH ve todas las solicitudes
+    $uniformes = $class->uniformes_vrrhh();
 
-    require_once __DIR__ . '/../views/uniforme_rrhh.php';
+    require_once __DIR__ . '/../views/uniforme_vrrhh.php';
     exit();
 
 }else {

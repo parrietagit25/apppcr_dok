@@ -7,19 +7,13 @@ if (!isset($_SESSION['code'])) {
 include __DIR__ . '/header.php';
 ?>
 
-<!-- DataTables CSS -->
+<!-- DataTables -->
 <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
 
 <style>
     .badge-solicitado { background-color: #ffc107; color: #000; }
     .badge-proceso { background-color: #0dcaf0; color: #000; }
     .badge-entregado { background-color: #198754; color: #fff; }
-    
-    /* Optimización para móvil */
-    @media (max-width: 768px) {
-        .table { font-size: 0.85rem; }
-        .btn-sm { font-size: 0.7rem; padding: 0.25rem 0.5rem; }
-    }
 </style>
 
 <div class="container mt-4">
@@ -40,66 +34,45 @@ include __DIR__ . '/header.php';
         <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalUniforme">
             ➕ Solicitar Uniforme
         </button>
+        <br><br>
     </div>
 
-    <!-- Tabla de Solicitudes -->
+    <!-- Tabla de Mis Solicitudes -->
     <div class="row mt-5">
-        <div class="col-12">
-            <h5 class="text-center mb-3">Mis Solicitudes</h5>
-            <div class="table-responsive">
-                <table id="tablaUniformes" class="table table-striped table-bordered table-hover mt-3">
-                    <thead class="table-dark text-center">
-                        <tr>
-                            <th>Tipo</th>
-                            <th>Talla</th>
-                            <th>Fecha</th>
-                            <th>Estado</th>
-                            <?php if ($tipo_usuario == 1 || $tipo_usuario == 4): ?>
-                            <th>Acción</th>
-                            <?php endif; ?>
-                        </tr>
-                    </thead>
-                    <tbody>
-                    <?php
-                        if (is_array($uniformes) && count($uniformes) > 0) {
-                            foreach ($uniformes as $row) {
-                                $status_badge = match($row['stat']) {
-                                    1 => '<span class="badge badge-solicitado">Solicitado</span>',
-                                    2 => '<span class="badge badge-proceso">En Proceso</span>',
-                                    3 => '<span class="badge badge-entregado">Entregado</span>',
-                                    default => '<span class="badge bg-secondary">Desconocido</span>'
-                                };
-                                
-                                echo '<tr>';
-                                echo '<td><strong>' . htmlspecialchars(ucfirst($row['tipo'])) . '</strong></td>';
-                                echo '<td class="text-center">' . htmlspecialchars($row['talla']) . '</td>';
-                                echo '<td>' . date('d/m/Y', strtotime($row['fecha_log'])) . '</td>';
-                                echo '<td class="text-center">' . $status_badge . '</td>';
-                                
-                                if ($tipo_usuario == 1 || $tipo_usuario == 4):
-                                    echo '<td class="text-center text-nowrap">';
-                                    if ($row['stat'] == 1): // Solicitado
-                                        echo '<button class="btn btn-sm btn-info mb-1" onclick="cambiarEstado(' . $row['id'] . ', 2)" title="Marcar en proceso">⚙️ Proceso</button><br>';
-                                        echo '<button class="btn btn-sm btn-success" onclick="cambiarEstado(' . $row['id'] . ', 3)" title="Marcar como entregado">✓ Entregar</button>';
-                                    elseif ($row['stat'] == 2): // En proceso
-                                        echo '<button class="btn btn-sm btn-success" onclick="cambiarEstado(' . $row['id'] . ', 3)" title="Marcar como entregado">✓ Entregar</button>';
-                                    else: // Entregado
-                                        echo '<span class="text-muted small">Completado</span>';
-                                    endif;
-                                    echo '</td>';
-                                endif;
-                                
-                                echo '</tr>';
-                            }
-                        } else {
-                            $colspan = ($tipo_usuario == 1 || $tipo_usuario == 4) ? '5' : '4';
-                            echo '<tr><td colspan="' . $colspan . '" class="text-center text-muted">No hay solicitudes registradas</td></tr>';
-                        }
-                    ?>
-                    </tbody>
-                </table>
-            </div>
-        </div>
+        <h5 class="text-center">Mis Solicitudes de Uniformes</h5>
+        <table id="tablaUniformes" class="table table-striped table-bordered mt-3">
+            <thead class="table-dark text-center">
+                <tr>
+                    <th>Tipo</th>
+                    <th>Talla</th>
+                    <th>Fecha</th>
+                    <th>Estado</th>
+                </tr>
+            </thead>
+            <tbody>
+            <?php
+                if (is_array($uniformes) && count($uniformes) > 0) {
+                    foreach ($uniformes as $row) {
+                        $status_badge = match($row['stat']) {
+                            1 => '<span class="badge badge-solicitado">Solicitado</span>',
+                            2 => '<span class="badge badge-proceso">En Proceso</span>',
+                            3 => '<span class="badge badge-entregado">Entregado</span>',
+                            default => '<span class="badge bg-secondary">Desconocido</span>'
+                        };
+                        
+                        echo '<tr>';
+                        echo '<td><strong>' . htmlspecialchars(ucfirst($row['tipo'])) . '</strong></td>';
+                        echo '<td class="text-center">' . htmlspecialchars($row['talla']) . '</td>';
+                        echo '<td>' . date('d/m/Y', strtotime($row['fecha_log'])) . '</td>';
+                        echo '<td class="text-center">' . $status_badge . '</td>';
+                        echo '</tr>';
+                    }
+                } else {
+                    echo '<tr><td colspan="4" class="text-center text-muted">No hay solicitudes registradas</td></tr>';
+                }
+            ?>
+            </tbody>
+        </table>
     </div>
 </div>
 
@@ -195,52 +168,37 @@ include __DIR__ . '/header.php';
 <!-- Bootstrap JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
-<!-- JavaScript - DEBE IR DESPUÉS DE CARGAR JQUERY EN HEADER -->
+<!-- JavaScript -->
 <script>
-// Esperar a que el DOM esté listo
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('DOM cargado');
-    
-    // Verificar que jQuery esté disponible
-    if (typeof jQuery === 'undefined') {
-        console.error('jQuery no está cargado');
-        return;
-    }
-    
-    console.log('jQuery versión:', jQuery.fn.jquery);
     
     // Inicializar DataTable
-    try {
+    if (typeof jQuery !== 'undefined' && jQuery.fn.DataTable) {
         jQuery('#tablaUniformes').DataTable({
             language: {
                 url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json"
             },
             pageLength: 10,
-            order: [[2, 'desc']], // Ordenar por fecha (columna índice 2)
-            responsive: true
+            order: [[2, 'desc']]
         });
-        console.log('DataTable inicializado correctamente');
-    } catch(e) {
-        console.error('Error al inicializar DataTable:', e);
     }
 
     // Cambio de tipo de uniforme - actualizar tallas
-    jQuery('#tipo_uniforme').on('change', function() {
-        console.log('Tipo seleccionado:', this.value);
-        const tipo = jQuery(this).val();
-        const $talla = jQuery('#talla');
-        const $contenedorTalla = jQuery('#contenedorTalla');
-        const $alertaGorra = jQuery('#alertaGorra');
+    document.getElementById('tipo_uniforme').addEventListener('change', function() {
+        const tipo = this.value;
+        const tallaSelect = document.getElementById('talla');
+        const contenedorTalla = document.getElementById('contenedorTalla');
+        const alertaGorra = document.getElementById('alertaGorra');
         
         // Limpiar select de tallas
-        $talla.empty().append('<option value="">-- Seleccione una talla --</option>');
+        tallaSelect.innerHTML = '<option value="">-- Seleccione una talla --</option>';
         
         // Ocultar alerta de gorra
-        $alertaGorra.addClass('d-none');
+        alertaGorra.classList.add('d-none');
         
         if (!tipo) {
-            $contenedorTalla.hide();
-            $talla.prop('required', false);
+            contenedorTalla.style.display = 'none';
+            tallaSelect.required = false;
             return;
         }
         
@@ -251,42 +209,38 @@ document.addEventListener('DOMContentLoaded', function() {
             case 'chaleco':
                 tallas = ['S', 'M', 'L', 'XL', '2XL', '3XL', '4XL'];
                 break;
-                
             case 'pantalon':
                 tallas = ['30', '32', '34', '36', '38', '40', '42', '44', '46', '48'];
                 break;
-                
             case 'botas':
                 tallas = ['38', '39', '40', '41', '42', '43', '44', '45', '46'];
                 break;
-                
             case 'carnet de identificacion':
                 tallas = ['Única'];
                 break;
-                
             case 'gorra':
                 tallas = ['Única'];
-                // Mostrar alerta para gorras
-                $alertaGorra.removeClass('d-none');
+                alertaGorra.classList.remove('d-none');
                 break;
         }
         
-        console.log('Tallas disponibles:', tallas);
-        
         // Agregar opciones de tallas
         tallas.forEach(function(talla) {
-            $talla.append('<option value="' + talla + '">' + talla + '</option>');
+            const option = document.createElement('option');
+            option.value = talla;
+            option.textContent = talla;
+            tallaSelect.appendChild(option);
         });
         
         // Mostrar contenedor de tallas
-        $contenedorTalla.show();
-        $talla.prop('required', true);
+        contenedorTalla.style.display = 'block';
+        tallaSelect.required = true;
     });
     
     // Validar formulario antes de enviar
-    jQuery('#formUniforme').on('submit', function(e) {
-        const tipo = jQuery('#tipo_uniforme').val();
-        const talla = jQuery('#talla').val();
+    document.getElementById('formUniforme').addEventListener('submit', function(e) {
+        const tipo = document.getElementById('tipo_uniforme').value;
+        const talla = document.getElementById('talla').value;
         
         if (!tipo || !talla) {
             e.preventDefault();
@@ -295,38 +249,11 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         
         // Deshabilitar botón para evitar doble clic
-        jQuery('#btnEnviarSolicitud').prop('disabled', true).html('<span class="spinner-border spinner-border-sm"></span> Enviando...');
-    });
-    
-    // Resetear formulario al cerrar modal
-    jQuery('#modalUniforme').on('hidden.bs.modal', function () {
-        document.getElementById('formUniforme').reset();
-        jQuery('#contenedorTalla').hide();
-        jQuery('#alertaGorra').addClass('d-none');
-        jQuery('#btnEnviarSolicitud').prop('disabled', false).html('<i class="bi bi-send"></i> Enviar Solicitud');
+        const btn = document.getElementById('btnEnviarSolicitud');
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Enviando...';
     });
 });
-
-// Función para cambiar estado (RRHH)
-function cambiarEstado(uniformeId, nuevoEstado) {
-    const estadoTexto = {
-        1: 'solicitado',
-        2: 'en proceso',
-        3: 'entregado'
-    };
-    
-    const mensaje = '¿Está seguro de marcar este uniforme como "' + estadoTexto[nuevoEstado] + '"?';
-    
-    if (confirm(mensaje)) {
-        const form = document.createElement('form');
-        form.method = 'POST';
-        form.innerHTML = '<input type="hidden" name="update_uniforme" value="1">' +
-                        '<input type="hidden" name="uniforme_id" value="' + uniformeId + '">' +
-                        '<input type="hidden" name="nuevo_estado" value="' + nuevoEstado + '">';
-        document.body.appendChild(form);
-        form.submit();
-    }
-}
 </script>
 
 <?php include __DIR__ . '/footer.php'; ?>

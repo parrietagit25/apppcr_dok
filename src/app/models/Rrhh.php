@@ -1421,6 +1421,39 @@ class Rrhh {
         return $stmt->execute();
     }
     
+    /**
+     * Obtener todas las solicitudes de uniformes para RRHH (verificación)
+     */
+    public function uniformes_vrrhh() {
+        $stmt = $this->pdo->prepare("
+            SELECT 
+                u.id,
+                u.tipo,
+                u.talla,
+                u.stat,
+                u.fecha_log,
+                u.codigo_empleado,
+                u.observacion,
+                e.nombre,
+                e.apellido,
+                e.nombre_departamento,
+                e.nombre_cargo
+            FROM uniformes u
+            INNER JOIN empleados e ON u.codigo_empleado COLLATE utf8mb4_unicode_ci = e.codigo_empleado COLLATE utf8mb4_unicode_ci
+            WHERE u.stat IN (1, 2, 3)
+            ORDER BY u.stat ASC, u.fecha_log DESC
+        ");
+        
+        $stmt->execute();
+        
+        $array_datos = [];
+        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            $array_datos[] = $row;
+        }
+        
+        return $array_datos;
+    }
+    
 }
 
 
