@@ -321,7 +321,7 @@ function inicializarModuloUniformes() {
     console.log('Inicializando módulo de uniformes...');
     
     // Inicializar DataTable
-    if (typeof jQuery !== 'undefined' && typeof jQuery.fn.DataTable !== 'undefined') {
+    /* if (typeof jQuery !== 'undefined' && typeof jQuery.fn.DataTable !== 'undefined') {
         try {
             jQuery('#tablaUniformes').DataTable({
                 language: {
@@ -334,7 +334,7 @@ function inicializarModuloUniformes() {
         } catch(e) {
             console.error('Error DataTable:', e);
         }
-    }
+    } */
 
     // Obtener referencias a los elementos
     var tipoSelect = document.getElementById('tipo_uniforme_sel');
