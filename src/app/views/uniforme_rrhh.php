@@ -64,8 +64,77 @@ include __DIR__ . '/header.php';
                         echo '<td><strong>' . htmlspecialchars(ucfirst($row['tipo'])) . '</strong></td>';
                         echo '<td class="text-center">' . htmlspecialchars($row['talla']) . '</td>';
                         echo '<td>' . date('d/m/Y', strtotime($row['fecha_log'])) . '</td>';
-                        echo '<td class="text-center">' . $status_badge . '</td>';
+                        echo '<td class="text-center">
+                                <a href="#" data-bs-toggle="modal" data-bs-target="#modalDetalle' . $row['id'] . '" style="text-decoration: none;">
+                                    ' . $status_badge . '
+                                </a>
+                              </td>';
                         echo '</tr>';
+                        
+                        // Modal de detalle por cada solicitud
+                        $estado_texto = match($row['stat']) {
+                            1 => 'Solicitado',
+                            2 => 'En Proceso',
+                            3 => 'Entregado',
+                            default => 'Desconocido'
+                        };
+                        
+                        echo "
+                        <div class='modal fade' id='modalDetalle{$row['id']}' tabindex='-1' aria-labelledby='modalDetalleLabel{$row['id']}' aria-hidden='true'>
+                            <div class='modal-dialog'>
+                                <div class='modal-content'>
+                                    <div class='modal-header bg-info text-white'>
+                                        <h5 class='modal-title' id='modalDetalleLabel{$row['id']}'>
+                                            <i class='bi bi-info-circle'></i> Detalle de mi Solicitud
+                                        </h5>
+                                        <button type='button' class='btn-close btn-close-white' data-bs-dismiss='modal' aria-label='Cerrar'></button>
+                                    </div>
+                                    <div class='modal-body'>
+                                        
+                                        <div class='mb-3'>
+                                            <label class='form-label fw-bold text-primary'>Tipo de Uniforme</label>
+                                            <p class='fs-5'>" . htmlspecialchars(ucfirst($row['tipo'])) . "</p>
+                                        </div>
+                                        
+                                        <div class='mb-3'>
+                                            <label class='form-label fw-bold text-primary'>Talla</label>
+                                            <p class='fs-5'>" . htmlspecialchars($row['talla']) . "</p>
+                                        </div>
+                                        
+                                        <div class='mb-3'>
+                                            <label class='form-label fw-bold text-primary'>Fecha de Solicitud</label>
+                                            <p>" . date('d/m/Y H:i', strtotime($row['fecha_log'])) . "</p>
+                                        </div>
+                                        
+                                        <div class='mb-3'>
+                                            <label class='form-label fw-bold text-primary'>Observaciones</label>
+                                            <p>" . (!empty($row['observacion']) ? htmlspecialchars($row['observacion']) : '<em class=\"text-muted\">Sin observaciones</em>') . "</p>
+                                        </div>
+                                        
+                                        <hr>
+                                        
+                                        <div class='mb-3'>
+                                            <label class='form-label fw-bold text-primary'>Estado Actual</label>
+                                            <p class='fs-4'>
+                                                " . $status_badge . "
+                                            </p>
+                                        </div>
+                                        
+                                        <div class='alert alert-info'>
+                                            <i class='bi bi-info-circle'></i> 
+                                            <strong>Información:</strong> El departamento de RRHH está procesando tu solicitud. 
+                                            Recibirás una notificación cuando tu uniforme esté listo para ser entregado.
+                                        </div>
+                                        
+                                    </div>
+                                    <div class='modal-footer'>
+                                        <button type='button' class='btn btn-secondary' data-bs-dismiss='modal'>
+                                            <i class='bi bi-x-circle'></i> Cerrar
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>";
                     }
                 } else {
                     echo '<tr><td colspan="4" class="text-center text-muted">No hay solicitudes registradas</td></tr>';
