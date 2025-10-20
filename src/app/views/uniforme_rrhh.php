@@ -242,7 +242,7 @@ include __DIR__ . '/header.php';
 document.addEventListener('DOMContentLoaded', function() {
     
     // Inicializar DataTable
-    if (typeof jQuery !== 'undefined' && jQuery.fn.DataTable) {
+    /*if (typeof jQuery !== 'undefined' && jQuery.fn.DataTable) {
         jQuery('#tablaUniformes').DataTable({
             language: {
                 url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json"
@@ -250,7 +250,7 @@ document.addEventListener('DOMContentLoaded', function() {
             pageLength: 10,
             order: [[2, 'desc']]
         });
-    }
+    }*/
 
     // Cambio de tipo de uniforme - actualizar tallas
     document.getElementById('tipo_uniforme').addEventListener('change', function() {
