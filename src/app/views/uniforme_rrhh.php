@@ -15,12 +15,12 @@ include __DIR__ . '/header.php';
     .badge-proceso { background-color: #0dcaf0; color: #000; }
     .badge-entregado { background-color: #198754; color: #fff; }
     
-    #carrito {
+    #orden {
         max-height: 200px;
         overflow-y: auto;
     }
     
-    .item-carrito {
+    .item-orden {
         background: #f8f9fa;
         padding: 10px;
         margin-bottom: 5px;
@@ -28,6 +28,7 @@ include __DIR__ . '/header.php';
         display: flex;
         justify-content: space-between;
         align-items: center;
+        border: 1px solid #dee2e6;
     }
     
     .btn-remove-item {
@@ -39,6 +40,11 @@ include __DIR__ . '/header.php';
         height: 25px;
         cursor: pointer;
         font-size: 12px;
+        line-height: 1;
+    }
+    
+    .btn-remove-item:hover {
+        background: #bb2d3b;
     }
 </style>
 
@@ -131,7 +137,7 @@ include __DIR__ . '/header.php';
                                         
                                         <div class='mb-3'>
                                             <label class='form-label fw-bold text-primary'>Cantidad</label>
-                                            <p class='fs-5'>" . htmlspecialchars($row['cantidad'] ?? 1) . "</p>
+                                            <p class='fs-5'><strong>" . htmlspecialchars($row['cantidad'] ?? 1) . "</strong> unidad(es)</p>
                                         </div>
                                         
                                         <div class='mb-3'>
@@ -178,7 +184,7 @@ include __DIR__ . '/header.php';
     </div>
 </div>
 
-<!-- Modal Solicitar Uniformes (con carrito) -->
+<!-- Modal Solicitar Uniformes (con orden) -->
 <div class="modal fade" id="modalUniforme" tabindex="-1" aria-labelledby="modalUniformeLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
@@ -199,7 +205,7 @@ include __DIR__ . '/header.php';
                         <!-- Tipo de Uniforme -->
                         <div class="mb-3">
                             <label class="form-label fw-bold">Tipo de Uniforme <span class="text-danger">*</span></label>
-                            <select id="tipo_uniforme" class="form-select">
+                            <select id="tipo_uniforme_sel" class="form-select">
                                 <option value="">-- Seleccionar tipo --</option>
                                 <option value="camisa">Camisa</option>
                                 <option value="pantalon">Pantalón</option>
@@ -213,7 +219,7 @@ include __DIR__ . '/header.php';
                         <!-- Talla (dinámico) -->
                         <div class="mb-3" id="contenedorTalla" style="display: none;">
                             <label class="form-label fw-bold">Talla <span class="text-danger">*</span></label>
-                            <select id="talla" class="form-select">
+                            <select id="talla_sel" class="form-select">
                                 <option value="">-- Seleccione primero el tipo --</option>
                             </select>
                         </div>
@@ -221,7 +227,7 @@ include __DIR__ . '/header.php';
                         <!-- Cantidad -->
                         <div class="mb-3" id="contenedorCantidad" style="display: none;">
                             <label class="form-label fw-bold">Cantidad <span class="text-danger">*</span></label>
-                            <input type="number" id="cantidad" class="form-control" min="1" max="10" value="1">
+                            <input type="number" id="cantidad_sel" class="form-control" min="1" max="10" value="1">
                             <small class="text-muted">Máximo 10 unidades por producto</small>
                         </div>
 
@@ -231,22 +237,22 @@ include __DIR__ . '/header.php';
                             <strong>Atención:</strong> Las gorras solo están disponibles para auxiliares de mantenimiento.
                         </div>
                         
-                        <!-- Botón agregar al carrito -->
-                        <button type="button" class="btn btn-success w-100" id="btnAgregarCarrito">
-                            <i class="bi bi-cart-plus"></i> Agregar al Carrito
+                        <!-- Botón agregar a la orden -->
+                        <button type="button" class="btn btn-success w-100" id="btnAgregarOrden">
+                            <i class="bi bi-plus-circle"></i> Agregar a la Orden
                         </button>
                     </div>
                 </div>
                 
-                <!-- Carrito de productos -->
+                <!-- Orden de productos -->
                 <div class="card mb-3">
                     <div class="card-header bg-success text-white">
-                        <strong><i class="bi bi-cart3"></i> Carrito de Uniformes</strong>
+                        <strong><i class="bi bi-list-check"></i> Mi Orden de Uniformes</strong>
                         <span class="badge bg-light text-dark float-end" id="totalProductos">0 productos</span>
                     </div>
                     <div class="card-body">
-                        <div id="carrito" class="mb-2">
-                            <p class="text-muted text-center" id="carritoVacio">El carrito está vacío. Agregue productos arriba.</p>
+                        <div id="orden">
+                            <p class="text-muted text-center" id="ordenVacia">La orden está vacía. Agregue productos arriba.</p>
                         </div>
                     </div>
                 </div>
@@ -254,12 +260,12 @@ include __DIR__ . '/header.php';
                 <!-- Observaciones generales -->
                 <div class="mb-3">
                     <label class="form-label fw-bold">Observaciones Generales</label>
-                    <textarea id="observacion" class="form-control" rows="2" placeholder="Información adicional sobre tu solicitud (opcional)" maxlength="250"></textarea>
+                    <textarea id="observacion_gen" class="form-control" rows="2" placeholder="Información adicional sobre tu solicitud (opcional)" maxlength="250"></textarea>
                     <small class="text-muted">Máximo 250 caracteres</small>
                 </div>
 
                 <!-- Form oculto para enviar -->
-                <form id="formUniforme" method="POST" style="display: none;">
+                <form id="formUniformeEnviar" method="POST" style="display: none;">
                     <input type="hidden" name="productos" id="productosJSON">
                     <input type="hidden" name="observacion" id="observacionHidden">
                     <input type="hidden" name="solicitar_uniforme" value="1">
@@ -308,44 +314,61 @@ include __DIR__ . '/header.php';
 
 <!-- JavaScript -->
 <script>
-// Array para almacenar productos del carrito
-let carritoProductos = [];
+// Array para almacenar productos de la orden
+var ordenProductos = [];
 
-document.addEventListener('DOMContentLoaded', function() {
+function inicializarModuloUniformes() {
+    console.log('Inicializando módulo de uniformes...');
     
     // Inicializar DataTable
-    if (typeof jQuery !== 'undefined' && jQuery.fn.DataTable) {
-        jQuery('#tablaUniformes').DataTable({
-            language: {
-                url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json"
-            },
-            pageLength: 10,
-            order: [[3, 'desc']]
-        });
+    if (typeof jQuery !== 'undefined' && typeof jQuery.fn.DataTable !== 'undefined') {
+        try {
+            jQuery('#tablaUniformes').DataTable({
+                language: {
+                    url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json"
+                },
+                pageLength: 10,
+                order: [[3, 'desc']]
+            });
+            console.log('DataTable inicializado');
+        } catch(e) {
+            console.error('Error DataTable:', e);
+        }
     }
 
-    // Cambio de tipo de uniforme - actualizar tallas
-    document.getElementById('tipo_uniforme').addEventListener('change', function() {
-        const tipo = this.value;
-        const tallaSelect = document.getElementById('talla');
-        const contenedorTalla = document.getElementById('contenedorTalla');
-        const contenedorCantidad = document.getElementById('contenedorCantidad');
-        const alertaGorra = document.getElementById('alertaGorra');
+    // Obtener referencias a los elementos
+    var tipoSelect = document.getElementById('tipo_uniforme_sel');
+    var tallaSelect = document.getElementById('talla_sel');
+    var cantidadInput = document.getElementById('cantidad_sel');
+    var contenedorTalla = document.getElementById('contenedorTalla');
+    var contenedorCantidad = document.getElementById('contenedorCantidad');
+    var alertaGorra = document.getElementById('alertaGorra');
+    var btnAgregar = document.getElementById('btnAgregarOrden');
+    var btnEnviar = document.getElementById('btnEnviarSolicitud');
+    
+    if (!tipoSelect || !tallaSelect || !cantidadInput) {
+        console.error('Elementos no encontrados');
+        return;
+    }
+    
+    console.log('Elementos encontrados correctamente');
+
+    // Cambio de tipo de uniforme
+    tipoSelect.addEventListener('change', function() {
+        console.log('Tipo seleccionado:', this.value);
+        var tipo = this.value;
         
         // Limpiar select de tallas
         tallaSelect.innerHTML = '<option value="">-- Seleccione una talla --</option>';
-        
-        // Ocultar alerta de gorra
         alertaGorra.classList.add('d-none');
         
         if (!tipo) {
             contenedorTalla.style.display = 'none';
             contenedorCantidad.style.display = 'none';
-            tallaSelect.required = false;
             return;
         }
         
-        let tallas = [];
+        var tallas = [];
         
         switch(tipo) {
             case 'camisa':
@@ -367,28 +390,34 @@ document.addEventListener('DOMContentLoaded', function() {
                 break;
         }
         
+        console.log('Tallas a agregar:', tallas);
+        
         // Agregar opciones de tallas
-        tallas.forEach(function(talla) {
-            const option = document.createElement('option');
-            option.value = talla;
-            option.textContent = talla;
+        for (var i = 0; i < tallas.length; i++) {
+            var option = document.createElement('option');
+            option.value = tallas[i];
+            option.textContent = tallas[i];
             tallaSelect.appendChild(option);
-        });
+        }
         
         // Mostrar contenedores
         contenedorTalla.style.display = 'block';
         contenedorCantidad.style.display = 'block';
-        tallaSelect.required = true;
+        console.log('Campos mostrados');
     });
     
-    // Agregar producto al carrito
-    document.getElementById('btnAgregarCarrito').addEventListener('click', function() {
-        const tipo = document.getElementById('tipo_uniforme').value;
-        const talla = document.getElementById('talla').value;
-        const cantidad = parseInt(document.getElementById('cantidad').value) || 1;
+    // Agregar producto a la orden
+    btnAgregar.addEventListener('click', function() {
+        console.log('Click en agregar a orden');
+        
+        var tipo = tipoSelect.value;
+        var talla = tallaSelect.value;
+        var cantidad = parseInt(cantidadInput.value) || 1;
+        
+        console.log('Datos:', tipo, talla, cantidad);
         
         if (!tipo || !talla) {
-            alert('Por favor, seleccione tipo y talla antes de agregar al carrito.');
+            alert('Por favor, seleccione tipo y talla antes de agregar a la orden.');
             return;
         }
         
@@ -397,118 +426,125 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
         
-        // Agregar al carrito
-        carritoProductos.push({
+        // Agregar a la orden
+        ordenProductos.push({
             tipo: tipo,
             talla: talla,
             cantidad: cantidad
         });
         
-        // Actualizar vista del carrito
-        actualizarCarrito();
+        console.log('Producto agregado. Total:', ordenProductos.length);
+        
+        // Actualizar vista de la orden
+        actualizarOrden();
         
         // Limpiar formulario
-        document.getElementById('tipo_uniforme').value = '';
-        document.getElementById('talla').innerHTML = '<option value="">-- Seleccione primero el tipo --</option>';
-        document.getElementById('cantidad').value = 1;
-        document.getElementById('contenedorTalla').style.display = 'none';
-        document.getElementById('contenedorCantidad').style.display = 'none';
-        document.getElementById('alertaGorra').classList.add('d-none');
+        tipoSelect.value = '';
+        tallaSelect.innerHTML = '<option value="">-- Seleccione primero el tipo --</option>';
+        cantidadInput.value = 1;
+        contenedorTalla.style.display = 'none';
+        contenedorCantidad.style.display = 'none';
+        alertaGorra.classList.add('d-none');
         
-        // Mostrar mensaje
-        const toast = document.createElement('div');
-        toast.className = 'alert alert-success alert-dismissible fade show position-fixed top-0 start-50 translate-middle-x mt-3';
-        toast.style.zIndex = '9999';
-        toast.innerHTML = '<i class="bi bi-check-circle"></i> Producto agregado al carrito';
-        document.body.appendChild(toast);
-        setTimeout(() => toast.remove(), 2000);
+        // Mostrar toast de confirmación
+        alert('Producto agregado a la orden correctamente');
     });
     
     // Enviar solicitud
-    document.getElementById('btnEnviarSolicitud').addEventListener('click', function() {
-        if (carritoProductos.length === 0) {
-            alert('El carrito está vacío. Agregue al menos un producto.');
+    btnEnviar.addEventListener('click', function() {
+        if (ordenProductos.length === 0) {
+            alert('La orden está vacía. Agregue al menos un producto.');
             return;
         }
         
+        console.log('Enviando orden:', ordenProductos);
+        
         // Preparar datos
-        document.getElementById('productosJSON').value = JSON.stringify(carritoProductos);
-        document.getElementById('observacionHidden').value = document.getElementById('observacion').value;
+        document.getElementById('productosJSON').value = JSON.stringify(ordenProductos);
+        document.getElementById('observacionHidden').value = document.getElementById('observacion_gen').value;
         
         // Deshabilitar botón
         this.disabled = true;
         this.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Enviando...';
         
         // Enviar formulario
-        document.getElementById('formUniforme').submit();
+        document.getElementById('formUniformeEnviar').submit();
+    });
+}
+
+// Función para actualizar la vista de la orden
+function actualizarOrden() {
+    var ordenDiv = document.getElementById('orden');
+    var ordenVacia = document.getElementById('ordenVacia');
+    var totalProductos = document.getElementById('totalProductos');
+    var btnEnviar = document.getElementById('btnEnviarSolicitud');
+    
+    if (ordenProductos.length === 0) {
+        ordenVacia.style.display = 'block';
+        totalProductos.textContent = '0 productos';
+        btnEnviar.disabled = true;
+        
+        // Limpiar items
+        var items = ordenDiv.querySelectorAll('.item-orden');
+        items.forEach(function(item) { item.remove(); });
+        return;
+    }
+    
+    ordenVacia.style.display = 'none';
+    totalProductos.textContent = ordenProductos.length + ' producto(s)';
+    btnEnviar.disabled = false;
+    
+    // Limpiar orden
+    var items = ordenDiv.querySelectorAll('.item-orden');
+    items.forEach(function(item) { item.remove(); });
+    
+    // Agregar cada producto
+    ordenProductos.forEach(function(producto, index) {
+        var itemDiv = document.createElement('div');
+        itemDiv.className = 'item-orden';
+        itemDiv.innerHTML = '<div><strong>' + ucfirst(producto.tipo) + '</strong> - Talla: ' + producto.talla + ' - Cant: <strong>' + producto.cantidad + '</strong></div>' +
+            '<button class="btn-remove-item" onclick="eliminarDeOrden(' + index + ')" title="Eliminar" type="button">×</button>';
+        ordenDiv.appendChild(itemDiv);
     });
     
-    // Resetear al cerrar modal
+    console.log('Orden actualizada. Total productos:', ordenProductos.length);
+}
+
+// Función para eliminar producto de la orden
+function eliminarDeOrden(index) {
+    console.log('Eliminando producto índice:', index);
+    ordenProductos.splice(index, 1);
+    actualizarOrden();
+}
+
+// Función helper para capitalizar primera letra
+function ucfirst(str) {
+    if (!str) return '';
+    return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
+// Inicializar cuando el DOM esté listo
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', inicializarModuloUniformes);
+} else {
+    inicializarModuloUniformes();
+}
+
+// Resetear al cerrar modal
+if (typeof jQuery !== 'undefined') {
     jQuery('#modalUniforme').on('hidden.bs.modal', function () {
-        carritoProductos = [];
-        actualizarCarrito();
-        document.getElementById('tipo_uniforme').value = '';
-        document.getElementById('cantidad').value = 1;
-        document.getElementById('observacion').value = '';
+        console.log('Modal cerrado, reseteando...');
+        ordenProductos = [];
+        actualizarOrden();
+        document.getElementById('tipo_uniforme_sel').value = '';
+        document.getElementById('cantidad_sel').value = 1;
+        document.getElementById('observacion_gen').value = '';
         document.getElementById('contenedorTalla').style.display = 'none';
         document.getElementById('contenedorCantidad').style.display = 'none';
         document.getElementById('alertaGorra').classList.add('d-none');
         document.getElementById('btnEnviarSolicitud').disabled = true;
         document.getElementById('btnEnviarSolicitud').innerHTML = '<i class="bi bi-send"></i> Enviar Solicitud';
     });
-});
-
-// Función para actualizar la vista del carrito
-function actualizarCarrito() {
-    const carritoDiv = document.getElementById('carrito');
-    const carritoVacio = document.getElementById('carritoVacio');
-    const totalProductos = document.getElementById('totalProductos');
-    const btnEnviar = document.getElementById('btnEnviarSolicitud');
-    
-    if (carritoProductos.length === 0) {
-        carritoVacio.style.display = 'block';
-        totalProductos.textContent = '0 productos';
-        btnEnviar.disabled = true;
-        
-        // Limpiar items
-        const items = carritoDiv.querySelectorAll('.item-carrito');
-        items.forEach(item => item.remove());
-        return;
-    }
-    
-    carritoVacio.style.display = 'none';
-    totalProductos.textContent = carritoProductos.length + ' producto(s)';
-    btnEnviar.disabled = false;
-    
-    // Limpiar carrito
-    const items = carritoDiv.querySelectorAll('.item-carrito');
-    items.forEach(item => item.remove());
-    
-    // Agregar cada producto
-    carritoProductos.forEach((producto, index) => {
-        const itemDiv = document.createElement('div');
-        itemDiv.className = 'item-carrito';
-        itemDiv.innerHTML = `
-            <div>
-                <strong>${ucfirst(producto.tipo)}</strong> - Talla: ${producto.talla} - Cant: <strong>${producto.cantidad}</strong>
-            </div>
-            <button class="btn-remove-item" onclick="eliminarDelCarrito(${index})" title="Eliminar">
-                <i class="bi bi-x"></i>
-            </button>
-        `;
-        carritoDiv.appendChild(itemDiv);
-    });
-}
-
-// Función para eliminar producto del carrito
-function eliminarDelCarrito(index) {
-    carritoProductos.splice(index, 1);
-    actualizarCarrito();
-}
-
-// Función helper para capitalizar primera letra
-function ucfirst(str) {
-    return str.charAt(0).toUpperCase() + str.slice(1);
 }
 </script>
 
