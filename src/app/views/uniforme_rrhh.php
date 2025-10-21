@@ -210,6 +210,7 @@ include __DIR__ . '/header.php';
                                 <option value="camisa">Camisa</option>
                                 <option value="pantalon">Pantalón</option>
                                 <option value="chaleco">Chaleco</option>
+                                <option value="sueter">Suéter</option>
                                 <option value="carnet de identificacion">Carnet de Identificación</option>
                                 <option value="botas">Botas</option>
                                 <option value="gorra">Gorra</option>
@@ -373,6 +374,7 @@ function inicializarModuloUniformes() {
         switch(tipo) {
             case 'camisa':
             case 'chaleco':
+            case 'sueter':
                 tallas = ['S', 'M', 'L', 'XL', '2XL', '3XL', '4XL'];
                 break;
             case 'pantalon':
