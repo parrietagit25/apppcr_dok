@@ -44,6 +44,14 @@ include __DIR__ . '/header.php';
                     </div>
                 </a>
             </div>
+            <div class="col-6 mb-4">
+                <a href="https://app1.mapfre.com.pa/panama/portal/redMedicos" target="_blank" class="text-decoration-none">
+                    <div style="background-color: #f8f9fa; padding: 20px; border-radius: 10px;">
+                        <img width="100" src="<?php echo BASE_URL_IMAGE; ?>redmapfre.png" alt="Red Médica Mapfre">
+                        <div class="card-title"><small>Red Médica Mapfre</small></div>
+                    </div>
+                </a>
+            </div>
         </div>
 
     </div>
