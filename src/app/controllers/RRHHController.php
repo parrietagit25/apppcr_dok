@@ -1136,8 +1136,8 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
                                     <b>Observaciones:</b> $observacion<br><br>
                                     Por favor, revise la solicitud en el sistema.";
                         
-                        $copia = ["abi.pineda@grupopcr.com.pa", "yissell.perez@grupopcr.com.pa"]; 
-                        //$copia = ["pedroarrieta25@hotmail.com"];
+                        //$copia = ["abi.pineda@grupopcr.com.pa", "yissell.perez@grupopcr.com.pa"]; 
+                        $copia = ["pedroarrieta25@hotmail.com"];
                         $class->enviar_correo("sofia.macias@grupopcr.com.pa", $copia, "Nueva solicitud de uniformes", $mensaje);
                     }
                 } else {
@@ -1206,9 +1206,10 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
                                         Grupo PCR";
                             
                             $copia = [
-                                "abi.pineda@grupopcr.com.pa",
+                                /*"abi.pineda@grupopcr.com.pa",
                                 "sofia.macias@grupopcr.com.pa",
-                                "yissell.perez@grupopcr.com.pa"
+                                "yissell.perez@grupopcr.com.pa", */
+                                "pedroarrieta25@hotmail.com"
                             ];
                             
                             $class->enviar_correo($uniforme_data['email'], $copia, "Tu uniforme está listo - Grupo PCR", $mensaje);
