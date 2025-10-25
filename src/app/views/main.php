@@ -23,12 +23,7 @@ include __DIR__ . '/header.php';
         </button>
     </div>
     -->
-    <!-- Slider con frase -->
-    <?php if ($tipo_usuario == 1 || $tipo_usuario == 4) { ?>
-    <div id="carouselExampleSlidesOnly" class="carousel slide mb-4" data-bs-ride="carousel" data-bs-toggle="modal" data-bs-target="#frase_semana">
-    <?php }else{ ?>
-    <div id="carouselExampleSlidesOnly" class="carousel slide mb-4" data-bs-ride="carousel">
-    <?php } ?>
+    <!-- Slider (eliminado - no se usa) -->
 
     <div class="container">
 
@@ -143,15 +138,68 @@ include __DIR__ . '/header.php';
     </div>
 
     <div class="container my-4">
+        <?php if ($tipo_usuario == 1 || $tipo_usuario == 4) { ?>
+        <div class="bg-white rounded shadow p-3 text-center" style="cursor: pointer;" data-bs-toggle="modal" data-bs-target="#frase_semana">
+            <h6 class="fw-bold text-secondary">🔔 FRASE DE LA SEMANA <small class="badge bg-primary">Click para editar</small></h6>
+            <blockquote class="fst-italic text-muted mt-2">"<?php echo $frase['frase']; ?>"</blockquote>
+        </div>
+        <?php } else { ?>
         <div class="bg-white rounded shadow p-3 text-center">
             <h6 class="fw-bold text-secondary">🔔 FRASE DE LA SEMANA</h6>
             <blockquote class="fst-italic text-muted mt-2">"<?php echo $frase['frase']; ?>"</blockquote>
         </div>
+        <?php } ?>
     </div>
 
     <br>
     <br>
     <br>
+
+    <!-- Modal Actualizar Frase de la Semana (solo admin/RRHH) -->
+    <?php if ($tipo_usuario == 1 || $tipo_usuario == 4) { ?>
+    <div class="modal fade" id="frase_semana" tabindex="-1" aria-labelledby="fraseSemanaLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="fraseSemanaLabel">
+                        <i class="bi bi-pencil-square"></i> Actualizar Frase de la Semana
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    <form method="POST" action="">
+                        <input type="hidden" name="id_frase" value="<?php echo $frase['id']; ?>">
+                        
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Frase Actual:</label>
+                            <p class="fst-italic text-muted">"<?php echo htmlspecialchars($frase['frase']); ?>"</p>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="frase_semana" class="form-label fw-bold">Nueva Frase <span class="text-danger">*</span></label>
+                            <textarea name="frase_semana" id="frase_semana" class="form-control" rows="4" required maxlength="500" placeholder="Escribe una frase motivacional para toda la empresa..."><?php echo htmlspecialchars($frase['frase']); ?></textarea>
+                            <small class="text-muted">Máximo 500 caracteres</small>
+                        </div>
+                        
+                        <div class="alert alert-info">
+                            <i class="bi bi-info-circle"></i> 
+                            <strong>Nota:</strong> Esta frase será visible para todos los colaboradores en la página principal.
+                        </div>
+                        
+                        <div class="d-flex justify-content-between">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                                <i class="bi bi-x-circle"></i> Cancelar
+                            </button>
+                            <button type="submit" name="boton_frase_semana" class="btn btn-primary">
+                                <i class="bi bi-check-circle"></i> Actualizar Frase
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <?php } ?>
 
     <div class="fixed-bottom d-flex justify-content-around fondo-botones-abajo py-2">
         <a href="#" class="text-white text-center">
