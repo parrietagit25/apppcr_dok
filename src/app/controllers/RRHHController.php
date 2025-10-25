@@ -53,7 +53,7 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
     Direccion: '.$_POST['direccion'].' <br>
     Comentarios del colaborador: '.$_POST['dato_adicional'].' <br> ';
 
-    $copia = ["abi.pineda@grupopcr.com.pa"];
+    $copia = ["abi.pineda@grupopcr.com.pa", "yissell.perez@grupopcr.com.pa"];
     //$copia = ["pedro.arrieta@grupopcr.com.pa"];
 
     $class->enviar_correo("sofia.macias@grupopcr.com.pa", $copia, "Actualizacion de Datos", $mensaje);
@@ -87,7 +87,7 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
         <br>
         Comentarios del colaborador: '.$descripcion.' <br> ';
 
-        $copia = ["abi.pineda@grupopcr.com.pa"];
+        $copia = ["abi.pineda@grupopcr.com.pa", "yissell.perez@grupopcr.com.pa"];
         //$copia = ["pedroarrieta25@hotmail.com"];
 
         $class->enviar_correo("sofia.macias@grupopcr.com.pa", $copia, "Carta de trabajo", $mensaje);
@@ -491,7 +491,7 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
                              "Esta carta incluye un código QR que permite verificar su autenticidad escaneándolo con cualquier dispositivo móvil.<br><br>" .
                              htmlspecialchars($comentario) . "<br><br>Saludos,<br>Departamento de RRHH - Grupo PCR";
             
-            $copias = ["abi.pineda@grupopcr.com.pa", "sofia.macias@grupopcr.com.pa"];
+            $copias = ["abi.pineda@grupopcr.com.pa", "sofia.macias@grupopcr.com.pa", "yissell.perez@grupopcr.com.pa"];
             //$copias = ["pedroarrieta25@hotmail.com"];
 
             $class->enviar_correo_con_adjunto($email_destino, $copias, "Carta de Trabajo - Grupo PCR", $mensaje_correo, $ruta_archivo);
@@ -687,7 +687,7 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
             $mensaje = 'El colaborador '.$nombre_comple.' con codigo '.$codigo.' 
             ha adjuntado una incapacidad, ingrese a la app pcr para visualizar o descargar la misma. <br>';
 
-            $copia = ["abi.pineda@grupopcr.com.pa"];
+            $copia = ["abi.pineda@grupopcr.com.pa", "yissell.perez@grupopcr.com.pa"];
             //$copiacoo = ["pedro.arrieta@grupopcr.com.pa", "rrhhgpcr@grupopcr.com.pa"];
             //$copia = ["pedro.arrieta@grupopcr.com.pa"];
         
@@ -829,7 +829,7 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
         <p><em>Este es un mensaje automático. Por favor, no responda a este correo. Utilice los canales indicados para cualquier comunicación.</em></p>
         ';
 
-        $copia = ["abi.pineda@grupopcr.com.pa", $email_feje];
+        $copia = ["abi.pineda@grupopcr.com.pa", "yissell.perez@grupopcr.com.pa", $email_feje];
         //$copia = ["pedroarrieta25@hotmail.com"];
 
         $class->enviar_correo("sofia.macias@grupopcr.com.pa", $copia, "Solicitud de permiso tipo '".$tipo_licencia."'", $mensaje); 
@@ -841,7 +841,7 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
         Fechas del permiso desde '.$fecha_inicio.' hasta '.$fecha_fin.' <br>
         Descripcion del permiso: '.$descripcion.'';
 
-        $copia = ["abi.pineda@grupopcr.com.pa", $email_feje];
+        $copia = ["abi.pineda@grupopcr.com.pa", "yissell.perez@grupopcr.com.pa", $email_feje];
         //$copia = ["pedroarrieta25@hotmail.com"];
         //$copia = ["pedro.arrieta@grupopcr.com.pa"];
     
@@ -892,7 +892,7 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
         Los comentarios de su jefe directo son: '.$_POST['comentario_jefe'].'';
 
 
-        $copiacoo = ["abi.pineda@grupopcr.com.pa", "sofia.macias@grupopcr.com.pa"];
+        $copiacoo = ["abi.pineda@grupopcr.com.pa", "sofia.macias@grupopcr.com.pa", "yissell.perez@grupopcr.com.pa"];
         //$copiacoo = ["pedro.arrieta@grupopcr.com.pa"];
 
         $class->enviar_correo($email, $copiacoo, "Respuesta a la solicitud de permiso", $mensaje);
@@ -935,7 +935,7 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
         Los comentarios de su jefe directo son: '.$_POST['comentario_jefe'].'';
 
 
-        $copiacoo = ["abi.pineda@grupopcr.com.pa", "sofia.macias@grupopcr.com.pa"];
+        $copiacoo = ["abi.pineda@grupopcr.com.pa", "sofia.macias@grupopcr.com.pa", "yissell.perez@grupopcr.com.pa"];
         //$copiacoo = ["pedro.arrieta@grupopcr.com.pa"];
 
         $class->enviar_correo($email, $copiacoo, "Respuesta a la solicitud de permiso", $mensaje);
@@ -1056,7 +1056,7 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
             Forma de pago indicada: '.$forma_pago.' <br>
             ';
 
-            $copia = ["abi.pineda@grupopcr.com.pa"];
+            $copia = ["abi.pineda@grupopcr.com.pa", "yissell.perez@grupopcr.com.pa"];
             //$copia = ["pedro.arrieta@grupopcr.com.pa"];
             //$copia = ["pedroarrieta25@hotmail.com"];
         
@@ -1088,7 +1088,7 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
         $mensaje = 'Estimado '.$nombre_comple.' <br> 
         La calamidad ha sido revisada por parte del departamento RRHH. <br>';
 
-        $copia = ["sofia.macias@grupopcr.com.pa", "abi.pineda@grupopcr.com.pa"];
+        $copia = ["sofia.macias@grupopcr.com.pa", "abi.pineda@grupopcr.com.pa", "yissell.perez@grupopcr.com.pa"];
         //$copia = ["pedroarrieta25@hotmail.com"];
     
         $class->enviar_correo($email, $copia, "Calamidad revisada", $mensaje);
