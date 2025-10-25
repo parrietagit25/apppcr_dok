@@ -214,6 +214,7 @@ include __DIR__ . '/header.php';
                                 <option value="carnet de identificacion">Carnet de Identificación</option>
                                 <option value="botas">Botas</option>
                                 <option value="gorra">Gorra</option>
+                                <option value="otros">Otros</option>
                             </select>
                         </div>
 
@@ -375,6 +376,7 @@ function inicializarModuloUniformes() {
             case 'camisa':
             case 'chaleco':
             case 'sueter':
+            case 'otros':
                 tallas = ['S', 'M', 'L', 'XL', '2XL', '3XL', '4XL'];
                 break;
             case 'pantalon':
