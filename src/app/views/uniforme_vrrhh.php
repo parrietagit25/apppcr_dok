@@ -7,6 +7,9 @@ if (!isset($_SESSION['code'])) {
 include __DIR__ . '/header.php';
 ?>
 
+<!-- DataTables CSS -->
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+
 <div class="container mt-4">
     <div class="input-group mb-3"></div>
 
@@ -23,7 +26,7 @@ include __DIR__ . '/header.php';
     <div class="row mt-5">
         <h5 class="text-center">Solicitudes de Uniformes</h5>
         <div class="table-responsive">
-            <table class="table table-striped table-bordered mt-3">
+            <table id="tablaUniformesRRHH" class="table table-striped table-bordered mt-3">
                 <thead class="table-dark text-center">
                     <tr>
                         <th>Código</th>
@@ -51,7 +54,7 @@ include __DIR__ . '/header.php';
                                     <td>" . htmlspecialchars(ucfirst($row['tipo'])) . "</td>
                                     <td class='text-center'>" . htmlspecialchars($row['talla']) . "</td>
                                     <td class='text-center'><strong>" . htmlspecialchars($row['cantidad'] ?? 1) . "</strong></td>
-                                    <td>
+                                    <td class='text-center'>
                                         <a href='#' data-bs-toggle='modal' data-bs-target='#modalUniforme{$row['id']}'>
                                             " . htmlspecialchars($estado_texto) . "
                                         </a>
@@ -180,5 +183,65 @@ include __DIR__ . '/header.php';
 
 <!-- Bootstrap JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- DataTable Initialization -->
+<script>
+(function() {
+    // Esperar a que jQuery y DataTables estén disponibles
+    function initDataTable() {
+        if (typeof jQuery !== 'undefined' && typeof jQuery.fn.DataTable !== 'undefined') {
+            try {
+                jQuery('#tablaUniformesRRHH').DataTable({
+                    language: {
+                        "decimal": "",
+                        "emptyTable": "No hay solicitudes registradas",
+                        "info": "Mostrando _START_ a _END_ de _TOTAL_ solicitudes",
+                        "infoEmpty": "Mostrando 0 a 0 de 0 solicitudes",
+                        "infoFiltered": "(filtrado de _MAX_ solicitudes totales)",
+                        "infoPostFix": "",
+                        "thousands": ",",
+                        "lengthMenu": "Mostrar _MENU_ solicitudes",
+                        "loadingRecords": "Cargando...",
+                        "processing": "Procesando...",
+                        "search": "Buscar:",
+                        "zeroRecords": "No se encontraron resultados",
+                        "paginate": {
+                            "first": "Primero",
+                            "last": "Último",
+                            "next": "Siguiente",
+                            "previous": "Anterior"
+                        },
+                        "aria": {
+                            "sortAscending": ": activar para ordenar la columna ascendente",
+                            "sortDescending": ": activar para ordenar la columna descendente"
+                        }
+                    },
+                    pageLength: 25,
+                    order: [[5, 'asc']], // Ordenar por estado (columna 5)
+                    responsive: true,
+                    dom: '<"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6"f>>rt<"row"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-7"p>>',
+                    columnDefs: [
+                        { targets: [4], className: 'text-center' }, // Cantidad centrada
+                        { targets: [5], className: 'text-center' }  // Estado centrado
+                    ]
+                });
+                console.log('✅ DataTable RRHH inicializado correctamente');
+            } catch(e) {
+                console.error('❌ Error al inicializar DataTable:', e);
+            }
+        } else {
+            console.log('⏳ jQuery o DataTables no disponibles aún, reintentando...');
+            setTimeout(initDataTable, 100);
+        }
+    }
+    
+    // Inicializar cuando el DOM esté listo
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initDataTable);
+    } else {
+        initDataTable();
+    }
+})();
+</script>
 
 <?php include __DIR__ . '/footer.php'; ?>
