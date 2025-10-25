@@ -1327,6 +1327,8 @@ class Rrhh {
                 u.cantidad,
                 u.stat,
                 u.fecha_log,
+                u.fecha_proceso,
+                u.fecha_entrega,
                 u.codigo_empleado,
                 u.observacion,
                 e.nombre,
@@ -1451,12 +1453,22 @@ class Rrhh {
      * Actualizar estado de solicitud de uniforme
      */
     public function update_uniforme($uniforme_id, $nuevo_estado) {
-        $stmt = $this->pdo->prepare("
-            UPDATE uniformes 
-            SET stat = :stat
-            WHERE id = :uniforme_id
-        ");
+        // Preparar campos adicionales según el estado
+        $campos_adicionales = "";
         
+        if ($nuevo_estado == 2) {
+            // En proceso - registrar fecha_proceso
+            $campos_adicionales = ", fecha_proceso = NOW()";
+        } elseif ($nuevo_estado == 3) {
+            // Entregado - registrar fecha_entrega
+            $campos_adicionales = ", fecha_entrega = NOW()";
+        }
+        
+        $sql = "UPDATE uniformes 
+                SET stat = :stat" . $campos_adicionales . "
+                WHERE id = :uniforme_id";
+        
+        $stmt = $this->pdo->prepare($sql);
         $stmt->bindParam(':stat', $nuevo_estado, PDO::PARAM_INT);
         $stmt->bindParam(':uniforme_id', $uniforme_id, PDO::PARAM_INT);
         
@@ -1475,6 +1487,8 @@ class Rrhh {
                 u.cantidad,
                 u.stat,
                 u.fecha_log,
+                u.fecha_proceso,
+                u.fecha_entrega,
                 u.codigo_empleado,
                 u.observacion,
                 e.nombre,

@@ -126,6 +126,19 @@ include __DIR__ . '/header.php';
                                                     <p class='text-primary fw-bold'>$estado_texto</p>
                                                 </div>
                                                 
+                                                <div class='row'>
+                                                    <div class='col-6'>
+                                                        <label class='form-label'><b>Fecha en Proceso</b></label>
+                                                        <p class='small'>" . (!empty($row['fecha_proceso']) ? date('d/m/Y H:i', strtotime($row['fecha_proceso'])) : '<em class=\"text-muted\">Pendiente</em>') . "</p>
+                                                    </div>
+                                                    <div class='col-6'>
+                                                        <label class='form-label'><b>Fecha de Entrega</b></label>
+                                                        <p class='small'>" . (!empty($row['fecha_entrega']) ? date('d/m/Y H:i', strtotime($row['fecha_entrega'])) : '<em class=\"text-muted\">Pendiente</em>') . "</p>
+                                                    </div>
+                                                </div>
+                                                
+                                                <hr>
+                                                
                                                 <div class='mb-3'>
                                                     <label class='form-label'><b>Cambiar Estado</b></label>
                                                     <select name='nuevo_estado' class='form-select' required>

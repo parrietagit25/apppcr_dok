@@ -159,6 +159,19 @@ include __DIR__ . '/header.php';
                                             </p>
                                         </div>
                                         
+                                        <div class='row'>
+                                            <div class='col-6'>
+                                                <label class='form-label text-muted small'><b>Fecha en Proceso</b></label>
+                                                <p class='small'>" . (!empty($row['fecha_proceso']) ? date('d/m/Y H:i', strtotime($row['fecha_proceso'])) : '<em class=\"text-muted\">-</em>') . "</p>
+                                            </div>
+                                            <div class='col-6'>
+                                                <label class='form-label text-muted small'><b>Fecha de Entrega</b></label>
+                                                <p class='small'>" . (!empty($row['fecha_entrega']) ? '<strong class=\"text-success\">' . date('d/m/Y H:i', strtotime($row['fecha_entrega'])) . '</strong>' : '<em class=\"text-muted\">-</em>') . "</p>
+                                            </div>
+                                        </div>
+                                        
+                                        <hr>
+                                        
                                         <div class='alert alert-info'>
                                             <i class='bi bi-info-circle'></i> 
                                             <strong>Información:</strong> El departamento de RRHH está procesando tu solicitud. 
