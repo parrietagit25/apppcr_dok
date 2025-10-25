@@ -389,8 +389,7 @@ function inicializarModuloUniformes() {
             case 'camisa':
             case 'chaleco':
             case 'sueter':
-            case 'otros':
-                tallas = ['Única'];
+                tallas = ['S', 'M', 'L', 'XL', '2XL', '3XL', '4XL'];
                 break;
             case 'pantalon':
                 tallas = ['30', '32', '34', '36', '38', '40', '42', '44', '46', '48'];
@@ -399,6 +398,9 @@ function inicializarModuloUniformes() {
                 tallas = ['38', '39', '40', '41', '42', '43', '44', '45', '46'];
                 break;
             case 'carnet de identificacion':
+                tallas = ['Única'];
+                break;
+            case 'otros':
                 tallas = ['Única'];
                 break;
             case 'gorra':
