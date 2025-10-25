@@ -377,7 +377,7 @@ function inicializarModuloUniformes() {
             case 'chaleco':
             case 'sueter':
             case 'otros':
-                tallas = ['S', 'M', 'L', 'XL', '2XL', '3XL', '4XL'];
+                tallas = ['Única'];
                 break;
             case 'pantalon':
                 tallas = ['30', '32', '34', '36', '38', '40', '42', '44', '46', '48'];

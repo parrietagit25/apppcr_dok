@@ -1173,6 +1173,53 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
                     default => 'desconocido'
                 };
                 echo "<div class='alert alert-success'>Uniforme marcado como <b>$estado_texto</b>.</div>";
+                
+                // Si el estado es ENTREGADO (3), enviar correo al colaborador
+                if ($nuevo_estado == 3) {
+                    try {
+                        // Obtener datos del uniforme y del colaborador
+                        $stmt = $pdo->prepare("
+                            SELECT 
+                                u.tipo, u.talla, u.cantidad, u.codigo_empleado,
+                                e.nombre, e.apellido, e.email
+                            FROM uniformes u
+                            INNER JOIN empleados e ON u.codigo_empleado COLLATE utf8mb4_unicode_ci = e.codigo_empleado COLLATE utf8mb4_unicode_ci
+                            WHERE u.id = :uniforme_id
+                        ");
+                        $stmt->execute([':uniforme_id' => $uniforme_id]);
+                        $uniforme_data = $stmt->fetch(PDO::FETCH_ASSOC);
+                        
+                        if ($uniforme_data && !empty($uniforme_data['email'])) {
+                            $nombre_completo = $uniforme_data['nombre'] . ' ' . $uniforme_data['apellido'];
+                            $tipo_uniforme = ucfirst($uniforme_data['tipo']);
+                            $talla = $uniforme_data['talla'];
+                            $cantidad = $uniforme_data['cantidad'] ?? 1;
+                            
+                            $mensaje = "Estimado(a) <b>$nombre_completo</b>,<br><br>
+                                        Le informamos que su uniforme ha sido <b>ENTREGADO</b>.<br><br>
+                                        <b>Detalles del uniforme:</b><br>
+                                        • Tipo: $tipo_uniforme<br>
+                                        • Talla: $talla<br>
+                                        • Cantidad: $cantidad unidad(es)<br><br>
+                                        Saludos,<br>
+                                        <b>Departamento de RRHH</b><br>
+                                        Grupo PCR";
+                            
+                            $copia = [
+                                "abi.pineda@grupopcr.com.pa",
+                                "sofia.macias@grupopcr.com.pa",
+                                "yissell.perez@grupopcr.com.pa"
+                            ];
+                            
+                            $class->enviar_correo($uniforme_data['email'], $copia, "Tu uniforme está listo - Grupo PCR", $mensaje);
+                            
+                            echo "<div class='alert alert-info'><i class='bi bi-envelope-check'></i> Correo enviado al colaborador.</div>";
+                        }
+                    } catch (Exception $e) {
+                        error_log("Error al enviar correo de uniforme entregado: " . $e->getMessage());
+                    }
+                }
+                
             } else {
                 echo "<div class='alert alert-danger'>Error al actualizar el estado.</div>";
             }
