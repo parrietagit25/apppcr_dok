@@ -140,7 +140,7 @@ include __DIR__ . '/header.php';
     <div class="container my-4">
         <?php if ($tipo_usuario == 1 || $tipo_usuario == 4) { ?>
         <div class="bg-white rounded shadow p-3 text-center" style="cursor: pointer;" data-bs-toggle="modal" data-bs-target="#frase_semana">
-            <h6 class="fw-bold text-secondary">🔔 FRASE DE LA SEMANA <small class="badge bg-primary">Click para editar</small></h6>
+            <h6 class="fw-bold text-secondary">🔔 FRASE DE LA SEMANA</h6>
             <blockquote class="fst-italic text-muted mt-2">"<?php echo $frase['frase']; ?>"</blockquote>
         </div>
         <?php } else { ?>
