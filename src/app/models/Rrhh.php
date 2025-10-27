@@ -1476,6 +1476,30 @@ class Rrhh {
     }
     
     /**
+     * Eliminar/Cancelar solicitud de uniforme (solo si no está entregado)
+     */
+    public function eliminar_uniforme($uniforme_id) {
+        if (!isset($_SESSION['code'])) {
+            die("Error: No hay sesión iniciada.");
+        }
+        $code = $_SESSION['code'];
+        
+        // Cambiar stat a 0 (cancelado) solo si pertenece al usuario y no está entregado (stat 3)
+        $stmt = $this->pdo->prepare("
+            UPDATE uniformes 
+            SET stat = 0
+            WHERE id = :uniforme_id 
+            AND codigo_empleado = :codigo_empleado
+            AND stat IN (1, 2)
+        ");
+        
+        $stmt->bindParam(':uniforme_id', $uniforme_id, PDO::PARAM_INT);
+        $stmt->bindParam(':codigo_empleado', $code, PDO::PARAM_STR);
+        
+        return $stmt->execute();
+    }
+    
+    /**
      * Obtener todas las solicitudes de uniformes para RRHH (verificación)
      */
     public function uniformes_vrrhh() {

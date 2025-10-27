@@ -1104,6 +1104,19 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
 
 }elseif(isset($_GET['uniforme'])){
 
+    // Eliminar/Cancelar solicitud de uniforme
+    if (isset($_POST['eliminar_uniforme'])) {
+        $uniforme_id = (int)($_POST['uniforme_id'] ?? 0);
+        
+        if ($uniforme_id > 0) {
+            if ($class->eliminar_uniforme($uniforme_id)) {
+                echo "<div class='alert alert-success'><i class='bi bi-check-circle'></i> Solicitud cancelada correctamente.</div>";
+            } else {
+                echo "<div class='alert alert-danger'><i class='bi bi-x-circle'></i> Error al cancelar la solicitud. Solo puede cancelar solicitudes que no hayan sido entregadas.</div>";
+            }
+        }
+    }
+
     // Procesar solicitud de uniformes (múltiples productos)
     if (isset($_POST['solicitar_uniforme'])) {
         $observacion = $_POST['observacion'] ?? '';

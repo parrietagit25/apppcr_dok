@@ -80,6 +80,7 @@ include __DIR__ . '/header.php';
                     <th>Cant.</th>
                     <th>Fecha</th>
                     <th>Estado</th>
+                    <th>Acción</th>
                 </tr>
             </thead>
             <tbody>
@@ -103,6 +104,18 @@ include __DIR__ . '/header.php';
                                     ' . $status_badge . '
                                 </a>
                               </td>';
+                        
+                        // Columna de acción - botón eliminar solo si NO está entregado (stat 3)
+                        echo '<td class="text-center">';
+                        if ($row['stat'] == 1 || $row['stat'] == 2) {
+                            echo '<button class="btn btn-sm btn-danger" onclick="eliminarSolicitud(' . $row['id'] . ', \'' . htmlspecialchars(ucfirst($row['tipo'])) . '\')" title="Cancelar solicitud">
+                                    <i class="bi bi-trash"></i>
+                                  </button>';
+                        } else {
+                            echo '<span class="text-muted small">-</span>';
+                        }
+                        echo '</td>';
+                        
                         echo '</tr>';
                         
                         // Modal de detalle por cada solicitud
@@ -189,7 +202,7 @@ include __DIR__ . '/header.php';
                         </div>";
                     }
                 } else {
-                    echo '<tr><td colspan="5" class="text-center text-muted">No hay solicitudes registradas</td></tr>';
+                    echo '<tr><td colspan="6" class="text-center text-muted">No hay solicitudes registradas</td></tr>';
                 }
             ?>
             </tbody>
@@ -540,6 +553,18 @@ function eliminarDeOrden(index) {
 function ucfirst(str) {
     if (!str) return '';
     return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
+// Función para eliminar/cancelar solicitud
+function eliminarSolicitud(uniformeId, tipoUniforme) {
+    if (confirm('¿Está seguro que desea cancelar la solicitud de "' + tipoUniforme + '"?\n\nEsta acción no se puede deshacer.')) {
+        var form = document.createElement('form');
+        form.method = 'POST';
+        form.innerHTML = '<input type="hidden" name="eliminar_uniforme" value="1">' +
+                        '<input type="hidden" name="uniforme_id" value="' + uniformeId + '">';
+        document.body.appendChild(form);
+        form.submit();
+    }
 }
 
 // Inicializar cuando el DOM esté listo
