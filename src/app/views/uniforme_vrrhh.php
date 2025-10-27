@@ -35,6 +35,7 @@ include __DIR__ . '/header.php';
                         <th>Talla</th>
                         <th>Cant.</th>
                         <th>Estado</th>
+                        <th>Acción</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -59,6 +60,18 @@ include __DIR__ . '/header.php';
                                             " . htmlspecialchars($estado_texto) . "
                                         </a>
                                     </td>
+                                    <td class='text-center'>";
+                            
+                            // Botón eliminar solo si NO está entregado (stat 3)
+                            if ($row['stat'] == 1 || $row['stat'] == 2) {
+                                echo '<button class="btn btn-sm btn-danger" onclick="eliminarSolicitudRRHH(' . $row['id'] . ', \'' . htmlspecialchars(ucfirst($row['tipo'])) . '\')" title="Eliminar solicitud">
+                                        <i class="bi bi-trash"></i>
+                                      </button>';
+                            } else {
+                                echo '<span class="text-muted small">-</span>';
+                            }
+                            
+                            echo "</td>
                                   </tr>";
 
                             // Modal por solicitud
@@ -161,7 +174,7 @@ include __DIR__ . '/header.php';
                             </div>";
                         }
                     } else {
-                        echo "<tr><td colspan='6' class='text-center'>No hay solicitudes registradas.</td></tr>";
+                        echo "<tr><td colspan='7' class='text-center'>No hay solicitudes registradas.</td></tr>";
                     }
                     ?>
                 </tbody>
@@ -235,7 +248,8 @@ include __DIR__ . '/header.php';
                     dom: '<"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6"f>>rt<"row"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-7"p>>',
                     columnDefs: [
                         { targets: [4], className: 'text-center' }, // Cantidad centrada
-                        { targets: [5], className: 'text-center' }  // Estado centrado
+                        { targets: [5], className: 'text-center' }, // Estado centrado
+                        { targets: [6], className: 'text-center' }  // Acción centrada
                     ]
                 });
                 console.log('✅ DataTable RRHH inicializado correctamente');
@@ -255,6 +269,18 @@ include __DIR__ . '/header.php';
         initDataTable();
     }
 })();
+
+// Función para eliminar/cancelar solicitud (solo RRHH)
+function eliminarSolicitudRRHH(uniformeId, tipoUniforme) {
+    if (confirm('¿Está seguro que desea eliminar la solicitud de "' + tipoUniforme + '"?\n\nEsta acción no se puede deshacer.')) {
+        var form = document.createElement('form');
+        form.method = 'POST';
+        form.innerHTML = '<input type="hidden" name="eliminar_uniforme" value="1">' +
+                        '<input type="hidden" name="uniforme_id" value="' + uniformeId + '">';
+        document.body.appendChild(form);
+        form.submit();
+    }
+}
 </script>
 
 <?php include __DIR__ . '/footer.php'; ?>
