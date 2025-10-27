@@ -1172,6 +1172,28 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
 
 }elseif(isset($_GET['uniforme_vrrhh'])){
 
+    // Eliminar/Cancelar solicitud de uniforme (RRHH)
+    if (isset($_POST['eliminar_uniforme'])) {
+        $uniforme_id = (int)($_POST['uniforme_id'] ?? 0);
+        
+        if ($uniforme_id > 0) {
+            // RRHH puede eliminar sin restricciones de código de empleado
+            $stmt = $pdo->prepare("
+                UPDATE uniformes 
+                SET stat = 0
+                WHERE id = :uniforme_id 
+                AND stat IN (1, 2)
+            ");
+            $stmt->bindParam(':uniforme_id', $uniforme_id, PDO::PARAM_INT);
+            
+            if ($stmt->execute() && $stmt->rowCount() > 0) {
+                echo "<div class='alert alert-success'><i class='bi bi-check-circle'></i> Solicitud eliminada correctamente.</div>";
+            } else {
+                echo "<div class='alert alert-danger'><i class='bi bi-x-circle'></i> Error al eliminar la solicitud. Solo puede eliminar solicitudes que no hayan sido entregadas.</div>";
+            }
+        }
+    }
+
     // Actualizar estado de uniforme (RRHH)
     if (isset($_POST['actualizar_uniforme'])) {
         $uniforme_id = (int)($_POST['uniforme_id'] ?? 0);
