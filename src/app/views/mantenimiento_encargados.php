@@ -8,6 +8,9 @@ if (!isset($_SESSION['code'])) {
 include __DIR__ . '/header.php'; 
 ?>
 
+<!-- Select2 CSS -->
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+
 <div class="container mt-4">
 
     <div id="carouselExampleSlidesOnly" class="carousel slide mb-4" data-bs-ride="carousel">
@@ -17,6 +20,14 @@ include __DIR__ . '/header.php';
                     <h5 class="fw-bold">Mantenimiento - Encargados </h5>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <div class="row mb-3">
+        <div class="col-12 text-end">
+            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalAsignarEncargado">
+                <i class="bi bi-person-plus"></i> Asignar Encargado
+            </button>
         </div>
     </div>
 
@@ -40,18 +51,13 @@ include __DIR__ . '/header.php';
                         <td><?= htmlspecialchars($usuario['fecha_log']) ?></td>
                         <td><?= htmlspecialchars($usuario['codigo_empleado']) ?></td>
                         <td class="text-center">
-                            <button class="btn btn-sm btn-warning" 
+                            <button class="btn btn-sm btn-info" 
                                     data-bs-toggle="modal" 
-                                    data-bs-target="#modalPassword" 
-                                    data-code="<?= $usuario['codigo_empleado'] ?>">
-                                Cambiar Contraseña
-                            </button>
-                            <button class="btn btn-sm btn-danger"
-                                    data-bs-toggle="modal"
-                                    data-bs-target="#modalStatus"
+                                    data-bs-target="#modalEdicion"
                                     data-code="<?= $usuario['codigo_empleado'] ?>"
-                                    data-status="<?= $usuario['stat'] ?>">
-                                Desactivar usuario
+                                    data-nombre="<?= htmlspecialchars($usuario['nombre']) ?>"
+                                    data-apellido="<?= htmlspecialchars($usuario['apellido']) ?>">
+                                <i class="bi bi-pencil"></i> Edición
                             </button>
                         </td>
                     </tr>
@@ -59,55 +65,65 @@ include __DIR__ . '/header.php';
             </tbody>
         </table>
 
-        <!-- Modal -->
-        <div class="modal fade" id="modalPassword" tabindex="-1" aria-labelledby="modalPasswordLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <form method="POST" action="<?php echo BASE_URL_CONTROLLER; ?>/MainController.php?mantenimiento_encargados=1">
+        <!-- Modal Asignar Encargado -->
+        <div class="modal fade" id="modalAsignarEncargado" tabindex="-1" aria-labelledby="modalAsignarEncargadoLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <form method="POST" action="<?php echo BASE_URL_CONTROLLER; ?>/MainController.php?mantenimiento_encargados=1">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Asignar Encargado</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="mb-3">
+                                <label for="usuarioSelect" class="form-label">Buscar Usuario</label>
+                                <select id="usuarioSelect" name="codigo_usuario" class="form-control" style="width: 100%;" required>
+                                    <option value="">-- Seleccione un usuario --</option>
+                                </select>
+                                <small class="text-muted">Escriba para buscar por nombre, apellido o código</small>
+                            </div>
+                            <input type="hidden" name="asignar_encargado" value="1">
+                        </div>
+                        <div class="modal-footer">
+                            <button type="submit" class="btn btn-primary">Asignar</button>
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Modal Edición -->
+        <div class="modal fade" id="modalEdicion" tabindex="-1" aria-labelledby="modalEdicionLabel" aria-hidden="true">
+            <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title">Cambiar Contraseña</h5>
+                        <h5 class="modal-title">Edición de Encargado</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
                     </div>
                     <div class="modal-body">
-                        <input type="hidden" name="codigo_empleado" id="codigoEmpleadoInput">
                         <div class="mb-3">
-                            <label for="nuevaPassword" class="form-label">Nueva contraseña</label>
-                            <input type="password" class="form-control" id="nuevaPassword" name="nueva_password" required>
+                            <label class="form-label"><strong>Código:</strong></label>
+                            <p id="edicionCodigo"></p>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label"><strong>Nombre:</strong></label>
+                            <p id="edicionNombre"></p>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label"><strong>Apellido:</strong></label>
+                            <p id="edicionApellido"></p>
+                        </div>
+                        <div class="alert alert-info">
+                            <i class="bi bi-info-circle"></i> Funcionalidad de edición en desarrollo.
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="submit" class="btn btn-primary">Guardar</button>
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
                     </div>
                 </div>
-            </form>
+            </div>
         </div>
-        </div>
-
-        <!-- Modal Estado -->
-        <div class="modal fade" id="modalStatus" tabindex="-1" aria-labelledby="modalStatusLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <form method="POST" action="<?php echo BASE_URL_CONTROLLER; ?>/MainController.php?cambiar_estado_usuario_encargado=1">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title">Desactivar usuario</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-                    </div>
-                    <div class="modal-body">
-                        <input type="hidden" name="codigo_empleado" id="codigoEstadoInput">
-                        <input type="hidden" name="estado_actual" id="estadoActualInput">
-                        <p>¿Está seguro que desea desactivar usuario?</p>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="submit" class="btn btn-danger">Confirmar</button>
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    </div>
-                </div>
-            </form>
-        </div>
-        </div>
-
-
 
     <br>
     <br><br><br><br>
@@ -122,14 +138,39 @@ include __DIR__ . '/header.php';
     </div>
 </nav>
 
+<!-- jQuery -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<!-- Select2 JS -->
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        var modal = document.getElementById('modalPassword');
-        modal.addEventListener('show.bs.modal', function (event) {
-            var button = event.relatedTarget;
-            var codigo = button.getAttribute('data-code');
-            var inputCodigo = modal.querySelector('#codigoEmpleadoInput');
-            inputCodigo.value = codigo;
+    $(document).ready(function() {
+        // Inicializar Select2 con autocompletado
+        $('#usuarioSelect').select2({
+            placeholder: 'Buscar usuario...',
+            allowClear: true,
+            ajax: {
+                url: '<?php echo BASE_URL_CONTROLLER; ?>/MainController.php?buscar_usuarios_autocomplete=1',
+                dataType: 'json',
+                delay: 250,
+                data: function (params) {
+                    return {
+                        q: params.term // término de búsqueda
+                    };
+                },
+                processResults: function (data) {
+                    return {
+                        results: $.map(data, function (item) {
+                            return {
+                                id: item.codigo_empleado,
+                                text: item.codigo_empleado + ' - ' + item.nombre + ' ' + item.apellido
+                            };
+                        })
+                    };
+                },
+                cache: true
+            },
+            minimumInputLength: 2
         });
 
         // Inicializar DataTable
@@ -138,15 +179,18 @@ include __DIR__ . '/header.php';
                 "url": "//cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json"
             }
         });
-    });
 
-    var modalEstado = document.getElementById('modalStatus');
-    modalEstado.addEventListener('show.bs.modal', function (event) {
-    var button = event.relatedTarget;
-    var codigo = button.getAttribute('data-code');
-    var estado = button.getAttribute('data-status');
-    modalEstado.querySelector('#codigoEstadoInput').value = codigo;
-    modalEstado.querySelector('#estadoActualInput').value = estado;
-});
+        // Modal de Edición
+        $('#modalEdicion').on('show.bs.modal', function (event) {
+            var button = $(event.relatedTarget);
+            var codigo = button.data('code');
+            var nombre = button.data('nombre');
+            var apellido = button.data('apellido');
+            
+            $('#edicionCodigo').text(codigo);
+            $('#edicionNombre').text(nombre);
+            $('#edicionApellido').text(apellido);
+        });
+    });
 </script>
 <?php include __DIR__ . '/footer.php'; ?>

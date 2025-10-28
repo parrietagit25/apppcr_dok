@@ -87,21 +87,36 @@ if (isset($_GET['mantenimiento_usuarios'])) {
 
 if (isset($_GET['mantenimiento_encargados'])) {
     
-    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        $code = $_POST['codigo_empleado'];
-        $pass = $_POST['nueva_password'];
-
-        $resultado = $userModel->actualizar_colaborador($pass, $code);
-
-        if ($resultado) {
-            echo "<div class='alert alert-success'>Registro Actualizado.</div>";
-        } else {
-            echo "<div class='alert alert-danger'>Error al actualizar.</div>";
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['asignar_encargado'])) {
+        $code = $_POST['codigo_usuario'];
+        
+        if (!empty($code)) {
+            $resultado = $userModel->asignar_tipo_encargado($code);
+            
+            if ($resultado) {
+                echo "<div class='alert alert-success'>Usuario asignado como encargado correctamente.</div>";
+            } else {
+                echo "<div class='alert alert-danger'>Error al asignar encargado.</div>";
+            }
         }
     }
 
     $usuarios = $userModel->usuarios_encargados();
     require_once __DIR__ . '/../views/mantenimiento_encargados.php';
+    exit();
+}
+
+// Endpoint para autocompletado de usuarios
+if (isset($_GET['buscar_usuarios_autocomplete'])) {
+    header('Content-Type: application/json');
+    $termino = $_GET['q'] ?? '';
+    
+    if (!empty($termino)) {
+        $usuarios = $userModel->buscar_usuarios_autocomplete($termino);
+        echo json_encode($usuarios);
+    } else {
+        echo json_encode([]);
+    }
     exit();
 }
 

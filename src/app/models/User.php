@@ -190,6 +190,29 @@ public function nombre_colaborador() {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    public function buscar_usuarios_autocomplete($termino) {
+        $termino = '%' . $termino . '%';
+        $stmt = $this->pdo->prepare("
+            SELECT DISTINCT e.codigo_empleado, e.nombre, e.apellido 
+            FROM empleados e 
+            INNER JOIN empleado_log el ON e.codigo_empleado = el.codigo 
+            WHERE el.stat = 1 
+            AND (e.nombre LIKE :termino OR e.apellido LIKE :termino OR e.codigo_empleado LIKE :termino)
+            AND el.type_user != 6
+            ORDER BY e.nombre ASC 
+            LIMIT 10
+        ");
+        $stmt->bindParam(':termino', $termino, PDO::PARAM_STR);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function asignar_tipo_encargado($codigo) {
+        $stmt = $this->pdo->prepare("UPDATE empleado_log SET type_user = 6 WHERE codigo = :codigo");
+        $stmt->bindParam(':codigo', $codigo, PDO::PARAM_STR);
+        return $stmt->execute();
+    }
+
     public function usuarios_no_listados(){
         $stmt = $this->pdo->prepare("SELECT * FROM empleado_log el 
                                     INNER JOIN empleados e ON el.codigo = e.codigo_empleado 
