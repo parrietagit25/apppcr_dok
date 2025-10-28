@@ -205,10 +205,10 @@ public function nombre_colaborador() {
                 FROM empleados e 
                 INNER JOIN empleado_log el ON e.codigo_empleado = el.codigo 
                 WHERE el.stat = 1 
-                AND (el.type_user IS NULL OR el.type_user != 6)
+                AND (el.type_user IS NULL OR el.type_user in (2))
+                AND (el.type_user IS NULL OR el.type_user <> 6)
                 AND (e.nombre LIKE :termino OR e.apellido LIKE :termino OR e.codigo_empleado LIKE :termino)
                 ORDER BY e.nombre ASC 
-                LIMIT 20
             ");
             $stmt->bindParam(':termino', $termino, PDO::PARAM_STR);
             $stmt->execute();
