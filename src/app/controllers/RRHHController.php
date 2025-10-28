@@ -865,6 +865,19 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
 
 }elseif(isset($_GET['solicitud_permiso_admin'])){
 
+    // Eliminar permiso
+    if (isset($_POST['eliminar_permiso'])) {
+        $permiso_id = (int)($_POST['permiso_id'] ?? 0);
+        
+        if ($permiso_id > 0) {
+            if ($class->eliminar_permiso($permiso_id)) {
+                echo "<div class='alert alert-success'><i class='bi bi-check-circle'></i> Solicitud de permiso eliminada correctamente.</div>";
+            } else {
+                echo "<div class='alert alert-danger'><i class='bi bi-x-circle'></i> Error al eliminar la solicitud.</div>";
+            }
+        }
+    }
+
     if (isset($_POST['aprobar_permiso'])) {
         $class->update_permiso($_POST['respuesta_jefe'], $_POST['comentario_jefe'], $_POST['permiso_id']);
         //echo "<div class='alert alert-success'>Permiso actualizado correctamente.</div>";
@@ -910,19 +923,6 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
     exit();
 
 }elseif (isset($_GET['administrar_permiso_admin'])) {
-
-    // Eliminar permiso
-    if (isset($_POST['eliminar_permiso'])) {
-        $permiso_id = (int)($_POST['permiso_id'] ?? 0);
-        
-        if ($permiso_id > 0) {
-            if ($class->eliminar_permiso($permiso_id)) {
-                echo "<div class='alert alert-success'><i class='bi bi-check-circle'></i> Solicitud de permiso eliminada correctamente.</div>";
-            } else {
-                echo "<div class='alert alert-danger'><i class='bi bi-x-circle'></i> Error al eliminar la solicitud.</div>";
-            }
-        }
-    }
 
     if (isset($_POST['aprobar_permiso'])) {
         $class->update_permiso($_POST['respuesta_jefe'], $_POST['comentario_jefe'], $_POST['permiso_id']);

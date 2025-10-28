@@ -35,7 +35,6 @@ include __DIR__ . '/header.php';
                     <th>Tipo de Licencia</th>
                     <th>Fecha de Solicitud</th>
                     <th>Estado</th>
-                    <th>Acción</th>
                 </tr>
             </thead>
             <tbody>
@@ -63,11 +62,6 @@ include __DIR__ . '/header.php';
                                     <a href='#' data-bs-toggle='modal' data-bs-target='#modalAdjuntar{$row['id']}'>
                                         " . htmlspecialchars($status) . "
                                     </a>
-                                </td>
-                                <td class='text-center'>
-                                    <button class='btn btn-sm btn-danger' onclick='eliminarPermiso({$row['id']}, \"" . htmlspecialchars($row['nombre'] . ' ' . $row['apellido']) . "\", \"" . htmlspecialchars($row['tipo_licencia']) . "\")' title='Eliminar solicitud'>
-                                        <i class='bi bi-trash'></i>
-                                    </button>
                                 </td>
                             </tr>";
 
@@ -143,7 +137,7 @@ include __DIR__ . '/header.php';
                         </div>";
                     }
                 } else {
-                    echo "<tr><td colspan='5' class='text-center'>No hay solicitudes registradas.</td></tr>";
+                    echo "<tr><td colspan='4' class='text-center'>No hay solicitudes registradas.</td></tr>";
                 }
                 ?>
             </tbody>
@@ -200,24 +194,9 @@ document.addEventListener("DOMContentLoaded", function () {
             url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json"
         },
         pageLength: 10,
-        order: [[2, 'desc']], // Ordenar por la columna "Fecha de Solicitud" (índice 2)
-        columnDefs: [
-            { targets: [4], className: 'text-center' } // Acción centrada
-        ]
+        order: [[2, 'desc']] // Ordenar por la columna "Fecha de Solicitud" (índice 2)
     });
 });
-
-// Función para eliminar permiso
-function eliminarPermiso(permisoId, nombreColaborador, tipoLicencia) {
-    if (confirm('¿Está seguro que desea eliminar la solicitud de permiso de "' + nombreColaborador + '" (Tipo: ' + tipoLicencia + ')?\n\nEsta acción no se puede deshacer.')) {
-        var form = document.createElement('form');
-        form.method = 'POST';
-        form.innerHTML = '<input type="hidden" name="eliminar_permiso" value="1">' +
-                        '<input type="hidden" name="permiso_id" value="' + permisoId + '">';
-        document.body.appendChild(form);
-        form.submit();
-    }
-}
 </script>
 
 <?php include __DIR__ . '/footer.php'; ?>
