@@ -76,11 +76,18 @@ include __DIR__ . '/header.php';
                         </div>
                         <div class="modal-body">
                             <div class="mb-3">
-                                <label for="usuarioSelect" class="form-label">Buscar Usuario</label>
-                                <select id="usuarioSelect" name="codigo_usuario" class="form-control" style="width: 100%;" required>
+                                <label for="usuarioSelect" class="form-label">Seleccionar Usuario</label>
+                                <select id="usuarioSelect" name="codigo_usuario" class="form-select" required>
                                     <option value="">-- Seleccione un usuario --</option>
+                                    <?php if (isset($usuarios_disponibles) && !empty($usuarios_disponibles)): ?>
+                                        <?php foreach ($usuarios_disponibles as $usuario_disp): ?>
+                                            <option value="<?= htmlspecialchars($usuario_disp['codigo_empleado']) ?>">
+                                                <?= htmlspecialchars($usuario_disp['codigo_empleado']) ?> - <?= htmlspecialchars($usuario_disp['nombre']) ?> <?= htmlspecialchars($usuario_disp['apellido']) ?>
+                                            </option>
+                                        <?php endforeach; ?>
+                                    <?php endif; ?>
                                 </select>
-                                <small class="text-muted">Escriba para buscar por nombre, apellido o código</small>
+                                <small class="text-muted">Seleccione un usuario de la lista para asignarlo como encargado</small>
                             </div>
                             <input type="hidden" name="asignar_encargado" value="1">
                         </div>
@@ -138,69 +145,15 @@ include __DIR__ . '/header.php';
     </div>
 </nav>
 
-<!-- Select2 JS -->
-<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Esperar a que jQuery y Select2 estén disponibles
+        // Esperar a que jQuery esté disponible
         if (typeof jQuery === 'undefined') {
             console.error('jQuery no está disponible');
             return;
         }
         
-        if (typeof jQuery.fn.select2 === 'undefined') {
-            console.error('Select2 no está disponible');
-            return;
-        }
-        
         var $ = jQuery;
-        
-        console.log('Inicializando Select2...');
-
-        // Inicializar Select2 con autocompletado
-        $('#usuarioSelect').select2({
-            placeholder: 'Buscar usuario...',
-            allowClear: true,
-            ajax: {
-                url: '<?php echo BASE_URL_CONTROLLER; ?>/MainController.php?buscar_usuarios_autocomplete=1',
-                dataType: 'json',
-                delay: 250,
-                data: function (params) {
-                    return {
-                        q: params.term || '' // término de búsqueda
-                    };
-                },
-                processResults: function (data) {
-                    console.log('Datos recibidos del servidor:', data);
-                    
-                    // Verificar que data sea un array
-                    if (!Array.isArray(data)) {
-                        console.error('Error: respuesta no es un array', data);
-                        return { results: [] };
-                    }
-                    
-                    var mapped = {
-                        results: $.map(data, function (item) {
-                            return {
-                                id: item.codigo_empleado || item.id,
-                                text: (item.codigo_empleado || item.id) + ' - ' + (item.nombre || '') + ' ' + (item.apellido || '')
-                            };
-                        })
-                    };
-                    
-                    console.log('Resultados mapeados:', mapped);
-                    return mapped;
-                },
-                cache: true,
-                error: function(xhr, status, error) {
-                    console.error('Error en AJAX:', error);
-                    console.error('Status:', status);
-                    console.error('Response:', xhr.responseText);
-                }
-            },
-            minimumInputLength: 2
-        });
 
         // Inicializar DataTable
         $('#tablaEncargados').DataTable({

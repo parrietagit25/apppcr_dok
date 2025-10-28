@@ -190,6 +190,23 @@ public function nombre_colaborador() {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    public function usuarios_disponibles_para_encargado() {
+        $stmt = $this->pdo->prepare("
+            SELECT DISTINCT 
+                e.codigo_empleado, 
+                e.nombre, 
+                e.apellido 
+            FROM empleados e 
+            INNER JOIN empleado_log el ON e.codigo_empleado = el.codigo 
+            WHERE el.stat = 1 
+            AND (el.type_user IS NULL OR el.type_user IN (2))
+            AND (el.type_user IS NULL OR el.type_user <> 6)
+            ORDER BY e.nombre ASC
+        ");
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
     public function buscar_usuarios_autocomplete($termino) {
         try {
             if (empty($termino)) {

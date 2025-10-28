@@ -102,6 +102,7 @@ if (isset($_GET['mantenimiento_encargados'])) {
     }
 
     $usuarios = $userModel->usuarios_encargados();
+    $usuarios_disponibles = $userModel->usuarios_disponibles_para_encargado();
     require_once __DIR__ . '/../views/mantenimiento_encargados.php';
     exit();
 }
