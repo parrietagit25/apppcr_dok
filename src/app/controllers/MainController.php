@@ -85,6 +85,26 @@ if (isset($_GET['mantenimiento_usuarios'])) {
     exit();
 }
 
+if (isset($_GET['mantenimiento_encargados'])) {
+    
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        $code = $_POST['codigo_empleado'];
+        $pass = $_POST['nueva_password'];
+
+        $resultado = $userModel->actualizar_colaborador($pass, $code);
+
+        if ($resultado) {
+            echo "<div class='alert alert-success'>Registro Actualizado.</div>";
+        } else {
+            echo "<div class='alert alert-danger'>Error al actualizar.</div>";
+        }
+    }
+
+    $usuarios = $userModel->usuarios_encargados();
+    require_once __DIR__ . '/../views/mantenimiento_encargados.php';
+    exit();
+}
+
 if (isset($_GET['mantenimiento_vacaciones'])) {
     $vacaciones = $class_rrhh->reporte_vacaciones();
     require_once __DIR__ . '/../views/mantenimiento_vacaciones.php';
@@ -100,6 +120,18 @@ if (isset($_GET['cambiar_estado_usuario'])) {
     $resultado = $userModel->cambiarEstadoUsuario($codigo, $nuevoEstado);
     $usuarios = $userModel->usuarios();
     require_once __DIR__ . '/../views/mantenimiento_usuarios.php';
+    exit();
+}
+
+if (isset($_GET['cambiar_estado_usuario_encargado'])) {
+
+    $codigo = $_POST['codigo_empleado'];
+    $estadoActual = (int) $_POST['estado_actual'];
+    $nuevoEstado = $estadoActual === 1 ? 0 : 1;
+
+    $resultado = $userModel->cambiarEstadoUsuario($codigo, $nuevoEstado);
+    $usuarios = $userModel->usuarios_encargados();
+    require_once __DIR__ . '/../views/mantenimiento_encargados.php';
     exit();
 }
 
