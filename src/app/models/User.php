@@ -252,6 +252,12 @@ public function nombre_colaborador() {
         return $stmt->execute();
     }
 
+    public function remover_tipo_encargado($codigo) {
+        $stmt = $this->pdo->prepare("UPDATE empleado_log SET type_user = 2 WHERE codigo = :codigo");
+        $stmt->bindParam(':codigo', $codigo, PDO::PARAM_STR);
+        return $stmt->execute();
+    }
+
     public function usuarios_no_listados(){
         $stmt = $this->pdo->prepare("SELECT * FROM empleado_log el 
                                     INNER JOIN empleados e ON el.codigo = e.codigo_empleado 

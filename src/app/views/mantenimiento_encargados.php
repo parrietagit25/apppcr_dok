@@ -121,9 +121,21 @@ include __DIR__ . '/header.php';
                             <label class="form-label"><strong>Apellido:</strong></label>
                             <p id="edicionApellido"></p>
                         </div>
-                        <div class="alert alert-info">
-                            <i class="bi bi-info-circle"></i> Funcionalidad de edición en desarrollo.
+                        <hr>
+                        <div class="alert alert-warning">
+                            <i class="bi bi-exclamation-triangle"></i> 
+                            <strong>Regresar a Usuario Normal</strong><br>
+                            Esta acción regresará al usuario a tipo usuario 2 (colaborador normal).
                         </div>
+                        <form method="POST" action="<?php echo BASE_URL_CONTROLLER; ?>/MainController.php?mantenimiento_encargados=1" id="formRemoverEncargado">
+                            <input type="hidden" name="codigo_usuario" id="codigoUsuarioRemover">
+                            <input type="hidden" name="remover_encargado" value="1">
+                            <div class="d-grid">
+                                <button type="submit" class="btn btn-warning" onclick="return confirm('¿Está seguro que desea regresar este usuario a tipo usuario 2?')">
+                                    <i class="bi bi-arrow-counterclockwise"></i> Regresar a Tipo Usuario 2
+                                </button>
+                            </div>
+                        </form>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
@@ -172,6 +184,7 @@ include __DIR__ . '/header.php';
             $('#edicionCodigo').text(codigo);
             $('#edicionNombre').text(nombre);
             $('#edicionApellido').text(apellido);
+            $('#codigoUsuarioRemover').val(codigo);
         });
     });
     </script>

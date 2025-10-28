@@ -101,6 +101,20 @@ if (isset($_GET['mantenimiento_encargados'])) {
         }
     }
 
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['remover_encargado'])) {
+        $code = $_POST['codigo_usuario'];
+        
+        if (!empty($code)) {
+            $resultado = $userModel->remover_tipo_encargado($code);
+            
+            if ($resultado) {
+                echo "<div class='alert alert-success'>Usuario regresado a tipo usuario 2 correctamente.</div>";
+            } else {
+                echo "<div class='alert alert-danger'>Error al remover encargado.</div>";
+            }
+        }
+    }
+
     $usuarios = $userModel->usuarios_encargados();
     $usuarios_disponibles = $userModel->usuarios_disponibles_para_encargado();
     require_once __DIR__ . '/../views/mantenimiento_encargados.php';
