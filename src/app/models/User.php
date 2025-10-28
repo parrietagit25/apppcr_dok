@@ -191,20 +191,34 @@ public function nombre_colaborador() {
     }
 
     public function buscar_usuarios_autocomplete($termino) {
-        $termino = '%' . $termino . '%';
-        $stmt = $this->pdo->prepare("
-            SELECT DISTINCT e.codigo_empleado, e.nombre, e.apellido 
-            FROM empleados e 
-            INNER JOIN empleado_log el ON e.codigo_empleado = el.codigo 
-            WHERE el.stat = 1 
-            AND (e.nombre LIKE :termino OR e.apellido LIKE :termino OR e.codigo_empleado LIKE :termino)
-            AND el.type_user != 6
-            ORDER BY e.nombre ASC 
-            LIMIT 10
-        ");
-        $stmt->bindParam(':termino', $termino, PDO::PARAM_STR);
-        $stmt->execute();
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        try {
+            $termino = '%' . $termino . '%';
+            $stmt = $this->pdo->prepare("
+                SELECT DISTINCT e.codigo_empleado, e.nombre, e.apellido 
+                FROM empleados e 
+                INNER JOIN empleado_log el ON e.codigo_empleado = el.codigo 
+                WHERE el.stat = 1 
+                AND (e.nombre LIKE :termino OR e.apellido LIKE :termino OR e.codigo_empleado LIKE :termino)
+                AND el.type_user != 6
+                ORDER BY e.nombre ASC 
+                LIMIT 10
+            ");
+            $stmt->bindParam(':termino', $termino, PDO::PARAM_STR);
+            $stmt->execute();
+            $resultados = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            
+            // Asegurar que todos los campos estén presentes
+            return array_map(function($row) {
+                return [
+                    'codigo_empleado' => $row['codigo_empleado'] ?? '',
+                    'nombre' => $row['nombre'] ?? '',
+                    'apellido' => $row['apellido'] ?? ''
+                ];
+            }, $resultados);
+        } catch (PDOException $e) {
+            error_log("Error en buscar_usuarios_autocomplete: " . $e->getMessage());
+            return [];
+        }
     }
 
     public function asignar_tipo_encargado($codigo) {

@@ -138,13 +138,19 @@ include __DIR__ . '/header.php';
     </div>
 </nav>
 
-<!-- jQuery -->
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <!-- Select2 JS -->
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
 <script>
-    $(document).ready(function() {
+    document.addEventListener('DOMContentLoaded', function() {
+        // Esperar a que jQuery esté disponible
+        if (typeof jQuery === 'undefined') {
+            console.error('jQuery no está disponible');
+            return;
+        }
+        
+        var $ = jQuery;
+
         // Inicializar Select2 con autocompletado
         $('#usuarioSelect').select2({
             placeholder: 'Buscar usuario...',
@@ -155,20 +161,29 @@ include __DIR__ . '/header.php';
                 delay: 250,
                 data: function (params) {
                     return {
-                        q: params.term // término de búsqueda
+                        q: params.term || '' // término de búsqueda
                     };
                 },
                 processResults: function (data) {
+                    // Verificar que data sea un array
+                    if (!Array.isArray(data)) {
+                        console.error('Error: respuesta no es un array', data);
+                        return { results: [] };
+                    }
+                    
                     return {
                         results: $.map(data, function (item) {
                             return {
-                                id: item.codigo_empleado,
-                                text: item.codigo_empleado + ' - ' + item.nombre + ' ' + item.apellido
+                                id: item.codigo_empleado || item.id,
+                                text: (item.codigo_empleado || item.id) + ' - ' + (item.nombre || '') + ' ' + (item.apellido || '')
                             };
                         })
                     };
                 },
-                cache: true
+                cache: true,
+                error: function(xhr, status, error) {
+                    console.error('Error en AJAX:', error, xhr.responseText);
+                }
             },
             minimumInputLength: 2
         });
@@ -192,5 +207,5 @@ include __DIR__ . '/header.php';
             $('#edicionApellido').text(apellido);
         });
     });
-</script>
+    </script>
 <?php include __DIR__ . '/footer.php'; ?>
