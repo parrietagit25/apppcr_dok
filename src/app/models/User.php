@@ -192,16 +192,23 @@ public function nombre_colaborador() {
 
     public function buscar_usuarios_autocomplete($termino) {
         try {
-            $termino = '%' . $termino . '%';
+            if (empty($termino)) {
+                return [];
+            }
+            
+            $termino = '%' . trim($termino) . '%';
             $stmt = $this->pdo->prepare("
-                SELECT DISTINCT e.codigo_empleado, e.nombre, e.apellido 
+                SELECT DISTINCT 
+                    e.codigo_empleado, 
+                    e.nombre, 
+                    e.apellido 
                 FROM empleados e 
                 INNER JOIN empleado_log el ON e.codigo_empleado = el.codigo 
                 WHERE el.stat = 1 
+                AND (el.type_user IS NULL OR el.type_user != 6)
                 AND (e.nombre LIKE :termino OR e.apellido LIKE :termino OR e.codigo_empleado LIKE :termino)
-                AND el.type_user != 6
                 ORDER BY e.nombre ASC 
-                LIMIT 10
+                LIMIT 20
             ");
             $stmt->bindParam(':termino', $termino, PDO::PARAM_STR);
             $stmt->execute();

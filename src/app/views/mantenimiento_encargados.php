@@ -182,7 +182,9 @@ include __DIR__ . '/header.php';
                 },
                 cache: true,
                 error: function(xhr, status, error) {
-                    console.error('Error en AJAX:', error, xhr.responseText);
+                    console.error('Error en AJAX:', error);
+                    console.error('Status:', status);
+                    console.error('Response:', xhr.responseText);
                 }
             },
             minimumInputLength: 2

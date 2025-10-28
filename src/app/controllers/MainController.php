@@ -108,14 +108,20 @@ if (isset($_GET['mantenimiento_encargados'])) {
 
 // Endpoint para autocompletado de usuarios
 if (isset($_GET['buscar_usuarios_autocomplete'])) {
-    header('Content-Type: application/json');
-    $termino = $_GET['q'] ?? '';
+    header('Content-Type: application/json; charset=utf-8');
     
-    if (!empty($termino)) {
-        $usuarios = $userModel->buscar_usuarios_autocomplete($termino);
-        echo json_encode($usuarios);
-    } else {
-        echo json_encode([]);
+    try {
+        $termino = $_GET['q'] ?? '';
+        
+        if (!empty($termino) && strlen(trim($termino)) >= 2) {
+            $usuarios = $userModel->buscar_usuarios_autocomplete($termino);
+            echo json_encode($usuarios, JSON_UNESCAPED_UNICODE);
+        } else {
+            echo json_encode([]);
+        }
+    } catch (Exception $e) {
+        error_log("Error en buscar_usuarios_autocomplete endpoint: " . $e->getMessage());
+        echo json_encode(['error' => 'Error al buscar usuarios']);
     }
     exit();
 }
