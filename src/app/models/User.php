@@ -185,7 +185,7 @@ public function nombre_colaborador() {
     }
 
     public function usuarios_encargados() {
-        $stmt = $this->pdo->prepare("SELECT * FROM empleado_log el INNER JOIN empleados e ON el.codigo = e.codigo_empleado WHERE el.stat = 1 AND e.type_user = 6");
+        $stmt = $this->pdo->prepare("SELECT * FROM empleado_log el INNER JOIN empleados e ON el.codigo = e.codigo_empleado WHERE el.stat = 1 AND el.type_user = 6");
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
