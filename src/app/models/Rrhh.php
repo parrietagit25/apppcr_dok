@@ -875,6 +875,13 @@ class Rrhh {
 
     }
 
+    public function eliminar_permiso($permiso_id) {
+        // Actualizar el estado a 0 (eliminado) en lugar de borrar físicamente
+        $stmt = $this->pdo->prepare("UPDATE solicitud_permiso SET stat = 0 WHERE id = :permiso_id");
+        $stmt->bindParam(':permiso_id', $permiso_id, PDO::PARAM_INT);
+        return $stmt->execute();
+    }
+
     public function correo_solicitud_permiso($id_permiso){
 
         $array_datos = [];
