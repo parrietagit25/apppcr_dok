@@ -271,7 +271,8 @@ class Rrhh {
                 ctf.desc_renta
             FROM carta_trabajo ct
             INNER JOIN empleados c
-                ON ct.code_user COLLATE utf8mb4_unicode_ci = c.codigo_empleado COLLATE utf8mb4_unicode_ci
+                ON CONVERT(ct.code_user USING utf8mb4) COLLATE utf8mb4_unicode_ci = 
+                CONVERT(c.codigo_empleado USING utf8mb4) COLLATE utf8mb4_unicode_ci
             LEFT JOIN carta_trabajo_formulario ctf
                 ON ctf.carta_id = ct.id
             WHERE ct.stat IN (1)
@@ -318,7 +319,9 @@ class Rrhh {
 
     public function get_email_colaborador($id_carta) {
         $stmt = $this->pdo->prepare("SELECT c.email FROM carta_trabajo ct 
-                                                    INNER JOIN empleados c ON ct.code_user COLLATE utf8mb4_unicode_ci = c.codigo_empleado COLLATE utf8mb4_unicode_ci 
+                                                    INNER JOIN empleados c 
+                                                    ON CONVERT(ct.code_user USING utf8mb4) COLLATE utf8mb4_unicode_ci = 
+                                                    CONVERT(c.codigo_empleado USING utf8mb4) COLLATE utf8mb4_unicode_ci
                                                     WHERE ct.id = :id_carta");
         $stmt->bindParam(':id_carta', $id_carta, PDO::PARAM_INT);
         $stmt->execute();
@@ -341,7 +344,9 @@ class Rrhh {
 
     public function get_email_permiso($id_permiso) {
         $stmt = $this->pdo->prepare("SELECT e.email, e.nombre, e.apellido FROM solicitud_permiso sp 
-                                                    INNER JOIN empleados e ON sp.code COLLATE utf8mb4_unicode_ci = e.codigo_empleado COLLATE utf8mb4_unicode_ci 
+                                                    INNER JOIN empleados e 
+                                                    ON CONVERT(e.codigo_empleado USING utf8mb4) COLLATE utf8mb4_unicode_ci = 
+                                                    CONVERT(sp.code USING utf8mb4) COLLATE utf8mb4_unicode_ci
                                                     WHERE sp.id = :id_permiso");
         $stmt->bindParam(':id_permiso', $id_permiso, PDO::PARAM_INT);
         $stmt->execute();
@@ -1122,7 +1127,9 @@ class Rrhh {
             IFNULL(ctf.desc_educativo, 0) AS desc_educativo,
             IFNULL(ctf.desc_renta, 0) AS desc_renta
             FROM carta_trabajo ct
-            INNER JOIN empleados c ON ct.code_user COLLATE utf8mb4_unicode_ci = c.codigo_empleado COLLATE utf8mb4_unicode_ci
+            INNER JOIN empleados c 
+            ON CONVERT(ct.code_user USING utf8mb4) COLLATE utf8mb4_unicode_ci = 
+            CONVERT(c.codigo_empleado USING utf8mb4) COLLATE utf8mb4_unicode_ci
             LEFT JOIN carta_trabajo_formulario ctf ON ctf.carta_id = ct.id
             WHERE ct.id = :id");
         $stmt->bindParam(':id', $id_carta);
@@ -1335,7 +1342,9 @@ class Rrhh {
                 e.apellido,
                 e.nombre_departamento
             FROM uniformes u
-            INNER JOIN empleados e ON u.codigo_empleado COLLATE utf8mb4_unicode_ci = e.codigo_empleado COLLATE utf8mb4_unicode_ci
+            INNER JOIN empleados e 
+            ON CONVERT(u.codigo_empleado USING utf8mb4) COLLATE utf8mb4_unicode_ci = 
+            CONVERT(e.codigo_empleado USING utf8mb4) COLLATE utf8mb4_unicode_ci
             WHERE u.codigo_empleado = :code
             ORDER BY u.fecha_log DESC
         ");
@@ -1370,7 +1379,9 @@ class Rrhh {
                 e.nombre_departamento,
                 e.nombre_cargo
             FROM uniformes u
-            INNER JOIN empleados e ON u.codigo_empleado COLLATE utf8mb4_unicode_ci = e.codigo_empleado COLLATE utf8mb4_unicode_ci
+            INNER JOIN empleados e 
+            ON CONVERT(u.codigo_empleado USING utf8mb4) COLLATE utf8mb4_unicode_ci = 
+            CONVERT(e.codigo_empleado USING utf8mb4) COLLATE utf8mb4_unicode_ci
             WHERE u.stat IN (1, 2, 3)
             ORDER BY u.fecha_log DESC
         ");
@@ -1520,7 +1531,9 @@ class Rrhh {
                 e.nombre_departamento,
                 e.nombre_cargo
             FROM uniformes u
-            INNER JOIN empleados e ON u.codigo_empleado COLLATE utf8mb4_unicode_ci = e.codigo_empleado COLLATE utf8mb4_unicode_ci
+            INNER JOIN empleados e 
+            ON CONVERT(u.codigo_empleado USING utf8mb4) COLLATE utf8mb4_unicode_ci = 
+            CONVERT(e.codigo_empleado USING utf8mb4) COLLATE utf8mb4_unicode_ci
             WHERE u.stat IN (1, 2, 3)
             ORDER BY u.stat ASC, u.fecha_log DESC
         ");
