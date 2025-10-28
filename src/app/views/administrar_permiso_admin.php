@@ -51,6 +51,7 @@ include __DIR__ . '/header.php';
                             $fin = new DateTime($row['fecha_fin']);
                             $diferencia = $inicio->diff($fin);
                             $cantidad_dias = $diferencia->days;
+                            $cantidad_dias = $cantidad_dias + 1;
                         }
 
                         echo "<tr>
@@ -95,7 +96,7 @@ include __DIR__ . '/header.php';
                                                 <b>{$row['fecha_fin']}</b><br>";
                                         if ($row['tipo_licencia'] == 'Vacaciones') {
                                          echo " <label class='form-label'>Cantidad de dias</label>
-                                                <b>{$cantidad_dias+1}</b>";
+                                                <b>{$cantidad_dias}</b>";
                                         }
                                            echo " </div>
 
