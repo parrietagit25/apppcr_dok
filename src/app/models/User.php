@@ -209,6 +209,7 @@ public function nombre_colaborador() {
                 AND (el.type_user IS NULL OR el.type_user <> 6)
                 AND (e.nombre LIKE :termino OR e.apellido LIKE :termino OR e.codigo_empleado LIKE :termino)
                 ORDER BY e.nombre ASC 
+                LIMIT 20
             ");
             $stmt->bindParam(':termino', $termino, PDO::PARAM_STR);
             $stmt->execute();

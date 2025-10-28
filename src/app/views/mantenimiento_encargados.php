@@ -143,13 +143,20 @@ include __DIR__ . '/header.php';
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Esperar a que jQuery esté disponible
+        // Esperar a que jQuery y Select2 estén disponibles
         if (typeof jQuery === 'undefined') {
             console.error('jQuery no está disponible');
             return;
         }
         
+        if (typeof jQuery.fn.select2 === 'undefined') {
+            console.error('Select2 no está disponible');
+            return;
+        }
+        
         var $ = jQuery;
+        
+        console.log('Inicializando Select2...');
 
         // Inicializar Select2 con autocompletado
         $('#usuarioSelect').select2({
@@ -165,13 +172,15 @@ include __DIR__ . '/header.php';
                     };
                 },
                 processResults: function (data) {
+                    console.log('Datos recibidos del servidor:', data);
+                    
                     // Verificar que data sea un array
                     if (!Array.isArray(data)) {
                         console.error('Error: respuesta no es un array', data);
                         return { results: [] };
                     }
                     
-                    return {
+                    var mapped = {
                         results: $.map(data, function (item) {
                             return {
                                 id: item.codigo_empleado || item.id,
@@ -179,6 +188,9 @@ include __DIR__ . '/header.php';
                             };
                         })
                     };
+                    
+                    console.log('Resultados mapeados:', mapped);
+                    return mapped;
                 },
                 cache: true,
                 error: function(xhr, status, error) {
