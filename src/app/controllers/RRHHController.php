@@ -875,9 +875,12 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
 
         $get_email_colab = $class->get_email_permiso($id_permiso);
 
-        foreach ($get_email_colab as $key => $value) {
-            $nombre_comple = $value['nombre']. ' ' .$value['apellido']; 
-            $email = $value['email'];
+        if ($get_email_colab) {
+            $nombre_comple = $get_email_colab['nombre'] . ' ' . $get_email_colab['apellido']; 
+            $email = $get_email_colab['email'];
+        } else {
+            $nombre_comple = 'Colaborador';
+            $email = '';
         }
 
         if ($_POST['respuesta_jefe'] == 'A') {
@@ -918,9 +921,12 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
 
         $get_email_colab = $class->get_email_permiso($id_permiso);
 
-        foreach ($get_email_colab as $key => $value) {
-            $nombre_comple = $value['nombre']. ' ' .$value['apellido']; 
-            $email = $value['email'];
+        if ($get_email_colab) {
+            $nombre_comple = $get_email_colab['nombre'] . ' ' . $get_email_colab['apellido']; 
+            $email = $get_email_colab['email'];
+        } else {
+            $nombre_comple = 'Colaborador';
+            $email = '';
         }
 
         if ($_POST['respuesta_jefe'] == 'A') {
