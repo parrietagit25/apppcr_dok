@@ -797,7 +797,7 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
 
         if($tipo_licencia == 'Vacaciones'){
 
-        /***** ######################### email para el enargado **************************** */
+        /***** ######################### email para el ecargado **************************** */
 
         $cantidad_dias = 0;
         $inicio = new DateTime($fecha_inicio);
@@ -820,11 +820,17 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
         <h4 style="color:rgb(250, 11, 2);">Para aprobar o declinar esta solicitud, ingrese al app Gente PCR. En la opcion de Administrar Permisos podra ver la solicitud y aprobarla o declinarla.</h4>
         ';
 
-        //<p><a href="https://apppcr.net/app/views/aprobar_vacaciones.php?codigo_empleado=' . $codigo . '&nombre_completo=' . $nombre_comple . '&fecha_desde='.$fecha_inicio.'&fecha_hasta='.$fecha_fin.'&cantidad_dias='.$cantidad_dias.'">Aprobar o Declinar Solicitud de Permiso</a></p>
+        
         $mensaje .= '
 
         <p><a href="https://apppcr.net/>Gente PCR</a></p>
 
+        <br>
+
+        <p><strong>Tambien puede hacer click en el siguiente enlace para aprobar o declinar la solicitud de permiso:</strong></p>
+
+        <p><a href="https://apppcr.net/app/views/aprobar_vacaciones.php?codigo_empleado=' . $codigo . '&nombre_completo=' . $nombre_comple . '&fecha_desde='.$fecha_inicio.'&fecha_hasta='.$fecha_fin.'&cantidad_dias='.$cantidad_dias.'">Aprobar o Declinar Solicitud de Permiso</a></p>
+        
         <p><strong>Canal de contacto:</strong></p>
         <ul>
             <li>Email: <a href="mailto:abi.pineda@grupopcr.com.pa">abi.pineda@grupopcr.com.pa</a></li>
