@@ -711,7 +711,6 @@ class Rrhh {
 
         $array_datos = [];
         //$code = $_SESSION['code'];
-        $code = '00'.$code;
         $stmt_frase = $this->pdo->prepare("SELECT p.*, e.nombre, e.apellido FROM solicitud_permiso p inner join empleados e on p.code = e.codigo_empleado  where p.id_jefe = '".$code."'");
         $stmt_frase->execute();
         while ($list_code = $stmt_frase->fetch(PDO::FETCH_ASSOC)) {
@@ -838,6 +837,9 @@ class Rrhh {
 
         $shit_get_departamento = $this->get_departamento($code);
         $departamento = $shit_get_departamento[0]['nombre_departamento'];
+
+        echo "SELECT p.*, e.nombre, e.apellido FROM solicitud_permiso p inner join empleados e on p.code = e.codigo_empleado
+        WHERE e.nombre_departamento LIKE ".$departamento;
 
         $array_datos = [];
         $stmt_frase = $this->pdo->prepare("SELECT p.*, e.nombre, e.apellido FROM solicitud_permiso p inner join empleados e on p.code = e.codigo_empleado
