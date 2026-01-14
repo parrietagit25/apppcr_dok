@@ -737,6 +737,9 @@ class Rrhh {
     public function select_permisos_gerentes($code){
 
         $deptos = $this->get_departamento_encargados($code);
+        echo '<pre>';
+        print_r($deptos);
+        echo '</pre>';
         $departamentos = array_column($deptos, 'departamento');
 
         if (empty($departamentos)) {
