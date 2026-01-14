@@ -599,6 +599,7 @@ class Rrhh {
         while ($list_code = $stmt_frase->fetch(PDO::FETCH_ASSOC)) {
             $array_datos[] = $list_code;
         }
+        echo "SELECT departamento FROM encargados_colab WHERE code_empleado  = '".$codigo."'";
         return $array_datos;
 
     }
