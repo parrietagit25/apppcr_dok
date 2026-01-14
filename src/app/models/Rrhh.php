@@ -591,6 +591,18 @@ class Rrhh {
 
     }
 
+    public function get_departamento_encargados($codigo){
+
+        $array_datos = [];
+        $stmt_frase = $this->pdo->prepare("SELECT departamento FROM encargados_colab WHERE code_empleado  = '".$codigo."'");
+        $stmt_frase->execute();
+        while ($list_code = $stmt_frase->fetch(PDO::FETCH_ASSOC)) {
+            $array_datos[] = $list_code;
+        }
+        return $array_datos;
+
+    }
+
     public function select_eval_departamento($departamneto){
         $array_datos = [];
         $stmt_frase = $this->pdo->prepare("SELECT * FROM rrhh_evaluaciones WHERE departamento = :departamento");
@@ -723,8 +735,8 @@ class Rrhh {
 
     public function select_permisos_gerentes($code){
 
-        $deptos = $this->get_departamento($code);
-        $departamentos = array_column($deptos, 'nombre_departamento');
+        $deptos = $this->get_departamento_encargados($code);
+        $departamentos = array_column($deptos, 'departamento');
 
         if (empty($departamentos)) {
             return [];
