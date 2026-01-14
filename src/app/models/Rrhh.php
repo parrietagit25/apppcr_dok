@@ -579,7 +579,17 @@ class Rrhh {
 
     }
 
+    public function get_departamento($codigo){
 
+        $array_datos = [];
+        $stmt_frase = $this->pdo->prepare("SELECT nombre_departamento FROM empleados WHERE codigo_empleado  = '".$codigo."'");
+        $stmt_frase->execute();
+        while ($list_code = $stmt_frase->fetch(PDO::FETCH_ASSOC)) {
+            $array_datos[] = $list_code;
+        }
+        return $array_datos;
+
+    }
 
     public function select_eval_departamento($departamneto){
         $array_datos = [];
@@ -694,7 +704,8 @@ class Rrhh {
         return $array_datos;
     }
 
-      /*  public function select_permisos_gerentes($code){
+    /*
+        public function select_permisos_gerentes($code){
 
         $shit_get_departamento = $this->get_departamento($code);
         $departamento = $shit_get_departamento[0]['nombre_departamento'];
@@ -707,39 +718,39 @@ class Rrhh {
             $array_datos[] = $list_code;
         }
         return $array_datos;
-    } */
+    }
+*/
 
     public function select_permisos_gerentes($code){
 
         $deptos = $this->get_departamento($code);
         $departamentos = array_column($deptos, 'nombre_departamento');
-    
+
         if (empty($departamentos)) {
             return [];
         }
-    
+
         // Crear ?,?,? dinámicos
         $placeholders = implode(',', array_fill(0, count($departamentos), '?'));
-    
+
         $sql = "
             SELECT p.*, e.nombre, e.apellido
             FROM solicitud_permiso p
             INNER JOIN empleados e 
                 ON p.code = e.codigo_empleado
             WHERE p.id_jefe = ?
-              AND e.nombre_departamento IN ($placeholders)
+            AND e.nombre_departamento IN ($placeholders)
         ";
-    
+
         $stmt = $this->pdo->prepare($sql);
-    
+
         // unir parámetros
         $params = array_merge([$code], $departamentos);
-    
+
         $stmt->execute($params);
-    
+
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
-    
 
 
     public function select_jefe() {
