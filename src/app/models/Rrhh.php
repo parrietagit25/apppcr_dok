@@ -836,6 +836,9 @@ class Rrhh {
     public function select_permisos_all_admin($code) {
 
         $shit_get_departamento = $this->get_departamento($code);
+        echo '<pre>';
+        var_dump($shit_get_departamento);
+        echo '</pre>';
         $departamento = $shit_get_departamento[0]['nombre_departamento'];
 
         echo "SELECT p.*, e.nombre, e.apellido FROM solicitud_permiso p inner join empleados e on p.code = e.codigo_empleado
