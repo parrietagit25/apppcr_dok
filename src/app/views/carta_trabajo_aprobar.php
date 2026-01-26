@@ -130,12 +130,19 @@ include __DIR__ . '/header.php';
                                                                         <input type="number" step="0.01" class="form-control" name="otros_descuentos[<?php echo $i; ?>][monto]" value="<?php echo htmlspecialchars($desc['monto']); ?>" placeholder="Monto" required>
                                                                     </div>
                                                                     <div class="col-md-1 text-end">
-                                                                        <button type="button" class="btn btn-danger btn-sm" onclick="eliminarDescuento('grupo_<?php echo $row['id']; ?>_<?php echo $i; ?>')">×</button>
+                                                                        <button type="button" class="btn btn-danger btn-sm" onclick="eliminarDescuento('grupo_<?php echo $row['id']; ?>_<?php echo $i; ?>')" title="Eliminar descuento">×</button>
                                                                     </div>
                                                                 </div>
                                                         <?php $i++; } } ?>
                                                     </div>
                                                     <button type="button" class="btn btn-outline-secondary mt-2" onclick="agregarOtroDescuento('<?php echo $row['id']; ?>')">+ Agregar descuento</button>
+                                                    <script>
+                                                        // Inicializar contador cuando se carga el modal
+                                                        if (typeof contadorDescuentos === 'undefined') {
+                                                            contadorDescuentos = {};
+                                                        }
+                                                        contadorDescuentos[<?php echo $row['id']; ?>] = <?php echo $i; ?>;
+                                                    </script>
                                                 </div>
                                             </div>
                                         </div>
@@ -192,11 +199,22 @@ function calcular_deducciones() {
     document.querySelector('input[name="desc_educativo"]').value = descEducativo;
 }
 
+// Contador global para índices únicos
+let contadorDescuentos = {};
+
 function agregarOtroDescuento(id) {
     const container = document.getElementById(`otros_descuentos_${id}`);
-    const index = container.querySelectorAll('.grupo-descuento').length;
+    
+    // Inicializar contador si no existe
+    if (!contadorDescuentos[id]) {
+        contadorDescuentos[id] = container.querySelectorAll('.grupo-descuento').length;
+    }
+    
+    const index = contadorDescuentos[id]++;
+    const grupoId = `grupo_${id}_${index}`;
+    
     const html = `
-        <div class="row g-3 grupo-descuento mt-2 align-items-end" id="grupo_${id}_${index}">
+        <div class="row g-3 grupo-descuento mt-2 align-items-end" id="${grupoId}">
             <div class="col-md-8">
                 <input type="text" class="form-control" name="otros_descuentos[${index}][acreedor]" placeholder="Nombre del acreedor" required>
             </div>
@@ -204,7 +222,7 @@ function agregarOtroDescuento(id) {
                 <input type="number" step="0.01" class="form-control" name="otros_descuentos[${index}][monto]" placeholder="Monto" required>
             </div>
             <div class="col-md-1 text-end">
-                <button type="button" class="btn btn-danger btn-sm" onclick="eliminarDescuento('grupo_${id}_${index}')">&times;</button>
+                <button type="button" class="btn btn-danger btn-sm" onclick="eliminarDescuento('${grupoId}')">&times;</button>
             </div>
         </div>
     `;
@@ -214,7 +232,38 @@ function agregarOtroDescuento(id) {
 function eliminarDescuento(grupoId) {
     const elemento = document.getElementById(grupoId);
     if (elemento) {
+        // Remover el elemento del DOM
         elemento.remove();
+        
+        // Reindexar los elementos restantes para evitar problemas con los índices
+        const container = elemento.closest('[id^="otros_descuentos_"]');
+        if (container) {
+            const grupos = container.querySelectorAll('.grupo-descuento');
+            grupos.forEach((grupo, nuevoIndex) => {
+                // Actualizar los atributos name de los inputs
+                const acreedorInput = grupo.querySelector('input[name*="[acreedor]"]');
+                const montoInput = grupo.querySelector('input[name*="[monto]"]');
+                
+                if (acreedorInput) {
+                    acreedorInput.name = `otros_descuentos[${nuevoIndex}][acreedor]`;
+                }
+                if (montoInput) {
+                    montoInput.name = `otros_descuentos[${nuevoIndex}][monto]`;
+                }
+                
+                // Actualizar el ID del grupo
+                const idMatch = grupo.id.match(/^grupo_(\d+)_\d+$/);
+                if (idMatch) {
+                    grupo.id = `grupo_${idMatch[1]}_${nuevoIndex}`;
+                    
+                    // Actualizar el onclick del botón de eliminar
+                    const btnEliminar = grupo.querySelector('button[onclick*="eliminarDescuento"]');
+                    if (btnEliminar) {
+                        btnEliminar.setAttribute('onclick', `eliminarDescuento('grupo_${idMatch[1]}_${nuevoIndex}')`);
+                    }
+                }
+            });
+        }
     }
 }
 
@@ -252,10 +301,19 @@ function guardarCartaSinForm(id) {
     const grupos = descuentosContainer.querySelectorAll('.grupo-descuento');
 
     grupos.forEach((grupo, index) => {
-        const acreedor = grupo.querySelector('[name^="otros_descuentos"][name*="[acreedor]"]').value;
-        const monto = grupo.querySelector('[name^="otros_descuentos"][name*="[monto]"]').value;
-        formData.append(`otros_descuentos[${index}][acreedor]`, acreedor);
-        formData.append(`otros_descuentos[${index}][monto]`, monto);
+        const acreedorInput = grupo.querySelector('input[name*="[acreedor]"]');
+        const montoInput = grupo.querySelector('input[name*="[monto]"]');
+        
+        if (acreedorInput && montoInput) {
+            const acreedor = acreedorInput.value.trim();
+            const monto = montoInput.value.trim();
+            
+            // Solo agregar si ambos campos tienen valor
+            if (acreedor && monto) {
+                formData.append(`otros_descuentos[${index}][acreedor]`, acreedor);
+                formData.append(`otros_descuentos[${index}][monto]`, monto);
+            }
+        }
     });
 
     // Enviar al backend
@@ -265,8 +323,9 @@ function guardarCartaSinForm(id) {
     })
     .then(response => response.text())
     .then(result => {
-        console.log('Resultado del servidor:', result);
         alert("Datos guardados correctamente");
+        // Recargar la página para mostrar los cambios
+        location.reload();
     })
     .catch(error => {
         console.error('Error:', error);

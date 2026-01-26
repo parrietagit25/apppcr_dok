@@ -519,8 +519,6 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
 }elseif (isset($_GET['carta_trabajo_aprobar'])) {
 
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['guardar_formulario'])) {
-        echo 'Pasando por aqui 1<br>';
-        var_dump($_POST);
         $sql = "INSERT INTO carta_trabajo_formulario 
             (carta_id, nombre, cedula, seguro, fecha_ingreso, cargo, salario, desc_seguro, desc_educativo, desc_renta, descripcion)
             VALUES (:carta_id, :nombre, :cedula, :seguro, :fecha_ingreso, :cargo, :salario, :desc_seguro, :desc_educativo, :desc_renta, :descripcion)
@@ -551,18 +549,21 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
             ':descripcion' => $_POST['descripcion']
         ]);
 
+        // Primero eliminar todos los descuentos existentes para esta carta
+        $sql_delete_desc = "DELETE FROM carta_trabajo_descuentos WHERE carta_id = :carta_id";
+        $stmt_delete = $class->pdo->prepare($sql_delete_desc);
+        $stmt_delete->execute([':carta_id' => $_POST['solicitud_id']]);
+
+        // Luego insertar los nuevos descuentos
         if (!empty($_POST['otros_descuentos']) && is_array($_POST['otros_descuentos'])) {
-            echo 'Pasando por aqui 2<br>';
             $sql_insert_desc = "INSERT INTO carta_trabajo_descuentos (carta_id, acreedor, monto) VALUES (:carta_id, :acreedor, :monto)";
             $stmt_desc = $class->pdo->prepare($sql_insert_desc);
 
             foreach ($_POST['otros_descuentos'] as $descuento) {
-                echo 'Pasando por aqui 3<br>';
-                if (!empty($descuento['acreedor']) && is_numeric($descuento['monto'])) {
-                    echo 'Pasando por aqui 4<br>';
+                if (!empty($descuento['acreedor']) && !empty($descuento['monto']) && is_numeric($descuento['monto'])) {
                     $stmt_desc->execute([
                         ':carta_id' => $_POST['solicitud_id'],
-                        ':acreedor' => $descuento['acreedor'],
+                        ':acreedor' => trim($descuento['acreedor']),
                         ':monto' => $descuento['monto']
                     ]);
                 }
