@@ -181,6 +181,104 @@
           <p class="text-muted"><em>Cuidar tu salud también es cuidar tu futuro.</em></p>
         </div>
       </div>
+    
+      <!-- Mi Óptica Panamá -->
+      <div class="card mb-4">
+        <img src="image/miopticapanama.png" class="card-img-top" alt="Mi Óptica Panamá">
+        <div class="card-body">
+          <h4 class="card-title">👓 Mi Óptica Panamá</h4>
+          <p class="lead">Ver bien también es un beneficio para ti</p>
+          <p>En Automarket Panamá seguimos sumando beneficios pensados en tu bienestar. Ahora cuentas con un convenio exclusivo con Mi Óptica Panamá, para que cuides tu salud visual con precios preferenciales y atención de primera.</p>
+          
+          <p><strong>¿Qué incluye este beneficio?</strong></p>
+          <ul>
+            <li>✅ Examen de la vista GRATIS una vez al año<br>
+            <small class="text-muted">(para colaboradores y familiares directos: padres, hijos y cónyuge)</small></li>
+          </ul>
+          
+          <p><strong>✅ Descuentos especiales en lentes:</strong></p>
+          <ul>
+            <li>20% de descuento para colaboradores</li>
+            <li>15% de descuento para familiares</li>
+            <li>Aros desde $5.00</li>
+            <li>Promoción 2x1 en lentes fotocromáticos con antirreflejo</li>
+          </ul>
+          
+          <p><strong>✅ Planes de pago flexibles:</strong></p>
+          <ul>
+            <li>Hasta 3 cuotas sin intereses</li>
+            <li>Opción de descuento por planilla (según aprobación)</li>
+          </ul>
+          
+          <p><strong>✅ Garantía extendida y ajustes ilimitados:</strong></p>
+          <ul>
+            <li>Cobertura adicional en defectos de fábrica</li>
+            <li>Limpieza y ajuste de armazón sin costo</li>
+          </ul>
+          
+          <p><strong>✅ Atención preferencial y jornadas empresariales:</strong></p>
+          <ul>
+            <li>Prioridad en ferias y giras de salud visual</li>
+            <li>Entrega de lentes a domicilio</li>
+          </ul>
+          
+          <div class="alert alert-info">
+            <strong>👨‍👩‍👧 Beneficios extensivos a tu familia</strong><br>
+            Porque su bienestar también importa.
+          </div>
+          
+          <p class="text-muted"><em>Cuidar tu visión mejora tu rendimiento, reduce la fatiga visual y aporta a tu calidad de vida. Aprovecha este beneficio y mira el futuro con mayor claridad.</em></p>
+          
+          <p><strong>Contacto:</strong></p>
+          <ul>
+            <li>📍 <strong>Ubicación:</strong> Plaza Cantabria, Local 23</li>
+            <li>📞 <a href="tel:50769474925">+507 6947-4925</a></li>
+          </ul>
+          
+          <p class="text-primary"><strong>✨ Cuidamos tu visión, potenciamos tu rendimiento.</strong></p>
+        </div>
+      </div>
+    
+      <!-- Visual Point Óptica -->
+      <div class="card mb-4">
+        <img src="image/visualpoint.png" class="card-img-top" alt="Visual Point Óptica">
+        <div class="card-body">
+          <h4 class="card-title">👓 Visual Point Óptica – Panamá</h4>
+          <p class="lead">¡Más beneficios para tu visión!</p>
+          <p>Como parte de nuestros beneficios corporativos, ahora puedes aprovechar promociones exclusivas con Visual Point Óptica – Panamá, pensadas para cuidar tu salud visual y tu bolsillo.</p>
+          
+          <p><strong>🎯 Beneficios disponibles:</strong></p>
+          <ul>
+            <li>✅ 30% de descuento en aros de diseñador<br>
+            <small class="text-muted">(al confeccionar tus lentes)</small></li>
+            <li>✅ Aros GRATIS en marca propia<br>
+            <small class="text-muted">(al confeccionar tus lentes)</small></li>
+          </ul>
+          
+          <div class="alert alert-info">
+            <strong>Diseño, calidad y asesoría profesional en un solo lugar.</strong>
+          </div>
+          
+          <p><strong>📍 Visítalos en cualquiera de sus 8 sucursales:</strong></p>
+          <ul>
+            <li>Albrook Mall (x2)</li>
+            <li>Altaplaza Mall</li>
+            <li>Supercentro El Dorado</li>
+            <li>Los Pueblos</li>
+            <li>Los Andes</li>
+            <li>Costa Verde</li>
+            <li>David, Chiriquí</li>
+          </ul>
+          
+          <p><strong>Contacto:</strong></p>
+          <ul>
+            <li>📞 <a href="tel:50760402663">(+507) 6040-2663</a></li>
+            <li>🌐 <a href="https://www.opticasvisualpointpanama.com" target="_blank">www.opticasvisualpointpanama.com</a></li>
+          </ul>
+          
+          <p class="text-muted"><em>Aprovecha este beneficio exclusivo y dale a tu vista el cuidado que se merece. Ver bien también es parte de tu bienestar.</em></p>
+        </div>
+      </div>
     </div>
 
 
