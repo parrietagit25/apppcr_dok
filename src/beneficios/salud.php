@@ -136,6 +136,51 @@
           <p><strong>Contacto para adquirir el plan:</strong> <a href=\"tel:50763281368\">📞 6328-1368</a></p>
         </div>
       </div>
+    
+      <!-- Clínica La Sonrisa PTY -->
+      <div class="card mb-4">
+        <img src="image/sonrrisa.png" class="card-img-top" alt="Clínica La Sonrisa PTY">
+        <div class="card-body">
+          <h4 class="card-title">🦷 Clínica La Sonrisa PTY</h4>
+          <p class="lead">¡Tu sonrisa también es parte de nuestros beneficios!</p>
+          <p>En Automarket Panamá seguimos apostando por tu bienestar. Por eso, ahora cuentas con un convenio exclusivo en Clínica La Sonrisa PTY, diseñado especialmente para ti y tu familia, con precios preferenciales y grandes ahorros.</p>
+          
+          <p><strong>¿Qué incluye este beneficio?</strong></p>
+          <ul>
+            <li>✅ Evaluación odontológica general</li>
+            <li>✅ Limpieza dental profesional</li>
+            <li>✅ Radiografía panorámica</li>
+            <li>✅ Plan de tratamiento personalizado</li>
+          </ul>
+          
+          <div class="alert alert-success">
+            <strong>💰 Precio especial por colaborador: B/. 34.99</strong>
+          </div>
+          
+          <p><strong>Además, disfruta de:</strong></p>
+          <ul>
+            <li>🦷 Plan de ortodoncia sin abono inicial</li>
+            <li>🎉 15% de descuento en todos los tratamientos odontológicos</li>
+            <li>👨‍👩‍👧 Beneficios extensivos a cónyuges e hijos</li>
+            <li>💳 Opciones de pago y financiamiento</li>
+            <li>📅 Participación en ferias de salud corporativas</li>
+            <li>📚 Charlas de salud bucal y cuidado preventivo</li>
+          </ul>
+          
+          <div class="alert alert-info">
+            <strong>Sin inscripción, sin cláusulas ocultas y con atención profesional de calidad.</strong><br>
+            👉 Solo debes presentar tu carné institucional o validar tu pertenencia a la empresa.
+          </div>
+          
+          <p><strong>Contacto:</strong></p>
+          <ul>
+            <li>🌐 <a href="https://www.lasonrisapty.com" target="_blank">www.lasonrisapty.com</a></li>
+            <li>📞 <a href="tel:50765786903">+507 6578-6903</a></li>
+          </ul>
+          
+          <p class="text-muted"><em>Cuidar tu salud también es cuidar tu futuro.</em></p>
+        </div>
+      </div>
     </div>
 
 
