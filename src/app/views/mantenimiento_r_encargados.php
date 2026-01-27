@@ -1,5 +1,5 @@
 <?php
-// app/views/mantenimiento_encargados.php
+// app/views/mantenimiento_r_encargados.php
 if (!isset($_SESSION['code'])) {
     header("Location: salir.php");
     exit();
@@ -18,8 +18,8 @@ include __DIR__ . '/header.php';
         <div class="carousel-inner">
             <div class="carousel-item active">
                 <div class="p-3 bg-light rounded">
-                    <h5 class="fw-bold">Mantenimiento - Supervisores y Personal a Cargo</h5>
-                    <p class="mb-0 text-muted">Gestiona los supervisores y asigna personal a cargo para aprobación de permisos y vacaciones</p>
+                    <h5 class="fw-bold">R-Mantenimiento - Supervisores y Personal a Cargo</h5>
+                    <p class="mb-0 text-muted"><span class="badge bg-warning">NUEVO SISTEMA</span> Gestiona los supervisores y asigna personal a cargo para aprobación de permisos y vacaciones</p>
                 </div>
             </div>
         </div>
@@ -135,7 +135,7 @@ include __DIR__ . '/header.php';
     <!-- Modal Asignar Supervisor -->
     <div class="modal fade" id="modalAsignarSupervisor" tabindex="-1" aria-labelledby="modalAsignarSupervisorLabel" aria-hidden="true">
         <div class="modal-dialog">
-            <form method="POST" action="<?php echo BASE_URL_CONTROLLER; ?>/MainController.php?mantenimiento_encargados=1">
+            <form method="POST" action="<?php echo BASE_URL_CONTROLLER; ?>/MainController.php?mantenimiento_r_encargados=1">
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title">Asignar Supervisor</h5>
@@ -170,7 +170,7 @@ include __DIR__ . '/header.php';
     <!-- Modal Agregar Personal a Cargo -->
     <div class="modal fade" id="modalAgregarPersonal" tabindex="-1" aria-labelledby="modalAgregarPersonalLabel" aria-hidden="true">
         <div class="modal-dialog">
-            <form method="POST" action="<?php echo BASE_URL_CONTROLLER; ?>/MainController.php?mantenimiento_encargados=1" id="formAgregarPersonal">
+            <form method="POST" action="<?php echo BASE_URL_CONTROLLER; ?>/MainController.php?mantenimiento_r_encargados=1" id="formAgregarPersonal">
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title">Agregar Personal a Cargo</h5>
@@ -215,7 +215,7 @@ include __DIR__ . '/header.php';
                         <br><br>
                         <strong>Nota:</strong> Esto también desactivará todas las relaciones de personal a cargo de este supervisor.
                     </div>
-                    <form method="POST" action="<?php echo BASE_URL_CONTROLLER; ?>/MainController.php?mantenimiento_encargados=1" id="formRemoverSupervisor">
+                    <form method="POST" action="<?php echo BASE_URL_CONTROLLER; ?>/MainController.php?mantenimiento_r_encargados=1" id="formRemoverSupervisor">
                         <input type="hidden" name="codigo_usuario" id="codigoSupervisorRemover">
                         <input type="hidden" name="remover_encargado" value="1">
                     </form>
@@ -247,9 +247,6 @@ include __DIR__ . '/header.php';
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
 <script>
-    // Variables globales
-    let colaboradoresDisponibles = [];
-
     // Función para establecer el supervisor al abrir modal de agregar personal
     function setSupervisor(supervisorCode, supervisorNombre) {
         document.getElementById('supervisorCodeInput').value = supervisorCode;
@@ -262,7 +259,7 @@ include __DIR__ . '/header.php';
     // Función para cargar colaboradores disponibles
     function cargarColaboradoresDisponibles(supervisorCode) {
         // Hacer petición AJAX para obtener colaboradores disponibles
-        fetch('<?php echo BASE_URL_CONTROLLER; ?>/MainController.php?obtener_colaboradores_disponibles=1&supervisor_code=' + supervisorCode)
+        fetch('<?php echo BASE_URL_CONTROLLER; ?>/MainController.php?obtener_colaboradores_disponibles_r=1&supervisor_code=' + supervisorCode)
             .then(response => response.json())
             .then(data => {
                 const select = document.getElementById('colaboradorSelect');
@@ -294,7 +291,7 @@ include __DIR__ . '/header.php';
         if (confirm(`¿Está seguro que desea eliminar a ${nombreColaborador} del personal a cargo?`)) {
             const form = document.createElement('form');
             form.method = 'POST';
-            form.action = '<?php echo BASE_URL_CONTROLLER; ?>/MainController.php?mantenimiento_encargados=1';
+            form.action = '<?php echo BASE_URL_CONTROLLER; ?>/MainController.php?mantenimiento_r_encargados=1';
             
             const inputId = document.createElement('input');
             inputId.type = 'hidden';

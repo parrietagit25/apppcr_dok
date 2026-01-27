@@ -867,6 +867,81 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
     require_once __DIR__ . '/../views/solicitud_permiso.php';
     exit();
 
+// ============================================
+// NUEVO SISTEMA R-PERMISOS (PARALELO)
+// ============================================
+}elseif(isset($_GET['solicitud_r_permiso'])){
+
+    // Solo admin puede acceder (tipo_usuario == 1)
+    $tipo_usuario_actual = $userModel->get_tyte_user();
+    if ($tipo_usuario_actual != 1) {
+        header("Location: " . BASE_URL_CONTROLLER . "/RRHHController.php");
+        exit();
+    }
+
+    if (isset($_POST['solicitud_permiso'])) {
+
+        $id_jefe = !empty($_POST['id_jefe']) ? $_POST['id_jefe'] : NULL;
+        $descripcion = $_POST['descripcion'];
+        $tipo_licencia = $_POST['tipo_licencia'];
+        $fecha_inicio = $_POST['fecha_inicio'];
+        $fecha_fin = $_POST['fecha_fin'];
+        $archivo_adjunto = null;
+
+        // Manejo de archivo adjunto
+        if (isset($_FILES['archivo_adjunto']) && $_FILES['archivo_adjunto']['error'] === UPLOAD_ERR_OK) {
+            $upload_dir = __DIR__ . '/../uploads/permisos/';
+            if (!is_dir($upload_dir)) {
+                mkdir($upload_dir, 0777, true);
+            }
+            $archivo_nombre = basename($_FILES['archivo_adjunto']['name']);
+            $archivo_destino = $upload_dir . time() . '_' . $archivo_nombre;
+            if (move_uploaded_file($_FILES['archivo_adjunto']['tmp_name'], $archivo_destino)) {
+                $archivo_adjunto = basename($archivo_destino);
+            }
+        }
+
+        $class->insertar_permiso($id_jefe, $descripcion, $tipo_licencia, $fecha_inicio, $fecha_fin, $archivo_adjunto);
+
+        // Enviar correo si hay jefe asignado
+        if (!empty($id_jefe)) {
+            $dartos_cola = $class->datos_colaborador();
+            $nombre_comple = "";
+            $codigo = "";
+            if (!empty($dartos_cola) && isset($dartos_cola[0])) {
+                $nombre_comple = $dartos_cola[0]['nombre'] . ' ' . $dartos_cola[0]['apellido'];
+                $codigo = $dartos_cola[0]['codigo_empleado'];
+            }
+
+            $mensaje = 'El colaborador '.$nombre_comple.' con codigo '.$codigo.' 
+            ha solicitado un permiso tipo '.$tipo_licencia.' <br> 
+            <br>
+            Descripción: '.$descripcion.' <br>
+            Fecha inicio: '.$fecha_inicio.' <br>
+            Fecha fin: '.$fecha_fin.' <br> ';
+
+            $copia = ["abi.pineda@grupopcr.com.pa", "yissell.perez@grupopcr.com.pa"];
+            //$copia = ["pedroarrieta25@hotmail.com"];
+            //$copia = ["pedro.arrieta@grupopcr.com.pa"];
+        
+            $class->enviar_correo("sofia.macias@grupopcr.com.pa", $copia, "Solicitud de permiso tipo '".$tipo_licencia."'", $mensaje);
+
+        }
+
+        echo "<div class='alert alert-success'>Permiso solicitado correctamente.</div>";
+        
+    }
+
+    // Usar el nuevo método r_select_jefe que consulta supervisores_personal_cargo
+    $select_jefe = $class->r_select_jefe();
+    
+    $permisos = $class->select_permisos();
+
+    $mis_vacas = $class->mis_vacaciones();
+
+    require_once __DIR__ . '/../views/solicitud_r_permiso.php';
+    exit();
+
 
 }elseif(isset($_GET['solicitud_permiso_admin'])){
 
@@ -990,6 +1065,36 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
     $permisos = $class->select_vacaciones();
 
     require_once __DIR__ . '/../views/solicitud_vacaciones.php';
+    exit();
+
+// ============================================
+// NUEVO SISTEMA R-VACACIONES (PARALELO)
+// ============================================
+}elseif (isset($_GET['solicitud_r_vacaciones'])) {
+
+    // Solo admin puede acceder (tipo_usuario == 1)
+    $tipo_usuario_actual = $userModel->get_tyte_user();
+    if ($tipo_usuario_actual != 1) {
+        header("Location: " . BASE_URL_CONTROLLER . "/RRHHController.php");
+        exit();
+    }
+
+    if (isset($_POST['solicitud_vacaciones'])) {
+
+        $id_jefe = !empty($_POST['id_jefe']) ? $_POST['id_jefe'] : NULL;
+        $descripcion = $_POST['descripcion'];
+    
+        $class->insertar_vacaciones($id_jefe, $descripcion);
+    
+        echo "<div class='alert alert-success'>Vacaciones solicitadas correctamente.</div>";
+        
+    }
+
+    // Usar el nuevo método r_select_jefe que consulta supervisores_personal_cargo
+    $select_jefe = $class->r_select_jefe();
+    $permisos = $class->select_vacaciones();
+
+    require_once __DIR__ . '/../views/solicitud_r_vacaciones.php';
     exit();
     
 }elseif (isset($_GET['solicitus_vacaciones_admin'])) {

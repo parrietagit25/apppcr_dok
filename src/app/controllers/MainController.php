@@ -87,6 +87,7 @@ if (isset($_GET['mantenimiento_usuarios'])) {
 
 if (isset($_GET['mantenimiento_encargados'])) {
     
+    // Asignar supervisor (type_user = 6)
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['asignar_encargado'])) {
         $code = $_POST['codigo_usuario'];
         
@@ -94,23 +95,64 @@ if (isset($_GET['mantenimiento_encargados'])) {
             $resultado = $userModel->asignar_tipo_encargado($code);
             
             if ($resultado) {
-                echo "<div class='alert alert-success'>Usuario asignado como encargado correctamente.</div>";
+                echo "<div class='alert alert-success'>Usuario asignado como supervisor correctamente.</div>";
             } else {
-                echo "<div class='alert alert-danger'>Error al asignar encargado.</div>";
+                echo "<div class='alert alert-danger'>Error al asignar supervisor.</div>";
             }
         }
     }
 
+    // Remover supervisor (regresar a type_user = 2)
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['remover_encargado'])) {
         $code = $_POST['codigo_usuario'];
         
         if (!empty($code)) {
+            // Primero desactivar todas las relaciones de personal a cargo
+            $personal_cargo = $userModel->get_personal_a_cargo($code);
+            foreach ($personal_cargo as $relacion) {
+                $userModel->remover_personal_a_cargo($relacion['id']);
+            }
+            
+            // Luego remover el tipo de supervisor
             $resultado = $userModel->remover_tipo_encargado($code);
             
             if ($resultado) {
-                echo "<div class='alert alert-success'>Usuario regresado a tipo usuario 2 correctamente.</div>";
+                echo "<div class='alert alert-success'>Supervisor removido correctamente. Todas las relaciones de personal a cargo fueron desactivadas.</div>";
             } else {
-                echo "<div class='alert alert-danger'>Error al remover encargado.</div>";
+                echo "<div class='alert alert-danger'>Error al remover supervisor.</div>";
+            }
+        }
+    }
+
+    // Asignar personal a cargo a un supervisor
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['asignar_personal_cargo'])) {
+        $supervisor_code = $_POST['supervisor_code'] ?? '';
+        $colaborador_code = $_POST['colaborador_code'] ?? '';
+        
+        if (!empty($supervisor_code) && !empty($colaborador_code)) {
+            $resultado = $userModel->asignar_personal_a_cargo($supervisor_code, $colaborador_code);
+            
+            if ($resultado) {
+                echo "<div class='alert alert-success'>Personal a cargo asignado correctamente.</div>";
+            } else {
+                echo "<div class='alert alert-danger'>Error al asignar personal a cargo. Puede que ya esté asignado.</div>";
+            }
+        } else {
+            echo "<div class='alert alert-danger'>Faltan datos para asignar personal a cargo.</div>";
+        }
+    }
+
+    // Remover personal a cargo de un supervisor
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['remover_personal_cargo'])) {
+        $id_relacion = $_POST['id_relacion'] ?? 0;
+        
+        if (!empty($id_relacion)) {
+            $resultado = $userModel->remover_personal_a_cargo($id_relacion);
+            
+            if ($resultado) {
+                echo "<div class='alert alert-success'>Personal a cargo removido correctamente.</div>";
+            } else {
+                echo "<div class='alert alert-danger'>Error al remover personal a cargo.</div>";
             }
         }
     }
@@ -118,6 +160,137 @@ if (isset($_GET['mantenimiento_encargados'])) {
     $usuarios = $userModel->usuarios_encargados();
     $usuarios_disponibles = $userModel->usuarios_disponibles_para_encargado();
     require_once __DIR__ . '/../views/mantenimiento_encargados.php';
+    exit();
+}
+
+// Endpoint para obtener colaboradores disponibles para asignar
+if (isset($_GET['obtener_colaboradores_disponibles'])) {
+    header('Content-Type: application/json; charset=utf-8');
+    
+    $supervisor_code = $_GET['supervisor_code'] ?? '';
+    
+    if (!empty($supervisor_code)) {
+        $colaboradores = $userModel->colaboradores_disponibles_para_asignar($supervisor_code);
+        echo json_encode([
+            'success' => true,
+            'colaboradores' => $colaboradores
+        ]);
+    } else {
+        echo json_encode([
+            'success' => false,
+            'message' => 'Código de supervisor no proporcionado'
+        ]);
+    }
+    exit();
+}
+
+// ============================================
+// NUEVO SISTEMA R-ENCARGADOS (PARALELO)
+// ============================================
+
+if (isset($_GET['mantenimiento_r_encargados'])) {
+    
+    // Solo admin puede acceder (tipo_usuario == 1)
+    $tipo_usuario_actual = $userModel->get_tyte_user();
+    if ($tipo_usuario_actual != 1) {
+        header("Location: " . BASE_URL_CONTROLLER . "/MainController.php");
+        exit();
+    }
+    
+    // Asignar supervisor (type_user = 6)
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['asignar_encargado'])) {
+        $code = $_POST['codigo_usuario'];
+        
+        if (!empty($code)) {
+            $resultado = $userModel->asignar_tipo_encargado($code);
+            
+            if ($resultado) {
+                echo "<div class='alert alert-success'>Usuario asignado como supervisor correctamente.</div>";
+            } else {
+                echo "<div class='alert alert-danger'>Error al asignar supervisor.</div>";
+            }
+        }
+    }
+
+    // Remover supervisor (regresar a type_user = 2)
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['remover_encargado'])) {
+        $code = $_POST['codigo_usuario'];
+        
+        if (!empty($code)) {
+            // Primero desactivar todas las relaciones de personal a cargo
+            $personal_cargo = $userModel->get_personal_a_cargo($code);
+            foreach ($personal_cargo as $relacion) {
+                $userModel->remover_personal_a_cargo($relacion['id']);
+            }
+            
+            // Luego remover el tipo de supervisor
+            $resultado = $userModel->remover_tipo_encargado($code);
+            
+            if ($resultado) {
+                echo "<div class='alert alert-success'>Supervisor removido correctamente. Todas las relaciones de personal a cargo fueron desactivadas.</div>";
+            } else {
+                echo "<div class='alert alert-danger'>Error al remover supervisor.</div>";
+            }
+        }
+    }
+
+    // Asignar personal a cargo a un supervisor
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['asignar_personal_cargo'])) {
+        $supervisor_code = $_POST['supervisor_code'] ?? '';
+        $colaborador_code = $_POST['colaborador_code'] ?? '';
+        
+        if (!empty($supervisor_code) && !empty($colaborador_code)) {
+            $resultado = $userModel->asignar_personal_a_cargo($supervisor_code, $colaborador_code);
+            
+            if ($resultado) {
+                echo "<div class='alert alert-success'>Personal a cargo asignado correctamente.</div>";
+            } else {
+                echo "<div class='alert alert-danger'>Error al asignar personal a cargo. Puede que ya esté asignado.</div>";
+            }
+        } else {
+            echo "<div class='alert alert-danger'>Faltan datos para asignar personal a cargo.</div>";
+        }
+    }
+
+    // Remover personal a cargo de un supervisor
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['remover_personal_cargo'])) {
+        $id_relacion = $_POST['id_relacion'] ?? 0;
+        
+        if (!empty($id_relacion)) {
+            $resultado = $userModel->remover_personal_a_cargo($id_relacion);
+            
+            if ($resultado) {
+                echo "<div class='alert alert-success'>Personal a cargo removido correctamente.</div>";
+            } else {
+                echo "<div class='alert alert-danger'>Error al remover personal a cargo.</div>";
+            }
+        }
+    }
+
+    $usuarios = $userModel->usuarios_encargados();
+    $usuarios_disponibles = $userModel->usuarios_disponibles_para_encargado();
+    require_once __DIR__ . '/../views/mantenimiento_r_encargados.php';
+    exit();
+}
+
+// Endpoint para obtener colaboradores disponibles para asignar (R-)
+if (isset($_GET['obtener_colaboradores_disponibles_r'])) {
+    header('Content-Type: application/json; charset=utf-8');
+    
+    $supervisor_code = $_GET['supervisor_code'] ?? '';
+    
+    if (!empty($supervisor_code)) {
+        $colaboradores = $userModel->colaboradores_disponibles_para_asignar($supervisor_code);
+        echo json_encode([
+            'success' => true,
+            'colaboradores' => $colaboradores
+        ]);
+    } else {
+        echo json_encode([
+            'success' => false,
+            'message' => 'Código de supervisor no proporcionado'
+        ]);
+    }
     exit();
 }
 

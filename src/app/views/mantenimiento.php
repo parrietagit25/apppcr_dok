@@ -41,6 +41,17 @@ include __DIR__ . '/header.php';
             </a>
         </div>
 
+        <?php if ($tipo_usuario == 1) { ?>
+        <div class="col-4">
+            <a href="<?php echo BASE_URL_CONTROLLER; ?>/MainController.php?mantenimiento_r_encargados=1" class="text-decoration-none">
+                <div class="p-2">
+                    <img src="<?php echo BASE_URL_IMAGE; ?>user.png" alt="R-Encargados" class="mb-2" width="50">
+                    <p>R-Encargados</p>
+                </div>
+            </a>
+        </div>
+        <?php } ?>
+
         <div class="col-4">
             <a href="<?php echo BASE_URL_CONTROLLER; ?>/MainController.php?mantenimiento_usuarios_no_listados=1" class="text-decoration-none">
                 <div class="p-2">

@@ -756,6 +756,54 @@ class Rrhh {
     
         return $array_datos;
     }
+
+    /**
+     * NUEVO MÉTODO R-SELECT_JEFE - Usa la tabla supervisores_personal_cargo
+     * Este método es paralelo al anterior, no lo reemplaza
+     */
+    public function r_select_jefe() {
+        // Obtener el código del colaborador actual desde la sesión
+        $colaborador_code = $_SESSION['code'] ?? '';
+        
+        if (empty($colaborador_code)) {
+            return [];
+        }
+        
+        // Consultar los supervisores asignados a este colaborador desde la nueva tabla
+        $array_datos = [];
+        
+        try {
+            $stmt = $this->pdo->prepare("
+                SELECT 
+                    spc.supervisor_code as code_empleado,
+                    spc.supervisor_code as codigo_empleado,
+                    e.nombre,
+                    e.apellido,
+                    e.nombre_departamento as departamento,
+                    e.email
+                FROM supervisores_personal_cargo spc
+                INNER JOIN empleados e ON spc.supervisor_code = e.codigo_empleado
+                INNER JOIN empleado_log el ON e.codigo_empleado = el.codigo
+                WHERE spc.colaborador_code = :colaborador_code
+                AND spc.activo = 1
+                AND el.stat = 1
+                AND el.type_user = 6
+                ORDER BY e.nombre ASC, e.apellido ASC
+            ");
+            $stmt->bindParam(':colaborador_code', $colaborador_code, PDO::PARAM_STR);
+            $stmt->execute();
+            
+            while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                $array_datos[] = $row;
+            }
+        } catch (PDOException $e) {
+            // Si la tabla no existe aún, devolver array vacío
+            error_log("Error al consultar supervisores_personal_cargo en r_select_jefe: " . $e->getMessage());
+            return [];
+        }
+        
+        return $array_datos;
+    }
     
     
     public function select_permisos_all() {

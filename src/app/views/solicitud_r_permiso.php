@@ -20,7 +20,8 @@ include __DIR__ . '/header.php';
         <div class="carousel-inner">
             <div class="carousel-item active">
                 <div class="p-3 bg-light rounded">
-                    <h5 class="fw-bold">Solicitud de Permiso</h5>
+                    <h5 class="fw-bold">R-Solicitud de Permiso <span class="badge bg-warning">NUEVO SISTEMA</span></h5>
+                    <p class="mb-0 text-muted">Sistema nuevo que usa supervisores asignados desde la tabla supervisores_personal_cargo</p>
                 </div>
             </div>
         </div>
@@ -87,7 +88,7 @@ include __DIR__ . '/header.php';
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="solicitudModalLabel">Solicitar Permiso</h5>
+                <h5 class="modal-title" id="solicitudModalLabel">R-Solicitar Permiso <span class="badge bg-warning">NUEVO</span></h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
             </div>
             <div class="modal-body">
@@ -109,7 +110,7 @@ include __DIR__ . '/header.php';
                         <?php if (empty($select_jefe)): ?>
                             <small class="text-warning">
                                 <i class="bi bi-exclamation-triangle"></i> 
-                                No tiene supervisores asignados. Contacte a RRHH para asignar un supervisor.
+                                No tiene supervisores asignados. Contacte a RRHH para asignar un supervisor desde R-Encargados.
                             </small>
                         <?php endif; ?>
                     </div>

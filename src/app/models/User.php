@@ -258,6 +258,154 @@ public function nombre_colaborador() {
         return $stmt->execute();
     }
 
+    // ============================================
+    // MÉTODOS PARA GESTIÓN DE SUPERVISORES Y PERSONAL A CARGO
+    // ============================================
+
+    /**
+     * Obtener el personal a cargo de un supervisor
+     */
+    public function get_personal_a_cargo($supervisor_code) {
+        $stmt = $this->pdo->prepare("
+            SELECT 
+                spc.id,
+                spc.colaborador_code,
+                spc.fecha_asignacion,
+                e.nombre,
+                e.apellido,
+                e.nombre_departamento,
+                e.nombre_cargo
+            FROM supervisores_personal_cargo spc
+            INNER JOIN empleados e ON spc.colaborador_code = e.codigo_empleado
+            WHERE spc.supervisor_code = :supervisor_code 
+            AND spc.activo = 1
+            ORDER BY e.nombre ASC
+        ");
+        $stmt->bindParam(':supervisor_code', $supervisor_code, PDO::PARAM_STR);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    /**
+     * Obtener los supervisores de un colaborador
+     */
+    public function get_supervisores_de_colaborador($colaborador_code) {
+        $stmt = $this->pdo->prepare("
+            SELECT 
+                spc.id,
+                spc.supervisor_code,
+                spc.fecha_asignacion,
+                e.nombre,
+                e.apellido,
+                e.nombre_departamento
+            FROM supervisores_personal_cargo spc
+            INNER JOIN empleados e ON spc.supervisor_code = e.codigo_empleado
+            WHERE spc.colaborador_code = :colaborador_code 
+            AND spc.activo = 1
+            ORDER BY e.nombre ASC
+        ");
+        $stmt->bindParam(':colaborador_code', $colaborador_code, PDO::PARAM_STR);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    /**
+     * Asignar personal a cargo a un supervisor
+     */
+    public function asignar_personal_a_cargo($supervisor_code, $colaborador_code) {
+        try {
+            // Verificar que no exista ya la relación
+            $stmt_check = $this->pdo->prepare("
+                SELECT id FROM supervisores_personal_cargo 
+                WHERE supervisor_code = :supervisor_code 
+                AND colaborador_code = :colaborador_code
+            ");
+            $stmt_check->execute([
+                ':supervisor_code' => $supervisor_code,
+                ':colaborador_code' => $colaborador_code
+            ]);
+            
+            if ($stmt_check->fetch()) {
+                // Si existe, reactivarlo
+                $stmt = $this->pdo->prepare("
+                    UPDATE supervisores_personal_cargo 
+                    SET activo = 1, fecha_asignacion = CURRENT_TIMESTAMP
+                    WHERE supervisor_code = :supervisor_code 
+                    AND colaborador_code = :colaborador_code
+                ");
+                return $stmt->execute([
+                    ':supervisor_code' => $supervisor_code,
+                    ':colaborador_code' => $colaborador_code
+                ]);
+            } else {
+                // Si no existe, crear nueva relación
+                $stmt = $this->pdo->prepare("
+                    INSERT INTO supervisores_personal_cargo (supervisor_code, colaborador_code, activo)
+                    VALUES (:supervisor_code, :colaborador_code, 1)
+                ");
+                return $stmt->execute([
+                    ':supervisor_code' => $supervisor_code,
+                    ':colaborador_code' => $colaborador_code
+                ]);
+            }
+        } catch (PDOException $e) {
+            error_log("Error al asignar personal a cargo: " . $e->getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Remover personal a cargo de un supervisor (soft delete)
+     */
+    public function remover_personal_a_cargo($id_relacion) {
+        $stmt = $this->pdo->prepare("
+            UPDATE supervisores_personal_cargo 
+            SET activo = 0 
+            WHERE id = :id
+        ");
+        $stmt->bindParam(':id', $id_relacion, PDO::PARAM_INT);
+        return $stmt->execute();
+    }
+
+    /**
+     * Obtener todos los colaboradores disponibles para asignar (excluyendo al supervisor mismo)
+     */
+    public function colaboradores_disponibles_para_asignar($supervisor_code = null) {
+        $sql = "
+            SELECT DISTINCT 
+                e.codigo_empleado, 
+                e.nombre, 
+                e.apellido,
+                e.nombre_departamento,
+                e.nombre_cargo
+            FROM empleados e 
+            INNER JOIN empleado_log el ON e.codigo_empleado = el.codigo 
+            WHERE el.stat = 1
+        ";
+        
+        $params = [];
+        
+        if ($supervisor_code) {
+            // Excluir al supervisor mismo y los que ya están asignados
+            $sql .= "
+                AND e.codigo_empleado != :supervisor_code
+                AND e.codigo_empleado NOT IN (
+                    SELECT colaborador_code 
+                    FROM supervisores_personal_cargo 
+                    WHERE supervisor_code = :supervisor_code 
+                    AND activo = 1
+                )
+            ";
+            $params[':supervisor_code'] = $supervisor_code;
+        }
+        
+        $sql .= " ORDER BY e.nombre ASC";
+        
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute($params);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
     public function usuarios_no_listados(){
         $stmt = $this->pdo->prepare("SELECT * FROM empleado_log el 
                                     INNER JOIN empleados e ON el.codigo = e.codigo_empleado 
