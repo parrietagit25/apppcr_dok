@@ -1004,6 +1004,19 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
 
 }elseif (isset($_GET['administrar_permiso_admin'])) {
 
+    // Obtener el supervisor seleccionado (solo para admin tipo 1)
+    $supervisor_seleccionado = null;
+    $todos_supervisores = [];
+    
+    if ($tipo_usuario == 1) {
+        $todos_supervisores = $class->get_todos_supervisores();
+        
+        // Si se seleccionó un supervisor, filtrar por ese
+        if (isset($_GET['supervisor']) && !empty($_GET['supervisor'])) {
+            $supervisor_seleccionado = $_GET['supervisor'];
+        }
+    }
+
     if (isset($_POST['aprobar_permiso'])) {
         $class->update_permiso($_POST['respuesta_jefe'], $_POST['comentario_jefe'], $_POST['permiso_id']);
         //echo "<div class='alert alert-success'>Permiso actualizado correctamente.</div>";
@@ -1043,7 +1056,14 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
 
     }
 
-    $permisos = $class->select_permisos_all_admin($_SESSION['code']);
+    // Obtener permisos según el filtro
+    if ($tipo_usuario == 1 && $supervisor_seleccionado) {
+        // Admin seleccionó un supervisor específico
+        $permisos = $class->select_permisos_por_supervisor($supervisor_seleccionado);
+    } else {
+        // Usuario normal o admin sin filtro: usar método original
+        $permisos = $class->select_permisos_all_admin($_SESSION['code']);
+    }
 
     require_once __DIR__ . '/../views/administrar_permiso_admin.php';
     exit();

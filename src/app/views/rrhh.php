@@ -112,7 +112,7 @@ include __DIR__ . '/header.php';
                 </a>
             </div>
 
-            <?php if ($tipo_usuario == 6) { ?>
+            <?php if ($tipo_usuario == 1 || $tipo_usuario == 4 || $tipo_usuario == 6) { ?>
             <div class="col-4 mb-3">
                 <a href="<?php echo BASE_URL_CONTROLLER; ?>/RRHHController.php?administrar_permiso_admin=1" class="text-decoration-none">
                     <img src="<?php echo BASE_URL_IMAGE; ?>permiso1.png" width="45">

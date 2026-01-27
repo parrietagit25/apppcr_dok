@@ -923,6 +923,63 @@ class Rrhh {
     
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
+
+    /**
+     * Obtener permisos filtrados por supervisor usando supervisores_personal_cargo
+     * Este método obtiene los permisos del personal a cargo de un supervisor específico
+     */
+    public function select_permisos_por_supervisor($supervisor_code) {
+        try {
+            $sql = "
+                SELECT DISTINCT p.*, e.nombre, e.apellido
+                FROM solicitud_permiso p
+                INNER JOIN empleados e ON p.code = e.codigo_empleado
+                INNER JOIN supervisores_personal_cargo spc ON e.codigo_empleado = spc.colaborador_code
+                WHERE spc.supervisor_code = :supervisor_code
+                AND spc.activo = 1
+                AND (
+                    CAST(p.id_jefe AS CHAR) = CAST(:supervisor_code AS CHAR)
+                    OR p.id_jefe IS NULL
+                )
+                ORDER BY p.fecha_log DESC
+            ";
+            
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->bindParam(':supervisor_code', $supervisor_code, PDO::PARAM_STR);
+            $stmt->execute();
+            
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            error_log("Error al consultar permisos por supervisor: " . $e->getMessage());
+            // Si la tabla no existe, devolver array vacío
+            return [];
+        }
+    }
+
+    /**
+     * Obtener todos los supervisores activos (type_user = 6)
+     */
+    public function get_todos_supervisores() {
+        try {
+            $stmt = $this->pdo->prepare("
+                SELECT DISTINCT
+                    e.codigo_empleado,
+                    e.nombre,
+                    e.apellido,
+                    e.nombre_departamento
+                FROM empleados e
+                INNER JOIN empleado_log el ON e.codigo_empleado = el.codigo
+                WHERE el.type_user = 6
+                AND el.stat = 1
+                ORDER BY e.nombre ASC, e.apellido ASC
+            ");
+            $stmt->execute();
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            error_log("Error al obtener supervisores: " . $e->getMessage());
+            return [];
+        }
+    }
     
 
     /* public function select_permisos_all_admin($code) {

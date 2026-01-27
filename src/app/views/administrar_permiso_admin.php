@@ -26,6 +26,35 @@ include __DIR__ . '/header.php';
         </div>
     </div>
 
+    <?php if ($tipo_usuario == 1 && !empty($todos_supervisores)): ?>
+    <div class="row mb-3">
+        <div class="col-md-6">
+            <form method="GET" action="" class="d-flex gap-2">
+                <input type="hidden" name="administrar_permiso_admin" value="1">
+                <label for="selectSupervisor" class="form-label align-self-center mb-0">Filtrar por Supervisor:</label>
+                <select name="supervisor" id="selectSupervisor" class="form-select" onchange="this.form.submit()">
+                    <option value="">-- Todos los permisos --</option>
+                    <?php foreach ($todos_supervisores as $supervisor): ?>
+                        <option value="<?php echo htmlspecialchars($supervisor['codigo_empleado']); ?>" 
+                                <?php echo (isset($supervisor_seleccionado) && $supervisor_seleccionado == $supervisor['codigo_empleado']) ? 'selected' : ''; ?>>
+                            <?php echo htmlspecialchars($supervisor['codigo_empleado'] . ' - ' . $supervisor['nombre'] . ' ' . $supervisor['apellido']); ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+            </form>
+        </div>
+        <?php if (isset($supervisor_seleccionado) && $supervisor_seleccionado): ?>
+        <div class="col-md-6">
+            <div class="alert alert-info mb-0">
+                <i class="bi bi-info-circle"></i> 
+                Mostrando permisos del supervisor seleccionado. 
+                <a href="?administrar_permiso_admin=1" class="alert-link">Ver todos</a>
+            </div>
+        </div>
+        <?php endif; ?>
+    </div>
+    <?php endif; ?>
+
     <div class="row mt-5">
         <h5 class="text-center">Solicitudes de Permiso</h5>
         <table id="tablaPermisosAprobar" class="table table-striped table-bordered mt-3">
