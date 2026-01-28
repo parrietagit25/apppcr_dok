@@ -930,25 +930,29 @@ class Rrhh {
      */
     public function select_permisos_por_supervisor($supervisor_code) {
         try {
+            // Obtener todos los permisos del personal a cargo del supervisor
+            // No filtramos por id_jefe porque el supervisor debe ver todos los permisos de su personal
             $sql = "
                 SELECT DISTINCT p.*, e.nombre, e.apellido
                 FROM solicitud_permiso p
                 INNER JOIN empleados e ON p.code = e.codigo_empleado
-                INNER JOIN supervisores_personal_cargo spc ON e.codigo_empleado = spc.colaborador_code
-                WHERE spc.supervisor_code = :supervisor_code
+                INNER JOIN supervisores_personal_cargo spc ON TRIM(e.codigo_empleado) = TRIM(spc.colaborador_code)
+                WHERE TRIM(spc.supervisor_code) = TRIM(:supervisor_code)
                 AND spc.activo = 1
-                AND (
-                    CAST(p.id_jefe AS CHAR) = CAST(:supervisor_code AS CHAR)
-                    OR p.id_jefe IS NULL
-                )
                 ORDER BY p.fecha_log DESC
             ";
             
             $stmt = $this->pdo->prepare($sql);
-            $stmt->bindParam(':supervisor_code', $supervisor_code, PDO::PARAM_STR);
+            $supervisor_code_trimmed = trim($supervisor_code);
+            $stmt->bindParam(':supervisor_code', $supervisor_code_trimmed, PDO::PARAM_STR);
             $stmt->execute();
             
-            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+            $resultados = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            
+            // Debug temporal
+            error_log("select_permisos_por_supervisor - Supervisor: " . $supervisor_code_trimmed . " - Resultados: " . count($resultados));
+            
+            return $resultados;
         } catch (PDOException $e) {
             error_log("Error al consultar permisos por supervisor: " . $e->getMessage());
             // Si la tabla no existe, devolver array vacío
