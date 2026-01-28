@@ -12,6 +12,12 @@ $userModel = new User($pdo);
 $pdo_rrhh = Database::connect(); 
 $class_rrhh = new Rrhh($pdo_rrhh);
 
+// Permitir acceso sin sesión solo para documentación
+if (isset($_GET['documentacion'])) {
+    require_once __DIR__ . '/../views/documentacion.php';
+    exit();
+}
+
 if (!isset($_SESSION['code'])) {
     header("Location: salir.php");
     exit();

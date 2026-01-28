@@ -99,6 +99,7 @@
     <div class="link-container">
         <a href="<?php echo BASE_URL_CONTROLLER; ?>/RegcolaController.php?reg_col=1">Registrar Colaborador</a>
         <a href="<?php echo BASE_URL_CONTROLLER; ?>/RegcolaController.php?restore_pass=1">Recuperar Contraseña</a>
+        <a href="<?php echo BASE_URL_CONTROLLER; ?>/MainController.php?documentacion=1">Documentación</a>
     </div>
 </div>
 
