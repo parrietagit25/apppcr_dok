@@ -69,7 +69,10 @@ include __DIR__ . '/header.php';
             <tbody>
                 <?php
                 $status = '';
-                $permisos = $class->select_permisos_all_admin($_SESSION['code']);
+                // $permisos ya viene del controlador con el filtro aplicado
+                if (!isset($permisos)) {
+                    $permisos = [];
+                }
                 if (!empty($permisos)) {
                     foreach ($permisos as $row) {
                         $status = $row['stat'] == 1 ? 'Solicitado' : ($row['stat'] == 2 ? 'Aprobado' : 'Declinado');
@@ -83,10 +86,14 @@ include __DIR__ . '/header.php';
                             $cantidad_dias = $cantidad_dias + 1;
                         }
 
+                        $fecha_log = isset($row['fecha_log']) && !empty($row['fecha_log']) 
+                            ? htmlspecialchars($row['fecha_log']) 
+                            : (isset($row['fecha_inicio']) ? htmlspecialchars($row['fecha_inicio']) : 'N/A');
+                        
                         echo "<tr>
                                 <td>" . htmlspecialchars($row['nombre'] . ' ' . $row['apellido']) . "</td>
                                 <td>" . htmlspecialchars($row['tipo_licencia']) . "</td>
-                                <td>" . htmlspecialchars($row['fecha_log']) . "</td>
+                                <td>" . $fecha_log . "</td>
                                 <td>
                                     <a href='#' data-bs-toggle='modal' data-bs-target='#modalAdjuntar{$row['id']}'>
                                         " . htmlspecialchars($status) . "
@@ -218,13 +225,30 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     // Inicializar DataTable
-    $('#tablaPermisosAprobar').DataTable({
-        language: {
-            url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json"
-        },
-        pageLength: 10,
-        order: [[2, 'desc']] // Ordenar por la columna "Fecha de Solicitud" (índice 2)
-    });
+    var tabla = $('#tablaPermisosAprobar');
+    if (tabla.length) {
+        // Verificar que la tabla tenga la estructura correcta
+        var numColumnas = tabla.find('thead tr th').length;
+        var numFilas = tabla.find('tbody tr').length;
+        
+        if (numColumnas === 4) {
+            try {
+                tabla.DataTable({
+                    language: {
+                        url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json"
+                    },
+                    pageLength: 10,
+                    order: [[2, 'desc']], // Ordenar por la columna "Fecha de Solicitud" (índice 2)
+                    responsive: false,
+                    autoWidth: false
+                });
+            } catch (e) {
+                console.error('Error al inicializar DataTable:', e);
+            }
+        } else {
+            console.warn('La tabla no tiene 4 columnas. Columnas encontradas:', numColumnas);
+        }
+    }
 });
 </script>
 

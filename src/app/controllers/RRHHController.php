@@ -1064,6 +1064,11 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
         // Usuario normal o admin sin filtro: usar método original
         $permisos = $class->select_permisos_all_admin($_SESSION['code']);
     }
+    
+    // Asegurar que $permisos siempre sea un array
+    if (!is_array($permisos)) {
+        $permisos = [];
+    }
 
     require_once __DIR__ . '/../views/administrar_permiso_admin.php';
     exit();
