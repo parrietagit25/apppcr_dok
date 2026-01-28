@@ -11,7 +11,6 @@ include __DIR__ . '/header.php';
 <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-<script src="https://cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json"></script>
 
 <div class="container mt-4">
     <div class="input-group mb-3"></div>
@@ -173,7 +172,10 @@ include __DIR__ . '/header.php';
                         </div>";
                     }
                 } else {
-                    echo "<tr><td colspan='4' class='text-center'>No hay solicitudes registradas.</td></tr>";
+                    // Cuando no hay datos, crear una fila con 4 celdas para mantener la estructura
+                    echo "<tr>
+                            <td class='text-center' colspan='4'>No hay solicitudes registradas.</td>
+                          </tr>";
                 }
                 ?>
             </tbody>
@@ -212,11 +214,25 @@ document.addEventListener("DOMContentLoaded", function () {
             const id = btn.dataset.id;
             const loader = document.getElementById("loaderGuardar" + id);
             const modal = document.getElementById("modalAdjuntar" + id);
+            
+            // Validar que los elementos existan
+            if (!modal) {
+                console.error('Modal no encontrado para ID:', id);
+                return;
+            }
+            
             const form = modal.querySelector("form");
+            if (!form) {
+                console.error('Formulario no encontrado en el modal:', id);
+                return;
+            }
 
+            if (loader) {
+                loader.classList.remove("d-none");
+            }
+            
             btn.disabled = true;
             btn.textContent = "Enviando...";
-            loader.classList.remove("d-none");
 
             setTimeout(() => {
                 form.submit();
@@ -228,25 +244,40 @@ document.addEventListener("DOMContentLoaded", function () {
     var tabla = $('#tablaPermisosAprobar');
     if (tabla.length) {
         // Verificar que la tabla tenga la estructura correcta
-        var numColumnas = tabla.find('thead tr th').length;
-        var numFilas = tabla.find('tbody tr').length;
+        var thead = tabla.find('thead');
+        var tbody = tabla.find('tbody');
+        var numColumnas = thead.find('tr th').length;
+        var numFilas = tbody.find('tr').length;
         
-        if (numColumnas === 4) {
+        // Verificar si hay una fila con colspan (sin datos)
+        var tieneColspan = tbody.find('tr td[colspan]').length > 0;
+        
+        // Solo inicializar DataTables si hay datos reales (sin colspan)
+        if (numColumnas === 4 && !tieneColspan && numFilas > 0) {
             try {
+                // Destruir DataTable si ya existe
+                if ($.fn.DataTable.isDataTable('#tablaPermisosAprobar')) {
+                    tabla.DataTable().destroy();
+                }
+                
                 tabla.DataTable({
                     language: {
-                        url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json"
+                        url: "https://cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json"
                     },
                     pageLength: 10,
                     order: [[2, 'desc']], // Ordenar por la columna "Fecha de Solicitud" (índice 2)
                     responsive: false,
-                    autoWidth: false
+                    autoWidth: false,
+                    destroy: true
                 });
             } catch (e) {
                 console.error('Error al inicializar DataTable:', e);
             }
+        } else if (tieneColspan) {
+            // Si no hay datos, no inicializar DataTables
+            console.log('No hay datos para mostrar en la tabla');
         } else {
-            console.warn('La tabla no tiene 4 columnas. Columnas encontradas:', numColumnas);
+            console.warn('La tabla no tiene la estructura correcta. Columnas:', numColumnas, 'Filas:', numFilas);
         }
     }
 });
