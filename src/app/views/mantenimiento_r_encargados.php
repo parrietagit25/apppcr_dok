@@ -310,12 +310,47 @@ include __DIR__ . '/header.php';
         }
     }
 
-    // Inicializar Select2 cuando el modal se abre
+    // Inicializar Select2 en "Asignar Supervisor" (buscador de usuarios)
+    $('#modalAsignarSupervisor').on('shown.bs.modal', function () {
+        $('#usuarioSelect').select2({
+            dropdownParent: $('#modalAsignarSupervisor'),
+            width: '100%',
+            placeholder: '-- Buscar o seleccione un usuario --',
+            allowClear: true,
+            minimumResultsForSearch: 0, // Siempre mostrar el buscador
+            language: {
+                noResults: function() { return 'No se encontraron resultados'; },
+                searching: function() { return 'Buscando...'; },
+                inputTooShort: function() { return 'Escriba para buscar'; }
+            }
+        });
+    });
+    // Destruir Select2 al cerrar el modal para evitar duplicados al reabrir
+    $('#modalAsignarSupervisor').on('hidden.bs.modal', function () {
+        if ($('#usuarioSelect').data('select2')) {
+            $('#usuarioSelect').select2('destroy');
+        }
+    });
+
+    // Inicializar Select2 cuando el modal "Agregar Personal" se abre (buscador de colaboradores)
     $('#modalAgregarPersonal').on('shown.bs.modal', function () {
         $('#colaboradorSelect').select2({
             dropdownParent: $('#modalAgregarPersonal'),
-            width: '100%'
+            width: '100%',
+            placeholder: '-- Buscar o seleccione un colaborador --',
+            allowClear: true,
+            minimumResultsForSearch: 0, // Siempre mostrar el buscador
+            language: {
+                noResults: function() { return 'No se encontraron resultados'; },
+                searching: function() { return 'Buscando...'; },
+                inputTooShort: function() { return 'Escriba para buscar'; }
+            }
         });
+    });
+    $('#modalAgregarPersonal').on('hidden.bs.modal', function () {
+        if ($('#colaboradorSelect').data('select2')) {
+            $('#colaboradorSelect').select2('destroy');
+        }
     });
 </script>
 
