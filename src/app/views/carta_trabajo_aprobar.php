@@ -66,7 +66,15 @@ include __DIR__ . '/header.php';
                                     <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#modalGenerarCarta<?php echo $row['id']; ?>">Generar Carta</button>
                                 <?php endif; ?>
                             </td>
-                            <td><?php echo htmlspecialchars($row['estado']); ?></td>
+                            <td>
+                                <?php if ($ver_aprobadas): ?>
+                                    <?php echo htmlspecialchars($row['estado']); ?>
+                                <?php else: ?>
+                                    <a href="#" data-bs-toggle="modal" data-bs-target="#modalAdjuntar<?php echo $row['id']; ?>">
+                                        <?php echo htmlspecialchars($row['estado']); ?>
+                                    </a>
+                                <?php endif; ?>
+                            </td>
                         </tr>
 
                         <?php if (!$ver_aprobadas): ?>
