@@ -62,6 +62,7 @@ include __DIR__ . '/header.php';
                             <td class="text-center">
                                 <?php if ($ver_aprobadas): ?>
                                     <a href="<?php echo BASE_URL_LINK; ?>/generar_carta_pdf_user.php?id=<?php echo (int)$row['id']; ?>" target="_blank" class="btn btn-sm btn-success">Ver PDF</a>
+                                    <button type="button" class="btn btn-sm btn-outline-primary ms-1" data-bs-toggle="modal" data-bs-target="#modalGenerarCarta<?php echo $row['id']; ?>">Editar carta</button>
                                     <button type="button" class="btn btn-sm btn-primary ms-1" data-bs-toggle="modal" data-bs-target="#modalAdjuntar<?php echo $row['id']; ?>">Enviar por correo</button>
                                 <?php else: ?>
                                     <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#modalGenerarCarta<?php echo $row['id']; ?>">Generar Carta</button>
@@ -108,22 +109,23 @@ include __DIR__ . '/header.php';
                             </div>
                         </div>
 
-                        <?php if (!$ver_aprobadas): ?>
+                        <!-- Modal Generar/Editar Carta (visible en Pendientes y en Aprobadas) -->
                         <div class="modal fade" id="modalGenerarCarta<?php echo $row['id']; ?>" tabindex="-1" aria-labelledby="modalLabelGenerarCarta<?php echo $row['id']; ?>" aria-hidden="true">
                             <div class="modal-dialog modal-lg">
                                 <div class="modal-content">
                                     <form method="POST">
                                         <div class="modal-header">
-                                            <h5 class="modal-title" id="modalLabelGenerarCarta<?php echo $row['id']; ?>">Generar Carta de Trabajo</h5>
+                                            <h5 class="modal-title" id="modalLabelGenerarCarta<?php echo $row['id']; ?>"><?php echo $ver_aprobadas ? 'Editar Carta de Trabajo' : 'Generar Carta de Trabajo'; ?></h5>
                                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
                                         </div>
                                         <div class="modal-body">
                                             <input type="hidden" name="solicitud_id" value="<?php echo $row['id']; ?>">
+                                            <?php if ($ver_aprobadas): ?><input type="hidden" name="ver" value="aprobadas"><?php endif; ?>
 
                                             <div class="mb-3">
                                                 <label class="form-label"><strong>Descripción editable:</strong></label>
-                                                <textarea class="form-control" name="descripcion" rows="3"><?php htmlspecialchars($row['descripcion'] ?? '') ?></textarea>
-                                                <p class="mt-2"><strong>Fecha de solicitud:</strong> <?php htmlspecialchars(date("d-m-Y", strtotime($row['fecha_log'] ?? date('Y-m-d')))) ?></p>
+                                                <textarea class="form-control" name="descripcion" rows="3"><?php echo htmlspecialchars($row['descripcion'] ?? ''); ?></textarea>
+                                                <p class="mt-2"><strong>Fecha de solicitud:</strong> <?php echo htmlspecialchars(date("d-m-Y", strtotime($row['fecha_log'] ?? date('Y-m-d')))); ?></p>
                                             </div>
 
                                             <div class="row g-3">
@@ -170,14 +172,13 @@ include __DIR__ . '/header.php';
                                             </div>
                                         </div>
                                         <div class="modal-footer">
-                                            <button type="button" class="btn btn-primary" onclick="guardarCartaSinForm(<?php echo $row['id']; ?>)">Guardar</button>
+                                            <button type="button" class="btn btn-primary" onclick="guardarCartaSinForm(<?php echo $row['id']; ?>, <?php echo $ver_aprobadas ? 'true' : 'false'; ?>)">Guardar</button>
                                             <button type="submit" formaction="/app/views/generar_carta_pdf.php" formtarget="_blank" class="btn btn-success">Generar PDF</button>
                                         </div>
                                     </form>
                                 </div>
                             </div>
                         </div>
-                        <?php endif; ?>
 
                             <?php 
 
@@ -299,7 +300,7 @@ function eliminarDescuento(grupoId) {
     });
 </script>
 <script>
-function guardarCartaSinForm(id) {
+function guardarCartaSinForm(id, verAprobadas) {
     const formData = new FormData();
 
     // Campos fijos (seleccionados por ID o name dentro del modal)
@@ -308,6 +309,9 @@ function guardarCartaSinForm(id) {
 
     formData.append('guardar_formulario', '1');
     formData.append('solicitud_id', id);
+    if (verAprobadas) {
+        formData.append('ver', 'aprobadas');
+    }
     formData.append('nombre', modal.querySelector('[name="nombre"]').value);
     formData.append('cedula', modal.querySelector('[name="cedula"]').value);
     formData.append('seguro', modal.querySelector('[name="seguro"]').value);

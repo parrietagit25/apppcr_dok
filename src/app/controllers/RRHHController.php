@@ -521,7 +521,7 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
     
 }elseif (isset($_GET['carta_trabajo_aprobar'])) {
 
-    $ver_aprobadas = isset($_GET['ver']) && $_GET['ver'] === 'aprobadas';
+    $ver_aprobadas = (isset($_GET['ver']) && $_GET['ver'] === 'aprobadas') || (isset($_POST['ver']) && $_POST['ver'] === 'aprobadas');
 
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['guardar_formulario'])) {
         $sql = "INSERT INTO carta_trabajo_formulario 
