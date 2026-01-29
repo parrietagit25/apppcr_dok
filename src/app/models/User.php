@@ -199,8 +199,6 @@ public function nombre_colaborador() {
             FROM empleados e 
             INNER JOIN empleado_log el ON e.codigo_empleado = el.codigo 
             WHERE el.stat = 1 
-            AND (el.type_user IS NULL OR el.type_user IN (2))
-            AND (el.type_user IS NULL OR el.type_user <> 6)
             ORDER BY e.nombre ASC
         ");
         $stmt->execute();
