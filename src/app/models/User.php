@@ -384,16 +384,8 @@ public function nombre_colaborador() {
         $params = [];
         
         if ($supervisor_code) {
-            // Excluir al supervisor mismo y los que ya están asignados
-            $sql .= "
-                AND e.codigo_empleado != :supervisor_code
-                AND e.codigo_empleado NOT IN (
-                    SELECT colaborador_code 
-                    FROM supervisores_personal_cargo 
-                    WHERE supervisor_code = :supervisor_code 
-                    AND activo = 1
-                )
-            ";
+            // Solo excluir al supervisor mismo (que no se asigne a sí mismo)
+            $sql .= " AND e.codigo_empleado != :supervisor_code ";
             $params[':supervisor_code'] = $supervisor_code;
         }
         
