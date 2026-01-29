@@ -57,7 +57,7 @@ include __DIR__ . '/header.php';
                         ?>
 
                         <tr>
-                            <td><?php echo htmlspecialchars($row['nombre'] . ' ' . $row['apellido']); ?></td>
+                            <td><?php echo htmlspecialchars($row['nombre_completo'] ?? trim(($row['nombre'] ?? '') . ' ' . ($row['apellido'] ?? ''))); ?></td>
                             <td><?php echo htmlspecialchars($row['fecha_log']); ?></td>
                             <td class="text-center">
                                 <?php if ($ver_aprobadas): ?>
@@ -94,7 +94,7 @@ include __DIR__ . '/header.php';
                                             <?php if ($ver_aprobadas): ?><input type="hidden" name="ver" value="aprobadas"><?php endif; ?>
                                             <p>
                                                 ¿Desea generar y enviar la carta de trabajo al colaborador
-                                                <strong><?php echo $row['nombre'] . ' ' . $row['apellido']; ?></strong>?
+                                                <strong><?php echo htmlspecialchars($row['nombre_completo'] ?? trim(($row['nombre'] ?? '') . ' ' . ($row['apellido'] ?? ''))); ?></strong>?
                                             </p>
                                             <div class="mb-3">
                                                 <label for="comentario<?php echo $row['id']; ?>" class="form-label">Comentario adicional (opcional)</label>
