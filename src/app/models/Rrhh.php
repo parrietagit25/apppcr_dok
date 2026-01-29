@@ -1329,7 +1329,8 @@ class Rrhh {
             IFNULL(ctf.cargo, c.nombre_cargo) AS cargo,
             IFNULL(ctf.desc_seguro, 0) AS desc_seguro,
             IFNULL(ctf.desc_educativo, 0) AS desc_educativo,
-            IFNULL(ctf.desc_renta, 0) AS desc_renta
+            IFNULL(ctf.desc_renta, 0) AS desc_renta,
+            IFNULL(ctf.nombre, CONCAT(IFNULL(c.nombre,''), ' ', IFNULL(c.apellido,''))) AS nombre_completo
             FROM carta_trabajo ct
             INNER JOIN empleados c 
             ON CONVERT(ct.code_user USING utf8mb4) COLLATE utf8mb4_unicode_ci = 

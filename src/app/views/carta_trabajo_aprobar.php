@@ -62,6 +62,7 @@ include __DIR__ . '/header.php';
                             <td class="text-center">
                                 <?php if ($ver_aprobadas): ?>
                                     <a href="<?php echo BASE_URL_LINK; ?>/generar_carta_pdf_user.php?id=<?php echo (int)$row['id']; ?>" target="_blank" class="btn btn-sm btn-success">Ver PDF</a>
+                                    <button type="button" class="btn btn-sm btn-primary ms-1" data-bs-toggle="modal" data-bs-target="#modalAdjuntar<?php echo $row['id']; ?>">Enviar por correo</button>
                                 <?php else: ?>
                                     <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#modalGenerarCarta<?php echo $row['id']; ?>">Generar Carta</button>
                                 <?php endif; ?>
@@ -69,6 +70,7 @@ include __DIR__ . '/header.php';
                             <td>
                                 <?php if ($ver_aprobadas): ?>
                                     <?php echo htmlspecialchars($row['estado']); ?>
+                                    <a href="#" class="ms-1 small" data-bs-toggle="modal" data-bs-target="#modalAdjuntar<?php echo $row['id']; ?>">(Enviar por correo)</a>
                                 <?php else: ?>
                                     <a href="#" data-bs-toggle="modal" data-bs-target="#modalAdjuntar<?php echo $row['id']; ?>">
                                         <?php echo htmlspecialchars($row['estado']); ?>
@@ -77,7 +79,7 @@ include __DIR__ . '/header.php';
                             </td>
                         </tr>
 
-                        <?php if (!$ver_aprobadas): ?>
+                        <!-- Modal Enviar carta al colaborador (visible en Pendientes y en Aprobadas) -->
                         <div class="modal fade" id="modalAdjuntar<?php echo $row['id']; ?>" tabindex="-1" aria-labelledby="modalLabel<?php echo $row['id']; ?>" aria-hidden="true">
                             <div class="modal-dialog">
                                 <div class="modal-content">
@@ -88,6 +90,7 @@ include __DIR__ . '/header.php';
                                         </div>
                                         <div class="modal-body">
                                             <input type="hidden" name="solicitud_id" value="<?php echo $row['id']; ?>">
+                                            <?php if ($ver_aprobadas): ?><input type="hidden" name="ver" value="aprobadas"><?php endif; ?>
                                             <p>
                                                 ¿Desea generar y enviar la carta de trabajo al colaborador
                                                 <strong><?php echo $row['nombre'] . ' ' . $row['apellido']; ?></strong>?
@@ -105,7 +108,7 @@ include __DIR__ . '/header.php';
                             </div>
                         </div>
 
-
+                        <?php if (!$ver_aprobadas): ?>
                         <div class="modal fade" id="modalGenerarCarta<?php echo $row['id']; ?>" tabindex="-1" aria-labelledby="modalLabelGenerarCarta<?php echo $row['id']; ?>" aria-hidden="true">
                             <div class="modal-dialog modal-lg">
                                 <div class="modal-content">

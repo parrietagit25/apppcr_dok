@@ -70,7 +70,7 @@ $html = "
 
 <p><strong>A quien pueda interesar:</strong></p>
 
-<p>Por medio de la presente, hacemos constar que el(la) Sr(a). <strong>$nombre $apellido</strong>, con cédula <strong>$cedula</strong> y seguro social <strong>$seguro</strong>, labora en nuestra empresa desde el <strong>$fecha_ingreso</strong>, desempeñando el cargo de <strong>$cargo</strong>.</p>
+<p>Por medio de la presente, hacemos constar que el(la) Sr(a). <strong>" . htmlspecialchars($datos['nombre_completo'] ?? trim(($datos['nombre'] ?? '') . ' ' . ($datos['apellido'] ?? '')) . "</strong>, con cédula <strong>$cedula</strong> y seguro social <strong>$seguro</strong>, labora en nuestra empresa desde el <strong>$fecha_ingreso</strong>, desempeñando el cargo de <strong>$cargo</strong>.</p>
 
 <p>El salario mensual pactado es de B/. $salario, con las siguientes deducciones aproximadas:</p>
 <ul>
@@ -97,6 +97,7 @@ $mpdf = new Mpdf([
 ]);
 
 $mpdf->WriteHTML($html);
-$filename = 'Carta_Trabajo_' . preg_replace('/[^a-zA-Z0-9]/', '_', $nombre) . '.pdf';
+$nombre_completo = !empty(trim($datos['nombre_completo'] ?? '')) ? trim($datos['nombre_completo']) : trim(($datos['nombre'] ?? '') . ' ' . ($datos['apellido'] ?? ''));
+$filename = 'Carta_Trabajo_' . preg_replace('/[^a-zA-Z0-9]/', '_', $nombre_completo) . '.pdf';
 $mpdf->Output($filename, \Mpdf\Output\Destination::DOWNLOAD); // Descargar directamente
 exit;

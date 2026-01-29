@@ -103,9 +103,11 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
     $id_carta = filter_input(INPUT_POST, 'solicitud_id', FILTER_VALIDATE_INT);
     $comentario = isset($_POST['comentario']) ? htmlspecialchars(trim($_POST['comentario']), ENT_QUOTES, 'UTF-8') : '';
 
+    $ver_aprobadas = isset($_POST['ver']) && $_POST['ver'] === 'aprobadas';
+
     if (!$id_carta) {
         echo "<div class='alert alert-danger'>ID de solicitud inválido.</div>";
-        $solicitudes = $class->solicitudes_aprobar();
+        $solicitudes = $ver_aprobadas ? $class->solicitudes_aprobadas() : $class->solicitudes_aprobar();
         require_once __DIR__ . '/../views/carta_trabajo_aprobar.php';
         exit;
     }
@@ -115,7 +117,7 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
 
     if (!$datos) {
         echo "<div class='alert alert-danger'>No se encontraron datos para generar la carta.</div>";
-        $solicitudes = $class->solicitudes_aprobar();
+        $solicitudes = $ver_aprobadas ? $class->solicitudes_aprobadas() : $class->solicitudes_aprobar();
         require_once __DIR__ . '/../views/carta_trabajo_aprobar.php';
         exit;
     }
@@ -126,6 +128,7 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
         // Extraer datos (usar acceso explícito en lugar de extract)
         $nombre = $datos['nombre'] ?? '';
         $apellido = $datos['apellido'] ?? '';
+        $nombre_completo = !empty(trim($datos['nombre_completo'] ?? '')) ? trim($datos['nombre_completo']) : trim($nombre . ' ' . $apellido);
         $cedula = $datos['cedula'] ?? '';
         $seguro = $datos['seguro'] ?? '';
         $fecha_ingreso = $datos['fecha_ingreso'] ?? '';
@@ -411,7 +414,7 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
 
             <p><strong>A QUIEN CONCIERNE:</strong></p>
 
-            <p>Por medio de la presente, hacemos constar que el(la) Sr(a). <strong>" . htmlspecialchars($nombre . ' ' . $apellido) . "</strong>, portador(a) de la cédula <strong>" . htmlspecialchars($cedula) . "</strong> y seguro social <strong>" . htmlspecialchars($seguro) . "</strong>, labora en nuestra empresa desde el <strong>" . date('d/m/Y', strtotime($fecha_ingreso)) . "</strong>, desempeñando el cargo de <strong>" . htmlspecialchars($cargo) . "</strong>.</p>
+            <p>Por medio de la presente, hacemos constar que el(la) Sr(a). <strong>" . htmlspecialchars($nombre_completo) . "</strong>, portador(a) de la cédula <strong>" . htmlspecialchars($cedula) . "</strong> y seguro social <strong>" . htmlspecialchars($seguro) . "</strong>, labora en nuestra empresa desde el <strong>" . date('d/m/Y', strtotime($fecha_ingreso)) . "</strong>, desempeñando el cargo de <strong>" . htmlspecialchars($cargo) . "</strong>.</p>
 
             <p>El salario mensual pactado es de <strong>B/. " . number_format($salario, 2) . "</strong>, con las siguientes deducciones aproximadas:</p>
             
@@ -464,7 +467,7 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
         ]);
 
         $mpdf->WriteHTML($html);
-        $nombreArchivo = 'Carta_' . preg_replace('/[^a-zA-Z0-9]/', "", $nombre) . '_' . $id_carta . '_' . date('Ymd') . '.pdf';
+        $nombreArchivo = 'Carta_' . preg_replace('/[^a-zA-Z0-9]/', "", $nombre_completo) . '_' . $id_carta . '_' . date('Ymd') . '.pdf';
         $ruta_archivo = __DIR__ . '/../uploads/carta_trabajo/' . $nombreArchivo;
         $mpdf->Output($ruta_archivo, \Mpdf\Output\Destination::FILE);
         
@@ -487,7 +490,7 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
 
         // Enviar correo
         if ($email_destino && filter_var($email_destino, FILTER_VALIDATE_EMAIL)) {
-            $mensaje_correo = "Estimado " . htmlspecialchars($nombre) . ",<br><br>Adjunto encontrará su carta de trabajo solicitada.<br><br>" . 
+            $mensaje_correo = "Estimado(a) " . htmlspecialchars($nombre_completo) . ",<br><br>Adjunto encontrará su carta de trabajo solicitada.<br><br>" . 
                              "Esta carta incluye un código QR que permite verificar su autenticidad escaneándolo con cualquier dispositivo móvil.<br><br>" .
                              htmlspecialchars($comentario) . "<br><br>Saludos,<br>Departamento de RRHH - Grupo PCR";
             
@@ -512,7 +515,7 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
         echo "<div class='alert alert-danger'>Error: " . htmlspecialchars($e->getMessage()) . "</div>";
     }
 
-    $solicitudes = $class->solicitudes_aprobar();
+    $solicitudes = $ver_aprobadas ? $class->solicitudes_aprobadas() : $class->solicitudes_aprobar();
     require_once __DIR__ . '/../views/carta_trabajo_aprobar.php';
     exit;
     
