@@ -6,7 +6,7 @@ require_once __DIR__ . '/../../config/config.php';
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Documentación - Usuario Regular (Tipo 2)</title>
+    <title>Documentación del Sistema - APP PCR</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
     <style>
@@ -55,7 +55,7 @@ require_once __DIR__ . '/../../config/config.php';
             <div class="row align-items-center">
                 <div class="col-md-8">
                     <h1 class="mb-0"><i class="bi bi-book"></i> Documentación del Sistema</h1>
-                    <p class="mb-0 mt-2">Guía completa para usuarios regulares (Tipo 2)</p>
+                    <p class="mb-0 mt-2">Guía completa de uso del sistema</p>
                 </div>
                 <div class="col-md-4 text-end">
                     <a href="<?php echo BASE_URL_CONTROLLER; ?>/AuthController.php" class="btn btn-light">
@@ -73,8 +73,7 @@ require_once __DIR__ . '/../../config/config.php';
                 <h3 class="card-title"><i class="bi bi-info-circle section-icon"></i> Introducción</h3>
                 <p class="card-text">
                     Esta documentación está diseñada para ayudarte a utilizar todas las funcionalidades disponibles 
-                    en el sistema APP PCR como usuario regular (Tipo 2). Aquí encontrarás información detallada sobre 
-                    cada opción y cómo utilizarla.
+                    en el sistema APP PCR. Aquí encontrarás información detallada sobre cada opción y cómo utilizarla.
                 </p>
             </div>
         </div>

@@ -25,8 +25,17 @@ include __DIR__ . '/header.php';
         </div>
     </div>
 
-    <div class="row mt-5">
-        <h5 class="text-center">Solicitudes de Cartas de Trabajo</h5>
+    <?php
+    $ver_aprobadas = isset($ver_aprobadas) ? $ver_aprobadas : false;
+    $url_base = BASE_URL_CONTROLLER . 'RRHHController.php?carta_trabajo_aprobar=1';
+    ?>
+    <div class="mb-3">
+        <a href="<?php echo $url_base; ?>" class="btn <?php echo !$ver_aprobadas ? 'btn-primary' : 'btn-outline-primary'; ?> me-2">Pendientes de aprobar</a>
+        <a href="<?php echo $url_base; ?>&ver=aprobadas" class="btn <?php echo $ver_aprobadas ? 'btn-primary' : 'btn-outline-primary'; ?>">Cartas aprobadas</a>
+    </div>
+
+    <div class="row mt-3">
+        <h5 class="text-center"><?php echo $ver_aprobadas ? 'Cartas de Trabajo Aprobadas' : 'Solicitudes de Cartas de Trabajo'; ?></h5>
         <table id="tablaCartasTrabajo" class="table table-striped table-bordered mt-3">
             <thead class="table-dark text-center">
                 <tr>
@@ -38,26 +47,29 @@ include __DIR__ . '/header.php';
             </thead>
             <tbody>
                 <?php
-                $solicitudes = $class->solicitudes_aprobar();
+                if (!isset($solicitudes)) {
+                    $solicitudes = $class->solicitudes_aprobar();
+                }
                 if (!empty($solicitudes)) {
                     foreach ($solicitudes as $row) {
-                        $desc_seguro = $row['salario_pactado'] * 0.0975;
-                        $desc_educativo = $row['salario_pactado'] * 0.0125;
+                        $desc_seguro = isset($row['salario_pactado']) && $row['salario_pactado'] !== null ? $row['salario_pactado'] * 0.0975 : 0;
+                        $desc_educativo = isset($row['salario_pactado']) && $row['salario_pactado'] !== null ? $row['salario_pactado'] * 0.0125 : 0;
                         ?>
 
                         <tr>
                             <td><?php echo htmlspecialchars($row['nombre'] . ' ' . $row['apellido']); ?></td>
                             <td><?php echo htmlspecialchars($row['fecha_log']); ?></td>
                             <td class="text-center">
-                                <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#modalGenerarCarta<?php echo $row['id']; ?>">Generar Carta</button>
+                                <?php if ($ver_aprobadas): ?>
+                                    <a href="<?php echo BASE_URL_LINK; ?>/generar_carta_pdf_user.php?id=<?php echo (int)$row['id']; ?>" target="_blank" class="btn btn-sm btn-success">Ver PDF</a>
+                                <?php else: ?>
+                                    <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#modalGenerarCarta<?php echo $row['id']; ?>">Generar Carta</button>
+                                <?php endif; ?>
                             </td>
-                            <td>
-                                <a href="#" data-bs-toggle="modal" data-bs-target="#modalAdjuntar<?php echo $row['id']; ?>">
-                                    <?php echo htmlspecialchars($row['estado']); ?>
-                                </a>
-                            </td>
+                            <td><?php echo htmlspecialchars($row['estado']); ?></td>
                         </tr>
 
+                        <?php if (!$ver_aprobadas): ?>
                         <div class="modal fade" id="modalAdjuntar<?php echo $row['id']; ?>" tabindex="-1" aria-labelledby="modalLabel<?php echo $row['id']; ?>" aria-hidden="true">
                             <div class="modal-dialog">
                                 <div class="modal-content">
@@ -154,7 +166,7 @@ include __DIR__ . '/header.php';
                                 </div>
                             </div>
                         </div>
-
+                        <?php endif; ?>
 
                             <?php 
 

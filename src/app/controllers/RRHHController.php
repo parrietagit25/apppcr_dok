@@ -518,6 +518,8 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
     
 }elseif (isset($_GET['carta_trabajo_aprobar'])) {
 
+    $ver_aprobadas = isset($_GET['ver']) && $_GET['ver'] === 'aprobadas';
+
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['guardar_formulario'])) {
         $sql = "INSERT INTO carta_trabajo_formulario 
             (carta_id, nombre, cedula, seguro, fecha_ingreso, cargo, salario, desc_seguro, desc_educativo, desc_renta, descripcion)
@@ -574,7 +576,7 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
         echo "<script>alert('Datos guardados correctamente');</script>";
     }
 
-    $solicitudes = $class->solicitudes_aprobar();
+    $solicitudes = $ver_aprobadas ? $class->solicitudes_aprobadas() : $class->solicitudes_aprobar();
 
     require_once __DIR__ . '/../views/carta_trabajo_aprobar.php';
     exit();
