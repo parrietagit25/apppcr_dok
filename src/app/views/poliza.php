@@ -29,7 +29,7 @@ include __DIR__ . '/header.php';
                 </a>
             </div>
             <div class="col-6 mb-4">
-                <a href="#" class="text-decoration-none">
+                <a class="text-decoration-none">
                     <div style="background-color: #f8f9fa; padding: 20px; border-radius: 10px;">
                         <img width="100" src="<?php echo BASE_URL_IMAGE; ?>telemedicina.png" alt="Cumpleaños">
                         <div class="card-title"><small>PALIG Asistencia – Telemedicina</small></div>
@@ -37,9 +37,9 @@ include __DIR__ . '/header.php';
                 </a>
             </div>
             <div class="col-6 mb-4">
-                <a href="<?php echo BASE_URL_CONTROLLER; ?>/MainController.php?info_poliza=1" target="_blank" class="text-decoration-none">
+                <a class="text-decoration-none">
                     <div style="background-color: #f8f9fa; padding: 20px; border-radius: 10px;">
-                        <img width="100" src="<?php echo BASE_URL_IMAGE; ?>infopalig.png" alt="infopalig">
+                        <img width="100" height="100" src="<?php echo BASE_URL_IMAGE; ?>infopalig.png" alt="infopalig">
                         <div class="card-title"><small>Info PALIG</small></div>
                     </div>
                 </a>
