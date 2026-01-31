@@ -21,10 +21,10 @@ include __DIR__ . '/header.php';
 
         <div class="row text-center mb-3">
             <div class="col-6 mb-4">
-                <a href="<?php echo BASE_URL_IMAGE; ?>imagen_carnet_mapfre/<?php  echo substr($_SESSION['code'], 2); ?>.pdf" class="text-decoration-none" target="_blank">
+                <a href="<?php echo BASE_URL_IMAGE; ?>carnet_carta/cobertura.pdf" class="text-decoration-none" target="_blank">
                     <div style="background-color: #f8f9fa; padding: 20px; border-radius: 10px;">
                         <img width="100" src="<?php echo BASE_URL_IMAGE; ?>carnet.svg" alt="Carnet">
-                        <div class="card-title"> <small>Mi Carnet de Mapfre</small> </div>
+                        <div class="card-title"> <small>Mi Carnet de PALIG</small> </div>
                     </div>
                 </a>
             </div>
