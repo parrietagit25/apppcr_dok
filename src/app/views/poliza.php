@@ -39,16 +39,16 @@ include __DIR__ . '/header.php';
             <div class="col-6 mb-4">
                 <a href="<?php echo BASE_URL_CONTROLLER; ?>/MainController.php?info_poliza=1" target="_blank" class="text-decoration-none">
                     <div style="background-color: #f8f9fa; padding: 20px; border-radius: 10px;">
-                        <img width="100" src="<?php echo BASE_URL_IMAGE; ?>info.svg" alt="Cumpleaños">
-                        <div class="card-title"><small>Info Mapfre</small></div>
+                        <img width="100" src="<?php echo BASE_URL_IMAGE; ?>infopalig.png" alt="infopalig">
+                        <div class="card-title"><small>Info PALIG</small></div>
                     </div>
                 </a>
             </div>
             <div class="col-6 mb-4">
-                <a href="https://app1.mapfre.com.pa/panama/portal/redMedicos" target="_blank" class="text-decoration-none">
+                <a href="https://palig.com/es/pa/busca-un-proveedor-medico" target="_blank" class="text-decoration-none">
                     <div style="background-color: #f8f9fa; padding: 20px; border-radius: 10px;">
-                        <img width="100" height="100" src="<?php echo BASE_URL_IMAGE; ?>redmapfre.png" alt="Red Médica Mapfre">
-                        <div class="card-title"><small>Red Médica Mapfre</small></div>
+                        <img width="100" height="100" src="<?php echo BASE_URL_IMAGE; ?>infopalig.png" alt="Red Médica Mapfre">
+                        <div class="card-title"><small>Red Médica PALIG</small></div>
                     </div>
                 </a>
             </div>
