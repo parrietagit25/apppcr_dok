@@ -80,7 +80,7 @@
     
       <!-- Smart Fit -->
       <div class="card mb-4">
-        <img src="image/Smart_Fit.png" class="card-img-top" alt="Smart Fit">
+        <img src="image/smartfit.jpg" class="card-img-top" alt="Smart Fit">
         <div class="card-body">
           <h4 class="card-title">Smart Fit</h4>
           <p><strong>Beneficios:</strong></p>
