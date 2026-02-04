@@ -5,8 +5,7 @@ if (!isset($_SESSION['code'])) {
     exit();
 }
 
-include __DIR__ . '/header.php'; 
-?>
+include __DIR__ . '/header.php'; ?>
 
 <div class="container mt-4">
 

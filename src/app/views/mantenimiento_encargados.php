@@ -11,6 +11,7 @@ include __DIR__ . '/header.php';
 <!-- Select2 CSS -->
 <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+<style>.cursor-pointer { cursor: pointer; }</style>
 
 <div class="container mt-4">
 
@@ -52,7 +53,7 @@ include __DIR__ . '/header.php';
                                             <div class="d-flex justify-content-between align-items-center w-100 me-3">
                                                 <div>
                                                     <strong><?php echo htmlspecialchars($supervisor['nombre'] . ' ' . $supervisor['apellido']); ?></strong>
-                                                    <span class="badge bg-secondary ms-2"><?php echo htmlspecialchars($supervisor['codigo_empleado']); ?></span>
+                                                    <span class="badge bg-secondary ms-2 cursor-pointer" role="button" tabindex="0" data-bs-toggle="modal" data-bs-target="#modalFotoCarnet" data-codigo="<?php echo htmlspecialchars($supervisor['codigo_empleado']); ?>" title="Ver foto"><?php echo htmlspecialchars($supervisor['codigo_empleado']); ?></span>
                                                     <span class="badge bg-info ms-2"><?php echo count($personal_cargo); ?> personal a cargo</span>
                                                 </div>
                                             </div>
@@ -86,7 +87,7 @@ include __DIR__ . '/header.php';
                                                             <tbody>
                                                                 <?php foreach ($personal_cargo as $colaborador): ?>
                                                                     <tr>
-                                                                        <td><?php echo htmlspecialchars($colaborador['colaborador_code']); ?></td>
+                                                                        <td><span class="text-primary cursor-pointer text-decoration-underline" role="button" tabindex="0" data-bs-toggle="modal" data-bs-target="#modalFotoCarnet" data-codigo="<?php echo htmlspecialchars($colaborador['colaborador_code']); ?>" title="Ver foto del colaborador"><?php echo htmlspecialchars($colaborador['colaborador_code']); ?></span></td>
                                                                         <td><?php echo htmlspecialchars($colaborador['nombre']); ?></td>
                                                                         <td><?php echo htmlspecialchars($colaborador['apellido']); ?></td>
                                                                         <td><?php echo htmlspecialchars($colaborador['nombre_departamento'] ?? '-'); ?></td>
@@ -127,6 +128,22 @@ include __DIR__ . '/header.php';
                             <i class="bi bi-exclamation-triangle"></i> No hay supervisores registrados. Asigna un supervisor para comenzar.
                         </div>
                     <?php endif; ?>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Foto Carnet (solo imagen en círculo) -->
+    <div class="modal fade" id="modalFotoCarnet" tabindex="-1" aria-labelledby="modalFotoCarnetLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-sm">
+            <div class="modal-content">
+                <div class="modal-header py-2">
+                    <h6 class="modal-title" id="modalFotoCarnetLabel">Foto del colaborador</h6>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body text-center py-4">
+                    <img id="modalFotoCarnetImg" src="" alt="Foto" class="rounded-circle mx-auto d-block" style="width: 180px; height: 180px; object-fit: cover; border: 3px solid #dee2e6;">
+                    <p class="small text-muted mt-2 mb-0" id="modalFotoCarnetCodigo"></p>
                 </div>
             </div>
         </div>
@@ -320,6 +337,25 @@ include __DIR__ . '/header.php';
             width: '100%'
         });
     });
+
+    // Modal foto carnet: misma imagen que CarnetController (imagen_carnet/{codigo_sin_2_primeros}.jpeg)
+    var baseUrlImage = '<?php echo addslashes(BASE_URL_IMAGE ?? ""); ?>';
+    var modalFoto = document.getElementById('modalFotoCarnet');
+    if (modalFoto) {
+        modalFoto.addEventListener('show.bs.modal', function (event) {
+            var button = event.relatedTarget;
+            var codigo = button && button.getAttribute('data-codigo') ? button.getAttribute('data-codigo') : '';
+            var codigoSufijo = codigo.length >= 2 ? codigo.substring(2) : codigo;
+            var imgSrc = baseUrlImage + 'imagen_carnet/' + codigoSufijo + '.jpeg';
+            var img = document.getElementById('modalFotoCarnetImg');
+            var codigoText = document.getElementById('modalFotoCarnetCodigo');
+            if (img) {
+                img.src = imgSrc;
+                img.onerror = function () { this.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="180" height="180" viewBox="0 0 180 180"><rect fill="%23ddd" width="180" height="180"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="%23999" font-size="14">Sin foto</text></svg>'; };
+            }
+            if (codigoText) codigoText.textContent = 'Código: ' + (codigo || '');
+        });
+    }
 </script>
 
 <?php include __DIR__ . '/footer.php'; ?>
