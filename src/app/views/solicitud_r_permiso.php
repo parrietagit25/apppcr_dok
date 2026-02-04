@@ -34,7 +34,7 @@ include __DIR__ . '/header.php';
         <br><br>
         <p>
             <span style="color:red;"><b>Nota: Recuerde que las vacaciones deben ser aprobadas previamente por su supervisor para su debida autorización.</b></span><br>
-            <span class="text-muted"><b>Vacaciones (tipo permiso):</b> Solo se puede solicitar del 1 al 15 de cada mes, o del 16 al último día del mes (en febrero al 28 o 29). No se puede cruzar ambas mitades (ej: del 10 al 20).</span>
+            <span class="text-muted"><b>Vacaciones (tipo permiso):</b> Solo se puede solicitar del 1 al 15 de cada mes, o del 16 al último día del mes (en febrero al 28 o 29). No se puede cruzar ambas mitades (ej: del 10 al 20). En el detalle puede indicar los días que tomará realmente.</span>
         </p>
     </div>
 
