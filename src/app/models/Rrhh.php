@@ -1490,6 +1490,44 @@ class Rrhh {
         return $stmt->fetchColumn();
     }
 
+    /**
+     * Total de solicitudes de uniformes en un período (stat 1, 2, 3)
+     */
+    public function count_uniformes($fecha_desde = null, $fecha_hasta = null) {
+        $sql = "SELECT COUNT(*) AS total FROM uniformes WHERE stat IN (1, 2, 3)";
+        $params = [];
+        if ($fecha_desde) {
+            $sql .= " AND DATE(fecha_log) >= :fecha_desde";
+            $params[':fecha_desde'] = $fecha_desde;
+        }
+        if ($fecha_hasta) {
+            $sql .= " AND DATE(fecha_log) <= :fecha_hasta";
+            $params[':fecha_hasta'] = $fecha_hasta;
+        }
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute($params);
+        return (int) $stmt->fetchColumn();
+    }
+
+    /**
+     * Conteo de uniformes por estado: 1=Solicitado, 2=En proceso, 3=Entregado
+     */
+    public function count_uniformes_por_estado($stat, $fecha_desde = null, $fecha_hasta = null) {
+        $sql = "SELECT COUNT(*) AS total FROM uniformes WHERE stat = :stat";
+        $params = [':stat' => $stat];
+        if ($fecha_desde) {
+            $sql .= " AND DATE(fecha_log) >= :fecha_desde";
+            $params[':fecha_desde'] = $fecha_desde;
+        }
+        if ($fecha_hasta) {
+            $sql .= " AND DATE(fecha_log) <= :fecha_hasta";
+            $params[':fecha_hasta'] = $fecha_hasta;
+        }
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute($params);
+        return (int) $stmt->fetchColumn();
+    }
+
     public function count_type_permiso($type_permiso, $fecha_desde = null, $fecha_hasta = null) {
         $sql = "SELECT COUNT(*) AS total FROM solicitud_permiso WHERE tipo_licencia = :type_permiso";
         $params = [':type_permiso' => $type_permiso];

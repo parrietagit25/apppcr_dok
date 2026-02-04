@@ -154,7 +154,50 @@ include __DIR__ . '/header.php';
         </div>
     </div>
 
-    <!-- Vacantes -->
+    <!-- UNIFORMES -->
+    <div class="bg-white p-3 rounded shadow-sm mb-4">
+        <h6 class="fw-bold text-secondary">UNIFORMES</h6>
+        <div class="row text-center mt-3">
+            <div class="col-6 col-md-3 mb-3">
+                <div class="border rounded p-3 h-100">
+                    <h2 class="text-primary"><?= number_format($uniformes_total) ?></h2>
+                    <div class="text-muted small">Total solicitudes</div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3 mb-3">
+                <div class="border rounded p-3 h-100">
+                    <h2 class="text-warning"><?= number_format($uniformes_solicitado) ?></h2>
+                    <div class="text-muted small">Solicitado</div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3 mb-3">
+                <div class="border rounded p-3 h-100">
+                    <h2 class="text-info"><?= number_format($uniformes_en_proceso) ?></h2>
+                    <div class="text-muted small">En proceso</div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3 mb-3">
+                <div class="border rounded p-3 h-100">
+                    <h2 class="text-success"><?= number_format($uniformes_entregado) ?></h2>
+                    <div class="text-muted small">Entregado</div>
+                </div>
+            </div>
+        </div>
+        <?php if (array_sum($uniformesChartData) > 0): ?>
+        <div class="row mt-2">
+            <div class="col-md-6 mx-auto">
+                <div class="card">
+                    <div class="card-header py-2 text-center small">Distribución de uniformes por estado</div>
+                    <div class="card-body py-2">
+                        <canvas id="uniformesChart" height="180"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <?php endif; ?>
+    </div>
+
+    <!-- Distribución de permisos -->
     <div class="bg-white p-3 rounded shadow-sm mb-4 d-flex align-items-center justify-content-between">
         <div class="card my-3">
             <div class="card-header text-center">Distribución de permisos solicitados</div>
@@ -203,7 +246,7 @@ include __DIR__ . '/header.php';
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-    // PHP → JS
+    // Gráfico de permisos por tipo
     const labels = <?= json_encode(array_keys($permisosChartData)) ?>;
     const data   = <?= json_encode(array_values($permisosChartData)) ?>;
 
@@ -214,7 +257,6 @@ document.addEventListener('DOMContentLoaded', () => {
             labels: labels,
             datasets: [{
                 data: data,
-                // Chart.js asigna colores por defecto; los podrías personalizar si lo deseas
             }]
         },
         options: {
@@ -226,7 +268,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         label: (context) => {
                             const total = data.reduce((a, b) => a + b, 0);
                             const value = context.parsed;
-                            const pct   = (value * 100 / total).toFixed(1);
+                            const pct   = total > 0 ? (value * 100 / total).toFixed(1) : 0;
                             return `${context.label}: ${value} (${pct} %)`;
                         }
                     }
@@ -234,6 +276,39 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
     });
+
+    // Gráfico de uniformes por estado (si existe el canvas)
+    const canvasUniformes = document.getElementById('uniformesChart');
+    if (canvasUniformes) {
+        const labelsUni = <?= json_encode(array_keys($uniformesChartData)) ?>;
+        const dataUni   = <?= json_encode(array_values($uniformesChartData)) ?>;
+        new Chart(canvasUniformes.getContext('2d'), {
+            type: 'pie',
+            data: {
+                labels: labelsUni,
+                datasets: [{
+                    data: dataUni,
+                    backgroundColor: ['#ffc107', '#0dcaf0', '#198754'],
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { position: 'bottom' },
+                    tooltip: {
+                        callbacks: {
+                            label: (context) => {
+                                const total = dataUni.reduce((a, b) => a + b, 0);
+                                const value = context.parsed;
+                                const pct   = total > 0 ? (value * 100 / total).toFixed(1) : 0;
+                                return `${context.label}: ${value} (${pct} %)`;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
 });
 </script>
 <script>

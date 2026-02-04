@@ -66,6 +66,17 @@ if (isset($_GET['metricas'])) {
         'Tiempo sin pago'   => $class_rrhh->count_permisos_by_type('Tiempo sin pago', $fecha_desde, $fecha_hasta),
     ];
 
+    // Métricas de uniformes (mismo período)
+    $uniformes_total = $class_rrhh->count_uniformes($fecha_desde, $fecha_hasta);
+    $uniformes_solicitado = $class_rrhh->count_uniformes_por_estado(1, $fecha_desde, $fecha_hasta);
+    $uniformes_en_proceso = $class_rrhh->count_uniformes_por_estado(2, $fecha_desde, $fecha_hasta);
+    $uniformes_entregado = $class_rrhh->count_uniformes_por_estado(3, $fecha_desde, $fecha_hasta);
+    $uniformesChartData = [
+        'Solicitado'   => $uniformes_solicitado,
+        'En proceso'   => $uniformes_en_proceso,
+        'Entregado'    => $uniformes_entregado,
+    ];
+
     $dashboardTotals = [
         'Actualización de Datos'   => 41, // 41 - valor fijo
         'Cartas de trabajo'        => $cartas_trabajos,
@@ -107,6 +118,11 @@ if (isset($_GET['exportar_excel'])) {
     $duelo = $class_rrhh->count_type_permiso('Duelo', $fecha_desde, $fecha_hasta);
     $tiempo_sin_pago = $class_rrhh->count_type_permiso('Tiempo Sin Pago', $fecha_desde, $fecha_hasta);
 
+    $uniformes_total_exp = $class_rrhh->count_uniformes($fecha_desde, $fecha_hasta);
+    $uniformes_solicitado_exp = $class_rrhh->count_uniformes_por_estado(1, $fecha_desde, $fecha_hasta);
+    $uniformes_en_proceso_exp = $class_rrhh->count_uniformes_por_estado(2, $fecha_desde, $fecha_hasta);
+    $uniformes_entregado_exp = $class_rrhh->count_uniformes_por_estado(3, $fecha_desde, $fecha_hasta);
+
     // Configurar headers para descarga de Excel
     $filename = 'metricas_pcr_' . date('Y-m-d') . '.xls';
     header('Content-Type: application/vnd.ms-excel');
@@ -134,6 +150,11 @@ if (isset($_GET['exportar_excel'])) {
     echo "<tr><td>Permisos por Teletrabajo</td><td>" . $tele_trabajo . "</td></tr>";
     echo "<tr><td>Permisos por Duelo</td><td>" . $duelo . "</td></tr>";
     echo "<tr><td>Permisos por Tiempo sin pago</td><td>" . $tiempo_sin_pago . "</td></tr>";
+    echo "<tr><th colspan='2'>UNIFORMES</th></tr>";
+    echo "<tr><td>Total solicitudes de uniformes</td><td>" . $uniformes_total_exp . "</td></tr>";
+    echo "<tr><td>Uniformes - Solicitado</td><td>" . $uniformes_solicitado_exp . "</td></tr>";
+    echo "<tr><td>Uniformes - En proceso</td><td>" . $uniformes_en_proceso_exp . "</td></tr>";
+    echo "<tr><td>Uniformes - Entregado</td><td>" . $uniformes_entregado_exp . "</td></tr>";
     echo "</table>";
     exit();
 }
