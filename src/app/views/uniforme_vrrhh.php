@@ -31,6 +31,7 @@ include __DIR__ . '/header.php';
                     <tr>
                         <th>Código</th>
                         <th>Nombre</th>
+                        <th>Departamento</th>
                         <th>Tipo</th>
                         <th>Talla</th>
                         <th>Cant.</th>
@@ -52,6 +53,7 @@ include __DIR__ . '/header.php';
                             echo "<tr>
                                     <td>" . htmlspecialchars($row['codigo_empleado']) . "</td>
                                     <td>" . htmlspecialchars($row['nombre'] . ' ' . $row['apellido']) . "</td>
+                                    <td>" . htmlspecialchars($row['nombre_departamento'] ?? '-') . "</td>
                                     <td>" . htmlspecialchars(ucfirst($row['tipo'])) . "</td>
                                     <td class='text-center'>" . htmlspecialchars($row['talla']) . "</td>
                                     <td class='text-center'><strong>" . htmlspecialchars($row['cantidad'] ?? 1) . "</strong></td>
