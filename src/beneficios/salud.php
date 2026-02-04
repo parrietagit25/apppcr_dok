@@ -279,6 +279,50 @@
           <p class="text-muted"><em>Aprovecha este beneficio exclusivo y dale a tu vista el cuidado que se merece. Ver bien también es parte de tu bienestar.</em></p>
         </div>
       </div>
+
+      <!-- Ópticas Perfect Vision -->
+      <div class="card mb-4">
+        <img src="image/optica_perfect.png" class="card-img-top" alt="Ópticas Perfect Vision">
+        <div class="card-body">
+          <h4 class="card-title">🕶️ Beneficio para Colaboradores | Ópticas Perfect Vision</h4>
+          <p class="lead">Pensando en tu bienestar y salud visual</p>
+          <p>Ponemos a tu disposición los servicios de <strong>Ópticas Perfect Vision</strong>, empresa especializada en atención visual corporativa y comprometida con ofrecer calidad, comodidad y precios accesibles para nuestros colaboradores y sus familias.</p>
+          
+          <p><strong>¿Qué incluye este beneficio?</strong></p>
+          <p><strong>Beneficios exclusivos</strong></p>
+          <ul>
+            <li>30% de descuento en lentes completos (montura + cristales).</li>
+            <li>Entrega a domicilio sin costo.</li>
+            <li>Garantía de 3 meses por ajustes o defectos de fábrica.</li>
+            <li>Acceso a lentes de contacto, lentes de sol polarizados y monturas modernas.</li>
+          </ul>
+          
+          <p><strong>Facilidad de pago</strong></p>
+          <ul>
+            <li>Pago hasta en 3 meses (6 quincenas) mediante descuento directo de nómina.</li>
+          </ul>
+          
+          <p><strong>Cobertura adicional</strong></p>
+          <ul>
+            <li>Beneficio extensivo a familiares en primer y segundo grado de consanguinidad, presentando el carné del colaborador.</li>
+            <li>Cobertura y envíos a nivel nacional.</li>
+            <li>Participación en ferias y actividades de salud.</li>
+          </ul>
+          
+          <div class="alert alert-info">
+            <strong>Este convenio busca cuidar tu salud visual y apoyar tu calidad de vida dentro y fuera del trabajo.</strong>
+          </div>
+          
+          <p><strong>Contacto:</strong></p>
+          <ul>
+            <li>📞 Teléfonos: <a href="tel:5072389638">238-9638</a> / <a href="tel:5073168655">0316-8655</a></li>
+            <li>📧 Correo: <a href="mailto:opticasperfectvision09@gmail.com">opticasperfectvision09@gmail.com</a></li>
+            <li>📍 Dirección: Plaza Super 99, Las Mañanitas, Ciudad de Panamá, Local 12</li>
+          </ul>
+          
+          <p class="text-muted"><em>Para más información o agendar tu evaluación visual, puedes comunicarte directamente con Ópticas Perfect Vision a través de los datos indicados.</em></p>
+        </div>
+      </div>
     </div>
 
 
