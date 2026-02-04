@@ -734,6 +734,38 @@ class Rrhh {
     }
 
 
+    /**
+     * Valida que el rango de fechas para permiso tipo Vacaciones cumpla la regla:
+     * solo se puede tomar del 1 al 15 de cada mes O del 16 al último día del mes (en febrero al 28/29).
+     * El rango no puede cruzar el límite 15/16 (ej: 10 al 20 es inválido).
+     * @return array ['valido' => bool, 'mensaje' => string]
+     */
+    public static function validar_rango_vacaciones($fecha_inicio, $fecha_fin) {
+        $inicio = \DateTime::createFromFormat('Y-m-d', $fecha_inicio);
+        $fin = \DateTime::createFromFormat('Y-m-d', $fecha_fin);
+        if (!$inicio || !$fin || $inicio > $fin) {
+            return ['valido' => false, 'mensaje' => 'Fechas inválidas.'];
+        }
+        $dia_inicio = (int) $inicio->format('j');
+        $bloque_inicio = $dia_inicio <= 15 ? '1-15' : '16-fin';
+        $intervalo = new \DateInterval('P1D');
+        $fin->modify('+1 day');
+        $periodo = new \DatePeriod($inicio, $intervalo, $fin);
+        foreach ($periodo as $fecha) {
+            $dia = (int) $fecha->format('j');
+            if ($bloque_inicio === '1-15') {
+                if ($dia > 15) {
+                    return ['valido' => false, 'mensaje' => 'Para vacaciones solo puede elegir del 1 al 15 del mes, o del 16 al último día del mes. No puede cruzar ambas mitades (ej: del 10 al 20).'];
+                }
+            } else {
+                if ($dia < 16) {
+                    return ['valido' => false, 'mensaje' => 'Para vacaciones solo puede elegir del 1 al 15 del mes, o del 16 al último día del mes. No puede cruzar ambas mitades (ej: del 10 al 20).'];
+                }
+            }
+        }
+        return ['valido' => true, 'mensaje' => ''];
+    }
+
     public function insertar_permiso($id_jefe, $descripcion, $tipo_licencia, $fecha_inicio, $fecha_fin, $archivo_adjunto = null){
 
         $code = $_SESSION['code'];

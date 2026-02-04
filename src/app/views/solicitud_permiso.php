@@ -32,7 +32,8 @@ include __DIR__ . '/header.php';
         </button>
         <br><br>
         <p>
-            <span style="color:red;"><b>Nota: Recuerde que las vacaciones deben ser aprobadas previamente por su supervisor para su debida autorización.</b></span>
+            <span style="color:red;"><b>Nota: Recuerde que las vacaciones deben ser aprobadas previamente por su supervisor para su debida autorización.</b></span><br>
+            <span class="text-muted"><b>Vacaciones (tipo permiso):</b> Solo se puede solicitar del 1 al 15 de cada mes, o del 16 al último día del mes (en febrero al 28 o 29). No se puede cruzar ambas mitades (ej: del 10 al 20).</span>
         </p>
     </div>
 
@@ -194,6 +195,24 @@ document.addEventListener("DOMContentLoaded", function () {
 
     if (form && btn && loader) {
         btn.addEventListener("click", function () {
+            var tipoLicencia = form.querySelector('select[name="tipo_licencia"]');
+            var fechaInicio = form.querySelector('input[name="fecha_inicio"]');
+            var fechaFin = form.querySelector('input[name="fecha_fin"]');
+            if (tipoLicencia && tipoLicencia.value === 'Vacaciones' && fechaInicio && fechaFin && fechaInicio.value && fechaFin.value) {
+                var inicio = new Date(fechaInicio.value);
+                var fin = new Date(fechaFin.value);
+                var bloqueInicio = inicio.getDate() <= 15 ? '1-15' : '16-fin';
+                var ok = true;
+                for (var d = new Date(inicio); d <= fin; d.setDate(d.getDate() + 1)) {
+                    var dia = d.getDate();
+                    if (bloqueInicio === '1-15' && dia > 15) { ok = false; break; }
+                    if (bloqueInicio === '16-fin' && dia < 16) { ok = false; break; }
+                }
+                if (!ok) {
+                    alert('Para permiso tipo Vacaciones solo puede elegir del 1 al 15 del mes, o del 16 al último día del mes. No puede cruzar ambas mitades (ej: del 10 al 20).');
+                    return;
+                }
+            }
             btn.disabled = true;
             btn.value = "Enviando...";
             loader.classList.remove("d-none");

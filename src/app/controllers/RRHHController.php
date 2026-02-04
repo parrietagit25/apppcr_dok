@@ -786,6 +786,18 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
             }
         }
 
+        if ($tipo_licencia === 'Vacaciones') {
+            $validacion = \Rrhh::validar_rango_vacaciones($fecha_inicio, $fecha_fin);
+            if (!$validacion['valido']) {
+                echo "<div class='alert alert-danger'>" . htmlspecialchars($validacion['mensaje']) . "</div>";
+                $select_jefe = $class->select_jefe();
+                $permisos = $class->select_permisos();
+                $mis_vacas = $class->mis_vacaciones();
+                require_once __DIR__ . '/../views/solicitud_permiso.php';
+                exit;
+            }
+        }
+
         $class->insertar_permiso($id_jefe, $descripcion, $tipo_licencia, $fecha_inicio, $fecha_fin, $nombre_archivo);
 
         $email_jefe = $class->datos_jefes($id_jefe);
@@ -903,6 +915,18 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
             $archivo_destino = $upload_dir . time() . '_' . $archivo_nombre;
             if (move_uploaded_file($_FILES['archivo_adjunto']['tmp_name'], $archivo_destino)) {
                 $archivo_adjunto = basename($archivo_destino);
+            }
+        }
+
+        if ($tipo_licencia === 'Vacaciones') {
+            $validacion = \Rrhh::validar_rango_vacaciones($fecha_inicio, $fecha_fin);
+            if (!$validacion['valido']) {
+                echo "<div class='alert alert-danger'>" . htmlspecialchars($validacion['mensaje']) . "</div>";
+                $select_jefe = $class->r_select_jefe();
+                $permisos = $class->select_permisos();
+                $mis_vacas = $class->mis_vacaciones();
+                require_once __DIR__ . '/../views/solicitud_r_permiso.php';
+                exit;
             }
         }
 
