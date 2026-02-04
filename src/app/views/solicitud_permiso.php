@@ -132,12 +132,12 @@ include __DIR__ . '/header.php';
 
                     <div class="mb-3">
                         <label class="form-label">Fecha Inicio</label>
-                        <input type="date" name="fecha_inicio" class="form-control bloquear-pasado" required>
+                        <input type="date" name="fecha_inicio" id="fecha_inicio_permiso" class="form-control" required>
                     </div>
 
                     <div class="mb-3">
                         <label class="form-label">Fecha Fin</label>
-                        <input type="date" name="fecha_fin" class="form-control bloquear-pasado" required>
+                        <input type="date" name="fecha_fin" id="fecha_fin_permiso" class="form-control" required>
                     </div>
 
                     <div class="mb-3">
@@ -219,6 +219,29 @@ document.addEventListener("DOMContentLoaded", function () {
             setTimeout(() => form.submit(), 800);
         });
     }
+
+    // Fechas: solo bloquear pasadas si el tipo es Vacaciones; para el resto permitir días anteriores
+    var selectTipo = form ? form.querySelector('select[name="tipo_licencia"]') : null;
+    var fechaInicioInput = document.getElementById('fecha_inicio_permiso');
+    var fechaFinInput = document.getElementById('fecha_fin_permiso');
+
+    function aplicarRestriccionFechasPermiso() {
+        if (!fechaInicioInput || !fechaFinInput) return;
+        var tipo = selectTipo ? selectTipo.value : '';
+        var hoy = new Date().toISOString().split('T')[0];
+        if (tipo === 'Vacaciones') {
+            fechaInicioInput.setAttribute('min', hoy);
+            fechaFinInput.setAttribute('min', hoy);
+        } else {
+            fechaInicioInput.removeAttribute('min');
+            fechaFinInput.removeAttribute('min');
+        }
+    }
+
+    if (selectTipo) {
+        selectTipo.addEventListener('change', aplicarRestriccionFechasPermiso);
+    }
+    aplicarRestriccionFechasPermiso();
 
     // DataTable en español
     $('#tablaPermisos').DataTable({
