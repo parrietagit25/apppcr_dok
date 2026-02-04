@@ -72,21 +72,34 @@ if (isset($_GET['mantenimineto'])) {
 
 if (isset($_GET['mantenimiento_usuarios'])) {
 
-    
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        $code = $_POST['codigo_empleado'];
-        $pass = $_POST['nueva_password'];
+        if (isset($_POST['actualizar_estatus_empleado'])) {
+            $code = $_POST['codigo_empleado'] ?? '';
+            $estatus = $_POST['estatus_empleado'] ?? '';
+            if ($code !== '' && $estatus !== '') {
+                $resultado = $userModel->actualizar_estatus_empleado($code, $estatus);
+                if ($resultado) {
+                    echo "<div class='alert alert-success'>Estatus del colaborador actualizado correctamente.</div>";
+                } else {
+                    echo "<div class='alert alert-danger'>Error al actualizar el estatus.</div>";
+                }
+            }
+        } elseif (isset($_POST['codigo_empleado']) && isset($_POST['nueva_password'])) {
+            $code = $_POST['codigo_empleado'];
+            $pass = $_POST['nueva_password'];
 
-        $resultado = $userModel->actualizar_colaborador($pass, $code);
+            $resultado = $userModel->actualizar_colaborador($pass, $code);
 
-        if ($resultado) {
-            echo "<div class='alert alert-success'>Regsitro Actualizado.</div>";
-        } else {
-            echo "<div class='alert alert-danger'>Error al actalizar.</div>";
+            if ($resultado) {
+                echo "<div class='alert alert-success'>Regsitro Actualizado.</div>";
+            } else {
+                echo "<div class='alert alert-danger'>Error al actalizar.</div>";
+            }
         }
     }
 
     $usuarios = $userModel->usuarios();
+    $estatus_empleados = $userModel->get_estatus_empleados_distinct();
     require_once __DIR__ . '/../views/mantenimiento_usuarios.php';
     exit();
 }

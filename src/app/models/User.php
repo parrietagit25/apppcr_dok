@@ -184,6 +184,23 @@ public function nombre_colaborador() {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    /**
+     * Obtener todos los estatus distintos de la tabla empleados (para select)
+     */
+    public function get_estatus_empleados_distinct() {
+        $stmt = $this->pdo->prepare("SELECT DISTINCT estatus_empleado FROM empleados WHERE estatus_empleado IS NOT NULL AND TRIM(estatus_empleado) != '' ORDER BY estatus_empleado");
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_COLUMN);
+    }
+
+    /**
+     * Actualizar solo el estatus del empleado en la tabla empleados
+     */
+    public function actualizar_estatus_empleado($codigo_empleado, $estatus_empleado) {
+        $stmt = $this->pdo->prepare("UPDATE empleados SET estatus_empleado = ? WHERE codigo_empleado = ?");
+        return $stmt->execute([$estatus_empleado, $codigo_empleado]);
+    }
+
     public function usuarios_encargados() {
         $stmt = $this->pdo->prepare("SELECT * FROM empleado_log el INNER JOIN empleados e ON el.codigo = e.codigo_empleado WHERE el.stat = 1 AND el.type_user = 6");
         $stmt->execute();
