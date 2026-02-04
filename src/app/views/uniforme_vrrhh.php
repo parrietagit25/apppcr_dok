@@ -24,7 +24,12 @@ include __DIR__ . '/header.php';
     </div>
 
     <div class="row mt-5">
-        <h5 class="text-center">Solicitudes de Uniformes</h5>
+        <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+            <h5 class="text-center mb-0">Solicitudes de Uniformes</h5>
+            <a href="<?php echo BASE_URL_LINK; ?>/exportar_uniformes_excel.php" target="_blank" class="btn btn-success">
+                <i class="bi bi-file-earmark-excel"></i> Exportar a Excel
+            </a>
+        </div>
         <div class="table-responsive">
             <table id="tablaUniformesRRHH" class="table table-striped table-bordered mt-3">
                 <thead class="table-dark text-center">
