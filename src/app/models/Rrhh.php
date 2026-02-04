@@ -1528,6 +1528,68 @@ class Rrhh {
         return (int) $stmt->fetchColumn();
     }
 
+    /**
+     * Total de piezas (suma de cantidad) de uniformes en el período (stat 1,2,3)
+     */
+    public function sum_uniformes_cantidad($fecha_desde = null, $fecha_hasta = null) {
+        $sql = "SELECT COALESCE(SUM(cantidad), 0) AS total FROM uniformes WHERE stat IN (1, 2, 3)";
+        $params = [];
+        if ($fecha_desde) {
+            $sql .= " AND DATE(fecha_log) >= :fecha_desde";
+            $params[':fecha_desde'] = $fecha_desde;
+        }
+        if ($fecha_hasta) {
+            $sql .= " AND DATE(fecha_log) <= :fecha_hasta";
+            $params[':fecha_hasta'] = $fecha_hasta;
+        }
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute($params);
+        return (int) $stmt->fetchColumn();
+    }
+
+    /**
+     * Uniformes agrupados por tipo (tipo => cantidad de solicitudes, suma de piezas)
+     * Retorna array [ ['tipo' => string, 'solicitudes' => int, 'piezas' => int], ... ]
+     */
+    public function uniformes_por_tipo($fecha_desde = null, $fecha_hasta = null) {
+        $sql = "SELECT tipo, COUNT(*) AS solicitudes, COALESCE(SUM(cantidad), 0) AS piezas 
+                FROM uniformes WHERE stat IN (1, 2, 3)";
+        $params = [];
+        if ($fecha_desde) {
+            $sql .= " AND DATE(fecha_log) >= :fecha_desde";
+            $params[':fecha_desde'] = $fecha_desde;
+        }
+        if ($fecha_hasta) {
+            $sql .= " AND DATE(fecha_log) <= :fecha_hasta";
+            $params[':fecha_hasta'] = $fecha_hasta;
+        }
+        $sql .= " GROUP BY tipo ORDER BY piezas DESC";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute($params);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    /**
+     * Uniformes agrupados por talla (talla => cantidad de solicitudes, suma de piezas)
+     */
+    public function uniformes_por_talla($fecha_desde = null, $fecha_hasta = null) {
+        $sql = "SELECT talla, COUNT(*) AS solicitudes, COALESCE(SUM(cantidad), 0) AS piezas 
+                FROM uniformes WHERE stat IN (1, 2, 3)";
+        $params = [];
+        if ($fecha_desde) {
+            $sql .= " AND DATE(fecha_log) >= :fecha_desde";
+            $params[':fecha_desde'] = $fecha_desde;
+        }
+        if ($fecha_hasta) {
+            $sql .= " AND DATE(fecha_log) <= :fecha_hasta";
+            $params[':fecha_hasta'] = $fecha_hasta;
+        }
+        $sql .= " GROUP BY talla ORDER BY piezas DESC";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute($params);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
     public function count_type_permiso($type_permiso, $fecha_desde = null, $fecha_hasta = null) {
         $sql = "SELECT COUNT(*) AS total FROM solicitud_permiso WHERE tipo_licencia = :type_permiso";
         $params = [':type_permiso' => $type_permiso];

@@ -65,6 +65,19 @@ include __DIR__ . '/header.php';
     </div>
     <?php endif; ?>
 
+    <!-- Pestañas: Permisos | Uniformes -->
+    <ul class="nav nav-tabs mb-3" id="metricasTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="tab-permisos" data-bs-toggle="tab" data-bs-target="#content-permisos" type="button" role="tab">Permisos</button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="tab-uniformes" data-bs-toggle="tab" data-bs-target="#content-uniformes" type="button" role="tab">Uniformes</button>
+        </li>
+    </ul>
+
+    <div class="tab-content" id="metricasTabContent">
+        <!-- Pestaña Permisos -->
+        <div class="tab-pane fade show active" id="content-permisos" role="tabpanel">
     <!-- INFORMACIÓN PERSONAL -->
     <div class="bg-white p-3 rounded shadow-sm mb-4">
         <h6 class="fw-bold text-secondary">INFORMACIÓN PERSONAL</h6>
@@ -154,49 +167,6 @@ include __DIR__ . '/header.php';
         </div>
     </div>
 
-    <!-- UNIFORMES -->
-    <div class="bg-white p-3 rounded shadow-sm mb-4">
-        <h6 class="fw-bold text-secondary">UNIFORMES</h6>
-        <div class="row text-center mt-3">
-            <div class="col-6 col-md-3 mb-3">
-                <div class="border rounded p-3 h-100">
-                    <h2 class="text-primary"><?= number_format($uniformes_total) ?></h2>
-                    <div class="text-muted small">Total solicitudes</div>
-                </div>
-            </div>
-            <div class="col-6 col-md-3 mb-3">
-                <div class="border rounded p-3 h-100">
-                    <h2 class="text-warning"><?= number_format($uniformes_solicitado) ?></h2>
-                    <div class="text-muted small">Solicitado</div>
-                </div>
-            </div>
-            <div class="col-6 col-md-3 mb-3">
-                <div class="border rounded p-3 h-100">
-                    <h2 class="text-info"><?= number_format($uniformes_en_proceso) ?></h2>
-                    <div class="text-muted small">En proceso</div>
-                </div>
-            </div>
-            <div class="col-6 col-md-3 mb-3">
-                <div class="border rounded p-3 h-100">
-                    <h2 class="text-success"><?= number_format($uniformes_entregado) ?></h2>
-                    <div class="text-muted small">Entregado</div>
-                </div>
-            </div>
-        </div>
-        <?php if (array_sum($uniformesChartData) > 0): ?>
-        <div class="row mt-2">
-            <div class="col-md-6 mx-auto">
-                <div class="card">
-                    <div class="card-header py-2 text-center small">Distribución de uniformes por estado</div>
-                    <div class="card-body py-2">
-                        <canvas id="uniformesChart" height="180"></canvas>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <?php endif; ?>
-    </div>
-
     <!-- Distribución de permisos -->
     <div class="bg-white p-3 rounded shadow-sm mb-4 d-flex align-items-center justify-content-between">
         <div class="card my-3">
@@ -212,6 +182,112 @@ include __DIR__ . '/header.php';
         <div class="card-body">
             <canvas id="totalesChart" height="270"></canvas>
         </div>
+    </div>
+
+        </div>
+        <!-- Fin pestaña Permisos -->
+
+        <!-- Pestaña Uniformes -->
+        <div class="tab-pane fade" id="content-uniformes" role="tabpanel">
+            <div class="bg-white p-3 rounded shadow-sm mb-4">
+                <h6 class="fw-bold text-secondary">Métricas de uniformes</h6>
+                <p class="text-muted small mb-3">Datos del período seleccionado (mismas fechas que el filtro).</p>
+                <div class="row text-center mt-3">
+                    <div class="col-6 col-md-3 mb-3">
+                        <div class="border rounded p-3 h-100">
+                            <h2 class="text-primary"><?= number_format($uniformes_total ?? 0) ?></h2>
+                            <div class="text-muted small">Total solicitudes</div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-3 mb-3">
+                        <div class="border rounded p-3 h-100">
+                            <h2 class="text-secondary"><?= number_format($uniformes_sum_cantidad ?? 0) ?></h2>
+                            <div class="text-muted small">Cantidad solicitada (piezas)</div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-3 mb-3">
+                        <div class="border rounded p-3 h-100">
+                            <h2 class="text-warning"><?= number_format($uniformes_solicitado ?? 0) ?></h2>
+                            <div class="text-muted small">Solicitados</div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-3 mb-3">
+                        <div class="border rounded p-3 h-100">
+                            <h2 class="text-info"><?= number_format($uniformes_en_proceso ?? 0) ?></h2>
+                            <div class="text-muted small">En proceso</div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-3 mb-3 mx-auto">
+                        <div class="border rounded p-3 h-100">
+                            <h2 class="text-success"><?= number_format($uniformes_entregado ?? 0) ?></h2>
+                            <div class="text-muted small">Entregados</div>
+                        </div>
+                    </div>
+                </div>
+                <?php if (array_sum($uniformesChartData ?? []) > 0): ?>
+                <div class="row mt-3">
+                    <div class="col-md-6 mx-auto">
+                        <div class="card">
+                            <div class="card-header py-2 text-center small">Distribución por estado</div>
+                            <div class="card-body py-2">
+                                <canvas id="uniformesChart" height="180"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <?php endif; ?>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-4">
+                    <div class="bg-white p-3 rounded shadow-sm">
+                        <h6 class="fw-bold text-secondary">Por tipo de uniforme</h6>
+                        <?php if (!empty($uniformes_por_tipo ?? [])): ?>
+                        <div class="table-responsive">
+                            <table class="table table-sm table-bordered mb-0">
+                                <thead class="table-light"><tr><th>Tipo</th><th class="text-center">Solicitudes</th><th class="text-center">Piezas</th></tr></thead>
+                                <tbody>
+                                <?php foreach (($uniformes_por_tipo ?? []) as $r): ?>
+                                    <tr>
+                                        <td><?= htmlspecialchars(ucfirst($r['tipo'])) ?></td>
+                                        <td class="text-center"><?= number_format($r['solicitudes']) ?></td>
+                                        <td class="text-center"><?= number_format($r['piezas']) ?></td>
+                                    </tr>
+                                <?php endforeach; ?>
+                                </tbody>
+                            </table>
+                        </div>
+                        <?php else: ?>
+                        <p class="text-muted small mb-0">No hay datos en el período.</p>
+                        <?php endif; ?>
+                    </div>
+                </div>
+                <div class="col-md-6 mb-4">
+                    <div class="bg-white p-3 rounded shadow-sm">
+                        <h6 class="fw-bold text-secondary">Por talla</h6>
+                        <?php if (!empty($uniformes_por_talla ?? [])): ?>
+                        <div class="table-responsive">
+                            <table class="table table-sm table-bordered mb-0">
+                                <thead class="table-light"><tr><th>Talla</th><th class="text-center">Solicitudes</th><th class="text-center">Piezas</th></tr></thead>
+                                <tbody>
+                                <?php foreach (($uniformes_por_talla ?? []) as $r): ?>
+                                    <tr>
+                                        <td><?= htmlspecialchars($r['talla']) ?></td>
+                                        <td class="text-center"><?= number_format($r['solicitudes']) ?></td>
+                                        <td class="text-center"><?= number_format($r['piezas']) ?></td>
+                                    </tr>
+                                <?php endforeach; ?>
+                                </tbody>
+                            </table>
+                        </div>
+                        <?php else: ?>
+                        <p class="text-muted small mb-0">No hay datos en el período.</p>
+                        <?php endif; ?>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Fin pestaña Uniformes -->
     </div>
 
     <br>
@@ -277,11 +353,11 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Gráfico de uniformes por estado (si existe el canvas)
+    // Gráfico de uniformes por estado (canvas en pestaña Uniformes)
     const canvasUniformes = document.getElementById('uniformesChart');
     if (canvasUniformes) {
-        const labelsUni = <?= json_encode(array_keys($uniformesChartData)) ?>;
-        const dataUni   = <?= json_encode(array_values($uniformesChartData)) ?>;
+        const labelsUni = <?= json_encode(array_keys($uniformesChartData ?? [])) ?>;
+        const dataUni   = <?= json_encode(array_values($uniformesChartData ?? [])) ?>;
         new Chart(canvasUniformes.getContext('2d'), {
             type: 'pie',
             data: {
