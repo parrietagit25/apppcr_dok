@@ -766,6 +766,33 @@ class Rrhh {
         return ['valido' => true, 'mensaje' => ''];
     }
 
+    /**
+     * Indica si el usuario ya envió hoy una solicitud de permiso de este tipo.
+     * Límite: 1 solicitud por tipo de permiso por día (pueden ser casos distintos otro día).
+     */
+    public function ya_envio_permiso_tipo_hoy($code, $tipo_licencia) {
+        $stmt = $this->pdo->prepare("SELECT 1 FROM solicitud_permiso WHERE code = :code AND tipo_licencia = :tipo_licencia AND DATE(fecha_log) = CURDATE() LIMIT 1");
+        $stmt->bindParam(':code', $code, PDO::PARAM_STR);
+        $stmt->bindParam(':tipo_licencia', $tipo_licencia, PDO::PARAM_STR);
+        $stmt->execute();
+        return (bool) $stmt->fetch();
+    }
+
+    /**
+     * Lista de solicitudes de permiso pendientes (stat = 1) del usuario, para mostrarlas en el formulario.
+     */
+    public function permisos_pendientes_por_usuario($code) {
+        $stmt = $this->pdo->prepare("SELECT id, tipo_licencia, fecha_inicio, fecha_fin, fecha_log, descripcion 
+            FROM solicitud_permiso WHERE code = :code AND stat = 1 ORDER BY fecha_log DESC");
+        $stmt->bindParam(':code', $code, PDO::PARAM_STR);
+        $stmt->execute();
+        $out = [];
+        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            $out[] = $row;
+        }
+        return $out;
+    }
+
     public function insertar_permiso($id_jefe, $descripcion, $tipo_licencia, $fecha_inicio, $fecha_fin, $archivo_adjunto = null){
 
         $code = $_SESSION['code'];

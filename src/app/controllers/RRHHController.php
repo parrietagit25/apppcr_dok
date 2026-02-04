@@ -793,9 +793,20 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
                 $select_jefe = $class->select_jefe();
                 $permisos = $class->select_permisos();
                 $mis_vacas = $class->mis_vacaciones();
+                $permisos_pendientes = $class->permisos_pendientes_por_usuario($_SESSION['code']);
                 require_once __DIR__ . '/../views/solicitud_permiso.php';
                 exit;
             }
+        }
+
+        if ($class->ya_envio_permiso_tipo_hoy($_SESSION['code'], $tipo_licencia)) {
+            $error_permiso_duplicado = 'Solo puedes enviar una solicitud de "' . htmlspecialchars($tipo_licencia) . '" por día. Ya enviaste una hoy; si es otro caso, envía mañana.';
+            $select_jefe = $class->select_jefe();
+            $permisos = $class->select_permisos();
+            $mis_vacas = $class->mis_vacaciones();
+            $permisos_pendientes = $class->permisos_pendientes_por_usuario($_SESSION['code']);
+            require_once __DIR__ . '/../views/solicitud_permiso.php';
+            exit;
         }
 
         $class->insertar_permiso($id_jefe, $descripcion, $tipo_licencia, $fecha_inicio, $fecha_fin, $nombre_archivo);
@@ -881,6 +892,8 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
 
     $mis_vacas = $class->mis_vacaciones();
 
+    $permisos_pendientes = $class->permisos_pendientes_por_usuario($_SESSION['code']);
+
     require_once __DIR__ . '/../views/solicitud_permiso.php';
     exit();
 
@@ -925,9 +938,20 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
                 $select_jefe = $class->r_select_jefe();
                 $permisos = $class->select_permisos();
                 $mis_vacas = $class->mis_vacaciones();
+                $permisos_pendientes = $class->permisos_pendientes_por_usuario($_SESSION['code']);
                 require_once __DIR__ . '/../views/solicitud_r_permiso.php';
                 exit;
             }
+        }
+
+        if ($class->ya_envio_permiso_tipo_hoy($_SESSION['code'], $tipo_licencia)) {
+            $error_permiso_duplicado = 'Solo puedes enviar una solicitud de "' . htmlspecialchars($tipo_licencia) . '" por día. Ya enviaste una hoy; si es otro caso, envía mañana.';
+            $select_jefe = $class->r_select_jefe();
+            $permisos = $class->select_permisos();
+            $mis_vacas = $class->mis_vacaciones();
+            $permisos_pendientes = $class->permisos_pendientes_por_usuario($_SESSION['code']);
+            require_once __DIR__ . '/../views/solicitud_r_permiso.php';
+            exit;
         }
 
         $class->insertar_permiso($id_jefe, $descripcion, $tipo_licencia, $fecha_inicio, $fecha_fin, $archivo_adjunto);
@@ -967,6 +991,8 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
     $permisos = $class->select_permisos();
 
     $mis_vacas = $class->mis_vacaciones();
+
+    $permisos_pendientes = $class->permisos_pendientes_por_usuario($_SESSION['code']);
 
     require_once __DIR__ . '/../views/solicitud_r_permiso.php';
     exit();

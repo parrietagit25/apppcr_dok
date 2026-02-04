@@ -27,6 +27,20 @@ include __DIR__ . '/header.php';
         </div>
     </div>
 
+    <?php
+    $error_permiso_duplicado = $error_permiso_duplicado ?? '';
+    $permisos_pendientes = $permisos_pendientes ?? [];
+    if ($error_permiso_duplicado !== '') {
+        echo '<div class="alert alert-warning mb-3"><i class="bi bi-exclamation-triangle"></i> ' . htmlspecialchars($error_permiso_duplicado) . '</div>';
+    }
+    if (!empty($permisos_pendientes)) {
+        echo '<div class="alert alert-info mb-3"><strong>Solicitudes pendientes de respuesta:</strong> Tienes ' . count($permisos_pendientes) . ' solicitud(es) en espera.<ul class="mb-0 mt-2">';
+        foreach ($permisos_pendientes as $p) {
+            echo '<li>' . htmlspecialchars($p['tipo_licencia']) . ' (' . htmlspecialchars($p['fecha_inicio']) . ' – ' . htmlspecialchars($p['fecha_fin']) . ')</li>';
+        }
+        echo '</ul></div>';
+    }
+    ?>
     <div class="text-center mb-4">
         <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#permiso">
             Solicitar Permiso
