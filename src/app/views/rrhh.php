@@ -86,22 +86,22 @@ include __DIR__ . '/header.php';
                 </a>
             </div>
             <div class="col-4 mb-3">
-                <a href="<?php echo BASE_URL_CONTROLLER; ?>/RRHHController.php?solicitud_permiso=1" class="text-decoration-none">
+                <a href="<?php echo BASE_URL_CONTROLLER; ?>/RRHHController.php?solicitud_r_permiso=1" class="text-decoration-none">
                     <img src="<?php echo BASE_URL_IMAGE; ?>permiso1.svg" width="45">
                     <div class="text-muted small">Solicitar Permiso</div>
                 </a>
             </div>
             <?php if ($tipo_usuario == 1) { ?>
             <div class="col-4 mb-3">
-                <a href="<?php echo BASE_URL_CONTROLLER; ?>/RRHHController.php?solicitud_r_vacaciones=1" class="text-decoration-none">
-                    <img src="<?php echo BASE_URL_IMAGE; ?>ico_vacaciones.svg" width="45">
-                    <div class="text-muted small"><span class="badge bg-warning">NUEVO</span> R-Vacaciones</div>
+                <a href="<?php echo BASE_URL_CONTROLLER; ?>/RRHHController.php?solicitud_permiso=1" class="text-decoration-none">
+                    <img src="<?php echo BASE_URL_IMAGE; ?>permiso1.svg" width="45">
+                    <div class="text-muted small">Permiso-old</div>
                 </a>
             </div>
             <div class="col-4 mb-3">
-                <a href="<?php echo BASE_URL_CONTROLLER; ?>/RRHHController.php?solicitud_r_permiso=1" class="text-decoration-none">
-                    <img src="<?php echo BASE_URL_IMAGE; ?>permiso1.svg" width="45">
-                    <div class="text-muted small"><span class="badge bg-warning">NUEVO</span> R-Permiso</div>
+                <a href="<?php echo BASE_URL_CONTROLLER; ?>/RRHHController.php?solicitud_r_vacaciones=1" class="text-decoration-none">
+                    <img src="<?php echo BASE_URL_IMAGE; ?>ico_vacaciones.svg" width="45">
+                    <div class="text-muted small"><span class="badge bg-warning">NUEVO</span> R-Vacaciones</div>
                 </a>
             </div>
             <?php } ?>

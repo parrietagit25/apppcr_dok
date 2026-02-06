@@ -902,12 +902,7 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
 // ============================================
 }elseif(isset($_GET['solicitud_r_permiso'])){
 
-    // Solo admin puede acceder (tipo_usuario == 1)
-    $tipo_usuario_actual = $userModel->get_tyte_user();
-    if ($tipo_usuario_actual != 1) {
-        header("Location: " . BASE_URL_CONTROLLER . "/RRHHController.php");
-        exit();
-    }
+    // Accesible para todos los usuarios (antes solo admin)
 
     if (isset($_POST['solicitud_permiso'])) {
 
