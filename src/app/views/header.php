@@ -184,8 +184,8 @@
 </head>
 <body>
 <?php
-// Acceso RRHH: tipo 1 (admin), tipo 4 (RRHH) o supervisores autorizados 001401 y 001688
-$tiene_acceso_rrhh = (($tipo_usuario ?? 0) == 1 || ($tipo_usuario ?? 0) == 4 || in_array(trim($_SESSION['code'] ?? ''), ['001401', '001688']));
+// Acceso RRHH: tipo 1 (admin), tipo 4 (RRHH) o supervisores autorizados 001404 y 001688 (tipo 6 con acceso RRHH)
+$tiene_acceso_rrhh = (($tipo_usuario ?? 0) == 1 || ($tipo_usuario ?? 0) == 4 || in_array(trim($_SESSION['code'] ?? ''), ['001404', '001688']));
 ?>
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
         <div class="container-fluid">
