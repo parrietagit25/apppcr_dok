@@ -183,6 +183,10 @@
     <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
 </head>
 <body>
+<?php
+// Acceso RRHH: tipo 1 (admin), tipo 4 (RRHH) o supervisores autorizados 001401 y 001688
+$tiene_acceso_rrhh = (($tipo_usuario ?? 0) == 1 || ($tipo_usuario ?? 0) == 4 || in_array(trim($_SESSION['code'] ?? ''), ['001401', '001688']));
+?>
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
         <div class="container-fluid">
             <a class="navbar-brand" href="#"><img width="200" src="<?php echo BASE_URL_IMAGE; ?>logotop.png" alt="" srcset=""></a>
@@ -200,7 +204,7 @@
                     <li class="nav-item">
                         <a class="nav-link" href="#">Contacto</a>
                     </li> -->
-                    <?php if ($tipo_usuario == 1 || $tipo_usuario == 4 || $tipo_usuario == 5) { ?>
+                    <?php if ($tiene_acceso_rrhh || ($tipo_usuario ?? 0) == 5) { ?>
                         <li class="nav-item">
                             <a class="nav-link" href="<?php echo BASE_URL_CONTROLLER; ?>MainController.php?mantenimineto=1">Mantenimiento</a>
                         </li>

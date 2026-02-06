@@ -41,7 +41,7 @@ include __DIR__ . '/header.php';
                     <div class="text-muted small">Solicitar Calamidad</div>
                 </a>
             </div>
-            <?php if ($tipo_usuario == 1 || $tipo_usuario == 4) { ?>
+            <?php if ($tiene_acceso_rrhh) { ?>
             <div class="col-4 mb-3">
                 <a href="<?php echo BASE_URL_CONTROLLER; ?>/RRHHController.php?carta_trabajo_aprobar=1" class="text-decoration-none">
                     <img src="<?php echo BASE_URL_IMAGE; ?>ico_carta_trabajo.svg" width="45">
@@ -63,7 +63,7 @@ include __DIR__ . '/header.php';
                 </a>
             </div>
 
-            <?php if ($tipo_usuario == 1 || $tipo_usuario == 4): ?>
+            <?php if ($tiene_acceso_rrhh): ?>
             <div class="col-4 mb-3">
                 <a href="<?php echo BASE_URL_CONTROLLER; ?>/RRHHController.php?uniforme_vrrhh=1" class="text-decoration-none">
                     <img src="<?php echo BASE_URL_IMAGE; ?>uniformes.png" width="45">
@@ -112,7 +112,7 @@ include __DIR__ . '/header.php';
                 </a>
             </div>
 
-            <?php if ($tipo_usuario == 1 || $tipo_usuario == 4 || $tipo_usuario == 6) { ?>
+            <?php if ($tiene_acceso_rrhh || $tipo_usuario == 6) { ?>
             <div class="col-4 mb-3">
                 <a href="<?php echo BASE_URL_CONTROLLER; ?>/RRHHController.php?administrar_permiso_admin=1" class="text-decoration-none">
                     <img src="<?php echo BASE_URL_IMAGE; ?>permiso1.png" width="45">
@@ -121,7 +121,7 @@ include __DIR__ . '/header.php';
             </div>
             <?php } ?>
 
-            <?php if ($tipo_usuario == 1 || $tipo_usuario == 3 || $tipo_usuario == 4) { ?>
+            <?php if ($tiene_acceso_rrhh || $tipo_usuario == 3) { ?>
             <div class="col-4 mb-3">
                 <a href="<?php echo BASE_URL_CONTROLLER; ?>/RRHHController.php?solicitud_permiso_admin=1" class="text-decoration-none">
                     <img src="<?php echo BASE_URL_IMAGE; ?>permiso1.png" width="45">
@@ -130,7 +130,7 @@ include __DIR__ . '/header.php';
             </div>
             <?php } ?>
 
-            <?php if ($tipo_usuario == 1 || $tipo_usuario == 4) { ?>
+            <?php if ($tiene_acceso_rrhh) { ?>
             <div class="col-4 mb-3">
                 <a href="<?php echo BASE_URL_CONTROLLER; ?>/RRHHController.php?incapacidad_vrrhh=1" class="text-decoration-none">
                     <img src="<?php echo BASE_URL_IMAGE; ?>ico_incapacidades.svg" width="45">

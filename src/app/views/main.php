@@ -100,7 +100,7 @@ include __DIR__ . '/header.php';
                     </div>
                 </a>
             </div>
-            <?php if ($tipo_usuario == 1 || $tipo_usuario == 4) { ?>
+            <?php if ($tiene_acceso_rrhh) { ?>
             <div class="col-4 mb-3">
                 <a href="<?php echo BASE_URL_CONTROLLER; ?>/CarnetController.php?verificar_carnet=1" class="text-decoration-none">
                     <div class="card-icon">
@@ -138,7 +138,7 @@ include __DIR__ . '/header.php';
     </div>
 
     <div class="container my-4">
-        <?php if ($tipo_usuario == 1 || $tipo_usuario == 4) { ?>
+        <?php if ($tiene_acceso_rrhh) { ?>
         <div class="bg-white rounded shadow p-3 text-center" style="cursor: pointer;" data-bs-toggle="modal" data-bs-target="#frase_semana">
             <h6 class="fw-bold text-secondary">🔔 FRASE DE LA SEMANA</h6>
             <blockquote class="fst-italic text-muted mt-2">"<?php echo $frase['frase']; ?>"</blockquote>
@@ -156,7 +156,7 @@ include __DIR__ . '/header.php';
     <br>
 
     <!-- Modal Actualizar Frase de la Semana (solo admin/RRHH) -->
-    <?php if ($tipo_usuario == 1 || $tipo_usuario == 4) { ?>
+    <?php if ($tiene_acceso_rrhh) { ?>
     <div class="modal fade" id="frase_semana" tabindex="-1" aria-labelledby="fraseSemanaLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">

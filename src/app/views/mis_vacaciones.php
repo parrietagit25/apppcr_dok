@@ -31,7 +31,7 @@ include __DIR__ . '/header.php';
             <p>Vacaciones Acumuladas: <b><?php echo $value['dias_vaca_acu_tiempo']; ?></b> Días</p>
         <?php endforeach; ?>
 
-        <?php if ($tipo_usuario == 1 || $tipo_usuario == 4): ?>
+        <?php if ($tiene_acceso_rrhh): ?>
             <div class="row mt-5">
                 <h5 class="text-center">Vacaciones Acumuladas todos.</h5>
                 <table id="tablaVacaciones" class="table table-striped table-bordered mt-3">
