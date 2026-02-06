@@ -214,11 +214,18 @@ document.addEventListener("DOMContentLoaded", function () {
             var fechaInicio = form.querySelector('input[name="fecha_inicio"]');
             var fechaFin = form.querySelector('input[name="fecha_fin"]');
             if (tipoLicencia && tipoLicencia.value === 'Vacaciones' && fechaInicio && fechaFin && fechaInicio.value && fechaFin.value) {
-                var inicio = new Date(fechaInicio.value);
-                var fin = new Date(fechaFin.value);
+                // Parsear como fecha local (YYYY-MM-DD) para evitar que UTC cambie el día
+                var pI = fechaInicio.value.split('-').map(Number);
+                var pF = fechaFin.value.split('-').map(Number);
+                var inicio = new Date(pI[0], pI[1] - 1, pI[2]);
+                var fin = new Date(pF[0], pF[1] - 1, pF[2]);
+                if (inicio > fin) {
+                    alert('La fecha de inicio debe ser anterior o igual a la fecha fin.');
+                    return;
+                }
                 var bloqueInicio = inicio.getDate() <= 15 ? '1-15' : '16-fin';
                 var ok = true;
-                for (var d = new Date(inicio); d <= fin; d.setDate(d.getDate() + 1)) {
+                for (var d = new Date(inicio.getTime()); d <= fin; d.setDate(d.getDate() + 1)) {
                     var dia = d.getDate();
                     if (bloqueInicio === '1-15' && dia > 15) { ok = false; break; }
                     if (bloqueInicio === '16-fin' && dia < 16) { ok = false; break; }
