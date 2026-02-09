@@ -48,7 +48,7 @@ include __DIR__ . '/header.php';
         <br><br>
         <p>
             <span style="color:red;"><b>Nota: Recuerde que las vacaciones deben ser aprobadas previamente por su supervisor para su debida autorización.</b></span><br>
-            <span class="text-muted"><b>Vacaciones (tipo permiso):</b> Solo se puede solicitar del 1 al 15 de cada mes, o del 16 al último día del mes (en febrero al 28 o 29). No se puede cruzar ambas mitades (ej: del 10 al 20). En el detalle puede indicar los días que tomará realmente.</span>
+            <span class="text-muted"><b>Vacaciones (tipo permiso):</b> Solo se puede solicitar: del 1 al 15 del mes, del 16 al último día del mes (en febrero al 28 o 29), o del 1 al último día del mes (mes completo). No se puede cruzar ambas mitades (ej: del 10 al 20). En el detalle puede indicar los días que tomará realmente.</span>
         </p>
     </div>
 
@@ -223,15 +223,25 @@ document.addEventListener("DOMContentLoaded", function () {
                     alert('La fecha de inicio debe ser anterior o igual a la fecha fin.');
                     return;
                 }
-                var bloqueInicio = inicio.getDate() <= 15 ? '1-15' : '16-fin';
-                var ok = true;
-                for (var d = new Date(inicio.getTime()); d <= fin; d.setDate(d.getDate() + 1)) {
-                    var dia = d.getDate();
-                    if (bloqueInicio === '1-15' && dia > 15) { ok = false; break; }
-                    if (bloqueInicio === '16-fin' && dia < 16) { ok = false; break; }
+                var ok = false;
+                // Opción adicional: del 1 al último día del mismo mes (mes completo)
+                if (inicio.getDate() === 1) {
+                    var lastDay = new Date(inicio.getFullYear(), inicio.getMonth() + 1, 0);
+                    if (fin.getDate() === lastDay.getDate() && fin.getMonth() === lastDay.getMonth() && fin.getFullYear() === lastDay.getFullYear()) {
+                        ok = true;
+                    }
                 }
                 if (!ok) {
-                    alert('Para permiso tipo Vacaciones solo puede elegir del 1 al 15 del mes, o del 16 al último día del mes. No puede cruzar ambas mitades (ej: del 10 al 20).');
+                    var bloqueInicio = inicio.getDate() <= 15 ? '1-15' : '16-fin';
+                    ok = true;
+                    for (var d = new Date(inicio.getTime()); d <= fin; d.setDate(d.getDate() + 1)) {
+                        var dia = d.getDate();
+                        if (bloqueInicio === '1-15' && dia > 15) { ok = false; break; }
+                        if (bloqueInicio === '16-fin' && dia < 16) { ok = false; break; }
+                    }
+                }
+                if (!ok) {
+                    alert('Para permiso tipo Vacaciones solo puede elegir del 1 al 15 del mes, del 16 al último día del mes, o del 1 al último día del mes (mes completo). No puede cruzar ambas mitades (ej: del 10 al 20).');
                     return;
                 }
             }

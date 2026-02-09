@@ -736,8 +736,10 @@ class Rrhh {
 
     /**
      * Valida que el rango de fechas para permiso tipo Vacaciones cumpla la regla:
-     * solo se puede tomar del 1 al 15 de cada mes O del 16 al último día del mes (en febrero al 28/29).
-     * El rango no puede cruzar el límite 15/16 (ej: 10 al 20 es inválido).
+     * - Del 1 al 15 del mes, O
+     * - Del 16 al último día del mes (en febrero al 28/29), O
+     * - Del 1 al último día del mes (mes completo).
+     * No se puede cruzar el límite 15/16 salvo que sea el mes completo (ej: 10 al 20 es inválido).
      * @return array ['valido' => bool, 'mensaje' => string]
      */
     public static function validar_rango_vacaciones($fecha_inicio, $fecha_fin) {
@@ -745,6 +747,11 @@ class Rrhh {
         $fin = \DateTime::createFromFormat('Y-m-d', $fecha_fin);
         if (!$inicio || !$fin || $inicio > $fin) {
             return ['valido' => false, 'mensaje' => 'Fechas inválidas.'];
+        }
+        // Opción adicional: del 1 al último día del mismo mes (mes completo)
+        $ultimo_del_mes = (clone $inicio)->modify('last day of this month');
+        if ($inicio->format('j') == 1 && $fin->format('Y-m-d') === $ultimo_del_mes->format('Y-m-d')) {
+            return ['valido' => true, 'mensaje' => ''];
         }
         $dia_inicio = (int) $inicio->format('j');
         $bloque_inicio = $dia_inicio <= 15 ? '1-15' : '16-fin';
@@ -755,11 +762,11 @@ class Rrhh {
             $dia = (int) $fecha->format('j');
             if ($bloque_inicio === '1-15') {
                 if ($dia > 15) {
-                    return ['valido' => false, 'mensaje' => 'Para vacaciones solo puede elegir del 1 al 15 del mes, o del 16 al último día del mes. No puede cruzar ambas mitades (ej: del 10 al 20).'];
+                    return ['valido' => false, 'mensaje' => 'Para vacaciones solo puede elegir del 1 al 15 del mes, del 16 al último día del mes, o del 1 al último día del mes (mes completo). No puede cruzar ambas mitades (ej: del 10 al 20).'];
                 }
             } else {
                 if ($dia < 16) {
-                    return ['valido' => false, 'mensaje' => 'Para vacaciones solo puede elegir del 1 al 15 del mes, o del 16 al último día del mes. No puede cruzar ambas mitades (ej: del 10 al 20).'];
+                    return ['valido' => false, 'mensaje' => 'Para vacaciones solo puede elegir del 1 al 15 del mes, del 16 al último día del mes, o del 1 al último día del mes (mes completo). No puede cruzar ambas mitades (ej: del 10 al 20).'];
                 }
             }
         }
