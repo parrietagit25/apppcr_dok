@@ -5,7 +5,8 @@ if (!isset($_SESSION['code'])) {
     exit();
 }
 
-include __DIR__ . '/header.php'; ?>
+include __DIR__ . '/header.php'; 
+?>
 
 <div class="container mt-4">
 
@@ -20,34 +21,34 @@ include __DIR__ . '/header.php'; ?>
 
         <div class="row text-center mb-3">
             <div class="col-6 mb-4">
-                <a href="<?php echo BASE_URL_IMAGE; ?>carnet_carta/cobertura.pdf" class="text-decoration-none" target="_blank">
+                <a href="<?php echo BASE_URL_IMAGE; ?>imagen_carnet_mapfre/<?php  echo substr($_SESSION['code'], 2); ?>.pdf" class="text-decoration-none" target="_blank">
                     <div style="background-color: #f8f9fa; padding: 20px; border-radius: 10px;">
                         <img width="100" src="<?php echo BASE_URL_IMAGE; ?>carnet.svg" alt="Carnet">
-                        <div class="card-title"> <small>Mi Carnet de PALIG</small> </div>
+                        <div class="card-title"> <small>Mi Carnet de Mapfre</small> </div>
                     </div>
                 </a>
             </div>
             <div class="col-6 mb-4">
-                <a class="text-decoration-none">
+                <a href="https://seguros.doctor-online.co/webm/views/login.php?resource=b60aa9f45cca11ebae930242ac130002" target="_blank" class="text-decoration-none">
                     <div style="background-color: #f8f9fa; padding: 20px; border-radius: 10px;">
-                        <img width="100" src="<?php echo BASE_URL_IMAGE; ?>telemedicina.png" alt="Cumpleaños">
-                        <div class="card-title"><small>PALIG Asistencia – Telemedicina</small></div>
+                        <img width="100" src="<?php echo BASE_URL_IMAGE; ?>dr_minutos.svg" alt="Cumpleaños">
+                        <div class="card-title"><small>Doctor en Minutos</small></div>
                     </div>
                 </a>
             </div>
             <div class="col-6 mb-4">
-                <a class="text-decoration-none">
+                <a href="<?php echo BASE_URL_CONTROLLER; ?>/MainController.php?info_poliza=1" target="_blank" class="text-decoration-none">
                     <div style="background-color: #f8f9fa; padding: 20px; border-radius: 10px;">
-                        <img width="100" height="100" src="<?php echo BASE_URL_IMAGE; ?>infopalig.png" alt="infopalig">
-                        <div class="card-title"><small>Info PALIG</small></div>
+                        <img width="100" src="<?php echo BASE_URL_IMAGE; ?>info.svg" alt="Cumpleaños">
+                        <div class="card-title"><small>Info Mapfre</small></div>
                     </div>
                 </a>
             </div>
             <div class="col-6 mb-4">
-                <a href="https://palig.com/es/pa/busca-un-proveedor-medico" target="_blank" class="text-decoration-none">
+                <a href="https://app1.mapfre.com.pa/panama/portal/redMedicos" target="_blank" class="text-decoration-none">
                     <div style="background-color: #f8f9fa; padding: 20px; border-radius: 10px;">
-                        <img width="100" height="100" src="<?php echo BASE_URL_IMAGE; ?>infopalig.png" alt="Red Médica Mapfre">
-                        <div class="card-title"><small>Red Médica PALIG</small></div>
+                        <img width="100" height="100" src="<?php echo BASE_URL_IMAGE; ?>redmapfre.png" alt="Red Médica Mapfre">
+                        <div class="card-title"><small>Red Médica Mapfre</small></div>
                     </div>
                 </a>
             </div>
