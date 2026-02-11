@@ -32,8 +32,6 @@ include __DIR__ . '/header.php';
                         <tr>
                             <th>Código</th>
                             <th>Nombre</th>
-                            <th>Departamento</th>
-                            <th>Cargo</th>
                             <th class="text-center">Acciones</th>
                         </tr>
                     </thead>
@@ -41,8 +39,6 @@ include __DIR__ . '/header.php';
                         <?php foreach ($mi_personal_lista as $row):
                             $codigo = $row['codigo_empleado'] ?? $row['colaborador_code'] ?? '';
                             $nombre = trim(($row['nombre'] ?? '') . ' ' . ($row['apellido'] ?? ''));
-                            $depto = $row['nombre_departamento'] ?? '-';
-                            $cargo = $row['nombre_cargo'] ?? '-';
                         ?>
                         <tr>
                             <td>
@@ -51,8 +47,6 @@ include __DIR__ . '/header.php';
                                     title="Ver foto"><?php echo htmlspecialchars($codigo); ?></span>
                             </td>
                             <td><?php echo htmlspecialchars($nombre); ?></td>
-                            <td><?php echo htmlspecialchars($depto); ?></td>
-                            <td><?php echo htmlspecialchars($cargo); ?></td>
                             <td class="text-center">
                                 <button type="button" class="btn btn-sm btn-outline-primary me-1" title="Detalles"
                                     data-codigo="<?php echo htmlspecialchars($codigo); ?>"
