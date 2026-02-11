@@ -31,10 +31,48 @@ $userModel = new User($pdo);
 
 $tipo_usuario = $userModel->get_tyte_user();
 
+// Endpoints JSON para Mi Personal (detalle empleado y permisos)
+if (isset($_GET['obtener_detalle_empleado']) && isset($_GET['codigo'])) {
+    header('Content-Type: application/json; charset=utf-8');
+    $codigo = trim($_GET['codigo']);
+    if ($tipo_usuario != 1 && $tipo_usuario != 6) {
+        echo json_encode(['success' => false, 'mensaje' => 'Sin permiso']);
+        exit;
+    }
+    $datos = $class->get_datos_empleado_por_codigo($codigo);
+    echo json_encode(['success' => true, 'datos' => $datos]);
+    exit;
+}
+if (isset($_GET['obtener_permisos_empleado']) && isset($_GET['codigo'])) {
+    header('Content-Type: application/json; charset=utf-8');
+    $codigo = trim($_GET['codigo']);
+    if ($tipo_usuario != 1 && $tipo_usuario != 6) {
+        echo json_encode(['success' => false, 'mensaje' => 'Sin permiso']);
+        exit;
+    }
+    $permisos = $class->get_permisos_por_codigo($codigo);
+    echo json_encode(['success' => true, 'permisos' => $permisos]);
+    exit;
+}
+
 $todos_datos = $class->datos_colaborador();
 $nombre = "";
 foreach ($todos_datos as $key => $value) {
     $nombre = $value['nombre']; //. ' ' .$value['apellido'];
+}
+
+if (isset($_GET['mi_personal']) && $_GET['mi_personal'] == 1) {
+    if ($tipo_usuario != 1 && $tipo_usuario != 6) {
+        header("Location: " . BASE_URL_CONTROLLER . "/RRHHController.php");
+        exit();
+    }
+    if ($tipo_usuario == 1) {
+        $mi_personal_lista = $class->get_todos_empleados_activos();
+    } else {
+        $mi_personal_lista = $userModel->get_personal_a_cargo($_SESSION['code']);
+    }
+    require_once __DIR__ . '/../views/mi_personal.php';
+    exit();
 }
 
 if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {

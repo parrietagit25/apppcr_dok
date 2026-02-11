@@ -828,6 +828,47 @@ class Rrhh {
         return $array_datos;
     }
 
+    /**
+     * Datos de un empleado por código (para modal detalles en Mi Personal).
+     * La vista no debe mostrar estado_civil, sexo, direccion1.
+     */
+    public function get_datos_empleado_por_codigo($codigo) {
+        $stmt = $this->pdo->prepare("SELECT * FROM empleados WHERE codigo_empleado = :codigo");
+        $stmt->bindParam(':codigo', $codigo, PDO::PARAM_STR);
+        $stmt->execute();
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        if (!$row) return null;
+        unset($row['estado_civil'], $row['sexo'], $row['direccion1'], $row['direccion2']);
+        return $row;
+    }
+
+    /**
+     * Solicitudes de permiso de un empleado por código (para modal permisos en Mi Personal).
+     */
+    public function get_permisos_por_codigo($codigo) {
+        $stmt = $this->pdo->prepare("SELECT p.id, p.tipo_licencia, p.fecha_inicio, p.fecha_fin, p.fecha_log, p.descripcion, p.stat FROM solicitud_permiso p WHERE p.code = :codigo ORDER BY p.fecha_log DESC");
+        $stmt->bindParam(':codigo', $codigo, PDO::PARAM_STR);
+        $stmt->execute();
+        $out = [];
+        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            $out[] = $row;
+        }
+        return $out;
+    }
+
+    /**
+     * Todos los empleados activos (para Mi Personal cuando es admin).
+     */
+    public function get_todos_empleados_activos() {
+        $stmt = $this->pdo->prepare("SELECT codigo_empleado, nombre, apellido, nombre_departamento, nombre_cargo FROM empleados WHERE estatus_empleado = 'A' ORDER BY nombre ASC, apellido ASC");
+        $stmt->execute();
+        $out = [];
+        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            $out[] = $row;
+        }
+        return $out;
+    }
+
         public function select_permisos_gerentes($code){
 
         $shit_get_departamento = $this->get_departamento($code);
