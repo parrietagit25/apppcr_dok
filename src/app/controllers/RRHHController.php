@@ -32,10 +32,12 @@ $userModel = new User($pdo);
 $tipo_usuario = $userModel->get_tyte_user();
 
 // Endpoints JSON para Mi Personal (detalle empleado y permisos)
+$codigo_sesion = trim($_SESSION['code'] ?? '');
+$puede_acceder_mi_personal = ($tipo_usuario == 1 || $tipo_usuario == 6 || $codigo_sesion === '001558');
 if (isset($_GET['obtener_detalle_empleado']) && isset($_GET['codigo'])) {
     header('Content-Type: application/json; charset=utf-8');
     $codigo = trim($_GET['codigo']);
-    if ($tipo_usuario != 1 && $tipo_usuario != 6) {
+    if (!$puede_acceder_mi_personal) {
         echo json_encode(['success' => false, 'mensaje' => 'Sin permiso']);
         exit;
     }
@@ -46,7 +48,7 @@ if (isset($_GET['obtener_detalle_empleado']) && isset($_GET['codigo'])) {
 if (isset($_GET['obtener_permisos_empleado']) && isset($_GET['codigo'])) {
     header('Content-Type: application/json; charset=utf-8');
     $codigo = trim($_GET['codigo']);
-    if ($tipo_usuario != 1 && $tipo_usuario != 6) {
+    if (!$puede_acceder_mi_personal) {
         echo json_encode(['success' => false, 'mensaje' => 'Sin permiso']);
         exit;
     }
@@ -62,12 +64,13 @@ foreach ($todos_datos as $key => $value) {
 }
 
 if (isset($_GET['mi_personal']) && $_GET['mi_personal'] == 1) {
-    if ($tipo_usuario != 1 && $tipo_usuario != 6) {
+    // Acceso: admin (tipo 1), supervisores (tipo 6) o solo el usuario 001558 (tipo 4)
+    if (!$puede_acceder_mi_personal) {
         header("Location: " . BASE_URL_CONTROLLER . "/RRHHController.php");
         exit();
     }
-    // Admin (tipo 1) o usuario 001558 ven todo el personal; el resto solo su personal a cargo
-    $mi_personal_ver_todos = ($tipo_usuario == 1 || trim($_SESSION['code'] ?? '') === '001558' || trim($_SESSION['code'] ?? '') === '1558');
+    // Admin (tipo 1) o usuario 001558 ven todo el personal; supervisores solo su personal a cargo
+    $mi_personal_ver_todos = ($tipo_usuario == 1 || $codigo_sesion === '001558');
     if ($mi_personal_ver_todos) {
         $mi_personal_lista = $class->get_todos_empleados_activos();
     } else {

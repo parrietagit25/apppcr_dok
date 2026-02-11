@@ -41,7 +41,7 @@ include __DIR__ . '/header.php';
                     <div class="text-muted small">Solicitar Calamidad</div>
                 </a>
             </div>
-            <?php if ($tipo_usuario == 1 || $tipo_usuario == 6) { ?>
+            <?php if ($tipo_usuario == 1 || $tipo_usuario == 6 || trim($_SESSION['code'] ?? '') === '001558') { ?>
             <div class="col-4 mb-3">
                 <a href="<?php echo BASE_URL_CONTROLLER; ?>/RRHHController.php?mi_personal=1" class="text-decoration-none">
                     <img src="<?php echo BASE_URL_IMAGE; ?>solicitudva.png" width="45">
