@@ -67,7 +67,7 @@ if (isset($_GET['mi_personal']) && $_GET['mi_personal'] == 1) {
         exit();
     }
     // Admin (tipo 1) o usuario 001558 ven todo el personal; el resto solo su personal a cargo
-    $mi_personal_ver_todos = ($tipo_usuario == 1 || trim($_SESSION['code'] ?? '') === '001558');
+    $mi_personal_ver_todos = ($tipo_usuario == 1 || trim($_SESSION['code'] ?? '') === '001558' || trim($_SESSION['code'] ?? '') === '1558');
     if ($mi_personal_ver_todos) {
         $mi_personal_lista = $class->get_todos_empleados_activos();
     } else {
