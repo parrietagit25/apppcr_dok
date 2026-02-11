@@ -17,7 +17,7 @@ include __DIR__ . '/header.php';
             <div class="carousel-item active">
                 <div class="p-3 bg-light rounded">
                     <h5 class="fw-bold">Mi Personal</h5>
-                    <p class="mb-0 text-muted"><?php echo ($tipo_usuario == 1) ? 'Todo el personal (vista admin)' : 'Personal a tu cargo'; ?></p>
+                    <p class="mb-0 text-muted"><?php echo !empty($mi_personal_ver_todos) ? 'Todo el personal (vista admin)' : 'Personal a tu cargo'; ?></p>
                 </div>
             </div>
         </div>
