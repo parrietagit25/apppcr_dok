@@ -144,6 +144,7 @@ include __DIR__ . '/header.php';
                 <div class="modal-body text-center py-4">
                     <img id="modalFotoCarnetImg" src="" alt="Foto" class="rounded-circle mx-auto d-block" style="width: 180px; height: 180px; object-fit: cover; border: 3px solid #dee2e6;">
                     <p class="small text-muted mt-2 mb-0" id="modalFotoCarnetCodigo"></p>
+                    <p class="small text-break mt-1 mb-0 font-monospace" id="modalFotoCarnetRuta" style="font-size: 0.7rem; color: #6c757d;" title="Ruta de la foto"></p>
                 </div>
             </div>
         </div>
@@ -349,11 +350,13 @@ include __DIR__ . '/header.php';
             var imgSrc = baseUrlImage + 'imagen_carnet/' + codigoSufijo + '.jpeg';
             var img = document.getElementById('modalFotoCarnetImg');
             var codigoText = document.getElementById('modalFotoCarnetCodigo');
+            var rutaText = document.getElementById('modalFotoCarnetRuta');
             if (img) {
                 img.src = imgSrc;
                 img.onerror = function () { this.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="180" height="180" viewBox="0 0 180 180"><rect fill="%23ddd" width="180" height="180"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="%23999" font-size="14">Sin foto</text></svg>'; };
             }
             if (codigoText) codigoText.textContent = 'Código: ' + (codigo || '');
+            if (rutaText) rutaText.textContent = imgSrc || '';
         });
     }
 </script>
