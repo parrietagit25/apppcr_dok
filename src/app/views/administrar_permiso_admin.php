@@ -55,7 +55,7 @@ include __DIR__ . '/header.php';
     <?php endif; ?>
 
     <div class="row mt-5">
-        <h5 class="text-center">Solicitudes de Permiso</h5>
+        <h5 class="text-center">Solicitudes de Permiso - <?php echo $_SESSION['code']; ?></h5>
         <table id="tablaPermisosAprobar" class="table table-striped table-bordered mt-3">
             <thead class="table-dark text-center">
                 <tr>
