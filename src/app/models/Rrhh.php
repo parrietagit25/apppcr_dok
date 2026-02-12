@@ -637,16 +637,19 @@ class Rrhh {
 
     }
 
+    /**
+     * Departamentos donde el código está como encargado.
+     * Comparación por valor numérico para que 0013 y 13 coincidan (id_jefe/code puede ser int o string con/sin ceros).
+     */
     public function get_departamento_encargados($codigo){
-
         $array_datos = [];
-        $stmt_frase = $this->pdo->prepare("SELECT departamento FROM encargados_colab WHERE code_empleado  = '".$codigo."'");
+        $stmt_frase = $this->pdo->prepare("SELECT departamento FROM encargados_colab WHERE CAST(CAST(code_empleado AS CHAR) AS UNSIGNED) = CAST(:codigo AS UNSIGNED)");
+        $stmt_frase->bindParam(':codigo', $codigo, PDO::PARAM_STR);
         $stmt_frase->execute();
         while ($list_code = $stmt_frase->fetch(PDO::FETCH_ASSOC)) {
             $array_datos[] = $list_code;
         }
         return $array_datos;
-
     }
 
     public function select_eval_departamento($departamneto){
@@ -1058,12 +1061,13 @@ class Rrhh {
         // Crear ?,?,? dinámicos
         $placeholders = implode(',', array_fill(0, count($departamentos), '?'));
     
+        // Comparar id_jefe por valor numérico para que 0013 y 13 coincidan (campo puede ser int o string)
         $sql = "
             SELECT p.*, e.nombre, e.apellido
             FROM solicitud_permiso p
             INNER JOIN empleados e 
                 ON p.code = e.codigo_empleado
-            WHERE p.id_jefe = ?
+            WHERE CAST(CAST(COALESCE(p.id_jefe,0) AS CHAR) AS UNSIGNED) = CAST(?) AS UNSIGNED
               AND e.nombre_departamento IN ($placeholders)
         ";
     
@@ -1084,13 +1088,14 @@ class Rrhh {
     public function select_permisos_por_supervisor($supervisor_code) {
         try {
             // Obtener todos los permisos del personal a cargo del supervisor
-            // No filtramos por id_jefe porque el supervisor debe ver todos los permisos de su personal
+            // Comparación por valor numérico para que 0013 y 13 coincidan (códigos con/sin ceros a la izquierda)
             $sql = "
                 SELECT DISTINCT p.*, e.nombre, e.apellido
                 FROM solicitud_permiso p
                 INNER JOIN empleados e ON p.code = e.codigo_empleado
-                INNER JOIN supervisores_personal_cargo spc ON TRIM(e.codigo_empleado) = TRIM(spc.colaborador_code)
-                WHERE TRIM(spc.supervisor_code) = TRIM(:supervisor_code)
+                INNER JOIN supervisores_personal_cargo spc
+                    ON CAST(CAST(COALESCE(e.codigo_empleado,'') AS CHAR) AS UNSIGNED) = CAST(CAST(COALESCE(spc.colaborador_code,'') AS CHAR) AS UNSIGNED)
+                WHERE CAST(CAST(COALESCE(spc.supervisor_code,'') AS CHAR) AS UNSIGNED) = CAST(:supervisor_code AS UNSIGNED)
                 AND spc.activo = 1
                 ORDER BY p.fecha_log DESC
             ";
