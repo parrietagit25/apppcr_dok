@@ -1153,10 +1153,11 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
     if ($tipo_usuario == 1 && $supervisor_seleccionado) {
         // Admin seleccionó un supervisor específico
         $permisos = $class->select_permisos_por_supervisor($supervisor_seleccionado);
-        // Debug temporal (puedes eliminar después)
-        error_log("Admin filtrando por supervisor: " . $supervisor_seleccionado . " - Permisos encontrados: " . count($permisos));
+    } elseif ($tipo_usuario == 6) {
+        // Supervisor: ver permisos de su personal a cargo (supervisores_personal_cargo), misma lógica que Mi Personal
+        $permisos = $class->select_permisos_por_supervisor($_SESSION['code']);
     } else {
-        // Usuario normal o admin sin filtro: usar método original
+        // Admin sin filtro o RRHH (tipo 3, 4): encargados_colab + id_jefe
         $permisos = $class->select_permisos_all_admin($_SESSION['code']);
     }
     
