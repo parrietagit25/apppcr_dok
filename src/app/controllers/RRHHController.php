@@ -808,25 +808,42 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
 
         $archivo_ruta = null;
         $nombre_archivo = null;
-        if (isset($_FILES['archivo_adjunto']) && $_FILES['archivo_adjunto']['error'] === UPLOAD_ERR_OK) {
-            $nombre_tmp = $_FILES['archivo_adjunto']['tmp_name'];
-            $nombre_archivo = basename($_FILES['archivo_adjunto']['name']);
-            $destino = 'archivos/' . time() . '_' . $nombre_archivo;
-
-            // Carpeta de almacenamiento
-            $upload_dir = __DIR__ . '/../uploads/permisos/';
-            if (!is_dir($upload_dir)) {
-                mkdir($upload_dir, 0777, true);
-            }
-
-            $archivo_destino = $upload_dir . $nombre_archivo;
-
-            if (move_uploaded_file($nombre_tmp, $archivo_destino)) {
-                $archivo_ruta = $archivo_destino; // Ruta que se guardará en la base de datos
+        $error_archivo_permiso = null;
+        if (isset($_FILES['archivo_adjunto']) && $_FILES['archivo_adjunto']['error'] !== UPLOAD_ERR_NO_FILE) {
+            $err = $_FILES['archivo_adjunto']['error'];
+            if ($err !== UPLOAD_ERR_OK) {
+                $mensajes_err = [
+                    UPLOAD_ERR_INI_SIZE => 'El archivo supera el límite permitido por el servidor.',
+                    UPLOAD_ERR_FORM_SIZE => 'El archivo es demasiado grande.',
+                    UPLOAD_ERR_PARTIAL => 'El archivo se subió solo parcialmente. Intente de nuevo.',
+                    UPLOAD_ERR_NO_TMP_DIR => 'Error temporal en el servidor. Intente más tarde.',
+                    UPLOAD_ERR_CANT_WRITE => 'No se pudo guardar el archivo en el servidor.',
+                    UPLOAD_ERR_EXTENSION => 'La subida fue bloqueada por una extensión del servidor.',
+                ];
+                $error_archivo_permiso = $mensajes_err[$err] ?? 'Error al subir el archivo (código ' . $err . ').';
             } else {
-                echo "<div class='alert alert-danger'>Error al mover el archivo.</div>";
-                exit;
+                $upload_dir = __DIR__ . '/../uploads/permisos/';
+                if (!is_dir($upload_dir)) {
+                    mkdir($upload_dir, 0777, true);
+                }
+                $nombre_archivo = basename($_FILES['archivo_adjunto']['name']);
+                $archivo_destino = $upload_dir . time() . '_' . $nombre_archivo;
+                if (move_uploaded_file($_FILES['archivo_adjunto']['tmp_name'], $archivo_destino)) {
+                    $archivo_ruta = $archivo_destino;
+                    $nombre_archivo = basename($archivo_destino);
+                } else {
+                    $error_archivo_permiso = 'No se pudo guardar el archivo. Compruebe permisos o espacio en el servidor.';
+                }
             }
+        }
+        if ($error_archivo_permiso !== null) {
+            echo "<div class='alert alert-danger'><strong>Error en el archivo:</strong> " . htmlspecialchars($error_archivo_permiso) . " No se guardó la solicitud. Intente de nuevo sin archivo o con uno más pequeño.</div>";
+            $select_jefe = $class->select_jefe();
+            $permisos = $class->select_permisos();
+            $mis_vacas = $class->mis_vacaciones();
+            $permisos_pendientes = $class->permisos_pendientes_por_usuario($_SESSION['code']);
+            require_once __DIR__ . '/../views/solicitud_permiso.php';
+            exit;
         }
 
         if ($tipo_licencia === 'Vacaciones') {
@@ -955,18 +972,44 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
         $fecha_inicio = $_POST['fecha_inicio'];
         $fecha_fin = $_POST['fecha_fin'];
         $archivo_adjunto = null;
+        $error_archivo = null;
 
-        // Manejo de archivo adjunto
-        if (isset($_FILES['archivo_adjunto']) && $_FILES['archivo_adjunto']['error'] === UPLOAD_ERR_OK) {
-            $upload_dir = __DIR__ . '/../uploads/permisos/';
-            if (!is_dir($upload_dir)) {
-                mkdir($upload_dir, 0777, true);
+        // Manejo de archivo adjunto: validar antes de insertar; si el usuario envió archivo y falla, no guardar registro
+        if (isset($_FILES['archivo_adjunto']) && $_FILES['archivo_adjunto']['error'] !== UPLOAD_ERR_NO_FILE) {
+            $err = $_FILES['archivo_adjunto']['error'];
+            if ($err !== UPLOAD_ERR_OK) {
+                $mensajes_error = [
+                    UPLOAD_ERR_INI_SIZE => 'El archivo supera el límite permitido por el servidor.',
+                    UPLOAD_ERR_FORM_SIZE => 'El archivo es demasiado grande.',
+                    UPLOAD_ERR_PARTIAL => 'El archivo se subió solo parcialmente. Intente de nuevo.',
+                    UPLOAD_ERR_NO_TMP_DIR => 'Error temporal en el servidor. Intente más tarde.',
+                    UPLOAD_ERR_CANT_WRITE => 'No se pudo guardar el archivo en el servidor.',
+                    UPLOAD_ERR_EXTENSION => 'La subida fue bloqueada por una extensión del servidor.',
+                ];
+                $error_archivo = $mensajes_error[$err] ?? 'Error al subir el archivo (código ' . $err . ').';
+            } else {
+                $upload_dir = __DIR__ . '/../uploads/permisos/';
+                if (!is_dir($upload_dir)) {
+                    mkdir($upload_dir, 0777, true);
+                }
+                $archivo_nombre = basename($_FILES['archivo_adjunto']['name']);
+                $archivo_destino = $upload_dir . time() . '_' . $archivo_nombre;
+                if (move_uploaded_file($_FILES['archivo_adjunto']['tmp_name'], $archivo_destino)) {
+                    $archivo_adjunto = basename($archivo_destino);
+                } else {
+                    $error_archivo = 'No se pudo guardar el archivo. Compruebe permisos o espacio en el servidor.';
+                }
             }
-            $archivo_nombre = basename($_FILES['archivo_adjunto']['name']);
-            $archivo_destino = $upload_dir . time() . '_' . $archivo_nombre;
-            if (move_uploaded_file($_FILES['archivo_adjunto']['tmp_name'], $archivo_destino)) {
-                $archivo_adjunto = basename($archivo_destino);
-            }
+        }
+
+        if ($error_archivo !== null) {
+            echo "<div class='alert alert-danger'><strong>Error en el archivo:</strong> " . htmlspecialchars($error_archivo) . " No se guardó la solicitud. Intente de nuevo sin archivo o con uno más pequeño.</div>";
+            $select_jefe = $class->r_select_jefe();
+            $permisos = $class->select_permisos();
+            $mis_vacas = $class->mis_vacaciones();
+            $permisos_pendientes = $class->permisos_pendientes_por_usuario($_SESSION['code']);
+            require_once __DIR__ . '/../views/solicitud_r_permiso.php';
+            exit;
         }
 
         if ($tipo_licencia === 'Vacaciones') {
