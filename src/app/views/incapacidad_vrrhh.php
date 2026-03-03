@@ -34,6 +34,7 @@ include __DIR__ . '/header.php';
                     <th>Nombre</th>
                     <th>Descripción</th>
                     <th>Fecha de Solicitud</th>
+                    <th>Fecha Retroactiva</th>
                     <th>Estado</th>
                 </tr>
             </thead>
@@ -42,10 +43,12 @@ include __DIR__ . '/header.php';
                 $incapacidad = $class->incapacidad_vrrhh();
                 if (!empty($incapacidad)) {
                     foreach ($incapacidad as $row) {
+                        $fecha_retro = !empty($row['fecha_retroactiva']) ? htmlspecialchars($row['fecha_retroactiva']) : '-';
                         echo "<tr>
                                 <td>" . htmlspecialchars($row['nombre']) . "</td>
                                 <td>" . htmlspecialchars($row['descripcion']) . "</td>
                                 <td>" . htmlspecialchars($row['fecha_log']) . "</td>
+                                <td>$fecha_retro</td>
                                 <td>
                                     <a href='#' data-bs-toggle='modal' data-bs-target='#modalAdjuntar{$row['id']}'>
                                         " . htmlspecialchars($row['estado']) . "
@@ -86,7 +89,7 @@ include __DIR__ . '/header.php';
                         </div>";
                     }
                 } else {
-                    echo "<tr><td colspan='4' class='text-center'>No hay solicitudes registradas.</td></tr>";
+                    echo "<tr><td colspan='5' class='text-center'>No hay solicitudes registradas.</td></tr>";
                 }
                 ?>
             </tbody>

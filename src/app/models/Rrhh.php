@@ -407,6 +407,7 @@ class Rrhh {
                                         ct.id, 
                                         ct.descripcion, 
                                         ct.fecha_log, 
+                                        ct.fecha_retroactiva,
                                         CASE ct.stat
                                             WHEN 1 THEN 'Enviado'
                                             WHEN 2 THEN 'Revisado'
