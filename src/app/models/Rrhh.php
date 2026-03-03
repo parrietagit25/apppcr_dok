@@ -431,7 +431,7 @@ class Rrhh {
 
         $code = $_SESSION['code'];
 
-        $stmt = $this->pdo->prepare("SELECT ct.id, ct.descripcion, ct.fecha_log, 
+        $stmt = $this->pdo->prepare("SELECT ct.id, ct.descripcion, ct.fecha_log, ct.fecha_retroactiva,
                                         CASE ct.stat
                                             WHEN 1 THEN 'Enviado'
                                             WHEN 2 THEN 'Revisado'
@@ -451,9 +451,9 @@ class Rrhh {
         return $array_datos;
     }
 
-    public function insertar_incapacidad($code_user, $descripcion, $file_add, $stat = 1, $id_user_aprobado = 0) {
-        $sql = "INSERT INTO incapacidad (code_user, descripcion, fecha_log, stat, file_add, id_user_aprobado) 
-                VALUES (:code_user, :descripcion, CURRENT_TIMESTAMP(), :stat, :file_add, :id_user_aprobado)";
+    public function insertar_incapacidad($code_user, $descripcion, $file_add, $stat = 1, $id_user_aprobado = 0, $fecha_retroactiva = null) {
+        $sql = "INSERT INTO incapacidad (code_user, descripcion, fecha_log, stat, file_add, id_user_aprobado, fecha_retroactiva) 
+                VALUES (:code_user, :descripcion, CURRENT_TIMESTAMP(), :stat, :file_add, :id_user_aprobado, :fecha_retroactiva)";
         
         $stmt = $this->pdo->prepare($sql);
         $stmt->bindParam(':code_user', $code_user, PDO::PARAM_INT);
@@ -461,6 +461,7 @@ class Rrhh {
         $stmt->bindParam(':stat', $stat, PDO::PARAM_INT);
         $stmt->bindParam(':file_add', $file_add, PDO::PARAM_STR);
         $stmt->bindParam(':id_user_aprobado', $id_user_aprobado, PDO::PARAM_INT);
+        $stmt->bindParam(':fecha_retroactiva', $fecha_retroactiva, $fecha_retroactiva !== null ? PDO::PARAM_STR : PDO::PARAM_NULL);
         
         return $stmt->execute();
     }

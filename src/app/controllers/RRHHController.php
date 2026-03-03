@@ -703,6 +703,7 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
         
         $code_user = isset($_SESSION['code']) ? ltrim($_SESSION['code'], '0') : 0;
         $descripcion = trim($_POST['descripcion']);
+        $fecha_retroactiva = !empty($_POST['fecha_retroactiva']) ? $_POST['fecha_retroactiva'] : null;
         $file_add = "";
     
         // Carpeta de almacenamiento
@@ -725,7 +726,7 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
         }
     
         // Insertar en la base de datos usando el modelo
-        if ($class->insertar_incapacidad($code_user, $descripcion, $file_add)) {
+        if ($class->insertar_incapacidad($code_user, $descripcion, $file_add, 1, 0, $fecha_retroactiva)) {
 
             $dartos_cola = $class->datos_colaborador();
             foreach ($dartos_cola as $key => $value) {

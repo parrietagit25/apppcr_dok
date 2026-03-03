@@ -40,6 +40,7 @@ include __DIR__ . '/header.php';
                     <th>Archivo</th>
                     <th>Descripción</th>
                     <th>Fecha de Solicitud</th>
+                    <th>Fecha Retroactiva</th>
                     <th>Estado</th>
                 </tr>
             </thead>
@@ -51,10 +52,12 @@ include __DIR__ . '/header.php';
                         $link = (!empty($row['file_add']))
                             ? '<a href="' . BASE_URL_FILES_UPDATE_INCAPACIDAD . '/' . $row['file_add'] . '" target="_blank">Incapacidad</a>'
                             : '';
+                        $fecha_retro = !empty($row['fecha_retroactiva']) ? htmlspecialchars($row['fecha_retroactiva']) : '-';
                         echo "<tr>
                                 <td>$link</td>
                                 <td>" . htmlspecialchars($row['descripcion']) . "</td>
                                 <td>" . htmlspecialchars($row['fecha_log']) . "</td>
+                                <td>$fecha_retro</td>
                                 <td>" . htmlspecialchars($row['estado']) . "</td>
                             </tr>";
                     }
@@ -80,6 +83,10 @@ include __DIR__ . '/header.php';
                     <div class="mb-3">
                         <label for="archivo" class="form-label">Seleccione un archivo</label>
                         <input type="file" class="form-control" name="archivo_incapacidad" id="archivo" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="fecha_retroactiva" class="form-label">Fecha Retroactiva</label>
+                        <input type="date" class="form-control" name="fecha_retroactiva" id="fecha_retroactiva">
                     </div>
                     <div class="mb-3">
                         <label for="descripcion" class="form-label">Comentario</label>
@@ -146,7 +153,7 @@ document.addEventListener("DOMContentLoaded", function () {
             url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json"
         },
         pageLength: 10,
-        order: [[2, 'desc']] // Ordena por "Fecha de Solicitud" (índice 2) descendente
+        order: [[2, 'desc']] // Ordena por "Fecha de Solicitud" (columna 3) descendente
     });
 });
 </script>
