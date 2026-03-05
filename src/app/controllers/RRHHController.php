@@ -107,8 +107,13 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
     
 } elseif (isset($_GET['mis_vacaciones'])) {
     $mis_vacas = $class->mis_vacaciones();
-    $all_vacas = $class->mis_vacaciones_all_employe();
-    $all_vacas_gerentes = $class->mis_vacaciones_all_employe_gerentes($_SESSION['code']);
+    $all_vacas = [];
+    $all_vacas_gerentes = [];
+    if ($tipo_usuario == 1 || $tipo_usuario == 4) {
+        $all_vacas = $class->mis_vacaciones_all_employe();
+    } elseif ($tipo_usuario == 6) {
+        $all_vacas_gerentes = $class->mis_vacaciones_all_employe_gerentes($_SESSION['code']);
+    }
     require_once __DIR__ . '/../views/mis_vacaciones.php';
     exit();
     

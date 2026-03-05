@@ -31,10 +31,10 @@ include __DIR__ . '/header.php';
             <p>Vacaciones Acumuladas: <b><?php echo $value['dias_vaca_acu_tiempo']; ?></b> Días</p>
         <?php endforeach; ?>
 
-        <?php if ($tiene_acceso_rrhh): ?>
+        <?php if ($tipo_usuario == 1 || $tipo_usuario == 4): ?>
             <div class="row mt-5">
                 <h5 class="text-center">Vacaciones Acumuladas todos.</h5>
-                <table id="tablaVacaciones" class="table table-striped table-bordered mt-3">
+                <table id="tablaVacacionesTodos" class="table table-striped table-bordered mt-3">
                     <thead class="table-dark text-center">
                         <tr>
                             <th>Código</th>
@@ -63,7 +63,8 @@ include __DIR__ . '/header.php';
 
         <?php if ($tipo_usuario == 6): ?>
             <div class="row mt-5">
-                <table id="tablaVacaciones" class="table table-striped table-bordered mt-3">
+                <h5 class="text-center">Vacaciones de mi personal</h5>
+                <table id="tablaVacacionesPersonal" class="table table-striped table-bordered mt-3">
                     <thead class="table-dark text-center">
                         <tr>
                             <th>Código</th>
@@ -83,7 +84,7 @@ include __DIR__ . '/header.php';
                                       </tr>";
                             }
                         } else {
-                            echo "<tr><td colspan='4' class='text-center'>No hay registros registrados.</td></tr>";
+                            echo "<tr><td colspan='4' class='text-center'>No hay registros.</td></tr>";
                         } ?>
                     </tbody>
                 </table>
@@ -118,15 +119,21 @@ include __DIR__ . '/header.php';
     </div>
 </nav>
 
-<!-- Inicialización del DataTable -->
+<!-- Inicialización del DataTable (solo en tablas presentes: todos = Admin/RRHH, personal = Supervisores) -->
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-    $('#tablaVacaciones').DataTable({
-        language: {
-            url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json"
-        },
-        pageLength: 10
-    });
+    if ($('#tablaVacacionesTodos').length) {
+        $('#tablaVacacionesTodos').DataTable({
+            language: { url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json" },
+            pageLength: 10
+        });
+    }
+    if ($('#tablaVacacionesPersonal').length) {
+        $('#tablaVacacionesPersonal').DataTable({
+            language: { url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json" },
+            pageLength: 10
+        });
+    }
 });
 </script>
 
