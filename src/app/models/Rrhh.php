@@ -117,21 +117,35 @@ class Rrhh {
         return $array_datos;
     }
 
+    /**
+     * Vacaciones solo del personal a cargo del supervisor (supervisores_personal_cargo).
+     * No usa departamento: solo empleados asignados explícitamente al supervisor.
+     */
     public function mis_vacaciones_all_employe_gerentes($code) {
-
         if (!isset($_SESSION['code'])) {
             die("Error: No hay sesión iniciada.");
         }
-
-        $shit_get_departamento = $this->get_departamento($code);
-        $departamento = $shit_get_departamento[0]['nombre_departamento'];
-
-        $stmt = $this->pdo->prepare("SELECT codigo_empleado, nombre, apellido, dias_vaca_acu_tiempo FROM empleados WHERE estatus_empleado = 'A' AND nombre_departamento = :departamento");
-        $stmt->bindParam(':departamento', $departamento, PDO::PARAM_STR);
-        $stmt->execute();
         $array_datos = [];
-        while ($list_code = $stmt->fetch(PDO::FETCH_ASSOC)) {
-            $array_datos[] = $list_code;
+        try {
+            $sql = "
+                SELECT e.codigo_empleado, e.nombre, e.apellido, e.dias_vaca_acu_tiempo
+                FROM empleados e
+                INNER JOIN supervisores_personal_cargo spc
+                    ON CAST(CAST(COALESCE(e.codigo_empleado,'') AS CHAR) AS UNSIGNED) = CAST(CAST(COALESCE(spc.colaborador_code,'') AS CHAR) AS UNSIGNED)
+                WHERE CAST(CAST(COALESCE(spc.supervisor_code,'') AS CHAR) AS UNSIGNED) = CAST(:supervisor_code AS UNSIGNED)
+                AND spc.activo = 1
+                AND e.estatus_empleado = 'A'
+                ORDER BY e.nombre, e.apellido
+            ";
+            $stmt = $this->pdo->prepare($sql);
+            $supervisor_code = trim($code);
+            $stmt->bindParam(':supervisor_code', $supervisor_code, PDO::PARAM_STR);
+            $stmt->execute();
+            while ($list_code = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                $array_datos[] = $list_code;
+            }
+        } catch (PDOException $e) {
+            error_log("mis_vacaciones_all_employe_gerentes: " . $e->getMessage());
         }
         return $array_datos;
     }
