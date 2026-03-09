@@ -223,7 +223,7 @@ $tiene_acceso_rrhh = (($tipo_usuario ?? 0) == 1 || ($tipo_usuario ?? 0) == 4 || 
 
     <div class="d-flex justify-content-between align-items-center px-3 py-3">
         <div class="d-flex align-items-center">
-            <img src="<?php echo BASE_URL_IMAGE; ?>genteico.png" alt="Logo PCR" height="40" class="me-2">
+            <!--<img src="<?php echo BASE_URL_IMAGE; ?>genteico.png" alt="Logo PCR" height="40" class="me-2">-->
             <p class="mb-0 fw-bold">¡Hola <?php echo htmlspecialchars($nombre); ?>!</p>
         </div>
         <div class="text-end text-black-50 small">
