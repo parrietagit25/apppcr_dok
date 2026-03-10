@@ -1393,14 +1393,20 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
         if ($calamidad_id > 0 && $mensaje_flash !== '') {
             $class->update_calamidad($calamidad_id, $nuevo_stat);
 
-            if ($nuevo_stat == 2) {
-                $get_email_colab = $class->get_email_calamidad($calamidad_id);
-                if ($get_email_colab) {
-                    $nombre_comple = ($get_email_colab['nombre'] ?? '') . ' ' . ($get_email_colab['apellido'] ?? '');
-                    $email = $get_email_colab['email'] ?? '';
-                    $mensaje = 'Estimado '.$nombre_comple.' <br> La calamidad ha sido revisada por parte del departamento RRHH. <br>';
-                    $copia = ["sofia.macias@grupopcr.com.pa", "abi.pineda@grupopcr.com.pa", "yissell.perez@grupopcr.com.pa"];
+            $get_email_colab = $class->get_email_calamidad($calamidad_id);
+            if ($get_email_colab) {
+                $nombre_comple = ($get_email_colab['nombre'] ?? '') . ' ' . ($get_email_colab['apellido'] ?? '');
+                $email = $get_email_colab['email'] ?? '';
+                $copia = ["sofia.macias@grupopcr.com.pa", "abi.pineda@grupopcr.com.pa", "yissell.perez@grupopcr.com.pa"];
+                if ($nuevo_stat == 2) {
+                    $mensaje = 'Estimado(a) ' . $nombre_comple . ' <br><br> Su solicitud de calamidad ha sido <b>revisada</b> por parte del departamento RRHH. <br><br> Saludos.';
                     $class->enviar_correo($email, $copia, "Calamidad revisada", $mensaje);
+                } elseif ($nuevo_stat == 3) {
+                    $mensaje = 'Estimado(a) ' . $nombre_comple . ' <br><br> Le informamos que su solicitud de calamidad ha sido <b>aprobada</b> por parte del departamento RRHH. <br><br> Saludos.';
+                    $class->enviar_correo($email, $copia, "Calamidad aprobada", $mensaje);
+                } elseif ($nuevo_stat == 4) {
+                    $mensaje = 'Estimado(a) ' . $nombre_comple . ' <br><br> Le informamos que su solicitud de calamidad ha sido <b>rechazada</b> por parte del departamento RRHH. <br><br> Saludos.';
+                    $class->enviar_correo($email, $copia, "Calamidad rechazada", $mensaje);
                 }
             }
 
