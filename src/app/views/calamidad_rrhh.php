@@ -39,7 +39,7 @@ include __DIR__ . '/header.php';
             </thead>
             <tbody>
                 <?php
-                 $calamidades = $class->calamidades_rrhh();
+                 // $calamidades viene del controlador (calamidades_rrhh())
                  if (!empty($calamidades)) {
                      foreach ($calamidades as $row) {
                          echo "<tr>
@@ -112,8 +112,15 @@ include __DIR__ . '/header.php';
                                             <div class='mb-3'>
                                                 <label for='comentario' class='form-label'><b>Comentario (opcional)</b></label>
                                                 <textarea class='form-control' name='comentario' rows='3'></textarea>
-                                            </div>
-                                            <button type='submit' class='btn btn-primary' name='aprobar_calamidad'>Revisado</button>
+                                            </div>";
+                                            $stat = (int)($row['stat'] ?? 1);
+                                            if ($stat == 1) {
+                                                echo "<button type='submit' class='btn btn-primary' name='revisado_calamidad' value='1'>Revisado</button>";
+                                            } elseif ($stat == 2) {
+                                                echo "<button type='submit' class='btn btn-success me-2' name='aprobado_calamidad' value='1'>Aprobado</button>";
+                                                echo "<button type='submit' class='btn btn-danger' name='rechazar_calamidad' value='1'>Rechazado</button>";
+                                            }
+                                        echo "
                                         </form>
                                     </div>
                                 </div>

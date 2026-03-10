@@ -499,16 +499,18 @@ class Rrhh {
         $code = $_SESSION['code'];
         $code = substr($code, 2);
 
-        $stmt = $this->pdo->prepare("SELECT ct.id, ct.descripcion, ct.fecha_log, ct.code_user, 
+        $stmt = $this->pdo->prepare("SELECT ct.id, ct.stat, ct.descripcion, ct.fecha_log, ct.code_user, 
                                         CASE ct.stat
                                             WHEN 1 THEN 'Solicitado'
                                             WHEN 2 THEN 'Revisado'
+                                            WHEN 3 THEN 'Aprobado'
+                                            WHEN 4 THEN 'Rechazado'
                                         END AS estado, 
                                         c.nombre,
                                         ct.file_add FROM calamidades ct inner join col_datos_generales c on ct.code_user = c.codigo  
                                         WHERE 
-                                        ct.stat in(1, 2) 
-                                        and 
+                                        ct.stat IN (1, 2, 3, 4) 
+                                        AND 
                                         ct.code_user = '".$code."'");
 
         $stmt->execute();
@@ -524,11 +526,17 @@ class Rrhh {
         $shit_get_departamento = $this->get_departamento($code);
         $departamento = $shit_get_departamento[0]['nombre_departamento'];
 
-        $stmt = $this->pdo->prepare("SELECT * FROM calamidades 
-                                     inner join 
-                                     empleados ON CONCAT('00', calamidades.code_user) = empleados.codigo_empleado 
-                                     WHERE 
-                                     empleados.nombre_departamento = :departamento");
+        $stmt = $this->pdo->prepare("SELECT calamidades.id, calamidades.stat, calamidades.code_user, calamidades.descripcion, calamidades.fecha_log, calamidades.file_add,
+                                        CASE calamidades.stat
+                                            WHEN 1 THEN 'Solicitado'
+                                            WHEN 2 THEN 'Revisado'
+                                            WHEN 3 THEN 'Aprobado'
+                                            WHEN 4 THEN 'Rechazado'
+                                        END AS estado,
+                                        empleados.nombre, empleados.apellido
+                                        FROM calamidades 
+                                        INNER JOIN empleados ON CONCAT('00', calamidades.code_user) = empleados.codigo_empleado 
+                                        WHERE empleados.nombre_departamento = :departamento AND calamidades.stat IN (1, 2, 3, 4)");
 
         $stmt->bindParam(':departamento', $departamento, PDO::PARAM_STR);
         $stmt->execute();
@@ -545,11 +553,14 @@ class Rrhh {
 
         $stmt = $this->pdo->prepare("SELECT 
                                         ct.id, 
+                                        ct.stat,
                                         ct.descripcion, 
                                         ct.fecha_log, 
                                         CASE ct.stat
                                             WHEN 1 THEN 'Solicitado'
                                             WHEN 2 THEN 'Revisado'
+                                            WHEN 3 THEN 'Aprobado'
+                                            WHEN 4 THEN 'Rechazado'
                                         END AS estado, 
                                         c.departamento,
                                         ct.monto,
@@ -558,7 +569,7 @@ class Rrhh {
                                         c.nombre,
                                         ct.file_add FROM calamidades ct inner join col_datos_generales c on ct.code_user = c.codigo  
                                         WHERE 
-                                        ct.stat in(1, 2)");
+                                        ct.stat IN (1, 2, 3, 4)");
 
         $stmt->execute();
         $array_datos = [];
@@ -571,7 +582,7 @@ class Rrhh {
     public function insertar_calamidades($code_user, $descripcion, $file_add, $monto, $plazo, $forma_pago, $stat = 1, $user_update = 0){
 
         $sql = "INSERT INTO calamidades (code_user, descripcion, fecha_log, stat, file_add, user_update, monto, plazo, forma_pago) 
-        VALUES (:code_user, :descripcion, CURRENT_TIMESTAMP(), :stat, :file_add, :user_update, :monto, :monto, :forma_pago)";
+        VALUES (:code_user, :descripcion, CURRENT_TIMESTAMP(), :stat, :file_add, :user_update, :monto, :plazo, :forma_pago)";
 
         $stmt = $this->pdo->prepare($sql);
         $stmt->bindParam(':code_user', $code_user, PDO::PARAM_INT);
@@ -587,9 +598,13 @@ class Rrhh {
 
     }
 
-    public function update_calamidad($calamidad){
+    /**
+     * Actualiza el estado de una calamidad.
+     * @param int $calamidad ID de la calamidad
+     * @param int $stat 2=Revisado, 3=Aprobado, 4=Rechazado (por defecto 2)
+     */
+    public function update_calamidad($calamidad, $stat = 2){
 
-        $stat = 2;
         $stmt = $this->pdo->prepare("UPDATE calamidades 
                                       SET stat = :stat
                                       WHERE id = :id_calamidad");

@@ -1375,28 +1375,40 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
 }elseif(isset($_GET['calamidad_vrrhh'])){
 
     if (isset($_POST['calamidad_id'])) {
+        $calamidad_id = (int) $_POST['calamidad_id'];
+        $nuevo_stat = 2;
+        $mensaje_flash = '';
 
-        $class->update_calamidad($_POST['calamidad_id']);
-
-        $get_email_colab = $class->get_email_calamidad($_POST['calamidad_id']);
-        foreach ($get_email_colab as $key => $value) {
-            $nombre_comple = $value['nombre']. ' ' .$value['apellido']; 
-            $email = $value['email'];
+        if (isset($_POST['revisado_calamidad'])) {
+            $nuevo_stat = 2;
+            $mensaje_flash = 'Calamidad marcada como Revisada.';
+        } elseif (isset($_POST['aprobado_calamidad'])) {
+            $nuevo_stat = 3;
+            $mensaje_flash = 'Calamidad Aprobada.';
+        } elseif (isset($_POST['rechazar_calamidad'])) {
+            $nuevo_stat = 4;
+            $mensaje_flash = 'Calamidad Rechazada.';
         }
 
-        $mensaje = 'Estimado '.$nombre_comple.' <br> 
-        La calamidad ha sido revisada por parte del departamento RRHH. <br>';
+        if ($calamidad_id > 0 && $mensaje_flash !== '') {
+            $class->update_calamidad($calamidad_id, $nuevo_stat);
 
-        $copia = ["sofia.macias@grupopcr.com.pa", "abi.pineda@grupopcr.com.pa", "yissell.perez@grupopcr.com.pa"];
-        //$copia = ["pedroarrieta25@hotmail.com"];
-    
-        $class->enviar_correo($email, $copia, "Calamidad revisada", $mensaje);
-        
-        echo "<div class='alert alert-success'>Calamidad Revisada.</div>";
-    
+            if ($nuevo_stat == 2) {
+                $get_email_colab = $class->get_email_calamidad($calamidad_id);
+                if ($get_email_colab) {
+                    $nombre_comple = ($get_email_colab['nombre'] ?? '') . ' ' . ($get_email_colab['apellido'] ?? '');
+                    $email = $get_email_colab['email'] ?? '';
+                    $mensaje = 'Estimado '.$nombre_comple.' <br> La calamidad ha sido revisada por parte del departamento RRHH. <br>';
+                    $copia = ["sofia.macias@grupopcr.com.pa", "abi.pineda@grupopcr.com.pa", "yissell.perez@grupopcr.com.pa"];
+                    $class->enviar_correo($email, $copia, "Calamidad revisada", $mensaje);
+                }
+            }
+
+            echo "<div class='alert alert-success'>" . htmlspecialchars($mensaje_flash) . "</div>";
+        }
     }
 
-    $calamidades = $class->calamidades();
+    $calamidades = $class->calamidades_rrhh();
 
     require_once __DIR__ . '/../views/calamidad_rrhh.php';
     exit();
