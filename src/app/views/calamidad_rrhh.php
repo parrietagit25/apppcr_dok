@@ -62,7 +62,7 @@ include __DIR__ . '/header.php';
                                         <button type='button' class='btn-close' data-bs-dismiss='modal' aria-label='Cerrar'></button>
                                     </div>
                                     <div class='modal-body'>
-                                        <form action='' method='POST' enctype='multipart/form-data'>
+                                        <form action='' method='POST' enctype='multipart/form-data' class='form-calamidad-accion'>
                                             <input type='hidden' name='calamidad_id' value='{$row['id']}'>
                                             <div class='mb-3'>";
                                                 
@@ -115,10 +115,10 @@ include __DIR__ . '/header.php';
                                             </div>";
                                             $stat = (int)($row['stat'] ?? 1);
                                             if ($stat == 1) {
-                                                echo "<button type='submit' class='btn btn-primary' name='revisado_calamidad' value='1'>Revisado</button>";
+                                                echo "<button type='submit' class='btn btn-primary btn-accion-calamidad' name='revisado_calamidad' value='1'>Revisado</button>";
                                             } elseif ($stat == 2) {
-                                                echo "<button type='submit' class='btn btn-success me-2' name='aprobado_calamidad' value='1'>Aprobado</button>";
-                                                echo "<button type='submit' class='btn btn-danger' name='rechazar_calamidad' value='1'>Rechazado</button>";
+                                                echo "<button type='submit' class='btn btn-success me-2 btn-accion-calamidad' name='aprobado_calamidad' value='1'>Aprobado</button>";
+                                                echo "<button type='submit' class='btn btn-danger btn-accion-calamidad' name='rechazar_calamidad' value='1'>Rechazado</button>";
                                             }
                                         echo "
                                         </form>
@@ -188,7 +188,7 @@ include __DIR__ . '/header.php';
     </div>
 </nav>
 
-<!-- Inicializar DataTable -->
+<!-- Inicializar DataTable y deshabilitar botones al enviar formulario de calamidad -->
 <script>
 document.addEventListener("DOMContentLoaded", function () {
     $('#tablaCalamidadesRRHH').DataTable({
@@ -197,6 +197,17 @@ document.addEventListener("DOMContentLoaded", function () {
         },
         pageLength: 10,
         order: [[2, 'desc']] // Ordenar por "Fecha de Solicitud" descendente
+    });
+
+    // Al enviar el formulario de calamidad (Revisado / Aprobado / Rechazado), deshabilitar botones y mostrar "Enviando..."
+    document.querySelectorAll("form.form-calamidad-accion").forEach(function (form) {
+        form.addEventListener("submit", function () {
+            var botones = form.querySelectorAll("button.btn-accion-calamidad");
+            botones.forEach(function (btn) {
+                btn.disabled = true;
+                btn.innerHTML = "Enviando...";
+            });
+        });
     });
 });
 </script>
