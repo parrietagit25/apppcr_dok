@@ -135,10 +135,10 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
         <br>
         Comentarios del colaborador: '.$descripcion.' <br> ';
 
-        //$copia = ["abi.pineda@grupopcr.com.pa", "yissell.perez@grupopcr.com.pa"];
-        $copia = ["pedroarrieta25@hotmail.com"];
-        //sofia.macias@grupopcr.com.pa
-        $class->enviar_correo("pedro.arrieta@grupopcr.com.pa", $copia, "Carta de trabajo", $mensaje);
+        $copia = ["abi.pineda@grupopcr.com.pa", "yissell.perez@grupopcr.com.pa"];
+        //$copia = ["pedroarrieta25@hotmail.com"];
+
+        $class->enviar_correo("sofia.macias@grupopcr.com.pa", $copia, "Carta de trabajo", $mensaje);
         //echo "<div class='alert alert-success'>Solicitud de Carta de trabajo enviada.</div>";
 
     }
