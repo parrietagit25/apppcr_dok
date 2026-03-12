@@ -770,10 +770,8 @@ class Rrhh {
 
     /**
      * Valida que el rango de fechas para permiso tipo Vacaciones cumpla la regla:
-     * - Del 1 al 15 del mes, O
-     * - Del 16 al último día del mes (en febrero al 28/29), O
-     * - Del 1 al último día del mes (mes completo).
-     * No se puede cruzar el límite 15/16 salvo que sea el mes completo (ej: 10 al 20 es inválido).
+     * - Del 1 al último día del mismo mes (mes completo), O
+     * - Del 15 de un mes al 16 del mes siguiente.
      * @return array ['valido' => bool, 'mensaje' => string]
      */
     public static function validar_rango_vacaciones($fecha_inicio, $fecha_fin) {
@@ -782,29 +780,33 @@ class Rrhh {
         if (!$inicio || !$fin || $inicio > $fin) {
             return ['valido' => false, 'mensaje' => 'Fechas inválidas.'];
         }
-        // Opción adicional: del 1 al último día del mismo mes (mes completo)
-        $ultimo_del_mes = (clone $inicio)->modify('last day of this month');
-        if ($inicio->format('j') == 1 && $fin->format('Y-m-d') === $ultimo_del_mes->format('Y-m-d')) {
-            return ['valido' => true, 'mensaje' => ''];
-        }
-        $dia_inicio = (int) $inicio->format('j');
-        $bloque_inicio = $dia_inicio <= 15 ? '1-15' : '16-fin';
-        $intervalo = new \DateInterval('P1D');
-        $fin->modify('+1 day');
-        $periodo = new \DatePeriod($inicio, $intervalo, $fin);
-        foreach ($periodo as $fecha) {
-            $dia = (int) $fecha->format('j');
-            if ($bloque_inicio === '1-15') {
-                if ($dia > 15) {
-                    return ['valido' => false, 'mensaje' => 'Para vacaciones solo puede elegir del 1 al 15 del mes, del 16 al último día del mes, o del 1 al último día del mes (mes completo). No puede cruzar ambas mitades (ej: del 10 al 20).'];
-                }
-            } else {
-                if ($dia < 16) {
-                    return ['valido' => false, 'mensaje' => 'Para vacaciones solo puede elegir del 1 al 15 del mes, del 16 al último día del mes, o del 1 al último día del mes (mes completo). No puede cruzar ambas mitades (ej: del 10 al 20).'];
-                }
+
+        // Opción 1: del 1 al último día del mismo mes (mes completo)
+        $mismoMes = $inicio->format('Y-m') === $fin->format('Y-m');
+        if ($mismoMes) {
+            $ultimo_del_mes = (clone $inicio)->modify('last day of this month');
+            if ((int)$inicio->format('j') === 1 && $fin->format('Y-m-d') === $ultimo_del_mes->format('Y-m-d')) {
+                return ['valido' => true, 'mensaje' => ''];
             }
         }
-        return ['valido' => true, 'mensaje' => ''];
+
+        // Opción 2: del 15 de un mes al 16 del mes siguiente
+        if ((int)$inicio->format('j') === 15) {
+            $inicio_clon = clone $inicio;
+            // Ir al primer día del mes siguiente
+            $inicio_clon->modify('first day of next month');
+            // Ajustar al día 16 del mes siguiente
+            $inicio_clon->setDate((int)$inicio_clon->format('Y'), (int)$inicio_clon->format('n'), 16);
+
+            if ($fin->format('Y-m-d') === $inicio_clon->format('Y-m-d')) {
+                return ['valido' => true, 'mensaje' => ''];
+            }
+        }
+
+        return [
+            'valido' => false,
+            'mensaje' => 'Para vacaciones solo puede elegir del 1 al último día del mes (mes completo) o del 15 de un mes al 16 del mes siguiente.'
+        ];
     }
 
     /**

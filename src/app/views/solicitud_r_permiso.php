@@ -48,7 +48,7 @@ include __DIR__ . '/header.php';
         <br><br>
         <p>
             <span style="color:red;"><b>Nota: Recuerde que las vacaciones deben ser aprobadas previamente por su supervisor para su debida autorización.</b></span><br>
-            <span class="text-muted"><b>Vacaciones (tipo permiso):</b> Solo se puede solicitar: del 1 al 15 del mes, del 16 al último día del mes (en febrero al 28 o 29), o del 1 al último día del mes (mes completo). No se puede cruzar ambas mitades (ej: del 10 al 20). En el detalle puede indicar los días que tomará realmente.</span>
+            <span class="text-muted"><b>Vacaciones (tipo permiso):</b> Solo se puede solicitar: del 1 al último día del mes (mes completo) o del 15 de un mes al 16 del mes siguiente. En el detalle puede indicar los días que tomará realmente.</span>
         </p>
     </div>
 
@@ -241,7 +241,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     }
                 }
                 if (!ok) {
-                    alert('Para permiso tipo Vacaciones solo puede elegir del 1 al 15 del mes, del 16 al último día del mes, o del 1 al último día del mes (mes completo). No puede cruzar ambas mitades (ej: del 10 al 20).');
+                    alert('Para permiso tipo Vacaciones solo puede elegir del 1 al último día del mes (mes completo) o del 15 de un mes al 16 del mes siguiente.');
                     return;
                 }
             }
