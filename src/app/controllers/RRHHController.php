@@ -852,19 +852,6 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
             exit;
         }
 
-        if ($tipo_licencia === 'Vacaciones') {
-            $validacion = \Rrhh::validar_rango_vacaciones($fecha_inicio, $fecha_fin);
-            if (!$validacion['valido']) {
-                echo "<div class='alert alert-danger'>" . htmlspecialchars($validacion['mensaje']) . "</div>";
-                $select_jefe = $class->select_jefe();
-                $permisos = $class->select_permisos();
-                $mis_vacas = $class->mis_vacaciones();
-                $permisos_pendientes = $class->permisos_pendientes_por_usuario($_SESSION['code']);
-                require_once __DIR__ . '/../views/solicitud_permiso.php';
-                exit;
-            }
-        }
-
         if ($class->ya_envio_permiso_tipo_hoy($_SESSION['code'], $tipo_licencia)) {
             $error_permiso_duplicado = 'Solo puedes enviar una solicitud de "' . htmlspecialchars($tipo_licencia) . '" por día. Ya enviaste una hoy; si es otro caso, envía mañana.';
             $select_jefe = $class->select_jefe();
@@ -1016,19 +1003,6 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
             $permisos_pendientes = $class->permisos_pendientes_por_usuario($_SESSION['code']);
             require_once __DIR__ . '/../views/solicitud_r_permiso.php';
             exit;
-        }
-
-        if ($tipo_licencia === 'Vacaciones') {
-            $validacion = \Rrhh::validar_rango_vacaciones($fecha_inicio, $fecha_fin);
-            if (!$validacion['valido']) {
-                echo "<div class='alert alert-danger'>" . htmlspecialchars($validacion['mensaje']) . "</div>";
-                $select_jefe = $class->r_select_jefe();
-                $permisos = $class->select_permisos();
-                $mis_vacas = $class->mis_vacaciones();
-                $permisos_pendientes = $class->permisos_pendientes_por_usuario($_SESSION['code']);
-                require_once __DIR__ . '/../views/solicitud_r_permiso.php';
-                exit;
-            }
         }
 
         if ($class->ya_envio_permiso_tipo_hoy($_SESSION['code'], $tipo_licencia)) {

@@ -210,41 +210,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
     if (form && btn && loader) {
         btn.addEventListener("click", function () {
-            var tipoLicencia = form.querySelector('select[name="tipo_licencia"]');
-            var fechaInicio = form.querySelector('input[name="fecha_inicio"]');
-            var fechaFin = form.querySelector('input[name="fecha_fin"]');
-            if (tipoLicencia && tipoLicencia.value === 'Vacaciones' && fechaInicio && fechaFin && fechaInicio.value && fechaFin.value) {
-                // Parsear como fecha local (YYYY-MM-DD) para evitar que UTC cambie el día
-                var pI = fechaInicio.value.split('-').map(Number);
-                var pF = fechaFin.value.split('-').map(Number);
-                var inicio = new Date(pI[0], pI[1] - 1, pI[2]);
-                var fin = new Date(pF[0], pF[1] - 1, pF[2]);
-                if (inicio > fin) {
-                    alert('La fecha de inicio debe ser anterior o igual a la fecha fin.');
-                    return;
-                }
-                var ok = false;
-                // Opción adicional: del 1 al último día del mismo mes (mes completo)
-                if (inicio.getDate() === 1) {
-                    var lastDay = new Date(inicio.getFullYear(), inicio.getMonth() + 1, 0);
-                    if (fin.getDate() === lastDay.getDate() && fin.getMonth() === lastDay.getMonth() && fin.getFullYear() === lastDay.getFullYear()) {
-                        ok = true;
-                    }
-                }
-                if (!ok) {
-                    var bloqueInicio = inicio.getDate() <= 15 ? '1-15' : '16-fin';
-                    ok = true;
-                    for (var d = new Date(inicio.getTime()); d <= fin; d.setDate(d.getDate() + 1)) {
-                        var dia = d.getDate();
-                        if (bloqueInicio === '1-15' && dia > 15) { ok = false; break; }
-                        if (bloqueInicio === '16-fin' && dia < 16) { ok = false; break; }
-                    }
-                }
-                if (!ok) {
-                    alert('Para permiso tipo Vacaciones solo puede elegir del 1 al último día del mes (mes completo) o del 15 de un mes al 16 del mes siguiente.');
-                    return;
-                }
-            }
             btn.disabled = true;
             btn.value = "Enviando...";
             loader.classList.remove("d-none");
@@ -259,15 +224,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function aplicarRestriccionFechasPermiso() {
         if (!fechaInicioInput || !fechaFinInput) return;
-        var tipo = selectTipo ? selectTipo.value : '';
-        var hoy = new Date().toISOString().split('T')[0];
-        if (tipo === 'Vacaciones') {
-            fechaInicioInput.setAttribute('min', hoy);
-            fechaFinInput.setAttribute('min', hoy);
-        } else {
-            fechaInicioInput.removeAttribute('min');
-            fechaFinInput.removeAttribute('min');
-        }
+        fechaInicioInput.removeAttribute('min');
+        fechaFinInput.removeAttribute('min');
     }
 
     if (selectTipo) {
