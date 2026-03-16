@@ -762,7 +762,19 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
 
 }elseif(isset($_GET['incapacidad_vrrhh'])){
 
-    if (isset($_POST['incapacidad_id'])) {
+    if (isset($_POST['borrar_incapacidad']) && isset($_POST['incapacidad_id'])) {
+        $puede_borrar = ($tipo_usuario == 1 || $tipo_usuario == 4);
+        if ($puede_borrar) {
+            $id_borrar = (int) $_POST['incapacidad_id'];
+            if ($id_borrar > 0 && $class->delete_incapacidad($id_borrar)) {
+                echo "<div class='alert alert-success'>Incapacidad eliminada correctamente.</div>";
+            } else {
+                echo "<div class='alert alert-danger'>No se pudo eliminar la incapacidad.</div>";
+            }
+        }
+    }
+
+    if (isset($_POST['incapacidad_id']) && !isset($_POST['borrar_incapacidad'])) {
 
         //echo 'paso por dentro del controlador '.$_POST['incapacidad_id'];
 

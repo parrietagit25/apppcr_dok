@@ -417,20 +417,21 @@ class Rrhh {
 
         $code = $_SESSION['code'];
 
-        $stmt = $this->pdo->prepare("SELECT 
-                                        ct.id, 
-                                        ct.descripcion, 
-                                        ct.fecha_log, 
+        $stmt = $this->pdo->prepare("SELECT
+                                        ct.id,
+                                        e.codigo_empleado,
+                                        ct.descripcion,
+                                        ct.fecha_log,
                                         ct.fecha_retroactiva,
                                         CASE ct.stat
                                             WHEN 1 THEN 'Enviado'
                                             WHEN 2 THEN 'Revisado'
                                             WHEN 3 THEN 'Anulado'
-                                        END AS estado, 
+                                        END AS estado,
                                         CONCAT(e.nombre, ' ', e.apellido) AS nombre,
                                         ct.file_add
                                     FROM incapacidad ct
-                                    INNER JOIN empleados e 
+                                    INNER JOIN empleados e
                                         ON ct.code_user = RIGHT(e.codigo_empleado, CHAR_LENGTH(e.codigo_empleado) - 2)");
 
 
@@ -484,14 +485,23 @@ class Rrhh {
     public function update_incapacidad($incapacidad){
 
         $stat = 2;
-        $stmt = $this->pdo->prepare("UPDATE incapacidad 
+        $stmt = $this->pdo->prepare("UPDATE incapacidad
                                       SET stat = :stat
                                       WHERE id = :id_incapacidad");
         $stmt->bindParam(':stat', $stat, PDO::PARAM_INT);
         $stmt->bindParam(':id_incapacidad', $incapacidad, PDO::PARAM_INT);
-        
+
         return $stmt->execute();
 
+    }
+
+    /**
+     * Elimina una incapacidad por ID. Solo debe usarse desde V-Incapacidades por admin o RRHH.
+     */
+    public function delete_incapacidad($id) {
+        $stmt = $this->pdo->prepare("DELETE FROM incapacidad WHERE id = :id");
+        $stmt->bindParam(':id', $id, PDO::PARAM_INT);
+        return $stmt->execute();
     }
 
     public function calamidades() {

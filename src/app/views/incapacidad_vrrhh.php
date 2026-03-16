@@ -31,11 +31,13 @@ include __DIR__ . '/header.php';
         <table id="tablaIncapacidadRRHH" class="table table-striped table-bordered mt-3">
             <thead class="table-dark text-center">
                 <tr>
+                    <th>Nº Colaborador</th>
                     <th>Nombre</th>
                     <th>Descripción</th>
                     <th>Fecha de Solicitud</th>
                     <th>Fecha Retroactiva</th>
                     <th>Estado</th>
+                    <?php if (($tipo_usuario ?? 0) == 1 || ($tipo_usuario ?? 0) == 4): ?><th>Borrar</th><?php endif; ?>
                 </tr>
             </thead>
             <tbody>
@@ -44,7 +46,9 @@ include __DIR__ . '/header.php';
                 if (!empty($incapacidad)) {
                     foreach ($incapacidad as $row) {
                         $fecha_retro = !empty($row['fecha_retroactiva']) ? htmlspecialchars($row['fecha_retroactiva']) : '-';
+                        $codigo_colab = htmlspecialchars($row['codigo_empleado'] ?? '-');
                         echo "<tr>
+                                <td>$codigo_colab</td>
                                 <td>" . htmlspecialchars($row['nombre']) . "</td>
                                 <td>" . htmlspecialchars($row['descripcion']) . "</td>
                                 <td>" . htmlspecialchars($row['fecha_log']) . "</td>
@@ -53,8 +57,16 @@ include __DIR__ . '/header.php';
                                     <a href='#' data-bs-toggle='modal' data-bs-target='#modalAdjuntar{$row['id']}'>
                                         " . htmlspecialchars($row['estado']) . "
                                     </a>
-                                </td>
-                              </tr>";
+                                </td>";
+                        if (($tipo_usuario ?? 0) == 1 || ($tipo_usuario ?? 0) == 4) {
+                            echo "<td class='text-center'>
+                                    <form method='POST' action='' onsubmit=\"return confirm('¿Eliminar esta incapacidad?');\" style='display:inline;'>
+                                        <input type='hidden' name='incapacidad_id' value='{$row['id']}'>
+                                        <button type='submit' name='borrar_incapacidad' value='1' class='btn btn-sm btn-danger' title='Borrar incapacidad'><i class='bi bi-trash'></i></button>
+                                    </form>
+                                  </td>";
+                        }
+                        echo "</tr>";
 
                         // Modal por solicitud
                         echo "
@@ -89,7 +101,8 @@ include __DIR__ . '/header.php';
                         </div>";
                     }
                 } else {
-                    echo "<tr><td colspan='5' class='text-center'>No hay solicitudes registradas.</td></tr>";
+                    $colspan = (($tipo_usuario ?? 0) == 1 || ($tipo_usuario ?? 0) == 4) ? 7 : 6;
+                    echo "<tr><td colspan='$colspan' class='text-center'>No hay solicitudes registradas.</td></tr>";
                 }
                 ?>
             </tbody>
