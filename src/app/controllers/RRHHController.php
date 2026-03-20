@@ -86,6 +86,38 @@ if (!function_exists('rrhh_process_incapacidad_upload')) {
         }
 
         $base_without_ext = pathinfo($safe_name, PATHINFO_FILENAME);
+        $heic_like = in_array($ext, ['heic', 'heif'], true);
+        if ($heic_like) {
+            if (!class_exists('Imagick')) {
+                $error_message = 'Tu imagen esta en formato HEIC/HEIF y el servidor no puede convertirla. Cambia la camara a formato JPG (Mas compatible) o sube la imagen como JPG/PNG.';
+                return '';
+            }
+
+            try {
+                $imagick = new Imagick();
+                $imagick->readImage($file['tmp_name']);
+                $imagick->setImageFormat('jpeg');
+                $imagick->setImageCompression(Imagick::COMPRESSION_JPEG);
+                $imagick->setImageCompressionQuality(75);
+                $imagick->stripImage(); // limpia metadata/EXIF
+
+                $unique_name = $base_without_ext . '_' . date('YmdHis') . '_' . bin2hex(random_bytes(4)) . '.jpg';
+                $destination = $upload_dir . $unique_name;
+                $ok_heic = $imagick->writeImage($destination);
+                $imagick->clear();
+                $imagick->destroy();
+
+                if (!$ok_heic) {
+                    $error_message = 'No se pudo convertir la imagen HEIC.';
+                    return '';
+                }
+                return $unique_name;
+            } catch (Throwable $e) {
+                $error_message = 'No se pudo convertir la imagen HEIC/HEIF.';
+                return '';
+            }
+        }
+
         $unique_name = $base_without_ext . '_' . date('YmdHis') . '_' . bin2hex(random_bytes(4)) . '.' . $ext;
         $destination = $upload_dir . $unique_name;
 
