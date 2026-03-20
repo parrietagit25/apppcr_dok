@@ -45,50 +45,90 @@ if (!function_exists('rrhh_process_incapacidad_upload')) {
         }
 
         $safe_name = preg_replace('/[^A-Za-z0-9._-]/', '_', basename($file['name']));
-        $finfo = finfo_open(FILEINFO_MIME_TYPE);
-        $mime = finfo_file($finfo, $file['tmp_name']);
-        finfo_close($finfo);
+        $ext_from_name = strtolower((string) pathinfo($safe_name, PATHINFO_EXTENSION));
+
+        $mime = '';
+        if (function_exists('finfo_open')) {
+            $finfo = @finfo_open(FILEINFO_MIME_TYPE);
+            if ($finfo) {
+                $mime = (string) @finfo_file($finfo, $file['tmp_name']);
+                @finfo_close($finfo);
+            }
+        }
+        if ($mime === '' && function_exists('mime_content_type')) {
+            $mime = (string) @mime_content_type($file['tmp_name']);
+        }
 
         $allowed_mimes = [
             'image/jpeg' => 'jpg',
+            'image/pjpeg' => 'jpg',
             'image/png' => 'png',
             'image/webp' => 'webp',
-            'application/pdf' => 'pdf'
+            'application/pdf' => 'pdf',
+            'image/heic' => 'heic',
+            'image/heif' => 'heif',
+            'application/octet-stream' => ''
+        ];
+        $allowed_ext = [
+            'jpg', 'jpeg', 'png', 'webp', 'pdf', 'heic', 'heif'
         ];
 
-        if (!isset($allowed_mimes[$mime])) {
+        $ext = '';
+        if ($mime !== '' && isset($allowed_mimes[$mime]) && $allowed_mimes[$mime] !== '') {
+            $ext = $allowed_mimes[$mime];
+        } elseif (in_array($ext_from_name, $allowed_ext, true)) {
+            $ext = ($ext_from_name === 'jpeg') ? 'jpg' : $ext_from_name;
+        }
+
+        if ($ext === '') {
             $error_message = 'Tipo de archivo no permitido.';
             return '';
         }
 
-        $ext = $allowed_mimes[$mime];
         $base_without_ext = pathinfo($safe_name, PATHINFO_FILENAME);
         $unique_name = $base_without_ext . '_' . date('YmdHis') . '_' . bin2hex(random_bytes(4)) . '.' . $ext;
         $destination = $upload_dir . $unique_name;
 
-        if (strpos($mime, 'image/') === 0) {
+        $is_image = in_array($ext, ['jpg', 'png', 'webp'], true);
+        if ($is_image) {
+            $can_process = function_exists('gd_info') &&
+                function_exists('imagejpeg') &&
+                function_exists('imagepng') &&
+                ($ext !== 'webp' || (function_exists('imagecreatefromwebp') && function_exists('imagewebp')));
+
+            if (!$can_process) {
+                if (!move_uploaded_file($file['tmp_name'], $destination)) {
+                    $error_message = 'Error al mover el archivo.';
+                    return '';
+                }
+                return $unique_name;
+            }
+
             $img = null;
-            if ($mime === 'image/jpeg') {
+            if ($ext === 'jpg' && function_exists('imagecreatefromjpeg')) {
                 $img = @imagecreatefromjpeg($file['tmp_name']);
-            } elseif ($mime === 'image/png') {
+            } elseif ($ext === 'png' && function_exists('imagecreatefrompng')) {
                 $img = @imagecreatefrompng($file['tmp_name']);
-            } elseif ($mime === 'image/webp' && function_exists('imagecreatefromwebp')) {
+            } elseif ($ext === 'webp' && function_exists('imagecreatefromwebp')) {
                 $img = @imagecreatefromwebp($file['tmp_name']);
             }
 
             if (!$img) {
-                $error_message = 'No se pudo procesar la imagen.';
-                return '';
+                if (!move_uploaded_file($file['tmp_name'], $destination)) {
+                    $error_message = 'No se pudo procesar ni mover la imagen.';
+                    return '';
+                }
+                return $unique_name;
             }
 
             // Re-encode para reducir peso y eliminar metadatos EXIF.
-            if ($mime === 'image/jpeg') {
+            if ($ext === 'jpg') {
                 $ok = imagejpeg($img, $destination, 75);
-            } elseif ($mime === 'image/png') {
+            } elseif ($ext === 'png') {
                 imagesavealpha($img, true);
                 $ok = imagepng($img, $destination, 6);
             } else {
-                $ok = function_exists('imagewebp') ? imagewebp($img, $destination, 75) : false;
+                $ok = imagewebp($img, $destination, 75);
             }
 
             imagedestroy($img);
