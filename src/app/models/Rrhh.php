@@ -467,6 +467,28 @@ class Rrhh {
         return $array_datos;
     }
 
+    public function incapacidad_por_code_user($code_user) {
+        $stmt = $this->pdo->prepare("SELECT ct.id, ct.descripcion, ct.fecha_log, ct.fecha_retroactiva,
+                                        CASE ct.stat
+                                            WHEN 1 THEN 'Enviado'
+                                            WHEN 2 THEN 'Revisado'
+                                            WHEN 3 THEN 'Anulado'
+                                        END AS estado,
+                                        c.nombre,
+                                        ct.file_add
+                                     FROM incapacidad ct
+                                     INNER JOIN col_datos_generales c ON ct.code_user = c.codigo
+                                     WHERE ct.stat IN (1,2)
+                                     AND ct.code_user = :code_user");
+        $stmt->bindParam(':code_user', $code_user, PDO::PARAM_STR);
+        $stmt->execute();
+        $array_datos = [];
+        while ($list_code = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            $array_datos[] = $list_code;
+        }
+        return $array_datos;
+    }
+
     public function insertar_incapacidad($code_user, $descripcion, $file_add, $stat = 1, $id_user_aprobado = 0, $fecha_retroactiva = null) {
         $sql = "INSERT INTO incapacidad (code_user, descripcion, fecha_log, stat, file_add, id_user_aprobado, fecha_retroactiva) 
                 VALUES (:code_user, :descripcion, CURRENT_TIMESTAMP(), :stat, :file_add, :id_user_aprobado, :fecha_retroactiva)";

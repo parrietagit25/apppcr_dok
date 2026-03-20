@@ -119,6 +119,18 @@ include __DIR__ . '/header.php';
                     <div class="text-muted small">Mis Incapacidades</div>
                 </a>
             </div>
+            <?php
+                $codigo_actual = trim($_SESSION['code'] ?? '');
+                $puede_ver_incapacidad_privada = ($codigo_actual === '002475' || ltrim($codigo_actual, '0') === '2475');
+            ?>
+            <?php if ($puede_ver_incapacidad_privada) { ?>
+            <div class="col-4 mb-3">
+                <a href="<?php echo BASE_URL_CONTROLLER; ?>/RRHHController.php?incapacidad_privada=1" class="text-decoration-none">
+                    <img src="<?php echo BASE_URL_IMAGE; ?>ico_incapacidades.png" width="45">
+                    <div class="text-muted small"><span class="badge bg-warning">PRIVADO</span> Incapacidad</div>
+                </a>
+            </div>
+            <?php } ?>
 
             <?php if ($tiene_acceso_rrhh || $tipo_usuario == 6) { ?>
             <div class="col-4 mb-3">

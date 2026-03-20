@@ -31,6 +31,83 @@ $userModel = new User($pdo);
 
 $tipo_usuario = $userModel->get_tyte_user();
 
+if (!function_exists('rrhh_normalize_code')) {
+    function rrhh_normalize_code($code) {
+        return ltrim((string) $code, '0');
+    }
+}
+
+if (!function_exists('rrhh_process_incapacidad_upload')) {
+    function rrhh_process_incapacidad_upload($file, $upload_dir, &$error_message = '') {
+        if (!isset($file['tmp_name']) || !is_uploaded_file($file['tmp_name'])) {
+            $error_message = 'Archivo inválido.';
+            return '';
+        }
+
+        $safe_name = preg_replace('/[^A-Za-z0-9._-]/', '_', basename($file['name']));
+        $finfo = finfo_open(FILEINFO_MIME_TYPE);
+        $mime = finfo_file($finfo, $file['tmp_name']);
+        finfo_close($finfo);
+
+        $allowed_mimes = [
+            'image/jpeg' => 'jpg',
+            'image/png' => 'png',
+            'image/webp' => 'webp',
+            'application/pdf' => 'pdf'
+        ];
+
+        if (!isset($allowed_mimes[$mime])) {
+            $error_message = 'Tipo de archivo no permitido.';
+            return '';
+        }
+
+        $ext = $allowed_mimes[$mime];
+        $base_without_ext = pathinfo($safe_name, PATHINFO_FILENAME);
+        $unique_name = $base_without_ext . '_' . date('YmdHis') . '_' . bin2hex(random_bytes(4)) . '.' . $ext;
+        $destination = $upload_dir . $unique_name;
+
+        if (strpos($mime, 'image/') === 0) {
+            $img = null;
+            if ($mime === 'image/jpeg') {
+                $img = @imagecreatefromjpeg($file['tmp_name']);
+            } elseif ($mime === 'image/png') {
+                $img = @imagecreatefrompng($file['tmp_name']);
+            } elseif ($mime === 'image/webp' && function_exists('imagecreatefromwebp')) {
+                $img = @imagecreatefromwebp($file['tmp_name']);
+            }
+
+            if (!$img) {
+                $error_message = 'No se pudo procesar la imagen.';
+                return '';
+            }
+
+            // Re-encode para reducir peso y eliminar metadatos EXIF.
+            if ($mime === 'image/jpeg') {
+                $ok = imagejpeg($img, $destination, 75);
+            } elseif ($mime === 'image/png') {
+                imagesavealpha($img, true);
+                $ok = imagepng($img, $destination, 6);
+            } else {
+                $ok = function_exists('imagewebp') ? imagewebp($img, $destination, 75) : false;
+            }
+
+            imagedestroy($img);
+
+            if (!$ok) {
+                $error_message = 'No se pudo guardar la imagen procesada.';
+                return '';
+            }
+        } else {
+            if (!move_uploaded_file($file['tmp_name'], $destination)) {
+                $error_message = 'Error al mover el archivo.';
+                return '';
+            }
+        }
+
+        return $unique_name;
+    }
+}
+
 // Endpoints JSON para Mi Personal (detalle empleado y permisos)
 $codigo_sesion = trim($_SESSION['code'] ?? '');
 $puede_acceder_mi_personal = ($tipo_usuario == 1 || $tipo_usuario == 6 || $codigo_sesion === '001558');
@@ -718,14 +795,10 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
         }
     
         if (isset($_FILES['archivo_incapacidad']) && $_FILES['archivo_incapacidad']['error'] === UPLOAD_ERR_OK) {
-            $archivo_tmp = $_FILES['archivo_incapacidad']['tmp_name'];
-            $archivo_nombre = basename($_FILES['archivo_incapacidad']['name']);
-            $archivo_destino = $upload_dir . $archivo_nombre;
-    
-            if (move_uploaded_file($archivo_tmp, $archivo_destino)) {
-                $file_add = $archivo_nombre;
-            } else {
-                echo "<div class='alert alert-danger'>Error al mover el archivo.</div>";
+            $upload_error = '';
+            $file_add = rrhh_process_incapacidad_upload($_FILES['archivo_incapacidad'], $upload_dir, $upload_error);
+            if ($file_add === '') {
+                echo "<div class='alert alert-danger'>" . htmlspecialchars($upload_error) . "</div>";
                 exit;
             }
         }
@@ -758,6 +831,48 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
     $incapacidad = $class->incapacidad();
 
     require_once __DIR__ . '/../views/incapacidad.php';
+    exit();
+
+}elseif(isset($_GET['incapacidad_privada'])){
+
+    $codigo_sesion_privado = trim($_SESSION['code'] ?? '');
+    $acceso_incapacidad_privada = ($codigo_sesion_privado === '002475' || rrhh_normalize_code($codigo_sesion_privado) === '2475');
+    if (!$acceso_incapacidad_privada) {
+        header("Location: " . BASE_URL_CONTROLLER . "/RRHHController.php");
+        exit();
+    }
+
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['descripcion'])) {
+        $code_user = rrhh_normalize_code($codigo_sesion_privado);
+        $descripcion = trim($_POST['descripcion']);
+        $fecha_retroactiva = !empty($_POST['fecha_retroactiva']) ? $_POST['fecha_retroactiva'] : null;
+        $file_add = "";
+
+        $upload_dir = __DIR__ . '/../uploads/incapacidades/';
+        if (!is_dir($upload_dir)) {
+            mkdir($upload_dir, 0777, true);
+        }
+
+        if (isset($_FILES['archivo_incapacidad']) && $_FILES['archivo_incapacidad']['error'] === UPLOAD_ERR_OK) {
+            $upload_error = '';
+            $file_add = rrhh_process_incapacidad_upload($_FILES['archivo_incapacidad'], $upload_dir, $upload_error);
+            if ($file_add === '') {
+                echo "<div class='alert alert-danger'>" . htmlspecialchars($upload_error) . "</div>";
+                $incapacidad = $class->incapacidad_por_code_user($code_user);
+                require_once __DIR__ . '/../views/incapacidad_privada.php';
+                exit();
+            }
+        }
+
+        if ($class->insertar_incapacidad($code_user, $descripcion, $file_add, 1, 0, $fecha_retroactiva)) {
+            echo "<div class='alert alert-success'>Incapacidad privada guardada correctamente.</div>";
+        } else {
+            echo "<div class='alert alert-danger'>Error al guardar la incapacidad en la base de datos.</div>";
+        }
+    }
+
+    $incapacidad = $class->incapacidad_por_code_user(rrhh_normalize_code($codigo_sesion_privado));
+    require_once __DIR__ . '/../views/incapacidad_privada.php';
     exit();
 
 }elseif(isset($_GET['incapacidad_vrrhh'])){
