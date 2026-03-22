@@ -211,18 +211,33 @@ if (!function_exists('rrhh_process_incapacidad_upload')) {
 
     function rrhh_incapacidad_secure_upload_dir($upload_dir, &$error_message) {
         $error_message = '';
-        $upload_dir = rtrim(str_replace(["\0", '../', '..\\'], '', $upload_dir), '/\\') . DIRECTORY_SEPARATOR;
+        // NO eliminar '../' de la ruta: rutas como .../controllers/../uploads/ quedarían rotas
+        // (p.ej. .../controllers/uploads/ en lugar de .../app/uploads/).
+        $upload_dir = str_replace("\0", '', (string) $upload_dir);
+        $upload_dir = rtrim(str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $upload_dir), DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
+
         if (!is_dir($upload_dir)) {
             if (!@mkdir($upload_dir, 0775, true)) {
+                $last = function_exists('error_get_last') ? error_get_last() : null;
                 $error_message = 'No se pudo preparar la carpeta de archivos. Contacte a soporte.';
-                rrhh_incapacidad_upload_log('permisos', 'mkdir falló', ['dir' => $upload_dir]);
+                rrhh_incapacidad_upload_log('permisos', 'mkdir falló', [
+                    'dir' => $upload_dir,
+                    'php_error' => $last['message'] ?? null,
+                ]);
                 return '';
             }
         }
-        $real = realpath($upload_dir);
-        if ($real === false || !is_dir($real) || !is_writable($real)) {
-            $error_message = 'Carpeta de adjuntos no disponible o sin permiso de escritura.';
-            rrhh_incapacidad_upload_log('permisos', 'dir no escribible', ['dir' => $upload_dir, 'realpath' => $real]);
+        clearstatcache(true, $upload_dir);
+        $trimmed = rtrim($upload_dir, DIRECTORY_SEPARATOR);
+        $real = @realpath($trimmed);
+        if ($real === false || !is_dir($real)) {
+            $error_message = 'Carpeta de adjuntos no encontrada tras crearla.';
+            rrhh_incapacidad_upload_log('permisos', 'realpath falló', ['dir' => $upload_dir]);
+            return '';
+        }
+        if (!is_writable($real)) {
+            $error_message = 'Carpeta de adjuntos sin permiso de escritura.';
+            rrhh_incapacidad_upload_log('permisos', 'dir no escribible', ['realpath' => $real]);
             return '';
         }
         return $real . DIRECTORY_SEPARATOR;
