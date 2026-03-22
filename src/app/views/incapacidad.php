@@ -7,6 +7,26 @@ if (!isset($_SESSION['code'])) {
 include __DIR__ . '/header.php';
 ?>
 
+<style>
+    #overlayCargaIncapacidad {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.45);
+        z-index: 9999;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        color: #fff;
+        flex-direction: column;
+        gap: 10px;
+    }
+</style>
+
+<div id="overlayCargaIncapacidad">
+    <div class="spinner-border text-light" role="status" aria-hidden="true"></div>
+    <div>Procesando archivo, por favor espere…</div>
+</div>
+
 <!-- DataTables -->
 <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -46,7 +66,6 @@ include __DIR__ . '/header.php';
             </thead>
             <tbody>
                 <?php
-                $incapacidad = $class->incapacidad();
                 if (!empty($incapacidad)) {
                     foreach ($incapacidad as $row) {
                         $link = (!empty($row['file_add']))
@@ -79,11 +98,12 @@ include __DIR__ . '/header.php';
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
             </div>
             <div class="modal-body">
-                <form action="" method="POST" enctype="multipart/form-data">
+                <form action="" method="POST" enctype="multipart/form-data" id="formIncapacidad">
                     <div class="mb-3">
                         <label for="archivo" class="form-label">Seleccione un archivo</label>
                         <input type="file" class="form-control" name="archivo_incapacidad" id="archivo" required
                             accept="image/*,.heic,.heif,.jpg,.jpeg,.png,.webp,application/pdf">
+                        <div class="form-text">Fotos JPG, PNG, WebP, HEIC (iPhone) o documento PDF. Archivos grandes pueden tardar unos segundos.</div>
                     </div>
                     <div class="mb-3">
                         <label for="fecha_retroactiva" class="form-label">Fecha Retroactiva</label>
@@ -131,20 +151,20 @@ include __DIR__ . '/header.php';
 <!-- JS: Formulario y DataTable -->
 <script>
 document.addEventListener("DOMContentLoaded", function () {
-    // Subir incapacidad
-    const form = document.querySelector('#incapacidad form');
+    const form = document.getElementById("formIncapacidad");
     const btn = document.getElementById("btnIncapacidad");
     const loader = document.getElementById("loaderIncapacidad");
+    const overlay = document.getElementById("overlayCargaIncapacidad");
 
-    if (form && btn && loader) {
+    if (form && btn && loader && overlay) {
         btn.addEventListener("click", function () {
             btn.disabled = true;
-            btn.value = "Enviando...";
+            btn.value = "Procesando...";
             loader.classList.remove("d-none");
-
-            setTimeout(() => {
+            overlay.style.display = "flex";
+            setTimeout(function () {
                 form.submit();
-            }, 800);
+            }, 200);
         });
     }
 

@@ -1415,9 +1415,11 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
         $upload_error = '';
         if (!rrhh_incapacidad_handle_file_field('archivo_incapacidad', $upload_dir, $file_add, $upload_error)) {
             echo "<div class='alert alert-danger'>" . htmlspecialchars($upload_error) . "</div>";
-            exit;
+            $incapacidad = $class->incapacidad();
+            require_once __DIR__ . '/../views/incapacidad.php';
+            exit();
         }
-    
+
         // Insertar en la base de datos usando el modelo
         if ($class->insertar_incapacidad($code_user, $descripcion, $file_add, 1, 0, $fecha_retroactiva)) {
 
