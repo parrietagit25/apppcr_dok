@@ -97,7 +97,8 @@ include __DIR__ . '/header.php';
                 <form action="" method="POST" enctype="multipart/form-data" id="formIncapacidadPrivada">
                     <div class="mb-3">
                         <label for="archivoPrivado" class="form-label">Seleccione un archivo</label>
-                        <input type="file" class="form-control" name="archivo_incapacidad" id="archivoPrivado" required>
+                        <input type="file" class="form-control" name="archivo_incapacidad" id="archivoPrivado" required
+                            accept="image/*,.heic,.heif,.jpg,.jpeg,.png,.webp,application/pdf">
                     </div>
                     <div class="mb-3">
                         <label for="fechaRetroPrivada" class="form-label">Fecha Retroactiva</label>

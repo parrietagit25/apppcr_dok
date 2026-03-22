@@ -37,146 +37,501 @@ if (!function_exists('rrhh_normalize_code')) {
     }
 }
 
+/**
+ * Incapacidades: subida y normalización de adjuntos (compartido incapacidad + incapacidad_privada).
+ * @see INCAPACIDAD_UPLOAD_NOTAS.md (si existe) o comentarios inline.
+ */
+if (!function_exists('rrhh_incapacidad_upload_log')) {
+    function rrhh_incapacidad_upload_log($categoria, $detalle, array $extra = []) {
+        $msg = '[incapacidad_upload][' . $categoria . '] ' . $detalle;
+        if ($extra !== []) {
+            $msg .= ' | ' . json_encode($extra, JSON_UNESCAPED_UNICODE);
+        }
+        error_log($msg);
+    }
+}
+
+if (!function_exists('rrhh_incapacidad_upload_error_user_message')) {
+    function rrhh_incapacidad_upload_error_user_message($php_upload_err) {
+        switch ((int) $php_upload_err) {
+            case UPLOAD_ERR_INI_SIZE:
+            case UPLOAD_ERR_FORM_SIZE:
+                return 'El archivo es demasiado grande para el servidor. Reduzca el tamaño o use otra red (Wi‑Fi).';
+            case UPLOAD_ERR_PARTIAL:
+                return 'La subida se interrumpió (archivo incompleto). Intente de nuevo.';
+            case UPLOAD_ERR_NO_FILE:
+                return '';
+            case UPLOAD_ERR_NO_TMP_DIR:
+                return 'Error de configuración del servidor (carpeta temporal). Contacte a soporte.';
+            case UPLOAD_ERR_CANT_WRITE:
+            case UPLOAD_ERR_EXTENSION:
+                return 'No se pudo guardar el archivo en el servidor. Intente más tarde o contacte a soporte.';
+            default:
+                return 'No se pudo subir el archivo. Intente de nuevo.';
+        }
+    }
+}
+
 if (!function_exists('rrhh_process_incapacidad_upload')) {
-    function rrhh_process_incapacidad_upload($file, $upload_dir, &$error_message = '') {
-        if (!isset($file['tmp_name']) || !is_uploaded_file($file['tmp_name'])) {
-            $error_message = 'Archivo inválido.';
+    /** Tamaño máximo del archivo subido (bytes). */
+    function rrhh_incapacidad_max_upload_bytes() {
+        return 20 * 1024 * 1024;
+    }
+
+    /** Lado largo máximo de salida (px) tras procesar. */
+    function rrhh_incapacidad_max_output_edge() {
+        return 1600;
+    }
+
+    /** Rechazar imágenes de origen absurdamente grandes (evita memory_limit / DoS). */
+    function rrhh_incapacidad_max_source_dimension() {
+        return 12000;
+    }
+
+    function rrhh_incapacidad_jpeg_quality() {
+        return 82;
+    }
+
+    function rrhh_incapacidad_finfo_mime($path) {
+        if (!is_readable($path) || !function_exists('finfo_open')) {
             return '';
         }
-
-        $safe_name = preg_replace('/[^A-Za-z0-9._-]/', '_', basename($file['name']));
-        $ext_from_name = strtolower((string) pathinfo($safe_name, PATHINFO_EXTENSION));
-
-        $mime = '';
-        if (function_exists('finfo_open')) {
-            $finfo = @finfo_open(FILEINFO_MIME_TYPE);
-            if ($finfo) {
-                $mime = (string) @finfo_file($finfo, $file['tmp_name']);
-                @finfo_close($finfo);
-            }
-        }
-        if ($mime === '' && function_exists('mime_content_type')) {
-            $mime = (string) @mime_content_type($file['tmp_name']);
-        }
-
-        $allowed_mimes = [
-            'image/jpeg' => 'jpg',
-            'image/pjpeg' => 'jpg',
-            'image/png' => 'png',
-            'image/webp' => 'webp',
-            'application/pdf' => 'pdf',
-            'image/heic' => 'heic',
-            'image/heif' => 'heif',
-            'application/octet-stream' => ''
-        ];
-        $allowed_ext = [
-            'jpg', 'jpeg', 'png', 'webp', 'pdf', 'heic', 'heif'
-        ];
-
-        $ext = '';
-        if ($mime !== '' && isset($allowed_mimes[$mime]) && $allowed_mimes[$mime] !== '') {
-            $ext = $allowed_mimes[$mime];
-        } elseif (in_array($ext_from_name, $allowed_ext, true)) {
-            $ext = ($ext_from_name === 'jpeg') ? 'jpg' : $ext_from_name;
-        }
-
-        if ($ext === '') {
-            $error_message = 'Tipo de archivo no permitido.';
+        $f = @finfo_open(FILEINFO_MIME_TYPE);
+        if (!$f) {
             return '';
         }
+        $m = (string) @finfo_file($f, $path);
+        @finfo_close($f);
+        return $m;
+    }
 
-        $base_without_ext = pathinfo($safe_name, PATHINFO_FILENAME);
-        $heic_like = in_array($ext, ['heic', 'heif'], true);
-        if ($heic_like) {
-            if (!class_exists('Imagick')) {
-                $error_message = 'Tu imagen esta en formato HEIC/HEIF y el servidor no puede convertirla. Cambia la camara a formato JPG (Mas compatible) o sube la imagen como JPG/PNG.';
-                return '';
+    function rrhh_incapacidad_mime_content($path) {
+        if (!is_readable($path) || !function_exists('mime_content_type')) {
+            return '';
+        }
+        return (string) @mime_content_type($path);
+    }
+
+    /** PDF: magic bytes %PDF */
+    function rrhh_incapacidad_is_pdf_binary($path) {
+        $h = @fopen($path, 'rb');
+        if (!$h) {
+            return false;
+        }
+        $b = @fread($h, 5);
+        @fclose($h);
+        return is_string($b) && strncmp($b, '%PDF', 4) === 0;
+    }
+
+    /**
+     * Clasifica tipo real: pdf | raster_jpeg | raster_png | raster_webp | heic | invalid
+     * Usa magic PDF, finfo, mime_content_type y getimagesize (raster).
+     */
+    function rrhh_incapacidad_detect_real_type($tmp, $clientFilename, &$error_message = '') {
+        $error_message = '';
+        $mime1 = rrhh_incapacidad_finfo_mime($tmp);
+        $mime2 = rrhh_incapacidad_mime_content($tmp);
+        $gi = @getimagesize($tmp);
+        $imgType = (is_array($gi) && isset($gi[2])) ? (int) $gi[2] : 0;
+
+        $mimesHeic = ['image/heic', 'image/heif', 'image/heic-sequence', 'image/heif-sequence'];
+        $mimesRaster = ['image/jpeg', 'image/pjpeg', 'image/png', 'image/webp'];
+        $extGuess = strtolower((string) pathinfo((string) $clientFilename, PATHINFO_EXTENSION));
+
+        if (rrhh_incapacidad_is_pdf_binary($tmp)) {
+            if ($mime1 !== '' && stripos($mime1, 'pdf') === false && $mime1 !== 'application/octet-stream') {
+                rrhh_incapacidad_upload_log('validacion', 'PDF magic OK pero MIME discordante', ['finfo' => $mime1, 'mime_ct' => $mime2]);
             }
+            if ($mime1 !== '' && $mime1 !== 'application/pdf' && $mime1 !== 'application/octet-stream') {
+                $error_message = 'El archivo no es un PDF válido.';
+                return 'invalid';
+            }
+            return 'pdf';
+        }
 
-            try {
-                $imagick = new Imagick();
-                $imagick->readImage($file['tmp_name']);
-                $imagick->setImageFormat('jpeg');
-                $imagick->setImageCompression(Imagick::COMPRESSION_JPEG);
-                $imagick->setImageCompressionQuality(75);
-                $imagick->stripImage(); // limpia metadata/EXIF
+        if (in_array($mime1, $mimesHeic, true) || in_array($mime2, $mimesHeic, true)) {
+            return 'heic';
+        }
+        if (($mime1 === 'application/octet-stream' || $mime2 === 'application/octet-stream') && in_array($extGuess, ['heic', 'heif'], true)) {
+            return 'heic';
+        }
 
-                $unique_name = $base_without_ext . '_' . date('YmdHis') . '_' . bin2hex(random_bytes(4)) . '.jpg';
-                $destination = $upload_dir . $unique_name;
-                $ok_heic = $imagick->writeImage($destination);
-                $imagick->clear();
-                $imagick->destroy();
+        if ($imgType === IMAGETYPE_JPEG) {
+            return 'raster_jpeg';
+        }
+        if ($imgType === IMAGETYPE_PNG) {
+            return 'raster_png';
+        }
+        if (defined('IMAGETYPE_WEBP') && $imgType === IMAGETYPE_WEBP) {
+            return 'raster_webp';
+        }
 
-                if (!$ok_heic) {
-                    $error_message = 'No se pudo convertir la imagen HEIC.';
-                    return '';
-                }
-                return $unique_name;
-            } catch (Throwable $e) {
-                $error_message = 'No se pudo convertir la imagen HEIC/HEIF.';
+        $declJpeg = in_array($mime1, ['image/jpeg', 'image/pjpeg'], true) || in_array($mime2, ['image/jpeg', 'image/pjpeg'], true);
+        $declPng = ($mime1 === 'image/png' || $mime2 === 'image/png');
+        $declWebp = ($mime1 === 'image/webp' || $mime2 === 'image/webp');
+
+        if ($declJpeg && $imgType === 0) {
+            $error_message = 'No se pudo leer la imagen (archivo dañado o incompleto).';
+            rrhh_incapacidad_upload_log('corrupto', 'MIME JPEG pero getimagesize falló', ['finfo' => $mime1]);
+            return 'invalid';
+        }
+        if ($declPng && $imgType !== IMAGETYPE_PNG) {
+            $error_message = 'Archivo corrupto o no es un PNG válido.';
+            return 'invalid';
+        }
+        if ($declWebp && (!defined('IMAGETYPE_WEBP') || $imgType !== IMAGETYPE_WEBP)) {
+            $error_message = 'Archivo corrupto o no es un WebP válido.';
+            return 'invalid';
+        }
+
+        if ($mime1 !== '' && !in_array($mime1, array_merge($mimesRaster, $mimesHeic, ['application/pdf', 'application/octet-stream']), true)) {
+            $error_message = 'Formato no permitido. Use JPG, PNG, WebP, PDF o HEIC (si el servidor lo permite).';
+            rrhh_incapacidad_upload_log('formato', 'MIME no permitido', ['finfo' => $mime1, 'mime_ct' => $mime2]);
+            return 'invalid';
+        }
+
+        $error_message = 'No se pudo validar el archivo. Use JPG, PNG, WebP o PDF.';
+        rrhh_incapacidad_upload_log('validacion', 'Tipo no determinado', ['finfo' => $mime1, 'mime_ct' => $mime2, 'IMAGETYPE' => $imgType, 'ext' => $extGuess]);
+        return 'invalid';
+    }
+
+    function rrhh_incapacidad_check_dimensions($gi, &$error_message) {
+        if (!is_array($gi) || empty($gi[0]) || empty($gi[1])) {
+            $error_message = 'No se pudieron leer las dimensiones de la imagen.';
+            return false;
+        }
+        $max = rrhh_incapacidad_max_source_dimension();
+        if ($gi[0] > $max || $gi[1] > $max) {
+            $error_message = 'La imagen es demasiado grande en píxeles. Redúzcala en el teléfono o envíe otra foto.';
+            rrhh_incapacidad_upload_log('dimension', 'Origen excede max', ['w' => $gi[0], 'h' => $gi[1]]);
+            return false;
+        }
+        return true;
+    }
+
+    function rrhh_incapacidad_secure_upload_dir($upload_dir, &$error_message) {
+        $error_message = '';
+        $upload_dir = rtrim(str_replace(["\0", '../', '..\\'], '', $upload_dir), '/\\') . DIRECTORY_SEPARATOR;
+        if (!is_dir($upload_dir)) {
+            if (!@mkdir($upload_dir, 0775, true)) {
+                $error_message = 'No se pudo preparar la carpeta de archivos. Contacte a soporte.';
+                rrhh_incapacidad_upload_log('permisos', 'mkdir falló', ['dir' => $upload_dir]);
                 return '';
             }
         }
+        $real = realpath($upload_dir);
+        if ($real === false || !is_dir($real) || !is_writable($real)) {
+            $error_message = 'Carpeta de adjuntos no disponible o sin permiso de escritura.';
+            rrhh_incapacidad_upload_log('permisos', 'dir no escribible', ['dir' => $upload_dir, 'realpath' => $real]);
+            return '';
+        }
+        return $real . DIRECTORY_SEPARATOR;
+    }
 
-        $unique_name = $base_without_ext . '_' . date('YmdHis') . '_' . bin2hex(random_bytes(4)) . '.' . $ext;
-        $destination = $upload_dir . $unique_name;
+    function rrhh_incapacidad_unique_name($suffix) {
+        $suffix = preg_replace('/[^a-z0-9]/i', '', $suffix);
+        return 'incap_' . gmdate('Ymd_His') . '_' . bin2hex(random_bytes(8)) . ($suffix ? '_' . $suffix : '');
+    }
 
-        $is_image = in_array($ext, ['jpg', 'png', 'webp'], true);
-        if ($is_image) {
-            $can_process = function_exists('gd_info') &&
-                function_exists('imagejpeg') &&
-                function_exists('imagepng') &&
-                ($ext !== 'webp' || (function_exists('imagecreatefromwebp') && function_exists('imagewebp')));
-
-            if (!$can_process) {
-                if (!move_uploaded_file($file['tmp_name'], $destination)) {
-                    $error_message = 'Error al mover el archivo.';
-                    return '';
+    function rrhh_incapacidad_imagick_to_jpeg($tmpPath, $destPath, &$error_message) {
+        $error_message = '';
+        if (!class_exists('Imagick')) {
+            $error_message = 'Formato no soportado en el servidor (falta Imagick).';
+            rrhh_incapacidad_upload_log('imagick', 'Clase Imagick no disponible');
+            return false;
+        }
+        try {
+            $im = new Imagick();
+            $im->readImage($tmpPath . '[0]');
+            if (method_exists($im, 'autoOrient')) {
+                $im->autoOrient();
+            }
+            if (defined('Imagick::LAYERMETHOD_FLATTEN') && method_exists($im, 'mergeImageLayers')) {
+                $flat = @$im->mergeImageLayers(Imagick::LAYERMETHOD_FLATTEN);
+                if ($flat instanceof Imagick) {
+                    $im->destroy();
+                    $im = $flat;
                 }
-                return $unique_name;
             }
-
-            $img = null;
-            if ($ext === 'jpg' && function_exists('imagecreatefromjpeg')) {
-                $img = @imagecreatefromjpeg($file['tmp_name']);
-            } elseif ($ext === 'png' && function_exists('imagecreatefrompng')) {
-                $img = @imagecreatefrompng($file['tmp_name']);
-            } elseif ($ext === 'webp' && function_exists('imagecreatefromwebp')) {
-                $img = @imagecreatefromwebp($file['tmp_name']);
-            }
-
-            if (!$img) {
-                if (!move_uploaded_file($file['tmp_name'], $destination)) {
-                    $error_message = 'No se pudo procesar ni mover la imagen.';
-                    return '';
-                }
-                return $unique_name;
-            }
-
-            // Re-encode para reducir peso y eliminar metadatos EXIF.
-            if ($ext === 'jpg') {
-                $ok = imagejpeg($img, $destination, 75);
-            } elseif ($ext === 'png') {
-                imagesavealpha($img, true);
-                $ok = imagepng($img, $destination, 6);
-            } else {
-                $ok = imagewebp($img, $destination, 75);
-            }
-
-            imagedestroy($img);
-
+            $im->stripImage();
+            $maxEdge = rrhh_incapacidad_max_output_edge();
+            $im->thumbnailImage($maxEdge, $maxEdge, true, false);
+            $im->setImageFormat('jpeg');
+            $im->setImageCompression(Imagick::COMPRESSION_JPEG);
+            $im->setImageCompressionQuality(rrhh_incapacidad_jpeg_quality());
+            $ok = $im->writeImage($destPath);
+            $im->clear();
+            $im->destroy();
             if (!$ok) {
                 $error_message = 'No se pudo guardar la imagen procesada.';
-                return '';
+                return false;
             }
-        } else {
-            if (!move_uploaded_file($file['tmp_name'], $destination)) {
-                $error_message = 'Error al mover el archivo.';
-                return '';
+            return true;
+        } catch (Throwable $e) {
+            rrhh_incapacidad_upload_log('imagick', $e->getMessage(), ['file' => $e->getFile(), 'line' => $e->getLine()]);
+            $error_message = 'No se pudo procesar la imagen en el servidor.';
+            return false;
+        }
+    }
+
+    function rrhh_incapacidad_gd_apply_exif_orientation($img, $tmpPath) {
+        if (!function_exists('exif_read_data') || !function_exists('imagerotate')) {
+            return $img;
+        }
+        $exif = @exif_read_data($tmpPath, 'IFD0', true);
+        $o = 0;
+        if (is_array($exif)) {
+            if (!empty($exif['IFD0']['Orientation'])) {
+                $o = (int) $exif['IFD0']['Orientation'];
+            } elseif (!empty($exif['Orientation'])) {
+                $o = (int) $exif['Orientation'];
             }
         }
+        if ($o < 2) {
+            return $img;
+        }
+        $deg = 0;
+        switch ($o) {
+            case 3:
+                $deg = 180;
+                break;
+            case 6:
+                $deg = -90;
+                break;
+            case 8:
+                $deg = 90;
+                break;
+            default:
+                return $img;
+        }
+        $rot = @imagerotate($img, $deg, 0);
+        if ($rot !== false) {
+            imagedestroy($img);
+            return $rot;
+        }
+        return $img;
+    }
 
-        return $unique_name;
+    function rrhh_incapacidad_gd_resize_to_max($img, $maxEdge) {
+        $w = imagesx($img);
+        $h = imagesy($img);
+        if ($w <= 0 || $h <= 0) {
+            return $img;
+        }
+        $long = max($w, $h);
+        if ($long <= $maxEdge) {
+            return $img;
+        }
+        $scale = $maxEdge / $long;
+        $nw = max(1, (int) round($w * $scale));
+        $nh = max(1, (int) round($h * $scale));
+        $dst = imagecreatetruecolor($nw, $nh);
+        if (!$dst) {
+            return $img;
+        }
+        imagealphablending($dst, false);
+        imagesavealpha($dst, true);
+        $ok = @imagecopyresampled($dst, $img, 0, 0, 0, 0, $nw, $nh, $w, $h);
+        if ($ok) {
+            imagedestroy($img);
+            return $dst;
+        }
+        imagedestroy($dst);
+        return $img;
+    }
+
+    function rrhh_incapacidad_gd_raster_to_jpeg($tmpPath, $kind, $destPath, &$error_message) {
+        $error_message = '';
+        if (!function_exists('imagecreatetruecolor') || !function_exists('imagejpeg')) {
+            $error_message = 'El servidor no puede procesar imágenes (GD no disponible).';
+            rrhh_incapacidad_upload_log('gd', 'GD básico no disponible');
+            return false;
+        }
+        $img = null;
+        if ($kind === 'raster_jpeg' && function_exists('imagecreatefromjpeg')) {
+            $img = @imagecreatefromjpeg($tmpPath);
+        } elseif ($kind === 'raster_png' && function_exists('imagecreatefrompng')) {
+            $img = @imagecreatefrompng($tmpPath);
+        } elseif ($kind === 'raster_webp' && function_exists('imagecreatefromwebp')) {
+            $img = @imagecreatefromwebp($tmpPath);
+        }
+        if (!$img) {
+            $error_message = 'Imagen dañada o formato no legible por el servidor.';
+            rrhh_incapacidad_upload_log('gd', 'createfrom falló', ['kind' => $kind]);
+            return false;
+        }
+        if ($kind === 'raster_jpeg') {
+            $img = rrhh_incapacidad_gd_apply_exif_orientation($img, $tmpPath);
+        }
+        if (function_exists('imagealphablending')) {
+            imagealphablending($img, true);
+        }
+        $w = imagesx($img);
+        $h = imagesy($img);
+        if ($w > 0 && $h > 0 && ($kind === 'raster_png' || $kind === 'raster_webp')) {
+            $flat = imagecreatetruecolor($w, $h);
+            if ($flat) {
+                $white = imagecolorallocate($flat, 255, 255, 255);
+                imagefill($flat, 0, 0, $white);
+                imagecopy($flat, $img, 0, 0, 0, 0, $w, $h);
+                imagedestroy($img);
+                $img = $flat;
+            }
+        }
+        $img = rrhh_incapacidad_gd_resize_to_max($img, rrhh_incapacidad_max_output_edge());
+        $q = rrhh_incapacidad_jpeg_quality();
+        $ok = @imagejpeg($img, $destPath, $q);
+        imagedestroy($img);
+        if (!$ok) {
+            $error_message = 'No se pudo guardar la imagen optimizada.';
+            rrhh_incapacidad_upload_log('gd', 'imagejpeg falló');
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * Procesa $_FILES['archivo_incapacidad'].
+     * @return string nombre de archivo guardado o '' si error / sin archivo
+     */
+    function rrhh_process_incapacidad_upload($file, $upload_dir, &$error_message = '') {
+        $error_message = '';
+
+        if (!isset($file['error'])) {
+            rrhh_incapacidad_upload_log('php', 'Entrada sin índice error');
+            $error_message = 'Error al recibir el archivo.';
+            return '';
+        }
+        $err = (int) $file['error'];
+        if ($err === UPLOAD_ERR_NO_FILE) {
+            return '';
+        }
+        if ($err !== UPLOAD_ERR_OK) {
+            $error_message = rrhh_incapacidad_upload_error_user_message($err);
+            rrhh_incapacidad_upload_log('php_upload', 'Código PHP', ['code' => $err]);
+            return '';
+        }
+
+        if (empty($file['tmp_name']) || !is_uploaded_file($file['tmp_name'])) {
+            rrhh_incapacidad_upload_log('php', 'tmp_name inválido o no is_uploaded_file');
+            $error_message = 'Archivo inválido o la subida no se completó.';
+            return '';
+        }
+
+        $tmp = $file['tmp_name'];
+        $size = isset($file['size']) ? (int) $file['size'] : 0;
+        $maxB = rrhh_incapacidad_max_upload_bytes();
+        if ($size > $maxB) {
+            $error_message = 'El archivo supera el tamaño máximo permitido (' . round($maxB / 1048576, 0) . ' MB).';
+            rrhh_incapacidad_upload_log('tamano', 'Excede max', ['size' => $size]);
+            return '';
+        }
+
+        $dir = rrhh_incapacidad_secure_upload_dir($upload_dir, $error_message);
+        if ($dir === '') {
+            return '';
+        }
+
+        $clientName = isset($file['name']) ? (string) $file['name'] : '';
+        $realKind = rrhh_incapacidad_detect_real_type($tmp, $clientName, $error_message);
+        if ($realKind === 'invalid') {
+            if ($error_message === '') {
+                $error_message = 'Archivo no válido.';
+            }
+            return '';
+        }
+
+        if ($realKind === 'pdf') {
+            $mimePdf = rrhh_incapacidad_finfo_mime($tmp);
+            if ($mimePdf !== '' && stripos($mimePdf, 'pdf') === false && $mimePdf !== 'application/octet-stream') {
+                $error_message = 'El archivo no es un PDF válido.';
+                rrhh_incapacidad_upload_log('validacion', 'PDF MIME', ['finfo' => $mimePdf]);
+                return '';
+            }
+            $base = rrhh_incapacidad_unique_name('pdf') . '.pdf';
+            $dest = $dir . $base;
+            if (!@move_uploaded_file($tmp, $dest)) {
+                $error_message = 'No se pudo guardar el PDF. Intente de nuevo.';
+                rrhh_incapacidad_upload_log('permisos', 'move_uploaded_file PDF falló');
+                return '';
+            }
+            return $base;
+        }
+
+        if ($realKind === 'heic') {
+            if (!class_exists('Imagick')) {
+                $error_message = 'Formato HEIC/HEIF no soportado en el servidor. Use JPG o PNG, o en iPhone: Ajustes → Cámara → Formatos → «Más compatibles».';
+                rrhh_incapacidad_upload_log('heic', 'Imagick no disponible — sin fallback HEIC');
+                return '';
+            }
+            $base = rrhh_incapacidad_unique_name('img') . '.jpg';
+            $dest = $dir . $base;
+            if (!rrhh_incapacidad_imagick_to_jpeg($tmp, $dest, $error_message)) {
+                if (stripos($error_message, 'HEIC') === false && $error_message !== '') {
+                    $error_message = 'No se pudo convertir HEIC/HEIF. El servidor puede no tener soporte HEIC (libheif). Use JPG o PNG.';
+                } elseif ($error_message === '') {
+                    $error_message = 'No se pudo convertir HEIC/HEIF. Use JPG o PNG.';
+                }
+                rrhh_incapacidad_upload_log('heic', 'Conversión fallida');
+                return '';
+            }
+            return $base;
+        }
+
+        $gi = @getimagesize($tmp);
+        if (!rrhh_incapacidad_check_dimensions($gi, $error_message)) {
+            if ($error_message === '') {
+                $error_message = 'No se pudo leer la imagen.';
+            }
+            return '';
+        }
+
+        $base = rrhh_incapacidad_unique_name('img') . '.jpg';
+        $dest = $dir . $base;
+
+        if (class_exists('Imagick')) {
+            if (rrhh_incapacidad_imagick_to_jpeg($tmp, $dest, $error_message)) {
+                return $base;
+            }
+            rrhh_incapacidad_upload_log('imagick', 'Fallback a GD tras fallo Imagick raster');
+        }
+
+        if (!rrhh_incapacidad_gd_raster_to_jpeg($tmp, $realKind, $dest, $error_message)) {
+            return '';
+        }
+        return $base;
+    }
+}
+
+if (!function_exists('rrhh_incapacidad_handle_file_field')) {
+    /**
+     * Procesa $_FILES[$fileKey]: errores PHP de subida + rrhh_process_incapacidad_upload.
+     * @return bool false si hubo error (mensaje en $errorOut); true si OK o no había archivo
+     */
+    function rrhh_incapacidad_handle_file_field($fileKey, $uploadDir, &$file_add, &$errorOut) {
+        $file_add = '';
+        $errorOut = '';
+        if (!isset($_FILES[$fileKey])) {
+            return true;
+        }
+        $f = $_FILES[$fileKey];
+        $err = isset($f['error']) ? (int) $f['error'] : UPLOAD_ERR_NO_FILE;
+        if ($err === UPLOAD_ERR_NO_FILE) {
+            return true;
+        }
+        if ($err !== UPLOAD_ERR_OK) {
+            $errorOut = rrhh_incapacidad_upload_error_user_message($err);
+            rrhh_incapacidad_upload_log('php_upload', 'Error código PHP', ['key' => $fileKey, 'code' => $err]);
+            return false;
+        }
+        $file_add = rrhh_process_incapacidad_upload($f, $uploadDir, $errorOut);
+        if ($file_add === '') {
+            if ($errorOut === '') {
+                $errorOut = 'No se pudo procesar el archivo.';
+            }
+            return false;
+        }
+        return true;
     }
 }
 
@@ -866,13 +1221,10 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
             mkdir($upload_dir, 0777, true);
         }
     
-        if (isset($_FILES['archivo_incapacidad']) && $_FILES['archivo_incapacidad']['error'] === UPLOAD_ERR_OK) {
-            $upload_error = '';
-            $file_add = rrhh_process_incapacidad_upload($_FILES['archivo_incapacidad'], $upload_dir, $upload_error);
-            if ($file_add === '') {
-                echo "<div class='alert alert-danger'>" . htmlspecialchars($upload_error) . "</div>";
-                exit;
-            }
+        $upload_error = '';
+        if (!rrhh_incapacidad_handle_file_field('archivo_incapacidad', $upload_dir, $file_add, $upload_error)) {
+            echo "<div class='alert alert-danger'>" . htmlspecialchars($upload_error) . "</div>";
+            exit;
         }
     
         // Insertar en la base de datos usando el modelo
@@ -925,15 +1277,12 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
             mkdir($upload_dir, 0777, true);
         }
 
-        if (isset($_FILES['archivo_incapacidad']) && $_FILES['archivo_incapacidad']['error'] === UPLOAD_ERR_OK) {
-            $upload_error = '';
-            $file_add = rrhh_process_incapacidad_upload($_FILES['archivo_incapacidad'], $upload_dir, $upload_error);
-            if ($file_add === '') {
-                echo "<div class='alert alert-danger'>" . htmlspecialchars($upload_error) . "</div>";
-                $incapacidad = $class->incapacidad_por_code_user($code_user);
-                require_once __DIR__ . '/../views/incapacidad_privada.php';
-                exit();
-            }
+        $upload_error = '';
+        if (!rrhh_incapacidad_handle_file_field('archivo_incapacidad', $upload_dir, $file_add, $upload_error)) {
+            echo "<div class='alert alert-danger'>" . htmlspecialchars($upload_error) . "</div>";
+            $incapacidad = $class->incapacidad_por_code_user($code_user);
+            require_once __DIR__ . '/../views/incapacidad_privada.php';
+            exit();
         }
 
         if ($class->insertar_incapacidad($code_user, $descripcion, $file_add, 1, 0, $fecha_retroactiva)) {
