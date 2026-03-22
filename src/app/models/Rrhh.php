@@ -1693,11 +1693,53 @@ class Rrhh {
     }
 
     /**
+     * Suma de piezas entregadas (cantidad_entregada) en el período, según fecha de entrega.
+     */
+    public function sum_uniformes_cantidad_entregada($fecha_desde = null, $fecha_hasta = null) {
+        $sql = "SELECT COALESCE(SUM(cantidad_entregada), 0) AS total FROM uniformes 
+                WHERE stat = 3 AND cantidad_entregada IS NOT NULL";
+        $params = [];
+        if ($fecha_desde) {
+            $sql .= " AND DATE(fecha_entrega) >= :fecha_desde";
+            $params[':fecha_desde'] = $fecha_desde;
+        }
+        if ($fecha_hasta) {
+            $sql .= " AND DATE(fecha_entrega) <= :fecha_hasta";
+            $params[':fecha_hasta'] = $fecha_hasta;
+        }
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute($params);
+        return (int) $stmt->fetchColumn();
+    }
+
+    /**
+     * Para solicitudes en el período (fecha_log): piezas solicitadas menos piezas ya entregadas registradas en líneas entregadas.
+     */
+    public function uniformes_diff_solicitado_menos_entregado($fecha_desde = null, $fecha_hasta = null) {
+        $sql = "SELECT 
+            COALESCE(SUM(cantidad), 0) - COALESCE(SUM(CASE WHEN stat = 3 THEN COALESCE(cantidad_entregada, 0) ELSE 0 END), 0) AS diff
+            FROM uniformes WHERE stat IN (1, 2, 3)";
+        $params = [];
+        if ($fecha_desde) {
+            $sql .= " AND DATE(fecha_log) >= :fecha_desde";
+            $params[':fecha_desde'] = $fecha_desde;
+        }
+        if ($fecha_hasta) {
+            $sql .= " AND DATE(fecha_log) <= :fecha_hasta";
+            $params[':fecha_hasta'] = $fecha_hasta;
+        }
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute($params);
+        return (int) $stmt->fetchColumn();
+    }
+
+    /**
      * Uniformes agrupados por tipo (tipo => cantidad de solicitudes, suma de piezas)
      * Retorna array [ ['tipo' => string, 'solicitudes' => int, 'piezas' => int], ... ]
      */
     public function uniformes_por_tipo($fecha_desde = null, $fecha_hasta = null) {
-        $sql = "SELECT tipo, COUNT(*) AS solicitudes, COALESCE(SUM(cantidad), 0) AS piezas 
+        $sql = "SELECT tipo, COUNT(*) AS solicitudes, COALESCE(SUM(cantidad), 0) AS piezas,
+                COALESCE(SUM(CASE WHEN stat = 3 THEN COALESCE(cantidad_entregada, 0) ELSE 0 END), 0) AS piezas_entregadas
                 FROM uniformes WHERE stat IN (1, 2, 3)";
         $params = [];
         if ($fecha_desde) {
@@ -1718,7 +1760,8 @@ class Rrhh {
      * Uniformes agrupados por talla (talla => cantidad de solicitudes, suma de piezas)
      */
     public function uniformes_por_talla($fecha_desde = null, $fecha_hasta = null) {
-        $sql = "SELECT talla, COUNT(*) AS solicitudes, COALESCE(SUM(cantidad), 0) AS piezas 
+        $sql = "SELECT talla, COUNT(*) AS solicitudes, COALESCE(SUM(cantidad), 0) AS piezas,
+                COALESCE(SUM(CASE WHEN stat = 3 THEN COALESCE(cantidad_entregada, 0) ELSE 0 END), 0) AS piezas_entregadas
                 FROM uniformes WHERE stat IN (1, 2, 3)";
         $params = [];
         if ($fecha_desde) {
@@ -1816,6 +1859,7 @@ class Rrhh {
                 u.tipo,
                 u.talla,
                 u.cantidad,
+                u.cantidad_entregada,
                 u.stat,
                 u.fecha_log,
                 u.fecha_proceso,
@@ -1854,6 +1898,7 @@ class Rrhh {
                 u.tipo,
                 u.talla,
                 u.cantidad,
+                u.cantidad_entregada,
                 u.stat,
                 u.fecha_log,
                 u.codigo_empleado,
@@ -1945,28 +1990,26 @@ class Rrhh {
     }
     
     /**
-     * Actualizar estado de solicitud de uniforme
+     * Actualizar estado de solicitud de uniforme.
+     * Si estado = 3 (entregado), $cantidad_entregada es obligatoria (unidades realmente entregadas).
+     * No modifica cantidad (solicitada por el colaborador).
      */
-    public function update_uniforme($uniforme_id, $nuevo_estado) {
-        // Preparar campos adicionales según el estado
-        $campos_adicionales = "";
-        
-        if ($nuevo_estado == 2) {
-            // En proceso - registrar fecha_proceso
-            $campos_adicionales = ", fecha_proceso = NOW()";
-        } elseif ($nuevo_estado == 3) {
-            // Entregado - registrar fecha_entrega
-            $campos_adicionales = ", fecha_entrega = NOW()";
+    public function update_uniforme($uniforme_id, $nuevo_estado, $cantidad_entregada = null) {
+        if ($nuevo_estado === 2) {
+            $sql = "UPDATE uniformes SET stat = :stat, fecha_proceso = NOW(), cantidad_entregada = NULL WHERE id = :uniforme_id";
+        } elseif ($nuevo_estado === 3) {
+            $sql = "UPDATE uniformes SET stat = :stat, fecha_entrega = NOW(), cantidad_entregada = :cantidad_entregada WHERE id = :uniforme_id";
+        } else {
+            $sql = "UPDATE uniformes SET stat = :stat, cantidad_entregada = NULL WHERE id = :uniforme_id";
         }
-        
-        $sql = "UPDATE uniformes 
-                SET stat = :stat" . $campos_adicionales . "
-                WHERE id = :uniforme_id";
-        
+
         $stmt = $this->pdo->prepare($sql);
-        $stmt->bindParam(':stat', $nuevo_estado, PDO::PARAM_INT);
-        $stmt->bindParam(':uniforme_id', $uniforme_id, PDO::PARAM_INT);
-        
+        $stmt->bindValue(':stat', (int) $nuevo_estado, PDO::PARAM_INT);
+        $stmt->bindValue(':uniforme_id', (int) $uniforme_id, PDO::PARAM_INT);
+        if ($nuevo_estado === 3) {
+            $stmt->bindValue(':cantidad_entregada', (int) $cantidad_entregada, PDO::PARAM_INT);
+        }
+
         return $stmt->execute();
     }
     
@@ -2004,6 +2047,7 @@ class Rrhh {
                 u.tipo,
                 u.talla,
                 u.cantidad,
+                u.cantidad_entregada,
                 u.stat,
                 u.fecha_log,
                 u.fecha_proceso,

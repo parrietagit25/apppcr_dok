@@ -1688,9 +1688,13 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
     if (isset($_POST['actualizar_uniforme'])) {
         $uniforme_id = (int)($_POST['uniforme_id'] ?? 0);
         $nuevo_estado = (int)($_POST['nuevo_estado'] ?? 0);
-        
+        $cantidad_entregada_in = isset($_POST['cantidad_entregada']) && $_POST['cantidad_entregada'] !== ''
+            ? (int) $_POST['cantidad_entregada'] : null;
+
         if ($uniforme_id > 0 && in_array($nuevo_estado, [1, 2, 3], true)) {
-            if ($class->update_uniforme($uniforme_id, $nuevo_estado)) {
+            if ($nuevo_estado === 3 && ($cantidad_entregada_in === null || $cantidad_entregada_in < 0)) {
+                echo "<div class='alert alert-danger'>Para marcar como <b>Entregado</b> debe indicar la <b>cantidad entregada</b> (número mayor o igual a 0).</div>";
+            } elseif ($class->update_uniforme($uniforme_id, $nuevo_estado, $nuevo_estado === 3 ? $cantidad_entregada_in : null)) {
                 $estado_texto = match($nuevo_estado) {
                     1 => 'solicitado',
                     2 => 'en proceso',
@@ -1705,7 +1709,7 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
                         // Obtener datos del uniforme y del colaborador
                         $stmt = $pdo->prepare("
                             SELECT 
-                                u.tipo, u.talla, u.cantidad, u.codigo_empleado,
+                                u.tipo, u.talla, u.cantidad, u.cantidad_entregada, u.codigo_empleado,
                                 e.nombre, e.apellido, e.email
                             FROM uniformes u
                             INNER JOIN empleados e ON u.codigo_empleado COLLATE utf8mb4_unicode_ci = e.codigo_empleado COLLATE utf8mb4_unicode_ci
@@ -1718,14 +1722,16 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
                             $nombre_completo = $uniforme_data['nombre'] . ' ' . $uniforme_data['apellido'];
                             $tipo_uniforme = ucfirst($uniforme_data['tipo']);
                             $talla = $uniforme_data['talla'];
-                            $cantidad = $uniforme_data['cantidad'] ?? 1;
+                            $cantidad_sol = (int) ($uniforme_data['cantidad'] ?? 1);
+                            $cantidad_ent = (int) ($uniforme_data['cantidad_entregada'] ?? 0);
                             
                             $mensaje = "Estimado(a) <b>$nombre_completo</b>,<br><br>
                                         Le informamos que su uniforme ha sido <b>ENTREGADO</b>.<br><br>
                                         <b>Detalles del uniforme:</b><br>
                                         • Tipo: $tipo_uniforme<br>
                                         • Talla: $talla<br>
-                                        • Cantidad: $cantidad unidad(es)<br><br>
+                                        • Cantidad solicitada: $cantidad_sol unidad(es)<br>
+                                        • Cantidad entregada: $cantidad_ent unidad(es)<br><br>
                                         Saludos,<br>
                                         <b>Departamento de RRHH</b><br>
                                         Grupo PCR";

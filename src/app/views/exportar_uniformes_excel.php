@@ -18,6 +18,7 @@ $sql = "
         u.tipo,
         u.talla,
         u.cantidad,
+        u.cantidad_entregada,
         u.stat,
         u.fecha_log,
         u.fecha_proceso,
@@ -44,7 +45,7 @@ $estados = [1 => 'Solicitado', 2 => 'En Proceso', 3 => 'Entregado'];
 // Encabezados
 $sheet->fromArray(
     [
-        'Código', 'Nombre', 'Apellido', 'Departamento', 'Cargo', 'Tipo', 'Talla', 'Cant.', 'Estado', 'Fecha Solicitud', 'Fecha Proceso', 'Fecha Entrega', 'Observación'
+        'Código', 'Nombre', 'Apellido', 'Departamento', 'Cargo', 'Tipo', 'Talla', 'Cant. solicitada', 'Cant. entregada', 'Estado', 'Fecha Solicitud', 'Fecha Proceso', 'Fecha Entrega', 'Observación'
     ],
     null,
     'A1'
@@ -60,11 +61,12 @@ foreach ($uniformes as $u) {
     $sheet->setCellValue("F$row", ucfirst($u['tipo'] ?? ''));
     $sheet->setCellValue("G$row", $u['talla']);
     $sheet->setCellValue("H$row", $u['cantidad'] ?? 1);
-    $sheet->setCellValue("I$row", $estados[$u['stat']] ?? 'Desconocido');
-    $sheet->setCellValue("J$row", $u['fecha_log']);
-    $sheet->setCellValue("K$row", $u['fecha_proceso'] ?? '');
-    $sheet->setCellValue("L$row", $u['fecha_entrega'] ?? '');
-    $sheet->setCellValue("M$row", $u['observacion'] ?? '');
+    $sheet->setCellValue("I$row", isset($u['cantidad_entregada']) && $u['cantidad_entregada'] !== '' && $u['cantidad_entregada'] !== null ? (int) $u['cantidad_entregada'] : '');
+    $sheet->setCellValue("J$row", $estados[$u['stat']] ?? 'Desconocido');
+    $sheet->setCellValue("K$row", $u['fecha_log']);
+    $sheet->setCellValue("L$row", $u['fecha_proceso'] ?? '');
+    $sheet->setCellValue("M$row", $u['fecha_entrega'] ?? '');
+    $sheet->setCellValue("N$row", $u['observacion'] ?? '');
     $row++;
 }
 

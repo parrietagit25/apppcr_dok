@@ -207,6 +207,18 @@ include __DIR__ . '/header.php';
                     </div>
                     <div class="col-6 col-md-3 mb-3">
                         <div class="border rounded p-3 h-100">
+                            <h2 class="text-success"><?= number_format($uniformes_sum_entregada ?? 0) ?></h2>
+                            <div class="text-muted small">Piezas entregadas <span class="d-block">(por fecha entrega)</span></div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-3 mb-3">
+                        <div class="border rounded p-3 h-100">
+                            <h2 class="text-dark"><?= number_format($uniformes_diff_solic_entreg ?? 0) ?></h2>
+                            <div class="text-muted small">Brecha solicitado − entregado <span class="d-block">(misma fecha solicitud)</span></div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-3 mb-3">
+                        <div class="border rounded p-3 h-100">
                             <h2 class="text-warning"><?= number_format($uniformes_solicitado ?? 0) ?></h2>
                             <div class="text-muted small">Solicitados</div>
                         </div>
@@ -245,13 +257,14 @@ include __DIR__ . '/header.php';
                         <?php if (!empty($uniformes_por_tipo ?? [])): ?>
                         <div class="table-responsive">
                             <table class="table table-sm table-bordered mb-0">
-                                <thead class="table-light"><tr><th>Tipo</th><th class="text-center">Solicitudes</th><th class="text-center">Piezas</th></tr></thead>
+                                <thead class="table-light"><tr><th>Tipo</th><th class="text-center">Solicitudes</th><th class="text-center">Piezas sol.</th><th class="text-center">Piezas ent.</th></tr></thead>
                                 <tbody>
                                 <?php foreach (($uniformes_por_tipo ?? []) as $r): ?>
                                     <tr>
                                         <td><?= htmlspecialchars(ucfirst($r['tipo'])) ?></td>
                                         <td class="text-center"><?= number_format($r['solicitudes']) ?></td>
                                         <td class="text-center"><?= number_format($r['piezas']) ?></td>
+                                        <td class="text-center"><?= number_format((int)($r['piezas_entregadas'] ?? 0)) ?></td>
                                     </tr>
                                 <?php endforeach; ?>
                                 </tbody>
@@ -268,13 +281,14 @@ include __DIR__ . '/header.php';
                         <?php if (!empty($uniformes_por_talla ?? [])): ?>
                         <div class="table-responsive">
                             <table class="table table-sm table-bordered mb-0">
-                                <thead class="table-light"><tr><th>Talla</th><th class="text-center">Solicitudes</th><th class="text-center">Piezas</th></tr></thead>
+                                <thead class="table-light"><tr><th>Talla</th><th class="text-center">Solicitudes</th><th class="text-center">Piezas sol.</th><th class="text-center">Piezas ent.</th></tr></thead>
                                 <tbody>
                                 <?php foreach (($uniformes_por_talla ?? []) as $r): ?>
                                     <tr>
                                         <td><?= htmlspecialchars($r['talla']) ?></td>
                                         <td class="text-center"><?= number_format($r['solicitudes']) ?></td>
                                         <td class="text-center"><?= number_format($r['piezas']) ?></td>
+                                        <td class="text-center"><?= number_format((int)($r['piezas_entregadas'] ?? 0)) ?></td>
                                     </tr>
                                 <?php endforeach; ?>
                                 </tbody>

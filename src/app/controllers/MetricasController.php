@@ -72,6 +72,8 @@ if (isset($_GET['metricas'])) {
     $uniformes_en_proceso = $class_rrhh->count_uniformes_por_estado(2, $fecha_desde, $fecha_hasta);
     $uniformes_entregado = $class_rrhh->count_uniformes_por_estado(3, $fecha_desde, $fecha_hasta);
     $uniformes_sum_cantidad = $class_rrhh->sum_uniformes_cantidad($fecha_desde, $fecha_hasta);
+    $uniformes_sum_entregada = $class_rrhh->sum_uniformes_cantidad_entregada($fecha_desde, $fecha_hasta);
+    $uniformes_diff_solic_entreg = $class_rrhh->uniformes_diff_solicitado_menos_entregado($fecha_desde, $fecha_hasta);
     $uniformes_por_tipo = $class_rrhh->uniformes_por_tipo($fecha_desde, $fecha_hasta);
     $uniformes_por_talla = $class_rrhh->uniformes_por_talla($fecha_desde, $fecha_hasta);
     $uniformesChartData = [
@@ -126,6 +128,8 @@ if (isset($_GET['exportar_excel'])) {
     $uniformes_en_proceso_exp = $class_rrhh->count_uniformes_por_estado(2, $fecha_desde, $fecha_hasta);
     $uniformes_entregado_exp = $class_rrhh->count_uniformes_por_estado(3, $fecha_desde, $fecha_hasta);
     $uniformes_sum_cantidad_exp = $class_rrhh->sum_uniformes_cantidad($fecha_desde, $fecha_hasta);
+    $uniformes_sum_entregada_exp = $class_rrhh->sum_uniformes_cantidad_entregada($fecha_desde, $fecha_hasta);
+    $uniformes_diff_solic_entreg_exp = $class_rrhh->uniformes_diff_solicitado_menos_entregado($fecha_desde, $fecha_hasta);
     $uniformes_por_tipo_exp = $class_rrhh->uniformes_por_tipo($fecha_desde, $fecha_hasta);
     $uniformes_por_talla_exp = $class_rrhh->uniformes_por_talla($fecha_desde, $fecha_hasta);
 
@@ -159,14 +163,18 @@ if (isset($_GET['exportar_excel'])) {
     echo "<tr><th colspan='2'>UNIFORMES</th></tr>";
     echo "<tr><td>Total solicitudes de uniformes</td><td>" . $uniformes_total_exp . "</td></tr>";
     echo "<tr><td>Total piezas (cantidad solicitada)</td><td>" . $uniformes_sum_cantidad_exp . "</td></tr>";
+    echo "<tr><td>Total piezas entregadas (según fecha entrega)</td><td>" . $uniformes_sum_entregada_exp . "</td></tr>";
+    echo "<tr><td>Brecha piezas (solicitado − entregado en líneas cerradas, por fecha solicitud)</td><td>" . $uniformes_diff_solic_entreg_exp . "</td></tr>";
     echo "<tr><td>Uniformes - Solicitado</td><td>" . $uniformes_solicitado_exp . "</td></tr>";
     echo "<tr><td>Uniformes - En proceso</td><td>" . $uniformes_en_proceso_exp . "</td></tr>";
     echo "<tr><td>Uniformes - Entregado</td><td>" . $uniformes_entregado_exp . "</td></tr>";
     foreach ($uniformes_por_tipo_exp as $row) {
-        echo "<tr><td>Por tipo: " . htmlspecialchars(ucfirst($row['tipo'])) . "</td><td>" . $row['solicitudes'] . " solic. / " . $row['piezas'] . " pzas</td></tr>";
+        $pe = (int) ($row['piezas_entregadas'] ?? 0);
+        echo "<tr><td>Por tipo: " . htmlspecialchars(ucfirst($row['tipo'])) . "</td><td>" . $row['solicitudes'] . " solic. / " . $row['piezas'] . " pzas sol. / " . $pe . " pzas ent.</td></tr>";
     }
     foreach ($uniformes_por_talla_exp as $row) {
-        echo "<tr><td>Por talla: " . htmlspecialchars($row['talla']) . "</td><td>" . $row['solicitudes'] . " solic. / " . $row['piezas'] . " pzas</td></tr>";
+        $pe = (int) ($row['piezas_entregadas'] ?? 0);
+        echo "<tr><td>Por talla: " . htmlspecialchars($row['talla']) . "</td><td>" . $row['solicitudes'] . " solic. / " . $row['piezas'] . " pzas sol. / " . $pe . " pzas ent.</td></tr>";
     }
     echo "</table>";
     exit();

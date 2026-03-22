@@ -77,7 +77,8 @@ include __DIR__ . '/header.php';
                 <tr>
                     <th>Tipo</th>
                     <th>Talla</th>
-                    <th>Cant.</th>
+                    <th>Solic.</th>
+                    <th>Entreg.</th>
                     <th>Fecha</th>
                     <th>Estado</th>
                 </tr>
@@ -96,7 +97,10 @@ include __DIR__ . '/header.php';
                         echo '<tr>';
                         echo '<td><strong>' . htmlspecialchars(ucfirst($row['tipo'])) . '</strong></td>';
                         echo '<td class="text-center">' . htmlspecialchars($row['talla']) . '</td>';
+                        $ce_c = $row['cantidad_entregada'] ?? null;
+                        $ce_c_txt = ($row['stat'] == 3 && $ce_c !== null && $ce_c !== '') ? (string) (int) $ce_c : '—';
                         echo '<td class="text-center"><strong>' . htmlspecialchars($row['cantidad'] ?? 1) . '</strong></td>';
+                        echo '<td class="text-center"><strong>' . htmlspecialchars($ce_c_txt) . '</strong></td>';
                         echo '<td>' . date('d/m/Y', strtotime($row['fecha_log'])) . '</td>';
                         echo '<td class="text-center">
                                 <a href="#" data-bs-toggle="modal" data-bs-target="#modalDetalle' . $row['id'] . '" style="text-decoration: none;">
@@ -137,8 +141,12 @@ include __DIR__ . '/header.php';
                                         </div>
                                         
                                         <div class='mb-3'>
-                                            <label class='form-label fw-bold text-primary'>Cantidad</label>
+                                            <label class='form-label fw-bold text-primary'>Cantidad solicitada</label>
                                             <p class='fs-5'><strong>" . htmlspecialchars($row['cantidad'] ?? 1) . "</strong> unidad(es)</p>
+                                        </div>
+                                        <div class='mb-3'>
+                                            <label class='form-label fw-bold text-primary'>Cantidad entregada</label>
+                                            <p class='fs-5'><strong>" . (($row['stat'] == 3 && isset($row['cantidad_entregada']) && $row['cantidad_entregada'] !== '') ? htmlspecialchars((string)(int)$row['cantidad_entregada']) : '—') . "</strong> unidad(es)</p>
                                         </div>
                                         
                                         <div class='mb-3'>
@@ -190,7 +198,7 @@ include __DIR__ . '/header.php';
                         </div>";
                     }
                 } else {
-                    echo '<tr><td colspan="5" class="text-center text-muted">No hay solicitudes registradas</td></tr>';
+                    echo '<tr><td colspan="7" class="text-center text-muted">No hay solicitudes registradas</td></tr>';
                 }
             ?>
             </tbody>

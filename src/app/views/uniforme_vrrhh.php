@@ -39,7 +39,8 @@ include __DIR__ . '/header.php';
                         <th>Departamento</th>
                         <th>Tipo</th>
                         <th>Talla</th>
-                        <th>Cant.</th>
+                        <th>Solic.</th>
+                        <th>Entreg.</th>
                         <th>Estado</th>
                         <th>Acción</th>
                     </tr>
@@ -55,6 +56,9 @@ include __DIR__ . '/header.php';
                                 default => 'Desconocido'
                             };
                             
+                            $ce = $row['cantidad_entregada'] ?? null;
+                            $ce_txt = ($ce !== null && $ce !== '') ? (int) $ce : '—';
+
                             echo "<tr>
                                     <td>" . htmlspecialchars($row['codigo_empleado']) . "</td>
                                     <td>" . htmlspecialchars($row['nombre'] . ' ' . $row['apellido']) . "</td>
@@ -62,6 +66,7 @@ include __DIR__ . '/header.php';
                                     <td>" . htmlspecialchars(ucfirst($row['tipo'])) . "</td>
                                     <td class='text-center'>" . htmlspecialchars($row['talla']) . "</td>
                                     <td class='text-center'><strong>" . htmlspecialchars($row['cantidad'] ?? 1) . "</strong></td>
+                                    <td class='text-center'><strong>" . htmlspecialchars((string) $ce_txt) . "</strong></td>
                                     <td class='text-center'>
                                         <a href='#' data-bs-toggle='modal' data-bs-target='#modalUniforme{$row['id']}'>
                                             " . htmlspecialchars($estado_texto) . "
@@ -91,7 +96,7 @@ include __DIR__ . '/header.php';
                                             <button type='button' class='btn-close btn-close-white' data-bs-dismiss='modal' aria-label='Cerrar'></button>
                                         </div>
                                         <div class='modal-body'>
-                                            <form action='' method='POST'>
+                                            <form action='' method='POST' class='form-uniforme-rrhh' data-cantidad-solicitada='" . (int)($row['cantidad'] ?? 1) . "'>
                                                 <input type='hidden' name='uniforme_id' value='{$row['id']}'>
                                                 
                                                 <div class='mb-3'>
@@ -125,8 +130,16 @@ include __DIR__ . '/header.php';
                                                 </div>
                                                 
                                                 <div class='mb-3'>
-                                                    <label class='form-label'><b>Cantidad</b></label>
+                                                    <label class='form-label'><b>Cantidad solicitada</b> <span class='text-muted small'>(no editable)</span></label>
                                                     <p class='fs-5'><strong>" . ($row['cantidad'] ?? 1) . "</strong> unidad(es)</p>
+                                                </div>
+                                                
+                                                <div class='mb-3'>
+                                                    <label class='form-label'><b>Cantidad entregada</b></label>
+                                                    <input type='number' class='form-control' name='cantidad_entregada' id='ce_{$row['id']}' min='0' max='999' step='1'
+                                                        value='" . (($row['cantidad_entregada'] !== null && $row['cantidad_entregada'] !== '') ? (int) $row['cantidad_entregada'] : '') . "'
+                                                        placeholder='Obligatorio si el estado es Entregado'>
+                                                    <small class='text-muted'>Indique cuántas unidades se entregaron físicamente. Puede ser distinta a la solicitada.</small>
                                                 </div>
                                                 
                                                 <div class='mb-3'>
@@ -161,7 +174,7 @@ include __DIR__ . '/header.php';
                                                 
                                                 <div class='mb-3'>
                                                     <label class='form-label'><b>Cambiar Estado</b></label>
-                                                    <select name='nuevo_estado' class='form-select' required>
+                                                    <select name='nuevo_estado' class='form-select uniforme-estado-sel' data-modal-id='{$row['id']}' required>
                                                         <option value=''>-- Seleccionar --</option>
                                                         <option value='1' " . ($row['stat'] == 1 ? 'selected' : '') . ">Solicitado</option>
                                                         <option value='2' " . ($row['stat'] == 2 ? 'selected' : '') . ">En Proceso</option>
@@ -181,7 +194,7 @@ include __DIR__ . '/header.php';
                             </div>";
                         }
                     } else {
-                        echo "<tr><td colspan='7' class='text-center'>No hay solicitudes registradas.</td></tr>";
+                        echo "<tr><td colspan='9' class='text-center'>No hay solicitudes registradas.</td></tr>";
                     }
                     ?>
                 </tbody>
@@ -250,13 +263,11 @@ include __DIR__ . '/header.php';
                         }
                     },
                     pageLength: 25,
-                    order: [[5, 'asc']], // Ordenar por estado (columna 5)
+                    order: [[7, 'asc']], // Estado
                     responsive: true,
                     dom: '<"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6"f>>rt<"row"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-7"p>>',
                     columnDefs: [
-                        { targets: [4], className: 'text-center' }, // Cantidad centrada
-                        { targets: [5], className: 'text-center' }, // Estado centrado
-                        { targets: [6], className: 'text-center' }  // Acción centrada
+                        { targets: [5, 6, 7, 8], className: 'text-center' }
                     ]
                 });
                 console.log('✅ DataTable RRHH inicializado correctamente');
@@ -276,6 +287,27 @@ include __DIR__ . '/header.php';
         initDataTable();
     }
 })();
+
+// Cantidad entregada obligatoria solo si estado = Entregado (3); sugerir = solicitada si está vacío
+document.querySelectorAll('select.uniforme-estado-sel').forEach(function (sel) {
+    function sync() {
+        var id = sel.getAttribute('data-modal-id');
+        var inp = document.getElementById('ce_' + id);
+        if (!inp) return;
+        var form = sel.closest('form.form-uniforme-rrhh');
+        var sol = form ? parseInt(form.getAttribute('data-cantidad-solicitada') || '0', 10) : 0;
+        if (sel.value === '3') {
+            inp.setAttribute('required', 'required');
+            if (inp.value === '' && sol > 0) {
+                inp.value = String(sol);
+            }
+        } else {
+            inp.removeAttribute('required');
+        }
+    }
+    sel.addEventListener('change', sync);
+    sync();
+});
 
 // Función para eliminar/cancelar solicitud (solo RRHH)
 function eliminarSolicitudRRHH(uniformeId, tipoUniforme) {
