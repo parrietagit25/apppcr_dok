@@ -20,5 +20,13 @@ RUN apt-get update && apt-get install -y \
  && docker-php-ext-enable imagick \
  && apt-get clean && rm -rf /var/lib/apt/lists/*
 
+# Límites de subida coherentes con rrhh_incapacidad_max_upload_bytes() (40 MB en app + margen POST)
+RUN { \
+    echo 'upload_max_filesize = 48M'; \
+    echo 'post_max_size = 52M'; \
+    echo 'memory_limit = 256M'; \
+    echo 'max_execution_time = 120'; \
+  } > /usr/local/etc/php/conf.d/app-uploads.ini
+
 # Copiar el código fuente
 COPY ./src /var/www/html

@@ -56,7 +56,7 @@ if (!function_exists('rrhh_incapacidad_upload_error_user_message')) {
         switch ((int) $php_upload_err) {
             case UPLOAD_ERR_INI_SIZE:
             case UPLOAD_ERR_FORM_SIZE:
-                return 'El archivo es demasiado grande para el servidor. Reduzca el tamaño o use otra red (Wi‑Fi).';
+                return 'El archivo es demasiado grande para el servidor (límite de PHP: upload_max_filesize / post_max_size). Reduzca el tamaño o pida al administrador que aumente esos límites (p. ej. 48M).';
             case UPLOAD_ERR_PARTIAL:
                 return 'La subida se interrumpió (archivo incompleto). Intente de nuevo.';
             case UPLOAD_ERR_NO_FILE:
@@ -75,7 +75,8 @@ if (!function_exists('rrhh_incapacidad_upload_error_user_message')) {
 if (!function_exists('rrhh_process_incapacidad_upload')) {
     /** Tamaño máximo del archivo subido (bytes). */
     function rrhh_incapacidad_max_upload_bytes() {
-        return 20 * 1024 * 1024;
+        // Fotos HEIC/iPhone y PDFs pueden superar 20 MB; PHP debe tener upload_max_filesize/post_max_size >= este valor.
+        return 40 * 1024 * 1024;
     }
 
     /** Lado largo máximo de salida (px) tras procesar. */
@@ -85,7 +86,7 @@ if (!function_exists('rrhh_process_incapacidad_upload')) {
 
     /** Rechazar imágenes de origen absurdamente grandes (evita memory_limit / DoS). */
     function rrhh_incapacidad_max_source_dimension() {
-        return 12000;
+        return 16000;
     }
 
     function rrhh_incapacidad_jpeg_quality() {
@@ -370,7 +371,9 @@ if (!function_exists('rrhh_process_incapacidad_upload')) {
         }
 
         if (!$ran) {
-            $error_message = '';
+            $error_message = 'Procesamiento por consola no disponible (exec o proc_open deshabilitados en PHP).';
+        } else {
+            $error_message = 'Las herramientas del servidor (convert / ffmpeg / heif-convert) no generaron un JPEG válido.';
         }
         return false;
     }
@@ -638,18 +641,56 @@ if (!function_exists('rrhh_process_incapacidad_upload')) {
 
         $base = rrhh_incapacidad_unique_name('img') . '.jpg';
         $dest = $dir . $base;
+        @unlink($dest);
 
+        // Cadena: Imagick → GD (si existe) → CLI (ImageMagick/ffmpeg, igual que HEIC) → copia directa JPEG.
+        // Así no dependemos solo de php-gd (muchas imágenes iPhone/CMYK fallan en GD pero sí en convert).
         if (class_exists('Imagick')) {
             if (rrhh_incapacidad_imagick_to_jpeg($tmp, $dest, $error_message)) {
                 return $base;
             }
-            rrhh_incapacidad_upload_log('imagick', 'Fallback a GD tras fallo Imagick raster');
+            rrhh_incapacidad_upload_log('imagick', 'Raster: Imagick falló, probando GD/CLI/copia', ['detail' => $error_message]);
+            $error_message = '';
         }
 
-        if (!rrhh_incapacidad_gd_raster_to_jpeg($tmp, $realKind, $dest, $error_message)) {
-            return '';
+        if (function_exists('imagecreatetruecolor') && function_exists('imagejpeg')) {
+            if (rrhh_incapacidad_gd_raster_to_jpeg($tmp, $realKind, $dest, $error_message)) {
+                return $base;
+            }
+            rrhh_incapacidad_upload_log('gd', 'Raster: GD falló o no pudo leer la imagen', ['detail' => $error_message]);
+            $error_message = '';
+        } else {
+            rrhh_incapacidad_upload_log('gd', 'Extensión GD no cargada en PHP; se usará CLI o guardado directo de JPEG');
         }
-        return $base;
+
+        @unlink($dest);
+        $cliErr = '';
+        if (rrhh_incapacidad_heic_cli_convert($tmp, $dest, $cliErr)) {
+            rrhh_incapacidad_upload_log('raster', 'Raster normalizado vía CLI (ImageMagick/ffmpeg)');
+            return $base;
+        }
+
+        // JPEG ya validado: mismo enfoque que el PDF — guardar bytes sin re-codificar (no requiere GD).
+        if ($realKind === 'raster_jpeg' && is_uploaded_file($tmp)) {
+            $gj = @getimagesize($tmp);
+            if (is_array($gj) && ($gj[2] ?? 0) === IMAGETYPE_JPEG) {
+                if (@move_uploaded_file($tmp, $dest)) {
+                    rrhh_incapacidad_upload_log('raster', 'JPEG almacenado sin re-encode (fallback sin GD)');
+                    return $base;
+                }
+                $error_message = 'No se pudo guardar la imagen (permisos o disco).';
+                rrhh_incapacidad_upload_log('permisos', 'move_uploaded_file JPEG directo falló');
+                return '';
+            }
+        }
+
+        if ($error_message === '' && $cliErr !== '') {
+            $error_message = $cliErr;
+        }
+        if ($error_message === '') {
+            $error_message = 'No se pudo procesar la imagen en el servidor. Si el archivo es muy pesado, el administrador debe subir upload_max_filesize y post_max_size en PHP (p. ej. 48M).';
+        }
+        return '';
     }
 }
 
