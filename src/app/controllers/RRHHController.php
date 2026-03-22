@@ -289,6 +289,132 @@ if (!function_exists('rrhh_process_incapacidad_upload')) {
         }
     }
 
+    /**
+     * Convierte HEIC/HEIF → JPG vía herramientas del sistema (sin pedir nada al usuario).
+     * Solo rutas escapadas; entrada debe ser archivo subido PHP válido.
+     */
+    function rrhh_incapacidad_heic_cli_convert($tmpPath, $outputJpgPath, &$error_message) {
+        $error_message = '';
+        if (!is_uploaded_file($tmpPath) || !is_readable($tmpPath)) {
+            rrhh_incapacidad_upload_log('heic_cli', 'tmp no válido para CLI');
+            return false;
+        }
+        $outDir = realpath(dirname($outputJpgPath));
+        if ($outDir === false || !is_writable($outDir)) {
+            rrhh_incapacidad_upload_log('heic_cli', 'directorio salida no escribible');
+            return false;
+        }
+
+        $src = escapeshellarg($tmpPath);
+        $dst = escapeshellarg($outputJpgPath);
+        $binMagick = 'magick';
+        $binConvert = 'convert';
+        $binHeif = 'heif-convert';
+        $binFfmpeg = 'ffmpeg';
+
+        $commands = [
+            "/usr/bin/magick {$src} -auto-orient -quality 88 {$dst}",
+            "/usr/local/bin/magick {$src} -auto-orient -quality 88 {$dst}",
+            "{$binMagick} {$src} -auto-orient -quality 88 {$dst}",
+            "/usr/bin/convert {$src} -auto-orient -quality 88 {$dst}",
+            "{$binConvert} {$src} -auto-orient -quality 88 {$dst}",
+            "/usr/bin/heif-convert {$src} {$dst}",
+            "{$binHeif} {$src} {$dst}",
+            "/usr/bin/ffmpeg -y -i {$src} -frames:v 1 -q:v 2 {$dst}",
+            "{$binFfmpeg} -y -i {$src} -frames:v 1 -q:v 2 {$dst}",
+        ];
+
+        $disabled = strtolower((string) ini_get('disable_functions'));
+        $disabledList = array_filter(array_map('trim', explode(',', $disabled)));
+        $execOk = function_exists('exec') && !in_array('exec', $disabledList, true);
+        $procOk = function_exists('proc_open') && !in_array('proc_open', $disabledList, true);
+
+        $ran = false;
+        foreach ($commands as $cmd) {
+            @unlink($outputJpgPath);
+            $out = [];
+            $code = -1;
+            if ($execOk) {
+                $ran = true;
+                @exec($cmd . ' 2>&1', $out, $code);
+            } elseif ($procOk) {
+                $ran = true;
+                $des = [0 => ['pipe', 'r'], 1 => ['pipe', 'w'], 2 => ['pipe', 'w']];
+                $p = @proc_open($cmd, $des, $pipes, null, null);
+                if ($p !== false) {
+                    fclose($pipes[0]);
+                    $stdout = stream_get_contents($pipes[1]);
+                    $stderr = stream_get_contents($pipes[2]);
+                    fclose($pipes[1]);
+                    fclose($pipes[2]);
+                    $code = proc_close($p);
+                    $out = array_filter([$stdout, $stderr]);
+                }
+            } else {
+                rrhh_incapacidad_upload_log('heic_cli', 'exec y proc_open no disponibles o deshabilitados');
+                break;
+            }
+
+            if (is_file($outputJpgPath) && filesize($outputJpgPath) > 64) {
+                $gi = @getimagesize($outputJpgPath);
+                if (is_array($gi) && ($gi[2] ?? 0) === IMAGETYPE_JPEG) {
+                    rrhh_incapacidad_upload_log('heic_cli', 'Conversión CLI OK', ['cmd_prefix' => substr($cmd, 0, 48), 'code' => $code]);
+                    return true;
+                }
+                @unlink($outputJpgPath);
+                rrhh_incapacidad_upload_log('heic_cli', 'salida no es JPEG válido');
+            }
+            if ($out !== []) {
+                rrhh_incapacidad_upload_log('heic_cli', 'intento fallido', ['code' => $code, 'tail' => substr(implode("\n", $out), 0, 300)]);
+            }
+        }
+
+        if (!$ran) {
+            $error_message = '';
+        }
+        return false;
+    }
+
+    /**
+     * HEIC/HEIF → JPG visualizable: Imagick, si falla CLI del servidor, luego optimiza tamaño/calidad.
+     */
+    function rrhh_incapacidad_convert_heic_to_jpeg($tmpPath, $finalDestJpg, $workDir, &$error_message) {
+        $error_message = '';
+        $workDir = rtrim($workDir, '/\\') . DIRECTORY_SEPARATOR;
+
+        if (class_exists('Imagick')) {
+            $errIm = '';
+            if (rrhh_incapacidad_imagick_to_jpeg($tmpPath, $finalDestJpg, $errIm)) {
+                return true;
+            }
+            rrhh_incapacidad_upload_log('heic', 'Imagick no pudo leer HEIC, probando CLI', ['detail' => $errIm]);
+        } else {
+            rrhh_incapacidad_upload_log('heic', 'Imagick no cargado; probando CLI');
+        }
+
+        $mid = $workDir . '_heic_' . bin2hex(random_bytes(8)) . '.jpg';
+        $cliErr = '';
+        if (!rrhh_incapacidad_heic_cli_convert($tmpPath, $mid, $cliErr)) {
+            $error_message = 'No se pudo convertir la foto en el servidor. El administrador debe instalar soporte HEIC (php-imagick + libheif, o paquetes: imagemagick, libheif-examples/heif-convert, o ffmpeg).';
+            rrhh_incapacidad_upload_log('heic', 'Imagick y CLI fallaron; revisar servidor');
+            return false;
+        }
+
+        $errPost = '';
+        if (class_exists('Imagick') && rrhh_incapacidad_imagick_to_jpeg($mid, $finalDestJpg, $errPost)) {
+            @unlink($mid);
+            return true;
+        }
+        if (rrhh_incapacidad_gd_raster_to_jpeg($mid, 'raster_jpeg', $finalDestJpg, $errPost)) {
+            @unlink($mid);
+            return true;
+        }
+        @unlink($mid);
+        $error_message = 'La conversión HEIC generó un archivo intermedio inválido.';
+        rrhh_incapacidad_upload_log('heic', 'post-procesado JPG falló', ['detail' => $errPost]);
+        return false;
+    }
+
     function rrhh_incapacidad_gd_apply_exif_orientation($img, $tmpPath) {
         if (!function_exists('exif_read_data') || !function_exists('imagerotate')) {
             return $img;
@@ -474,20 +600,12 @@ if (!function_exists('rrhh_process_incapacidad_upload')) {
         }
 
         if ($realKind === 'heic') {
-            if (!class_exists('Imagick')) {
-                $error_message = 'Formato HEIC/HEIF no soportado en el servidor. Use JPG o PNG, o en iPhone: Ajustes → Cámara → Formatos → «Más compatibles».';
-                rrhh_incapacidad_upload_log('heic', 'Imagick no disponible — sin fallback HEIC');
-                return '';
-            }
             $base = rrhh_incapacidad_unique_name('img') . '.jpg';
             $dest = $dir . $base;
-            if (!rrhh_incapacidad_imagick_to_jpeg($tmp, $dest, $error_message)) {
-                if (stripos($error_message, 'HEIC') === false && $error_message !== '') {
-                    $error_message = 'No se pudo convertir HEIC/HEIF. El servidor puede no tener soporte HEIC (libheif). Use JPG o PNG.';
-                } elseif ($error_message === '') {
-                    $error_message = 'No se pudo convertir HEIC/HEIF. Use JPG o PNG.';
+            if (!rrhh_incapacidad_convert_heic_to_jpeg($tmp, $dest, $dir, $error_message)) {
+                if ($error_message === '') {
+                    $error_message = 'No se pudo procesar la foto. Si el problema continúa, avise a soporte (conversión HEIC en servidor).';
                 }
-                rrhh_incapacidad_upload_log('heic', 'Conversión fallida');
                 return '';
             }
             return $base;

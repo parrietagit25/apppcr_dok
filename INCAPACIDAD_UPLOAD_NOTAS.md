@@ -30,10 +30,12 @@
 - Si Imagick falla → **GD** (EXIF orientación en JPEG, flatten PNG/WebP sobre fondo blanco, resize, `imagejpeg`).
 - Si no hay Imagick ni GD usable → error claro (no subir binario «a ciegas»).
 
-### HEIC
+### HEIC / HEIF
 
-- Solo con **Imagick**; convierte a JPG con el mismo pipeline de tamaño/calidad.
-- **Sin Imagick** → mensaje explícito (sin guardar HEIC).
+- El **usuario no debe cambiar** la cámara del iPhone: el servidor convierte a **JPG** para poder verla en el navegador.
+- Orden: **Imagick (PHP)** → si falla, **CLI** en este orden: `magick`, `convert`, `heif-convert`, `ffmpeg` (rutas `/usr/bin/…` y sin prefijo).
+- Tras conversión se **optimiza** (mismo flujo que JPG: máx. 1600 px, calidad ~82).
+- Si todo falla, el mensaje indica a **administración** instalar `php-imagick` + **libheif**, o `imagemagick` / `libheif-examples` / `ffmpeg` (y que `exec` o `proc_open` no estén en `disable_functions`).
 
 ### Seguridad
 
