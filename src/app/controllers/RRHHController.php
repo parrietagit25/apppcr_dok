@@ -409,6 +409,23 @@ if (!function_exists('rrhh_process_incapacidad_upload')) {
             @unlink($mid);
             return true;
         }
+
+        // El CLI ya validó JPEG (>64 B + getimagesize). Imagick/GD a veces fallan con JPEG CMYK u otras
+        // salidas de ImageMagick/heif-convert; en ese caso usar el archivo intermedio tal cual.
+        if (is_file($mid) && filesize($mid) > 64) {
+            $giMid = @getimagesize($mid);
+            if (is_array($giMid) && ($giMid[2] ?? 0) === IMAGETYPE_JPEG) {
+                if (@copy($mid, $finalDestJpg) || @rename($mid, $finalDestJpg)) {
+                    if (is_file($mid)) {
+                        @unlink($mid);
+                    }
+                    rrhh_incapacidad_upload_log('heic', 'JPEG CLI aceptado sin re-muestreo (Imagick/GD no aplicaron)', ['detail' => $errPost]);
+                    return true;
+                }
+                $errPost = trim($errPost . ' copy/rename al destino final falló.');
+            }
+        }
+
         @unlink($mid);
         $error_message = 'La conversión HEIC generó un archivo intermedio inválido.';
         rrhh_incapacidad_upload_log('heic', 'post-procesado JPG falló', ['detail' => $errPost]);
