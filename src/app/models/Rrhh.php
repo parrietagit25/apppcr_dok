@@ -445,7 +445,10 @@ class Rrhh {
 
     public function incapacidad() {
 
-        $code = $_SESSION['code'];
+        $code = isset($_SESSION['code']) ? ltrim((string) $_SESSION['code'], '0') : '';
+        if ($code === '') {
+            $code = '0';
+        }
 
         $stmt = $this->pdo->prepare("SELECT ct.id, ct.descripcion, ct.fecha_log, ct.fecha_retroactiva,
                                         CASE ct.stat
@@ -458,7 +461,8 @@ class Rrhh {
                                         WHERE 
                                         ct.stat in(1,2)
                                         AND 
-                                        ct.code_user = '".$code."'");
+                                        ct.code_user = :code_user");
+        $stmt->bindParam(':code_user', $code, PDO::PARAM_STR);
         $stmt->execute();
         $array_datos = [];
         while ($list_code = $stmt->fetch(PDO::FETCH_ASSOC)) {
