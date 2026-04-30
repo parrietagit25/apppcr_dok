@@ -29,6 +29,7 @@ $sql = "
         e.codigo_empleado AS codigo,
         e.nombre,
         e.apellido,
+        e.nombre_departamento AS departamento,
         sp.fecha_log,
         sp.descripcion,
         sp.tipo_licencia,
@@ -58,7 +59,7 @@ $sheet->setTitle('Vacaciones');
 // Encabezados
 $sheet->fromArray(
     [
-        'ID', 'Código', 'Nombre', 'Apellido', 'Fecha Solicitud', 'Descripción',
+        'ID', 'Código', 'Nombre', 'Apellido', 'Departamento', 'Fecha Solicitud', 'Descripción',
         'Tipo Licencia', 'Fecha Inicio', 'Fecha Fin', 'Estado', 'Respuesta Jefe', 'Comentario Jefe', 'Archivo'
     ],
     NULL,
@@ -72,15 +73,16 @@ foreach ($vacaciones as $v) {
     $sheet->setCellValue("B$row", $v['codigo']);
     $sheet->setCellValue("C$row", $v['nombre']);
     $sheet->setCellValue("D$row", $v['apellido']);
-    $sheet->setCellValue("E$row", $v['fecha_log']);
-    $sheet->setCellValue("F$row", $v['descripcion']);
-    $sheet->setCellValue("G$row", $v['tipo_licencia']);
-    $sheet->setCellValue("H$row", $v['fecha_inicio']);
-    $sheet->setCellValue("I$row", $v['fecha_fin']);
-    $sheet->setCellValue("J$row", $v['stat']);
-    $sheet->setCellValue("K$row", $v['respuesta_jefe']);
-    $sheet->setCellValue("L$row", $v['comentario_jefe']);
-    $sheet->setCellValue("M$row", $v['file_add']);
+    $sheet->setCellValue("E$row", $v['departamento']);
+    $sheet->setCellValue("F$row", $v['fecha_log']);
+    $sheet->setCellValue("G$row", $v['descripcion']);
+    $sheet->setCellValue("H$row", $v['tipo_licencia']);
+    $sheet->setCellValue("I$row", $v['fecha_inicio']);
+    $sheet->setCellValue("J$row", $v['fecha_fin']);
+    $sheet->setCellValue("K$row", $v['stat']);
+    $sheet->setCellValue("L$row", $v['respuesta_jefe']);
+    $sheet->setCellValue("M$row", $v['comentario_jefe']);
+    $sheet->setCellValue("N$row", $v['file_add']);
     $row++;
 }
 

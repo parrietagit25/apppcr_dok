@@ -1826,6 +1826,7 @@ class Rrhh {
                     e.codigo_empleado,
                     e.nombre,
                     e.apellido,
+                    e.nombre_departamento AS departamento,
                     sp.fecha_log,
                     sp.descripcion,
                     sp.tipo_licencia,

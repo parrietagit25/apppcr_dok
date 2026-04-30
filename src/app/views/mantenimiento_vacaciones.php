@@ -18,6 +18,7 @@ include __DIR__ . '/header.php';
                 <th>Código</th>
                 <th>Nombre</th>
                 <th>Apellido</th>
+                <th>Departamento</th>
                 <th>Fecha Solicitud</th>
                 <th>Descripción</th>
                 <th>Fecha Inicio</th>
@@ -34,6 +35,7 @@ include __DIR__ . '/header.php';
                 <td><?= htmlspecialchars($v['codigo_empleado'] ?? '') ?></td>
                 <td><?= htmlspecialchars($v['nombre'] ?? '') ?></td>
                 <td><?= htmlspecialchars($v['apellido'] ?? '') ?></td>
+                <td><?= htmlspecialchars($v['departamento'] ?? '') ?></td>
                 <td><?= htmlspecialchars($v['fecha_log'] ?? '') ?></td>
                 <td><?= htmlspecialchars($v['descripcion'] ?? '') ?></td>
                 <td><?= htmlspecialchars($v['fecha_inicio'] ?? '') ?></td>
