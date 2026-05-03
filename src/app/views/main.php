@@ -46,7 +46,20 @@ include __DIR__ . '/header.php';
             </div>
         </div>
         
-        
+        <?php if ((int) ($tipo_usuario ?? 0) === 1) { ?>
+        <div class="row text-center mb-3">
+            <div class="col-12 mb-3">
+                <a href="<?php echo rtrim(BASE_URL_CONTROLLER, '/'); ?>/QuinielaController.php" class="text-decoration-none">
+                    <div class="card-icon" style="background: linear-gradient(135deg, #0d6efd 0%, #198754 100%); color: #fff;">
+                        <i class="bi bi-trophy-fill d-block mb-2" style="font-size: 2rem;"></i>
+                        <div class="card-title" style="color: #fff;">Quiniela del Mundial 2026</div>
+                        <small style="opacity: 0.9;">Arma tu quiniela y sigue los resultados</small>
+                    </div>
+                </a>
+            </div>
+        </div>
+        <?php } ?>
+
         <div class="row text-center mb-3">
             <div class="col-4 mb-3">
                 <a href="<?php echo BASE_URL_CONTROLLER; ?>/CarnetController.php" class="text-decoration-none">
