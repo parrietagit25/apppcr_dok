@@ -3,10 +3,17 @@ if (!isset($_SESSION['code'])) {
     header('Location: salir.php');
     exit();
 }
+require_once __DIR__ . '/../config/quiniela_paises_mundial.php';
 include __DIR__ . '/header.php';
 $qBase = rtrim(BASE_URL_CONTROLLER, '/') . '/QuinielaController.php';
 $nGrupos = count($gruposAdmin);
 ?>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.bootstrap5.min.css">
+<style>
+    .quiniela-ts-wrap .ts-control { min-height: 38px; border-radius: 0.375rem; }
+    .quiniela-ts-wrap.form-select-sm .ts-control { min-height: 31px; font-size: 0.875rem; }
+    .ts-dropdown .option { padding: 0.35rem 0.5rem; }
+</style>
 
 <div class="container mt-3 mb-5 pb-5">
     <div class="d-flex align-items-center mb-3 flex-wrap gap-2">
@@ -60,8 +67,13 @@ $nGrupos = count($gruposAdmin);
                     </div>
                     <?php for ($n = 1; $n <= 4; $n++) { ?>
                     <div class="col-md-6">
-                        <label class="form-label small">Equipo <?php echo $n; ?></label>
-                        <input type="text" class="form-control form-control-sm" name="equipo_<?php echo $n; ?>" maxlength="120" required>
+                        <label class="form-label small">Equipo <?php echo $n; ?> (país)</label>
+                        <select class="form-select form-select-sm quiniela-ts-pais-nuevo" name="equipo_<?php echo $n; ?>" id="quiniela_equipo_new_<?php echo $n; ?>" autocomplete="off" required>
+                            <option value="">Buscar o escribir país…</option>
+                            <?php foreach (quiniela_paises_mundial_lista() as $p) { ?>
+                            <option value="<?php echo htmlspecialchars($p['nombre']); ?>"><?php echo htmlspecialchars($p['bandera'] . ' ' . $p['nombre']); ?></option>
+                            <?php } ?>
+                        </select>
                     </div>
                     <?php } ?>
                 </div>
@@ -118,21 +130,21 @@ $nGrupos = count($gruposAdmin);
                 <div class="fw-bold small mb-2">+ Enfrentamiento directo</div>
                 <form method="post" action="<?php echo htmlspecialchars($qBase . '?v_quiniela=1'); ?>">
                     <input type="hidden" name="grupo_id_partido" value="<?php echo $gid; ?>">
-                    <div class="mb-2">
+                    <div class="mb-2 quiniela-ts-wrap form-select-sm">
                         <label class="form-label small">Equipo local</label>
-                        <select class="form-select form-select-sm" name="equipo_local_id" required>
+                        <select class="form-select form-select-sm quiniela-ts-equipo-por-id" name="equipo_local_id" required>
                             <option value="">—</option>
                             <?php foreach ($g['equipos'] as $eq) { ?>
-                            <option value="<?php echo (int) $eq['id']; ?>"><?php echo htmlspecialchars($eq['nombre']); ?></option>
+                            <option value="<?php echo (int) $eq['id']; ?>"><?php echo htmlspecialchars(quiniela_paises_etiqueta_opcion($eq['nombre'])); ?></option>
                             <?php } ?>
                         </select>
                     </div>
-                    <div class="mb-2">
+                    <div class="mb-2 quiniela-ts-wrap form-select-sm">
                         <label class="form-label small">Equipo visitante</label>
-                        <select class="form-select form-select-sm" name="equipo_visitante_id" required>
+                        <select class="form-select form-select-sm quiniela-ts-equipo-por-id" name="equipo_visitante_id" required>
                             <option value="">—</option>
                             <?php foreach ($g['equipos'] as $eq) { ?>
-                            <option value="<?php echo (int) $eq['id']; ?>"><?php echo htmlspecialchars($eq['nombre']); ?></option>
+                            <option value="<?php echo (int) $eq['id']; ?>"><?php echo htmlspecialchars(quiniela_paises_etiqueta_opcion($eq['nombre'])); ?></option>
                             <?php } ?>
                         </select>
                     </div>
@@ -149,7 +161,7 @@ $nGrupos = count($gruposAdmin);
                     <input type="hidden" name="grupo_id_partido_g" value="<?php echo $gid; ?>">
                     <div class="mb-2">
                         <label class="form-label small">Partido 1 (origen)</label>
-                        <select class="form-select form-select-sm" name="src_partido_a" required>
+                        <select class="form-select form-select-sm quiniela-ts-partido-ref" name="src_partido_a" required>
                             <option value="">—</option>
                             <?php foreach ($plist as $op) { ?>
                             <option value="<?php echo (int) $op['id']; ?>">#<?php echo (int) $op['id']; ?> — <?php echo htmlspecialchars($quinielaModel->etiquetaPartidoVista($op)); ?></option>
@@ -158,7 +170,7 @@ $nGrupos = count($gruposAdmin);
                     </div>
                     <div class="mb-2">
                         <label class="form-label small">Partido 2 (origen)</label>
-                        <select class="form-select form-select-sm" name="src_partido_b" required>
+                        <select class="form-select form-select-sm quiniela-ts-partido-ref" name="src_partido_b" required>
                             <option value="">—</option>
                             <?php foreach ($plist as $op) { ?>
                             <option value="<?php echo (int) $op['id']; ?>">#<?php echo (int) $op['id']; ?> — <?php echo htmlspecialchars($quinielaModel->etiquetaPartidoVista($op)); ?></option>
@@ -202,21 +214,21 @@ $nGrupos = count($gruposAdmin);
             <div class="fw-bold small mb-2">+ Llave: enfrentamiento directo (cualquier equipo)</div>
             <form method="post" action="<?php echo htmlspecialchars($qBase . '?v_quiniela=1'); ?>">
                 <input type="hidden" name="grupo_id_partido" value="">
-                <div class="mb-2">
+                <div class="mb-2 quiniela-ts-wrap form-select-sm">
                     <label class="form-label small">Equipo A</label>
-                    <select class="form-select form-select-sm" name="equipo_local_id" required>
+                    <select class="form-select form-select-sm quiniela-ts-equipo-por-id" name="equipo_local_id" required>
                         <option value="">—</option>
                         <?php foreach ($equiposSelector as $eq) { ?>
-                        <option value="<?php echo (int) $eq['id']; ?>"><?php echo htmlspecialchars($eq['grupo_nom'] . ' — ' . $eq['nombre']); ?></option>
+                        <option value="<?php echo (int) $eq['id']; ?>"><?php echo htmlspecialchars($eq['grupo_nom'] . ' — ' . quiniela_paises_etiqueta_opcion($eq['nombre'])); ?></option>
                         <?php } ?>
                     </select>
                 </div>
-                <div class="mb-2">
+                <div class="mb-2 quiniela-ts-wrap form-select-sm">
                     <label class="form-label small">Equipo B</label>
-                    <select class="form-select form-select-sm" name="equipo_visitante_id" required>
+                    <select class="form-select form-select-sm quiniela-ts-equipo-por-id" name="equipo_visitante_id" required>
                         <option value="">—</option>
                         <?php foreach ($equiposSelector as $eq) { ?>
-                        <option value="<?php echo (int) $eq['id']; ?>"><?php echo htmlspecialchars($eq['grupo_nom'] . ' — ' . $eq['nombre']); ?></option>
+                        <option value="<?php echo (int) $eq['id']; ?>"><?php echo htmlspecialchars($eq['grupo_nom'] . ' — ' . quiniela_paises_etiqueta_opcion($eq['nombre'])); ?></option>
                         <?php } ?>
                     </select>
                 </div>
@@ -232,7 +244,7 @@ $nGrupos = count($gruposAdmin);
                 <input type="hidden" name="grupo_id_partido_g" value="">
                 <div class="mb-2">
                     <label class="form-label small">Partido origen A</label>
-                    <select class="form-select form-select-sm" name="src_partido_a" required>
+                    <select class="form-select form-select-sm quiniela-ts-partido-ref" name="src_partido_a" required>
                         <option value="">—</option>
                         <?php foreach ($partidosAdmin as $op) { ?>
                         <option value="<?php echo (int) $op['id']; ?>">#<?php echo (int) $op['id']; ?> — <?php echo htmlspecialchars($quinielaModel->etiquetaPartidoVista($op)); ?></option>
@@ -241,7 +253,7 @@ $nGrupos = count($gruposAdmin);
                 </div>
                 <div class="mb-2">
                     <label class="form-label small">Partido origen B</label>
-                    <select class="form-select form-select-sm" name="src_partido_b" required>
+                    <select class="form-select form-select-sm quiniela-ts-partido-ref" name="src_partido_b" required>
                         <option value="">—</option>
                         <?php foreach ($partidosAdmin as $op) { ?>
                         <option value="<?php echo (int) $op['id']; ?>">#<?php echo (int) $op['id']; ?> — <?php echo htmlspecialchars($quinielaModel->etiquetaPartidoVista($op)); ?></option>
@@ -256,5 +268,64 @@ $nGrupos = count($gruposAdmin);
         </div>
     </div>
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    if (typeof TomSelect === 'undefined') return;
+
+    document.querySelectorAll('.quiniela-ts-pais-nuevo').forEach(function (sel) {
+        new TomSelect(sel, {
+            allowEmptyOption: true,
+            create: function (input) {
+                var t = (input || '').trim();
+                if (t.length < 2) return null;
+                return { value: t, text: '⚽ ' + t };
+            },
+            createOnBlur: true,
+            sortField: { field: 'text', direction: 'asc' },
+            maxOptions: 500,
+            plugins: ['clear_button'],
+            placeholder: 'Buscar país…',
+            render: {
+                option: function (data, escape) {
+                    return '<div class="py-1">' + escape(data.text) + '</div>';
+                },
+                item: function (data, escape) {
+                    return '<div>' + escape(data.text) + '</div>';
+                }
+            }
+        });
+    });
+
+    document.querySelectorAll('.quiniela-ts-equipo-por-id').forEach(function (sel) {
+        new TomSelect(sel, {
+            allowEmptyOption: true,
+            sortField: { field: 'text', direction: 'asc' },
+            maxOptions: null,
+            plugins: ['clear_button'],
+            placeholder: 'Buscar equipo…',
+            render: {
+                option: function (data, escape) {
+                    return '<div class="py-1">' + escape(data.text) + '</div>';
+                },
+                item: function (data, escape) {
+                    return '<div>' + escape(data.text) + '</div>';
+                }
+            }
+        });
+    });
+
+    document.querySelectorAll('.quiniela-ts-partido-ref').forEach(function (sel) {
+        new TomSelect(sel, {
+            allowEmptyOption: true,
+            sortField: { field: 'text', direction: 'asc' },
+            maxOptions: null,
+            plugins: ['clear_button'],
+            placeholder: 'Buscar partido…'
+        });
+    });
+});
+</script>
 
 <?php include __DIR__ . '/footer.php'; ?>
