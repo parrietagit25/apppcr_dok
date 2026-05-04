@@ -4,8 +4,15 @@ if (!isset($_SESSION['code'])) {
     exit();
 }
 include __DIR__ . '/header.php';
+include __DIR__ . '/quiniela_include_banderas.php';
 $qBase = rtrim(BASE_URL_CONTROLLER, '/') . '/QuinielaController.php';
+$mapEquipoIsoJson = json_encode($quinielaIsoPorEquipoId ?? [], JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT);
 ?>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.bootstrap5.min.css">
+<style>
+    .quiniela-ts-res .ts-control { min-height: 31px; font-size: 0.875rem; }
+    .ts-dropdown .option { padding: 0.35rem 0.5rem; }
+</style>
 
 <div class="container mt-3 mb-5 pb-5">
     <div class="d-flex align-items-center mb-3 flex-wrap gap-2">
@@ -41,7 +48,7 @@ $qBase = rtrim(BASE_URL_CONTROLLER, '/') . '/QuinielaController.php';
                     ?>
                 <tr>
                     <td><?php echo $pid; ?></td>
-                    <td><?php echo htmlspecialchars($quinielaModel->etiquetaPartidoVista($p)); ?>
+                    <td><?php echo $quinielaModel->etiquetaPartidoHtml($p); ?>
                         <?php if ($p['tipo'] === 'ganadores') { ?>
                         <div class="small text-muted">Entre ganadores: partidos #<?php echo (int) $p['src_partido_a_id']; ?> y #<?php echo (int) $p['src_partido_b_id']; ?></div>
                         <?php } ?>
@@ -49,18 +56,23 @@ $qBase = rtrim(BASE_URL_CONTROLLER, '/') . '/QuinielaController.php';
                     <td>
                         <form method="post" action="<?php echo htmlspecialchars($qBase . '?v_resultados=1'); ?>" class="d-flex flex-wrap gap-1 align-items-center">
                             <input type="hidden" name="partido_id" value="<?php echo $pid; ?>">
-                            <select class="form-select form-select-sm" name="ganador_id" style="min-width:12rem;" <?php echo count($opts) !== 2 ? 'disabled' : ''; ?>>
+                            <div class="quiniela-ts-res" style="min-width:12rem;">
+                            <select class="form-select form-select-sm quiniela-ts-resultado-ganador" name="ganador_id" <?php echo count($opts) !== 2 ? 'disabled' : ''; ?>>
                                 <option value="0">— Pendiente —</option>
                                 <?php
                                 if (count($opts) === 2) {
                                     foreach ($opts as $eid) {
-                                        $nom = $quinielaModel->nombreEquipo((int) $eid);
-                                        $sel = ((int) ($p['ganador_id'] ?? 0) === (int) $eid) ? 'selected' : '';
-                                        echo '<option value="' . (int) $eid . '" ' . $sel . '>' . htmlspecialchars($nom) . '</option>';
+                                        $eid = (int) $eid;
+                                        $de = $quinielaModel->datosEquipo($eid);
+                                        $nom = $de['nombre'] ?? $quinielaModel->nombreEquipo($eid);
+                                        $isoAttr = htmlspecialchars((string) ($de['iso'] ?? ''), ENT_QUOTES, 'UTF-8');
+                                        $sel = ((int) ($p['ganador_id'] ?? 0) === $eid) ? 'selected' : '';
+                                        echo '<option value="' . $eid . '" data-iso="' . $isoAttr . '" ' . $sel . '>' . htmlspecialchars($nom) . '</option>';
                                     }
                                 }
                                 ?>
                             </select>
+                            </div>
                             <?php if (count($opts) === 2) { ?>
                             <button type="submit" name="guardar_resultado_partido" value="1" class="btn btn-primary btn-sm">Guardar</button>
                             <?php } else { ?>
@@ -75,5 +87,40 @@ $qBase = rtrim(BASE_URL_CONTROLLER, '/') . '/QuinielaController.php';
     </div>
     <?php } ?>
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    if (typeof TomSelect === 'undefined') return;
+    var ISO_EQUIPO = <?php echo $mapEquipoIsoJson; ?>;
+    function normIso(iso) {
+        iso = (iso || '').toString().toLowerCase().replace(/[^a-z]/g, '');
+        return (iso.length === 2) ? iso : 'un';
+    }
+    function flagRow(iso, text, escape) {
+        var i = normIso(iso);
+        var u = 'https://flagcdn.com/w40/' + i + '.png';
+        return '<div class="d-flex align-items-center">' +
+            '<img class="flag-icon" src="' + u + '" width="20" height="15" alt="" loading="lazy" referrerpolicy="no-referrer">' +
+            '<span>' + escape(text) + '</span></div>';
+    }
+    document.querySelectorAll('.quiniela-ts-resultado-ganador:not([disabled])').forEach(function (sel) {
+        new TomSelect(sel, {
+            allowEmptyOption: true,
+            plugins: ['clear_button'],
+            render: {
+                option: function (data, escape) {
+                    var iso = data.iso || (ISO_EQUIPO[String(data.value)] || '');
+                    return flagRow(iso, data.text, escape);
+                },
+                item: function (data, escape) {
+                    var iso = data.iso || (ISO_EQUIPO[String(data.value)] || '');
+                    return flagRow(iso, data.text, escape);
+                }
+            }
+        });
+    });
+});
+</script>
 
 <?php include __DIR__ . '/footer.php'; ?>

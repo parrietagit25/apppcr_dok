@@ -111,14 +111,40 @@ function quiniela_paises_iso_por_nombre(string $nombre): ?string
     return null;
 }
 
-/** URL bandera PNG (flagcdn). $size ejemplo: 20, 28, 40 */
-function quiniela_paises_url_bandera(string $iso, int $size = 28): string
+/**
+ * URL PNG flagcdn (w40 por defecto). ISO inválido o vacío → ONU (un) como neutro.
+ *
+ * @see https://flagcdn.com
+ */
+function quiniela_get_flag_url(?string $iso, int $w = 40): string
 {
-    $iso = strtolower(preg_replace('/[^a-z]/', '', $iso));
-    if ($iso === '') {
-        return '';
+    $norm = strtolower(preg_replace('/[^a-z]/', '', (string) $iso));
+    if ($norm === '' || strlen($norm) !== 2) {
+        $norm = 'un';
     }
-    return 'https://flagcdn.com/w' . $size . '/' . $iso . '.png';
+    return 'https://flagcdn.com/w' . $w . '/' . $norm . '.png';
+}
+
+/** @deprecated Use quiniela_get_flag_url() */
+function quiniela_paises_url_bandera(string $iso, int $size = 40): string
+{
+    return quiniela_get_flag_url($iso, $size);
+}
+
+/**
+ * HTML: imagen bandera + nombre (nombre escapado).
+ * La clase .flag-icon debe estar definida en las vistas del módulo.
+ */
+function quiniela_flag_icon_html(?string $iso, string $nombre = '', bool $conNombre = true): string
+{
+    $url = quiniela_get_flag_url($iso, 40);
+    $img = '<img src="' . htmlspecialchars($url, ENT_QUOTES, 'UTF-8')
+        . '" alt="" class="flag-icon" width="20" height="15" loading="lazy" decoding="async" referrerpolicy="no-referrer">';
+    if (!$conNombre || $nombre === '') {
+        return $img;
+    }
+    return '<span class="d-inline-flex align-items-center">' . $img
+        . '<span class="align-middle">' . htmlspecialchars($nombre, ENT_QUOTES, 'UTF-8') . '</span></span>';
 }
 
 /** Texto plano (sin HTML) para etiquetas donde no hay Tom Select */

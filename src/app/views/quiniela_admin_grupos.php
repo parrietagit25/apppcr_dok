@@ -3,8 +3,8 @@ if (!isset($_SESSION['code'])) {
     header('Location: salir.php');
     exit();
 }
-require_once __DIR__ . '/../config/quiniela_paises_mundial.php';
 include __DIR__ . '/header.php';
+include __DIR__ . '/quiniela_include_banderas.php';
 $qBase = rtrim(BASE_URL_CONTROLLER, '/') . '/QuinielaController.php';
 $nGrupos = count($gruposAdmin);
 ?>
@@ -13,8 +13,6 @@ $nGrupos = count($gruposAdmin);
     .quiniela-ts-wrap .ts-control { min-height: 38px; border-radius: 0.375rem; }
     .quiniela-ts-wrap.form-select-sm .ts-control { min-height: 31px; font-size: 0.875rem; }
     .ts-dropdown .option { padding: 0.35rem 0.5rem; }
-    .quiniela-flag-img { object-fit: cover; flex-shrink: 0; }
-    .ts-control .item .quiniela-flag-img { vertical-align: middle; }
 </style>
 
 <div class="container mt-3 mb-5 pb-5">
@@ -76,6 +74,8 @@ $nGrupos = count($gruposAdmin);
                             <option value="<?php echo htmlspecialchars($p['nombre']); ?>" data-iso="<?php echo htmlspecialchars($p['iso']); ?>"><?php echo htmlspecialchars($p['nombre']); ?></option>
                             <?php } ?>
                         </select>
+                        <label class="form-label small text-muted mt-1">ISO (2 letras, opcional si el país no está en la lista)</label>
+                        <input type="text" class="form-control form-control-sm" name="equipo_iso_<?php echo $n; ?>" id="quiniela_iso_slot_<?php echo $n; ?>" maxlength="2" pattern="[A-Za-z]{0,2}" placeholder="Auto" title="Código ISO; se rellena al elegir país o escríbalo a mano">
                     </div>
                     <?php } ?>
                 </div>
@@ -102,7 +102,7 @@ $nGrupos = count($gruposAdmin);
         </div>
         <ul class="small mb-3">
             <?php foreach ($g['equipos'] as $eq) { ?>
-            <li><?php echo htmlspecialchars($eq['nombre']); ?> <span class="text-muted">(id <?php echo (int) $eq['id']; ?>)</span></li>
+            <li class="d-flex align-items-center flex-wrap gap-1"><?php echo quiniela_flag_icon_html($eq['iso'] ?? null, (string) $eq['nombre'], true); ?> <span class="text-muted">(id <?php echo (int) $eq['id']; ?>)</span></li>
             <?php } ?>
         </ul>
 
@@ -115,7 +115,7 @@ $nGrupos = count($gruposAdmin);
                 $pid = (int) $p['id'];
                 ?>
             <li class="list-group-item d-flex justify-content-between align-items-center px-0">
-                <span><strong>#<?php echo $pid; ?></strong> — <?php echo htmlspecialchars($quinielaModel->etiquetaPartidoVista($p)); ?>
+                <span><strong>#<?php echo $pid; ?></strong> — <?php echo $quinielaModel->etiquetaPartidoHtml($p); ?>
                     <?php if ($p['tipo'] === 'fijo') { ?><span class="badge bg-secondary">directo</span><?php } else { ?><span class="badge bg-primary">ganadores</span><?php } ?>
                     <?php if ($p['tipo'] === 'ganadores') { ?>
                     <span class="small text-muted ms-1">(depende de <?php echo htmlspecialchars($quinielaModel->textoDependenciaPartido($p)); ?>)</span>
@@ -140,9 +140,9 @@ $nGrupos = count($gruposAdmin);
                         <select class="form-select form-select-sm quiniela-ts-equipo-por-id" name="equipo_a_id" required>
                             <option value="">—</option>
                             <?php foreach ($g['equipos'] as $eq) {
-                                $isoEq = quiniela_paises_iso_por_nombre($eq['nombre']);
+                                $isoEq = $eq['iso'] ?? quiniela_paises_iso_por_nombre($eq['nombre']);
                                 ?>
-                            <option value="<?php echo (int) $eq['id']; ?>" data-iso="<?php echo htmlspecialchars($isoEq ?? ''); ?>"><?php echo htmlspecialchars($eq['nombre']); ?></option>
+                            <option value="<?php echo (int) $eq['id']; ?>" data-iso="<?php echo htmlspecialchars((string) ($isoEq ?? '')); ?>"><?php echo htmlspecialchars($eq['nombre']); ?></option>
                             <?php } ?>
                         </select>
                     </div>
@@ -151,9 +151,9 @@ $nGrupos = count($gruposAdmin);
                         <select class="form-select form-select-sm quiniela-ts-equipo-por-id" name="equipo_b_id" required>
                             <option value="">—</option>
                             <?php foreach ($g['equipos'] as $eq) {
-                                $isoEq = quiniela_paises_iso_por_nombre($eq['nombre']);
+                                $isoEq = $eq['iso'] ?? quiniela_paises_iso_por_nombre($eq['nombre']);
                                 ?>
-                            <option value="<?php echo (int) $eq['id']; ?>" data-iso="<?php echo htmlspecialchars($isoEq ?? ''); ?>"><?php echo htmlspecialchars($eq['nombre']); ?></option>
+                            <option value="<?php echo (int) $eq['id']; ?>" data-iso="<?php echo htmlspecialchars((string) ($isoEq ?? '')); ?>"><?php echo htmlspecialchars($eq['nombre']); ?></option>
                             <?php } ?>
                         </select>
                     </div>
@@ -216,7 +216,7 @@ $nGrupos = count($gruposAdmin);
             $pid = (int) $p['id'];
             ?>
         <li class="list-group-item d-flex justify-content-between align-items-center">
-            <span><strong>#<?php echo $pid; ?></strong> — <?php echo htmlspecialchars($quinielaModel->etiquetaPartidoVista($p)); ?>
+            <span><strong>#<?php echo $pid; ?></strong> — <?php echo $quinielaModel->etiquetaPartidoHtml($p); ?>
                 <?php if ($p['tipo'] === 'ganadores') { ?>
                 <span class="small text-muted">(<?php echo htmlspecialchars($quinielaModel->textoDependenciaPartido($p)); ?>)</span>
                 <?php } ?>
@@ -240,9 +240,9 @@ $nGrupos = count($gruposAdmin);
                     <select class="form-select form-select-sm quiniela-ts-equipo-por-id" name="equipo_a_id" required>
                         <option value="">—</option>
                         <?php foreach ($equiposSelector as $eq) {
-                            $isoEq = quiniela_paises_iso_por_nombre($eq['nombre']);
+                            $isoEq = $eq['iso'] ?? quiniela_paises_iso_por_nombre($eq['nombre']);
                             ?>
-                        <option value="<?php echo (int) $eq['id']; ?>" data-iso="<?php echo htmlspecialchars($isoEq ?? ''); ?>"><?php echo htmlspecialchars($eq['grupo_nom'] . ' — ' . $eq['nombre']); ?></option>
+                        <option value="<?php echo (int) $eq['id']; ?>" data-iso="<?php echo htmlspecialchars((string) ($isoEq ?? '')); ?>"><?php echo htmlspecialchars($eq['grupo_nom'] . ' — ' . $eq['nombre']); ?></option>
                         <?php } ?>
                     </select>
                 </div>
@@ -251,9 +251,9 @@ $nGrupos = count($gruposAdmin);
                     <select class="form-select form-select-sm quiniela-ts-equipo-por-id" name="equipo_b_id" required>
                         <option value="">—</option>
                         <?php foreach ($equiposSelector as $eq) {
-                            $isoEq = quiniela_paises_iso_por_nombre($eq['nombre']);
+                            $isoEq = $eq['iso'] ?? quiniela_paises_iso_por_nombre($eq['nombre']);
                             ?>
-                        <option value="<?php echo (int) $eq['id']; ?>" data-iso="<?php echo htmlspecialchars($isoEq ?? ''); ?>"><?php echo htmlspecialchars($eq['grupo_nom'] . ' — ' . $eq['nombre']); ?></option>
+                        <option value="<?php echo (int) $eq['id']; ?>" data-iso="<?php echo htmlspecialchars((string) ($isoEq ?? '')); ?>"><?php echo htmlspecialchars($eq['grupo_nom'] . ' — ' . $eq['nombre']); ?></option>
                         <?php } ?>
                     </select>
                 </div>
@@ -320,7 +320,7 @@ $nGrupos = count($gruposAdmin);
                     ?>
                 <tr>
                     <td><?php echo $pmid; ?></td>
-                    <td class="small"><?php echo htmlspecialchars($quinielaModel->etiquetaPartidoVista($pm)); ?></td>
+                    <td class="small"><?php echo $quinielaModel->etiquetaPartidoHtml($pm); ?></td>
                     <td class="small text-muted"><?php echo htmlspecialchars($quinielaModel->textoDependenciaPartido($pm)); ?></td>
                     <td>
                         <form method="post" action="<?php echo htmlspecialchars($qBase . '?v_quiniela=1'); ?>" class="row g-1 align-items-center">
@@ -348,15 +348,8 @@ $nGrupos = count($gruposAdmin);
 </div>
 
 <?php
-$mapEquipoIso = [];
-foreach ($equiposSelector as $eq) {
-    $iso = quiniela_paises_iso_por_nombre($eq['nombre']);
-    if ($iso !== null) {
-        $mapEquipoIso[(string) (int) $eq['id']] = $iso;
-    }
-}
 $mapNombreIsoJson = json_encode(quiniela_paises_mapa_nombre_a_iso(), JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT);
-$mapEquipoIsoJson = json_encode($mapEquipoIso, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT);
+$mapEquipoIsoJson = json_encode($quinielaIsoPorEquipoId ?? [], JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT);
 ?>
 
 <script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
@@ -369,12 +362,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function quinielaFlagHtml(iso) {
         iso = (iso || '').toString().toLowerCase().replace(/[^a-z]/g, '');
-        if (!iso) {
-            return '<span class="quiniela-flag-fallback me-2 align-middle d-inline-flex justify-content-center align-items-center rounded border bg-light" style="width:28px;height:21px;font-size:.7rem" title="">⚽</span>';
+        if (!iso || iso.length !== 2) {
+            iso = 'un';
         }
         var u = 'https://flagcdn.com/w40/' + iso + '.png';
-        var u2 = 'https://flagcdn.com/w80/' + iso + '.png';
-        return '<img class="quiniela-flag-img me-2 align-middle rounded border bg-light" width="28" height="21" alt="" src="' + u + '" srcset="' + u2 + ' 2x" loading="lazy" referrerpolicy="no-referrer">';
+        return '<img class="flag-icon me-1" width="20" height="15" alt="" src="' + u + '" loading="lazy" referrerpolicy="no-referrer">';
     }
 
     function rowConBandera(data, escape, mapPais, mapEquipo) {
@@ -390,7 +382,19 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     document.querySelectorAll('.quiniela-ts-pais-nuevo').forEach(function (sel) {
-        new TomSelect(sel, {
+        var m = sel.id.match(/quiniela_equipo_new_(\d+)/);
+        var slot = m ? m[1] : null;
+        var isoInput = slot ? document.getElementById('quiniela_iso_slot_' + slot) : null;
+        function syncIsoDesdeNombre(ts) {
+            if (!isoInput) return;
+            var v = (ts && ts.getValue) ? ts.getValue() : '';
+            if (!v) return;
+            var fromMap = ISO_PAIS[v];
+            if (fromMap) {
+                isoInput.value = String(fromMap).toLowerCase().substring(0, 2);
+            }
+        }
+        var ts = new TomSelect(sel, {
             allowEmptyOption: true,
             create: function (input) {
                 var t = (input || '').trim();
@@ -402,6 +406,8 @@ document.addEventListener('DOMContentLoaded', function () {
             maxOptions: 500,
             plugins: ['clear_button'],
             placeholder: 'Buscar país…',
+            onItemAdd: function () { syncIsoDesdeNombre(this); },
+            onChange: function () { syncIsoDesdeNombre(this); },
             render: {
                 option: function (data, escape) {
                     return rowConBandera(data, escape, ISO_PAIS, null);

@@ -4,6 +4,7 @@ if (!isset($_SESSION['code'])) {
     exit();
 }
 include __DIR__ . '/header.php';
+include __DIR__ . '/quiniela_include_banderas.php';
 $qBase = rtrim(BASE_URL_CONTROLLER, '/') . '/QuinielaController.php';
 $jsonDetalle = json_encode($colaboradoresJson ?? [], JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_UNESCAPED_UNICODE);
 ?>
@@ -92,8 +93,12 @@ document.addEventListener('DOMContentLoaded', function () {
             } else {
                 titulo.textContent = 'Quiniela — ' + (data.nombre ? (data.nombre + ' · ') : '') + codigo;
                 var rows = data.predicciones.map(function (p) {
-                    var off = p.resultado_nombre ? ('<strong>' + esc(p.resultado_nombre) + '</strong>') : '<span class="text-muted">Pendiente</span>';
-                    return '<tr><td>' + esc(p.grupo_nombre || '') + '</td><td>' + esc(p.descripcion || '') + '</td><td>' + esc(p.predicho_nombre || '') + '</td><td>' + off + '</td></tr>';
+                    var desc = p.descripcion_html || esc(p.descripcion || '');
+                    var pred = p.predicho_html || esc(p.predicho_nombre || '');
+                    var off = p.resultado_html
+                        ? p.resultado_html
+                        : (p.resultado_nombre ? ('<strong>' + esc(p.resultado_nombre) + '</strong>') : '<span class="text-muted">Pendiente</span>');
+                    return '<tr><td>' + esc(p.grupo_nombre || '') + '</td><td>' + desc + '</td><td>' + pred + '</td><td>' + off + '</td></tr>';
                 }).join('');
                 body.innerHTML = '<div class="table-responsive"><table class="table table-sm"><thead><tr><th>Grupo / fase</th><th>Partido</th><th>Predicción</th><th>Oficial</th></tr></thead><tbody>' + rows + '</tbody></table></div>';
             }

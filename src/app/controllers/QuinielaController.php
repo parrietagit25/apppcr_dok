@@ -54,11 +54,14 @@ if ($es_administrador_quiniela && isset($_GET['v_quiniela']) && $_SERVER['REQUES
     if (isset($_POST['crear_grupo_quiniela'])) {
         $orden = (int) ($_POST['orden_grupo'] ?? 0);
         $nomGrupo = trim((string) ($_POST['nombre_grupo'] ?? ''));
-        $e1 = trim((string) ($_POST['equipo_1'] ?? ''));
-        $e2 = trim((string) ($_POST['equipo_2'] ?? ''));
-        $e3 = trim((string) ($_POST['equipo_3'] ?? ''));
-        $e4 = trim((string) ($_POST['equipo_4'] ?? ''));
-        if ($quinielaModel->crearGrupoSoloEquipos($orden, $nomGrupo, [$e1, $e2, $e3, $e4])) {
+        $equiposCrear = [];
+        for ($slot = 1; $slot <= 4; $slot++) {
+            $nom = trim((string) ($_POST['equipo_' . $slot] ?? ''));
+            $isoRaw = strtolower(preg_replace('/[^a-z]/', '', (string) ($_POST['equipo_iso_' . $slot] ?? '')));
+            $iso = strlen($isoRaw) === 2 ? $isoRaw : null;
+            $equiposCrear[] = ['nombre' => $nom, 'iso' => $iso];
+        }
+        if ($quinielaModel->crearGrupoSoloEquipos($orden, $nomGrupo, $equiposCrear)) {
             $mensaje = 'Grupo y equipos registrados. Ahora defina los partidos (enfrentamientos directos o entre ganadores).';
             $mensajeTipo = 'success';
         } else {
@@ -183,6 +186,8 @@ if (isset($_GET['arma_tu_quiniela']) && $_SERVER['REQUEST_METHOD'] === 'POST') {
 $gruposAdmin = $quinielaModel->listarGruposConEquipos();
 $partidosAdmin = $quinielaModel->listarTodosPartidosOrdenados();
 $equiposSelector = $quinielaModel->listarTodosEquiposParaSelector();
+$quinielaIsoPorEquipoId = $quinielaModel->mapaIsoPorEquipoId();
+$quinielaEquipoMetaPorId = $quinielaModel->mapaEquipoMetaPorId();
 $partidosPorGrupo = [];
 foreach ($gruposAdmin as $g) {
     $partidosPorGrupo[$g['id']] = $quinielaModel->listarPartidosPorGrupo((int) $g['id']);

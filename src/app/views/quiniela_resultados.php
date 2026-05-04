@@ -4,6 +4,7 @@ if (!isset($_SESSION['code'])) {
     exit();
 }
 include __DIR__ . '/header.php';
+include __DIR__ . '/quiniela_include_banderas.php';
 $qBase = rtrim(BASE_URL_CONTROLLER, '/') . '/QuinielaController.php';
 ?>
 
@@ -37,8 +38,8 @@ $qBase = rtrim(BASE_URL_CONTROLLER, '/') . '/QuinielaController.php';
                     ?>
                 <tr>
                     <td><?php echo $pid; ?></td>
-                    <td><?php echo htmlspecialchars($quinielaModel->etiquetaPartidoVista($p)); ?></td>
-                    <td><?php echo $gan ? htmlspecialchars($quinielaModel->nombreEquipo($gan)) : '<span class="text-muted">Pendiente</span>'; ?></td>
+                    <td><?php echo $quinielaModel->etiquetaPartidoHtml($p); ?></td>
+                    <td><?php echo $gan ? $quinielaModel->nombreEquipoHtml($gan) : '<span class="text-muted">Pendiente</span>'; ?></td>
                 </tr>
                 <?php } ?>
             </tbody>

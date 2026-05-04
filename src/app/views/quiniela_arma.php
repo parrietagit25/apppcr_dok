@@ -4,9 +4,11 @@ if (!isset($_SESSION['code'])) {
     exit();
 }
 include __DIR__ . '/header.php';
+include __DIR__ . '/quiniela_include_banderas.php';
 $qBase = rtrim(BASE_URL_CONTROLLER, '/') . '/QuinielaController.php';
 
 $mapaPred = $mapaPrediccionesUsuario ?? [];
+$equipoMetaJson = json_encode($quinielaEquipoMetaPorId ?? [], JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_UNESCAPED_UNICODE);
 
 $metaJs = [];
 foreach ($partidosAdmin as $p) {
@@ -30,6 +32,11 @@ foreach ($partidosAdmin as $p) {
 }
 $metaJson = json_encode($metaJs, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_UNESCAPED_UNICODE);
 ?>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.bootstrap5.min.css">
+<style>
+    .quiniela-ts-wrap .ts-control { min-height: 31px; font-size: 0.875rem; }
+    .ts-dropdown .option { padding: 0.35rem 0.5rem; }
+</style>
 
 <div class="container mt-3 mb-5 pb-5">
     <div class="d-flex align-items-center mb-3 flex-wrap gap-2">
@@ -64,9 +71,11 @@ $metaJson = json_encode($metaJs, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | J
             <tbody>
                 <?php foreach ($prediccionesDetalle as $fila) { ?>
                 <tr>
-                    <td><?php echo htmlspecialchars($fila['descripcion']); ?></td>
-                    <td><strong><?php echo htmlspecialchars($fila['predicho_nombre']); ?></strong></td>
-                    <td><?php echo $fila['resultado_nombre'] ? htmlspecialchars($fila['resultado_nombre']) : '<span class="text-muted">Pendiente</span>'; ?></td>
+                    <td><?php echo $fila['descripcion_html'] ?? htmlspecialchars($fila['descripcion']); ?></td>
+                    <td><strong><?php echo $fila['predicho_html'] ?? htmlspecialchars($fila['predicho_nombre']); ?></strong></td>
+                    <td><?php echo isset($fila['resultado_html']) && $fila['resultado_html'] !== null
+                        ? $fila['resultado_html']
+                        : '<span class="text-muted">Pendiente</span>'; ?></td>
                 </tr>
                 <?php } ?>
             </tbody>
@@ -94,16 +103,18 @@ $metaJson = json_encode($metaJs, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | J
                         ?>
                     <tr>
                         <td><?php echo $pid; ?></td>
-                        <td><?php echo htmlspecialchars($quinielaModel->etiquetaPartidoVista($p)); ?></td>
-                        <td>
+                        <td><?php echo $quinielaModel->etiquetaPartidoHtml($p); ?></td>
+                        <td class="quiniela-ts-wrap">
                             <?php if ($p['tipo'] === 'fijo') {
                                 $aid = (int) $p['equipo_a_id'];
                                 $bid = (int) $p['equipo_b_id'];
+                                $isoA = htmlspecialchars((string) ($p['eq_a_iso'] ?? ''), ENT_QUOTES, 'UTF-8');
+                                $isoB = htmlspecialchars((string) ($p['eq_b_iso'] ?? ''), ENT_QUOTES, 'UTF-8');
                                 ?>
-                            <select class="form-select form-select-sm pred-fijo" name="pred_<?php echo $pid; ?>" id="pred_<?php echo $pid; ?>">
+                            <select class="form-select form-select-sm pred-fijo quiniela-ts-pred" name="pred_<?php echo $pid; ?>" id="pred_<?php echo $pid; ?>">
                                 <option value="">— Elegir —</option>
-                                <option value="<?php echo $aid; ?>"<?php echo $predSel === $aid ? ' selected' : ''; ?>><?php echo htmlspecialchars($p['eq_a_nom'] ?? ''); ?></option>
-                                <option value="<?php echo $bid; ?>"<?php echo $predSel === $bid ? ' selected' : ''; ?>><?php echo htmlspecialchars($p['eq_b_nom'] ?? ''); ?></option>
+                                <option value="<?php echo $aid; ?>" data-iso="<?php echo $isoA; ?>"<?php echo $predSel === $aid ? ' selected' : ''; ?>><?php echo htmlspecialchars($p['eq_a_nom'] ?? ''); ?></option>
+                                <option value="<?php echo $bid; ?>" data-iso="<?php echo $isoB; ?>"<?php echo $predSel === $bid ? ' selected' : ''; ?>><?php echo htmlspecialchars($p['eq_b_nom'] ?? ''); ?></option>
                             </select>
                             <?php } else {
                                 $sa = (int) $p['src_partido_a_id'];
@@ -111,8 +122,12 @@ $metaJson = json_encode($metaJs, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | J
                                 $ga = $mapaPred[$sa] ?? null;
                                 $gb = $mapaPred[$sb] ?? null;
                                 $optsOk = ($ga !== null && $gb !== null && (int) $ga !== (int) $gb);
+                                $da = $optsOk ? $quinielaModel->datosEquipo((int) $ga) : null;
+                                $db = $optsOk ? $quinielaModel->datosEquipo((int) $gb) : null;
+                                $isoGa = $da['iso'] ?? '';
+                                $isoGb = $db['iso'] ?? '';
                                 ?>
-                            <select class="form-select form-select-sm pred-ganadores" name="pred_<?php echo $pid; ?>" id="pred_<?php echo $pid; ?>"
+                            <select class="form-select form-select-sm pred-ganadores quiniela-ts-pred" name="pred_<?php echo $pid; ?>" id="pred_<?php echo $pid; ?>"
                                 data-pid="<?php echo $pid; ?>"
                                 data-sa="<?php echo $sa; ?>"
                                 data-sb="<?php echo $sb; ?>"
@@ -121,8 +136,8 @@ $metaJson = json_encode($metaJs, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | J
                                 <option value="">Primero debes seleccionar los ganadores de los partidos anteriores</option>
                                 <?php } else { ?>
                                 <option value="">— Elegir —</option>
-                                <option value="<?php echo (int) $ga; ?>"<?php echo $predSel === (int) $ga ? ' selected' : ''; ?>><?php echo htmlspecialchars($quinielaModel->nombreEquipo((int) $ga)); ?></option>
-                                <option value="<?php echo (int) $gb; ?>"<?php echo $predSel === (int) $gb ? ' selected' : ''; ?>><?php echo htmlspecialchars($quinielaModel->nombreEquipo((int) $gb)); ?></option>
+                                <option value="<?php echo (int) $ga; ?>" data-iso="<?php echo htmlspecialchars((string) $isoGa, ENT_QUOTES, 'UTF-8'); ?>"<?php echo $predSel === (int) $ga ? ' selected' : ''; ?>><?php echo htmlspecialchars($quinielaModel->nombreEquipo((int) $ga)); ?></option>
+                                <option value="<?php echo (int) $gb; ?>" data-iso="<?php echo htmlspecialchars((string) $isoGb, ENT_QUOTES, 'UTF-8'); ?>"<?php echo $predSel === (int) $gb ? ' selected' : ''; ?>><?php echo htmlspecialchars($quinielaModel->nombreEquipo((int) $gb)); ?></option>
                                 <?php } ?>
                             </select>
                             <?php } ?>
@@ -143,12 +158,63 @@ $metaJson = json_encode($metaJs, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | J
     </form>
 
     <script type="application/json" id="quiniela-meta-partidos"><?php echo $metaJson; ?></script>
+    <script type="application/json" id="quiniela-equipo-meta"><?php echo $equipoMetaJson; ?></script>
+    <script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
     <script>
     (function () {
-        var raw = document.getElementById('quiniela-meta-partidos');
-        if (!raw) return;
+        var rawMeta = document.getElementById('quiniela-meta-partidos');
+        var rawEq = document.getElementById('quiniela-equipo-meta');
         var meta = [];
-        try { meta = JSON.parse(raw.textContent || '[]'); } catch (e) { meta = []; }
+        var EQUIPO_META = {};
+        try { meta = JSON.parse(rawMeta.textContent || '[]'); } catch (e) { meta = []; }
+        try { EQUIPO_META = JSON.parse(rawEq.textContent || '{}'); } catch (e) { EQUIPO_META = {}; }
+
+        function normIso(iso) {
+            iso = (iso || '').toString().toLowerCase().replace(/[^a-z]/g, '');
+            return (iso.length === 2) ? iso : 'un';
+        }
+        function flagRowHtml(iso, text, escape) {
+            var i = normIso(iso);
+            var u = 'https://flagcdn.com/w40/' + i + '.png';
+            return '<div class="d-flex align-items-center">' +
+                '<img class="flag-icon" src="' + u + '" width="20" height="15" alt="" loading="lazy" referrerpolicy="no-referrer">' +
+                '<span>' + escape(text) + '</span></div>';
+        }
+        function isoForEquipoId(id) {
+            var m = EQUIPO_META[String(id)];
+            return (m && m.iso) ? m.iso : '';
+        }
+        function destroyTs(sel) {
+            if (sel && sel.tomselect) {
+                sel.tomselect.destroy();
+                sel.removeAttribute('data-quiniela-ts');
+            }
+        }
+        function initPredTom(sel) {
+            if (!sel || sel.disabled || !sel.name || sel.name.indexOf('pred_') !== 0) return;
+            destroyTs(sel);
+            sel.setAttribute('data-quiniela-ts', '1');
+            new TomSelect(sel, {
+                allowEmptyOption: true,
+                plugins: ['clear_button'],
+                render: {
+                    option: function (data, escape) {
+                        var iso = data.iso || '';
+                        if (!iso && data.value) {
+                            iso = isoForEquipoId(data.value);
+                        }
+                        return flagRowHtml(iso, data.text, escape);
+                    },
+                    item: function (data, escape) {
+                        var iso = data.iso || '';
+                        if (!iso && data.value) {
+                            iso = isoForEquipoId(data.value);
+                        }
+                        return flagRowHtml(iso, data.text, escape);
+                    }
+                }
+            });
+        }
 
         function val(pid) {
             var s = document.getElementById('pred_' + pid);
@@ -164,6 +230,7 @@ $metaJson = json_encode($metaJs, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | J
             meta.filter(function (m) { return m.tipo === 'ganadores'; }).forEach(function (m) {
                 var sel = document.getElementById('pred_' + m.id);
                 if (!sel) return;
+                destroyTs(sel);
                 var va = val(m.sa), vb = val(m.sb);
                 if (!va || !vb) {
                     sel.innerHTML = '<option value="">Primero debes seleccionar los ganadores de los partidos anteriores</option>';
@@ -178,15 +245,31 @@ $metaJson = json_encode($metaJs, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | J
                 }
                 var cur = sel.value;
                 sel.innerHTML = '<option value="">— Elegir —</option>';
-                var o1 = document.createElement('option'); o1.value = va; o1.textContent = labelFor(m.sa, va);
-                var o2 = document.createElement('option'); o2.value = vb; o2.textContent = labelFor(m.sb, vb);
-                sel.appendChild(o1); sel.appendChild(o2);
+                var o1 = document.createElement('option');
+                o1.value = va;
+                o1.textContent = labelFor(m.sa, va);
+                o1.setAttribute('data-iso', normIso(isoForEquipoId(va)));
+                var o2 = document.createElement('option');
+                o2.value = vb;
+                o2.textContent = labelFor(m.sb, vb);
+                o2.setAttribute('data-iso', normIso(isoForEquipoId(vb)));
+                sel.appendChild(o1);
+                sel.appendChild(o2);
                 sel.disabled = false;
                 if (cur === va || cur === vb) sel.value = cur;
+                initPredTom(sel);
             });
         }
         var formQ = document.getElementById('formQuiniela');
         if (!formQ) return;
+
+        document.querySelectorAll('select.pred-fijo').forEach(function (sel) {
+            initPredTom(sel);
+        });
+        document.querySelectorAll('select.pred-ganadores:not([disabled])').forEach(function (sel) {
+            initPredTom(sel);
+        });
+
         formQ.addEventListener('change', function (e) {
             if (e.target && e.target.id && e.target.id.indexOf('pred_') === 0) syncGanadores();
         });

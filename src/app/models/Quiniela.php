@@ -1,8 +1,16 @@
 <?php
 
+require_once __DIR__ . '/../config/quiniela_paises_mundial.php';
+
 class Quiniela
 {
     private $pdo;
+
+    /** @var array<int, array{id:int,nombre:string,iso:?string,flag_url:string}> */
+    private $equipoCache = [];
+
+    /** @var list<array>|null Cache por petición */
+    private $cacheListarTodosEquipos = null;
 
     public function __construct(PDO $pdo)
     {
@@ -17,7 +25,7 @@ class Quiniela
     public function listarGruposConEquipos(): array
     {
         $sql = 'SELECT g.id, g.nombre AS nombre_grupo, g.orden_grupo,
-                       e.id AS equipo_id, e.nombre AS equipo_nombre, e.slot
+                       e.id AS equipo_id, e.nombre AS equipo_nombre, e.slot, e.iso AS equipo_iso
                 FROM quiniela_grupo g
                 LEFT JOIN quiniela_equipo e ON e.grupo_id = g.id
                 ORDER BY g.orden_grupo ASC, e.slot ASC';
@@ -34,23 +42,31 @@ class Quiniela
                 ];
             }
             if ($r['equipo_id'] !== null) {
+                $iso = $r['equipo_iso'] ?? null;
+                $iso = $iso !== null && $iso !== '' ? strtolower(substr((string) $iso, 0, 2)) : null;
                 $out[$gid]['equipos'][] = [
                     'id' => (int) $r['equipo_id'],
                     'nombre' => $r['equipo_nombre'],
                     'slot' => (int) $r['slot'],
+                    'iso' => $iso,
+                    'flag_url' => quiniela_get_flag_url($iso),
                 ];
             }
         }
         return array_values($out);
     }
 
-    public function crearGrupoSoloEquipos(int $ordenGrupo, string $nombreGrupo, array $nombresCuatroEquipos): bool
+    /**
+     * @param list<array{nombre: string, iso?: ?string}> $equiposCuatro Exactamente 4 equipos (nombre + ISO opcional 2 letras).
+     */
+    public function crearGrupoSoloEquipos(int $ordenGrupo, string $nombreGrupo, array $equiposCuatro): bool
     {
-        $nombresCuatroEquipos = array_values(array_map('trim', $nombresCuatroEquipos));
-        if (count($nombresCuatroEquipos) !== 4) {
+        $equiposCuatro = array_values($equiposCuatro);
+        if (count($equiposCuatro) !== 4) {
             return false;
         }
-        foreach ($nombresCuatroEquipos as $n) {
+        foreach ($equiposCuatro as $row) {
+            $n = trim((string) ($row['nombre'] ?? ''));
             if ($n === '') {
                 return false;
             }
@@ -71,9 +87,24 @@ class Quiniela
             $st->execute([$nombreGrupo, $ordenGrupo]);
             $grupoId = (int) $this->pdo->lastInsertId();
 
-            $insE = $this->pdo->prepare('INSERT INTO quiniela_equipo (grupo_id, nombre, slot) VALUES (?, ?, ?)');
+            $insE = $this->pdo->prepare(
+                'INSERT INTO quiniela_equipo (grupo_id, nombre, slot, iso) VALUES (?, ?, ?, ?)'
+            );
             for ($s = 1; $s <= 4; $s++) {
-                $insE->execute([$grupoId, $nombresCuatroEquipos[$s - 1], $s]);
+                $row = $equiposCuatro[$s - 1];
+                $nom = trim((string) $row['nombre']);
+                $isoRaw = $row['iso'] ?? null;
+                $iso = null;
+                if ($isoRaw !== null && $isoRaw !== '') {
+                    $iso = strtolower(substr(preg_replace('/[^a-zA-Z]/', '', (string) $isoRaw), 0, 2));
+                    if (strlen($iso) !== 2) {
+                        $iso = null;
+                    }
+                }
+                if ($iso === null) {
+                    $iso = quiniela_paises_iso_por_nombre($nom);
+                }
+                $insE->execute([$grupoId, $nom, $s, $iso]);
             }
 
             $this->pdo->commit();
@@ -204,7 +235,24 @@ class Quiniela
         return 'p.id, p.grupo_id, p.orden, p.fase, p.tipo, p.etiqueta, p.ganador_id,
                 p.equipo_a_id, p.equipo_b_id, p.src_partido_a_id, p.src_partido_b_id,
                 ea.nombre AS eq_a_nom, eb.nombre AS eq_b_nom,
+                ea.iso AS eq_a_iso, eb.iso AS eq_b_iso,
                 g.nombre AS grupo_nom, g.orden_grupo';
+    }
+
+    /** Normaliza ISO en fila de partido y añade URLs de bandera. */
+    private function decorarFilaPartido(array $p): array
+    {
+        foreach (['eq_a_iso', 'eq_b_iso'] as $k) {
+            $v = $p[$k] ?? null;
+            if ($v === null || $v === '') {
+                $p[$k] = null;
+            } else {
+                $p[$k] = strtolower(substr((string) $v, 0, 2));
+            }
+        }
+        $p['eq_a_flag_url'] = quiniela_get_flag_url($p['eq_a_iso'] ?? null);
+        $p['eq_b_flag_url'] = quiniela_get_flag_url($p['eq_b_iso'] ?? null);
+        return $p;
     }
 
     public function listarPartidosPorGrupo(?int $grupoId): array
@@ -218,7 +266,8 @@ class Quiniela
                     LEFT JOIN quiniela_grupo g ON g.id = p.grupo_id
                     WHERE p.grupo_id IS NULL
                     ORDER BY p.orden ASC, p.id ASC";
-            return $this->pdo->query($sql)->fetchAll(PDO::FETCH_ASSOC);
+            $rows = $this->pdo->query($sql)->fetchAll(PDO::FETCH_ASSOC);
+            return array_map([$this, 'decorarFilaPartido'], $rows);
         }
         $st = $this->pdo->prepare(
             "SELECT {$cols}
@@ -230,7 +279,8 @@ class Quiniela
              ORDER BY p.orden ASC, p.id ASC"
         );
         $st->execute([$grupoId]);
-        return $st->fetchAll(PDO::FETCH_ASSOC);
+        $rows = $st->fetchAll(PDO::FETCH_ASSOC);
+        return array_map([$this, 'decorarFilaPartido'], $rows);
     }
 
     public function listarTodosPartidosOrdenados(): array
@@ -242,7 +292,8 @@ class Quiniela
                 LEFT JOIN quiniela_equipo eb ON eb.id = p.equipo_b_id
                 LEFT JOIN quiniela_grupo g ON g.id = p.grupo_id
                 ORDER BY p.orden ASC, p.id ASC";
-        return $this->pdo->query($sql)->fetchAll(PDO::FETCH_ASSOC);
+        $rows = $this->pdo->query($sql)->fetchAll(PDO::FETCH_ASSOC);
+        return array_map([$this, 'decorarFilaPartido'], $rows);
     }
 
     public function totalPartidos(): int
@@ -473,18 +524,31 @@ class Quiniela
                 continue;
             }
             $desc = $this->etiquetaPartidoVista($p);
-            $nomPred = $this->nombreEquipo($pred[$pid]);
+            $descHtml = $this->etiquetaPartidoHtml($p);
+            $predE = $this->datosEquipo((int) $pred[$pid]);
+            $nomPred = $this->nombreEquipo((int) $pred[$pid]);
+            $predIso = $predE ? ($predE['iso'] ?? null) : null;
+            $predHtml = quiniela_flag_icon_html($predIso, $nomPred, true);
             $gidOf = $p['ganador_id'] ?? null;
-            $resOf = ($gidOf !== null && $gidOf !== '' && (int) $gidOf > 0)
-                ? $this->nombreEquipo((int) $gidOf)
-                : null;
+            $resNom = null;
+            $resHtml = null;
+            if ($gidOf !== null && $gidOf !== '' && (int) $gidOf > 0) {
+                $re = $this->datosEquipo((int) $gidOf);
+                if ($re) {
+                    $resNom = $re['nombre'];
+                    $resHtml = quiniela_flag_icon_html($re['iso'] ?? null, $re['nombre'], true);
+                }
+            }
             $out[] = [
                 'partido_id' => $pid,
                 'descripcion' => $desc,
+                'descripcion_html' => $descHtml,
                 'grupo_nombre' => $p['grupo_nom'] ?? 'Llave / final',
                 'orden_grupo' => $p['orden_grupo'] ?? 0,
                 'predicho_nombre' => $nomPred,
-                'resultado_nombre' => $resOf,
+                'predicho_html' => $predHtml,
+                'resultado_nombre' => $resNom,
+                'resultado_html' => $resHtml,
                 'tipo' => $p['tipo'],
             ];
         }
@@ -508,6 +572,31 @@ class Quiniela
         return $fase . $base;
     }
 
+    /** Etiqueta con banderas (HTML seguro) para partidos tipo fijo. */
+    public function etiquetaPartidoHtml(array $p): string
+    {
+        if ($p['tipo'] === 'fijo') {
+            $left = quiniela_flag_icon_html($p['eq_a_iso'] ?? null, (string) ($p['eq_a_nom'] ?? '?'), true);
+            $right = quiniela_flag_icon_html($p['eq_b_iso'] ?? null, (string) ($p['eq_b_nom'] ?? '?'), true);
+            $base = '<span class="d-inline-flex align-items-center flex-wrap gap-2">'
+                . $left . ' <span class="text-muted small">vs</span> ' . $right . '</span>';
+        } else {
+            $base = htmlspecialchars(
+                'Ganador partido #' . (int) $p['src_partido_a_id']
+                . ' vs Ganador partido #' . (int) $p['src_partido_b_id'],
+                ENT_QUOTES,
+                'UTF-8'
+            );
+        }
+        $fase = !empty($p['fase'])
+            ? '<span class="text-muted small">[' . htmlspecialchars((string) $p['fase'], ENT_QUOTES, 'UTF-8') . ']</span> '
+            : '';
+        if (!empty($p['etiqueta'])) {
+            return $fase . htmlspecialchars((string) $p['etiqueta'], ENT_QUOTES, 'UTF-8') . ' — ' . $base;
+        }
+        return $fase . $base;
+    }
+
     public function textoDependenciaPartido(array $p): string
     {
         if ($p['tipo'] !== 'ganadores') {
@@ -516,12 +605,52 @@ class Quiniela
         return '#' . (int) $p['src_partido_a_id'] . ' y #' . (int) $p['src_partido_b_id'];
     }
 
+    /**
+     * @return array{id:int,nombre:string,iso:?string,flag_url:string}|null
+     */
+    public function datosEquipo(int $id): ?array
+    {
+        if (isset($this->equipoCache[$id])) {
+            return $this->equipoCache[$id];
+        }
+        $st = $this->pdo->prepare('SELECT id, nombre, iso FROM quiniela_equipo WHERE id = ?');
+        $st->execute([$id]);
+        $r = $st->fetch(PDO::FETCH_ASSOC);
+        if (!$r) {
+            return null;
+        }
+        $iso = $r['iso'] ?? null;
+        if ($iso === null || $iso === '') {
+            $iso = null;
+        } else {
+            $iso = strtolower(substr((string) $iso, 0, 2));
+            if (strlen($iso) !== 2) {
+                $iso = null;
+            }
+        }
+        $out = [
+            'id' => (int) $r['id'],
+            'nombre' => (string) $r['nombre'],
+            'iso' => $iso,
+            'flag_url' => quiniela_get_flag_url($iso),
+        ];
+        $this->equipoCache[$id] = $out;
+        return $out;
+    }
+
     public function nombreEquipo(int $id): string
     {
-        $st = $this->pdo->prepare('SELECT nombre FROM quiniela_equipo WHERE id = ?');
-        $st->execute([$id]);
-        $n = $st->fetchColumn();
-        return $n ? (string) $n : (string) $id;
+        $d = $this->datosEquipo($id);
+        return $d ? $d['nombre'] : (string) $id;
+    }
+
+    public function nombreEquipoHtml(int $id): string
+    {
+        $d = $this->datosEquipo($id);
+        if (!$d) {
+            return htmlspecialchars((string) $id, ENT_QUOTES, 'UTF-8');
+        }
+        return quiniela_flag_icon_html($d['iso'], $d['nombre'], true);
     }
 
     /** Pendiente | En juego | Perdió | Completada */
@@ -585,11 +714,57 @@ class Quiniela
 
     public function listarTodosEquiposParaSelector(): array
     {
-        $sql = 'SELECT e.id, e.nombre, g.nombre AS grupo_nom, g.orden_grupo
+        if ($this->cacheListarTodosEquipos !== null) {
+            return $this->cacheListarTodosEquipos;
+        }
+        $sql = 'SELECT e.id, e.nombre, e.iso, g.nombre AS grupo_nom, g.orden_grupo
                 FROM quiniela_equipo e
                 INNER JOIN quiniela_grupo g ON g.id = e.grupo_id
                 ORDER BY g.orden_grupo ASC, e.slot ASC';
-        return $this->pdo->query($sql)->fetchAll(PDO::FETCH_ASSOC);
+        $rows = $this->pdo->query($sql)->fetchAll(PDO::FETCH_ASSOC);
+        foreach ($rows as &$r) {
+            $iso = $r['iso'] ?? null;
+            $iso = $iso !== null && $iso !== '' ? strtolower(substr((string) $iso, 0, 2)) : null;
+            if ($iso !== null && strlen($iso) !== 2) {
+                $iso = null;
+            }
+            $r['iso'] = $iso;
+            $r['flag_url'] = quiniela_get_flag_url($iso);
+        }
+        unset($r);
+        $this->cacheListarTodosEquipos = $rows;
+        return $rows;
+    }
+
+    /** @return array<string, string> id equipo => iso minúsculas o cadena vacía */
+    public function mapaIsoPorEquipoId(): array
+    {
+        $out = [];
+        foreach ($this->listarTodosEquiposParaSelector() as $eq) {
+            $id = (string) (int) $eq['id'];
+            $iso = $eq['iso'] ?? null;
+            if ($iso === null || $iso === '') {
+                $iso = quiniela_paises_iso_por_nombre((string) $eq['nombre']);
+            }
+            $out[$id] = $iso !== null ? strtolower((string) $iso) : '';
+        }
+        return $out;
+    }
+
+    /** @return array<int, array{iso: string, nombre: string}> */
+    public function mapaEquipoMetaPorId(): array
+    {
+        $out = [];
+        foreach ($this->listarTodosEquiposParaSelector() as $eq) {
+            $i = (int) $eq['id'];
+            $iso = $eq['iso'] ?? '';
+            $iso = $iso !== null && $iso !== '' ? strtolower(substr((string) $iso, 0, 2)) : '';
+            if ($iso === '' || strlen($iso) !== 2) {
+                $iso = (string) (quiniela_paises_iso_por_nombre((string) $eq['nombre']) ?? '');
+            }
+            $out[$i] = ['iso' => $iso, 'nombre' => (string) $eq['nombre']];
+        }
+        return $out;
     }
 
     private function resolverNombreColaborador(PDO $pdo, string $code): string
