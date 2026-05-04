@@ -46,7 +46,7 @@ include __DIR__ . '/header.php';
             </div>
         </div>
         
-        <?php if ((int) ($tipo_usuario ?? 0) === 1) { ?>
+        <?php if ((int) ($tipo_usuario ?? 0) === 1 || !empty($tiene_acceso_rrhh)) { ?>
         <div class="row text-center mb-3">
             <div class="col-12 mb-3">
                 <a href="<?php echo rtrim(BASE_URL_CONTROLLER, '/'); ?>/QuinielaController.php" class="text-decoration-none">
