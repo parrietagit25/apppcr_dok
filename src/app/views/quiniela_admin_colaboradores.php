@@ -84,9 +84,9 @@ document.addEventListener('DOMContentLoaded', function () {
                 titulo.textContent = 'Quiniela — ' + (data.nombre ? (data.nombre + ' · ') : '') + codigo;
                 var rows = data.predicciones.map(function (p) {
                     var off = p.resultado_nombre ? ('<strong>' + esc(p.resultado_nombre) + '</strong>') : '<span class="text-muted">Pendiente</span>';
-                    return '<tr><td>' + esc(p.grupo_nombre) + '</td><td>' + esc(p.local_nombre) + ' vs ' + esc(p.visita_nombre) + '</td><td>' + esc(p.predicho_nombre) + '</td><td>' + off + '</td></tr>';
+                    return '<tr><td>' + esc(p.grupo_nombre || '') + '</td><td>' + esc(p.descripcion || '') + '</td><td>' + esc(p.predicho_nombre || '') + '</td><td>' + off + '</td></tr>';
                 }).join('');
-                body.innerHTML = '<div class="table-responsive"><table class="table table-sm"><thead><tr><th>Grupo</th><th>Partido</th><th>Predicción</th><th>Oficial</th></tr></thead><tbody>' + rows + '</tbody></table></div>';
+                body.innerHTML = '<div class="table-responsive"><table class="table table-sm"><thead><tr><th>Grupo / fase</th><th>Partido</th><th>Predicción</th><th>Oficial</th></tr></thead><tbody>' + rows + '</tbody></table></div>';
             }
             var elModal = document.getElementById('modalDetalleQuiniela');
             if (typeof bootstrap !== 'undefined' && elModal) {

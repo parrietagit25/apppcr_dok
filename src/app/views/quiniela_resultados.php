@@ -25,31 +25,20 @@ $qBase = rtrim(BASE_URL_CONTROLLER, '/') . '/QuinielaController.php';
         <table class="table table-sm table-striped mb-0">
             <thead class="table-light">
                 <tr>
-                    <th>Grupo</th>
-                    <th>Local</th>
-                    <th>Visitante</th>
+                    <th>#</th>
+                    <th>Partido</th>
                     <th>Ganador</th>
                 </tr>
             </thead>
             <tbody>
-                <?php foreach ($partidosAdmin as $p) { ?>
+                <?php foreach ($partidosAdmin as $p) {
+                    $pid = (int) $p['id'];
+                    $gan = isset($p['ganador_id']) && $p['ganador_id'] ? (int) $p['ganador_id'] : 0;
+                    ?>
                 <tr>
-                    <td><?php echo htmlspecialchars($p['grupo_nombre']); ?></td>
-                    <td><?php echo htmlspecialchars($p['local_nombre']); ?></td>
-                    <td><?php echo htmlspecialchars($p['visita_nombre']); ?></td>
-                    <td>
-                        <?php
-                        if (!empty($p['ganador_id'])) {
-                            if ((int) $p['ganador_id'] === (int) $p['local_id']) {
-                                echo '<strong>' . htmlspecialchars($p['local_nombre']) . '</strong>';
-                            } else {
-                                echo '<strong>' . htmlspecialchars($p['visita_nombre']) . '</strong>';
-                            }
-                        } else {
-                            echo '<span class="text-muted">Pendiente</span>';
-                        }
-                        ?>
-                    </td>
+                    <td><?php echo $pid; ?></td>
+                    <td><?php echo htmlspecialchars($quinielaModel->etiquetaPartidoVista($p)); ?></td>
+                    <td><?php echo $gan ? htmlspecialchars($quinielaModel->nombreEquipo($gan)) : '<span class="text-muted">Pendiente</span>'; ?></td>
                 </tr>
                 <?php } ?>
             </tbody>

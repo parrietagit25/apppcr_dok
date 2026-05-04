@@ -37,6 +37,7 @@ $qBase = rtrim(BASE_URL_CONTROLLER, '/') . '/QuinielaController.php';
             </a>
         </div>
 
+        <?php if (!empty($es_administrador_quiniela)) { ?>
         <div class="col-12 mt-2">
             <h6 class="section-title"><i class="bi bi-shield-lock"></i> Administración</h6>
         </div>
@@ -45,7 +46,7 @@ $qBase = rtrim(BASE_URL_CONTROLLER, '/') . '/QuinielaController.php';
                 <div class="card-icon h-100 text-center p-3 border border-warning border-2">
                     <i class="bi bi-diagram-3 text-warning" style="font-size:1.75rem;"></i>
                     <div class="card-title mt-2 small">V-Quiniela</div>
-                    <small class="text-muted">12 grupos × 4 equipos</small>
+                    <small class="text-muted">Grupos, equipos y partidos</small>
                 </div>
             </a>
         </div>
@@ -67,6 +68,7 @@ $qBase = rtrim(BASE_URL_CONTROLLER, '/') . '/QuinielaController.php';
                 </div>
             </a>
         </div>
+        <?php } ?>
     </div>
 
     <div class="mt-4">
