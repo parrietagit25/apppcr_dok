@@ -6,23 +6,25 @@ if (!isset($_SESSION['code'])) {
 include __DIR__ . '/header.php';
 $qBase = rtrim(BASE_URL_CONTROLLER, '/') . '/QuinielaController.php';
 
+$mapaPred = $mapaPrediccionesUsuario ?? [];
+
 $metaJs = [];
 foreach ($partidosAdmin as $p) {
     if ($p['tipo'] === 'fijo') {
         $metaJs[] = [
             'id' => (int) $p['id'],
             'tipo' => 'fijo',
-            'a' => (int) $p['equipo_local_id'],
-            'b' => (int) $p['equipo_visitante_id'],
-            'na' => $p['eq_loc_nom'] ?? '',
-            'nb' => $p['eq_vis_nom'] ?? '',
+            'a' => (int) $p['equipo_a_id'],
+            'b' => (int) $p['equipo_b_id'],
+            'na' => $p['eq_a_nom'] ?? '',
+            'nb' => $p['eq_b_nom'] ?? '',
         ];
     } else {
         $metaJs[] = [
             'id' => (int) $p['id'],
             'tipo' => 'ganadores',
-            'sa' => (int) $p['src_partido_local_id'],
-            'sb' => (int) $p['src_partido_der_id'],
+            'sa' => (int) $p['src_partido_a_id'],
+            'sb' => (int) $p['src_partido_b_id'],
         ];
     }
 }
@@ -49,7 +51,7 @@ $metaJson = json_encode($metaJs, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | J
         La quiniela aún no está lista. Espere a que administración cargue grupos y partidos.
     </div>
     <?php } elseif ($cartaCerrada) { ?>
-    <p class="text-muted">Su quiniela ya está registrada. Solo consulta.</p>
+    <p class="text-muted">Su quiniela ya está confirmada. Solo consulta.</p>
     <div class="table-responsive bg-white rounded shadow-sm">
         <table class="table table-sm table-striped mb-0">
             <thead class="table-light">
@@ -72,7 +74,10 @@ $metaJson = json_encode($metaJs, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | J
     </div>
     <?php } else { ?>
     <form method="post" action="<?php echo htmlspecialchars($qBase . '?arma_tu_quiniela=1'); ?>" id="formQuiniela">
-        <p class="small text-muted">Complete <strong>todos</strong> los partidos. En los cruces “entre ganadores”, elija solo entre los equipos que ya eligió en los partidos anteriores.</p>
+        <p class="small text-muted">
+            Use <strong>Guardar progreso</strong> para ir avanzando; el servidor descartará predicciones que ya no sean coherentes si cambia un partido anterior.
+            Cuando esté todo listo, pulse <strong>Confirmar quiniela</strong> (no podrá editar después).
+        </p>
         <div class="table-responsive bg-white rounded shadow-sm mb-3">
             <table class="table table-sm align-middle mb-0">
                 <thead class="table-light">
@@ -85,27 +90,40 @@ $metaJson = json_encode($metaJs, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | J
                 <tbody>
                     <?php foreach ($partidosAdmin as $p) {
                         $pid = (int) $p['id'];
+                        $predSel = isset($mapaPred[$pid]) ? (int) $mapaPred[$pid] : 0;
                         ?>
                     <tr>
                         <td><?php echo $pid; ?></td>
                         <td><?php echo htmlspecialchars($quinielaModel->etiquetaPartidoVista($p)); ?></td>
                         <td>
                             <?php if ($p['tipo'] === 'fijo') {
-                                $lid = (int) $p['equipo_local_id'];
-                                $vid = (int) $p['equipo_visitante_id'];
+                                $aid = (int) $p['equipo_a_id'];
+                                $bid = (int) $p['equipo_b_id'];
                                 ?>
-                            <select class="form-select form-select-sm pred-fijo" name="pred_<?php echo $pid; ?>" id="pred_<?php echo $pid; ?>" required>
+                            <select class="form-select form-select-sm pred-fijo" name="pred_<?php echo $pid; ?>" id="pred_<?php echo $pid; ?>">
                                 <option value="">— Elegir —</option>
-                                <option value="<?php echo $lid; ?>"><?php echo htmlspecialchars($p['eq_loc_nom'] ?? ''); ?></option>
-                                <option value="<?php echo $vid; ?>"><?php echo htmlspecialchars($p['eq_vis_nom'] ?? ''); ?></option>
+                                <option value="<?php echo $aid; ?>"<?php echo $predSel === $aid ? ' selected' : ''; ?>><?php echo htmlspecialchars($p['eq_a_nom'] ?? ''); ?></option>
+                                <option value="<?php echo $bid; ?>"<?php echo $predSel === $bid ? ' selected' : ''; ?>><?php echo htmlspecialchars($p['eq_b_nom'] ?? ''); ?></option>
                             </select>
-                            <?php } else { ?>
+                            <?php } else {
+                                $sa = (int) $p['src_partido_a_id'];
+                                $sb = (int) $p['src_partido_b_id'];
+                                $ga = $mapaPred[$sa] ?? null;
+                                $gb = $mapaPred[$sb] ?? null;
+                                $optsOk = ($ga !== null && $gb !== null && (int) $ga !== (int) $gb);
+                                ?>
                             <select class="form-select form-select-sm pred-ganadores" name="pred_<?php echo $pid; ?>" id="pred_<?php echo $pid; ?>"
                                 data-pid="<?php echo $pid; ?>"
-                                data-sa="<?php echo (int) $p['src_partido_local_id']; ?>"
-                                data-sb="<?php echo (int) $p['src_partido_der_id']; ?>"
-                                disabled>
-                                <option value="">— Primero los partidos previos —</option>
+                                data-sa="<?php echo $sa; ?>"
+                                data-sb="<?php echo $sb; ?>"
+                                <?php echo $optsOk ? '' : 'disabled'; ?>>
+                                <?php if (!$optsOk) { ?>
+                                <option value="">Primero debes seleccionar los ganadores de los partidos anteriores</option>
+                                <?php } else { ?>
+                                <option value="">— Elegir —</option>
+                                <option value="<?php echo (int) $ga; ?>"<?php echo $predSel === (int) $ga ? ' selected' : ''; ?>><?php echo htmlspecialchars($quinielaModel->nombreEquipo((int) $ga)); ?></option>
+                                <option value="<?php echo (int) $gb; ?>"<?php echo $predSel === (int) $gb ? ' selected' : ''; ?>><?php echo htmlspecialchars($quinielaModel->nombreEquipo((int) $gb)); ?></option>
+                                <?php } ?>
                             </select>
                             <?php } ?>
                         </td>
@@ -114,9 +132,14 @@ $metaJson = json_encode($metaJs, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | J
                 </tbody>
             </table>
         </div>
-        <button type="submit" name="confirmar_quiniela" value="1" class="btn btn-success" id="btnConfirmarQuiniela">
-            <i class="bi bi-check2-circle"></i> Guardar mi quiniela
-        </button>
+        <div class="d-flex flex-wrap gap-2">
+            <button type="submit" name="guardar_progreso_quiniela" value="1" class="btn btn-outline-primary" id="btnGuardarProgreso">
+                <i class="bi bi-save"></i> Guardar progreso
+            </button>
+            <button type="submit" name="confirmar_quiniela" value="1" class="btn btn-success" id="btnConfirmarQuiniela">
+                <i class="bi bi-check2-circle"></i> Confirmar quiniela
+            </button>
+        </div>
     </form>
 
     <script type="application/json" id="quiniela-meta-partidos"><?php echo $metaJson; ?></script>
@@ -143,7 +166,7 @@ $metaJson = json_encode($metaJs, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | J
                 if (!sel) return;
                 var va = val(m.sa), vb = val(m.sb);
                 if (!va || !vb) {
-                    sel.innerHTML = '<option value="">— Complete partidos #' + m.sa + ' y #' + m.sb + ' —</option>';
+                    sel.innerHTML = '<option value="">Primero debes seleccionar los ganadores de los partidos anteriores</option>';
                     sel.value = '';
                     sel.disabled = true;
                     return;
@@ -163,21 +186,26 @@ $metaJson = json_encode($metaJs, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | J
             });
         }
         var formQ = document.getElementById('formQuiniela');
+        if (!formQ) return;
         formQ.addEventListener('change', function (e) {
             if (e.target && e.target.id && e.target.id.indexOf('pred_') === 0) syncGanadores();
         });
         formQ.addEventListener('submit', function (e) {
+            var sub = e.submitter;
+            var isConfirm = sub && (sub.name === 'confirmar_quiniela' || sub.id === 'btnConfirmarQuiniela');
             syncGanadores();
-            var ok = true;
-            formQ.querySelectorAll('select[name^="pred_"]').forEach(function (s) {
-                if (s.disabled || !s.value) ok = false;
-            });
-            if (!ok) {
-                e.preventDefault();
-                alert('Complete todos los partidos, incluidos los cruces entre ganadores.');
-                return;
+            if (isConfirm) {
+                var ok = true;
+                formQ.querySelectorAll('select[name^="pred_"]').forEach(function (s) {
+                    if (s.disabled || !s.value) ok = false;
+                });
+                if (!ok) {
+                    e.preventDefault();
+                    alert('Complete todos los partidos, incluidos los cruces entre ganadores, antes de confirmar.');
+                    return;
+                }
+                if (!confirm('¿Confirmar quiniela? No podrá cambiarla después.')) e.preventDefault();
             }
-            if (!confirm('¿Confirmar quiniela? No podrá cambiarla después.')) e.preventDefault();
         });
         document.addEventListener('DOMContentLoaded', syncGanadores);
     })();

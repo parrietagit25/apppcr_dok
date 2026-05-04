@@ -33,7 +33,15 @@ $mensaje = '';
 $mensajeTipo = 'info';
 
 if (!$es_administrador_quiniela && $_SERVER['REQUEST_METHOD'] === 'POST') {
-    $adminPosts = ['crear_grupo_quiniela', 'eliminar_grupo_quiniela', 'agregar_partido_fijo', 'agregar_partido_ganadores', 'eliminar_partido_quiniela', 'guardar_resultado_partido'];
+    $adminPosts = [
+        'crear_grupo_quiniela',
+        'eliminar_grupo_quiniela',
+        'agregar_partido_fijo',
+        'agregar_partido_ganadores',
+        'eliminar_partido_quiniela',
+        'guardar_resultado_partido',
+        'actualizar_meta_partido',
+    ];
     foreach ($adminPosts as $k) {
         if (isset($_POST[$k])) {
             header('Location: ' . $qMenu);
@@ -69,11 +77,13 @@ if ($es_administrador_quiniela && isset($_GET['v_quiniela']) && $_SERVER['REQUES
     } elseif (isset($_POST['agregar_partido_fijo'])) {
         $gidRaw = $_POST['grupo_id_partido'] ?? '';
         $grupoId = ($gidRaw === '' || $gidRaw === null) ? null : (int) $gidRaw;
-        $eqL = (int) ($_POST['equipo_local_id'] ?? 0);
-        $eqV = (int) ($_POST['equipo_visitante_id'] ?? 0);
+        $eqA = (int) ($_POST['equipo_a_id'] ?? $_POST['equipo_local_id'] ?? 0);
+        $eqB = (int) ($_POST['equipo_b_id'] ?? $_POST['equipo_visitante_id'] ?? 0);
         $etq = trim((string) ($_POST['etiqueta_partido'] ?? ''));
         $etq = $etq === '' ? null : $etq;
-        if ($quinielaModel->agregarPartidoFijo($grupoId, $eqL, $eqV, $etq)) {
+        $fase = trim((string) ($_POST['fase_partido'] ?? ''));
+        $fase = $fase === '' ? null : $fase;
+        if ($quinielaModel->agregarPartidoFijo($grupoId, $eqA, $eqB, $etq, $fase)) {
             $mensaje = 'Partido (enfrentamiento directo) agregado.';
             $mensajeTipo = 'success';
         } else {
@@ -87,7 +97,9 @@ if ($es_administrador_quiniela && isset($_GET['v_quiniela']) && $_SERVER['REQUES
         $sb = (int) ($_POST['src_partido_b'] ?? 0);
         $etq = trim((string) ($_POST['etiqueta_partido_g'] ?? ''));
         $etq = $etq === '' ? null : $etq;
-        if ($quinielaModel->agregarPartidoGanadores($grupoId, $sa, $sb, $etq)) {
+        $fase = trim((string) ($_POST['fase_partido_g'] ?? ''));
+        $fase = $fase === '' ? null : $fase;
+        if ($quinielaModel->agregarPartidoGanadores($grupoId, $sa, $sb, $etq, $fase)) {
             $mensaje = 'Partido "entre ganadores" agregado.';
             $mensajeTipo = 'success';
         } else {
@@ -101,6 +113,20 @@ if ($es_administrador_quiniela && isset($_GET['v_quiniela']) && $_SERVER['REQUES
             $mensajeTipo = 'success';
         } else {
             $mensaje = 'No se puede eliminar (hay predicciones u otros partidos dependen de este).';
+            $mensajeTipo = 'danger';
+        }
+    } elseif (isset($_POST['actualizar_meta_partido'])) {
+        $pid = (int) ($_POST['meta_partido_id'] ?? 0);
+        $ord = (int) ($_POST['meta_orden'] ?? 0);
+        $faseM = trim((string) ($_POST['meta_fase'] ?? ''));
+        $faseM = $faseM === '' ? null : $faseM;
+        $etqM = trim((string) ($_POST['meta_etiqueta'] ?? ''));
+        $etqM = $etqM === '' ? null : $etqM;
+        if ($pid > 0 && $ord > 0 && $quinielaModel->actualizarPartidoMeta($pid, $ord, $faseM, $etqM)) {
+            $mensaje = 'Partido actualizado (orden / fase / etiqueta).';
+            $mensajeTipo = 'success';
+        } else {
+            $mensaje = 'No se pudo actualizar el partido.';
             $mensajeTipo = 'danger';
         }
     }
@@ -122,23 +148,34 @@ if ($es_administrador_quiniela && isset($_GET['v_resultados']) && $_SERVER['REQU
     }
 }
 
-if (isset($_GET['arma_tu_quiniela']) && $_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['confirmar_quiniela'])) {
+if (isset($_GET['arma_tu_quiniela']) && $_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($quinielaModel->usuarioCartaCerrada($codigoSesion)) {
-        $mensaje = 'Su quiniela ya fue registrada.';
+        $mensaje = 'Su quiniela ya está cerrada; no se puede modificar.';
         $mensajeTipo = 'info';
     } else {
-        $map = [];
+        $mapPost = [];
         foreach ($_POST as $k => $v) {
             if (strpos($k, 'pred_') === 0) {
-                $map[(int) substr($k, 5)] = (int) $v;
+                $mapPost[(int) substr($k, 5)] = (int) $v;
             }
         }
-        if ($quinielaModel->guardarQuinielaUsuario($codigoSesion, $map)) {
-            $mensaje = '¡Quiniela guardada! Ya no podrá modificarla.';
-            $mensajeTipo = 'success';
-        } else {
-            $mensaje = 'Revise todas las selecciones. En partidos entre ganadores, elija solo entre los ganadores que ya eligió en los partidos anteriores.';
-            $mensajeTipo = 'danger';
+        if (isset($_POST['guardar_progreso_quiniela'])) {
+            if ($quinielaModel->guardarProgresoPredicciones($codigoSesion, $mapPost)) {
+                $mensaje = 'Progreso guardado. Los cruces posteriores se actualizan según sus elecciones válidas.';
+                $mensajeTipo = 'success';
+            } else {
+                $mensaje = 'No se pudo guardar el progreso.';
+                $mensajeTipo = 'danger';
+            }
+        } elseif (isset($_POST['confirmar_quiniela'])) {
+            if ($quinielaModel->guardarProgresoPredicciones($codigoSesion, $mapPost)
+                && $quinielaModel->confirmarCartaColaborador($codigoSesion)) {
+                $mensaje = '¡Quiniela confirmada! Ya no podrá modificarla.';
+                $mensajeTipo = 'success';
+            } else {
+                $mensaje = 'No se puede confirmar: complete todos los partidos en orden y elija ganadores válidos en cada cruce (incluido el campeón). Guarde el progreso antes si hace falta.';
+                $mensajeTipo = 'danger';
+            }
         }
     }
 }
@@ -153,11 +190,12 @@ foreach ($gruposAdmin as $g) {
 $partidosLlave = $quinielaModel->listarPartidosPorGrupo(null);
 $totalPartidos = $quinielaModel->totalPartidos();
 $cartaCerrada = $quinielaModel->usuarioCartaCerrada($codigoSesion);
+$mapaPrediccionesUsuario = $quinielaModel->obtenerMapaPredicciones($codigoSesion);
 $prediccionesDetalle = $cartaCerrada ? $quinielaModel->obtenerPrediccionesUsuarioDetalle($codigoSesion) : [];
 $colaboradoresLista = [];
 $colaboradoresJson = [];
 if ($es_administrador_quiniela && isset($_GET['colaboradores_quiniela'])) {
-    $colaboradoresLista = $quinielaModel->listarColaboradoresConQuiniela($pdo);
+    $colaboradoresLista = $quinielaModel->listarResumenColaboradoresQuiniela($pdo);
     foreach ($colaboradoresLista as $c) {
         $colaboradoresJson[$c['codigo_empleado']] = array_merge(
             $quinielaModel->detalleJsonColaborador($c['codigo_empleado']),

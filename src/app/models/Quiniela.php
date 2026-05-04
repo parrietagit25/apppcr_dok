@@ -44,7 +44,6 @@ class Quiniela
         return array_values($out);
     }
 
-    /** Solo grupo + 4 equipos (sin partidos). */
     public function crearGrupoSoloEquipos(int $ordenGrupo, string $nombreGrupo, array $nombresCuatroEquipos): bool
     {
         $nombresCuatroEquipos = array_values(array_map('trim', $nombresCuatroEquipos));
@@ -100,7 +99,7 @@ class Quiniela
         $st2 = $this->pdo->prepare(
             'SELECT COUNT(*) FROM quiniela_partido p
              INNER JOIN quiniela_partido hijo ON (
-               hijo.src_partido_local_id = p.id OR hijo.src_partido_der_id = p.id
+               hijo.src_partido_a_id = p.id OR hijo.src_partido_b_id = p.id
              )
              WHERE p.grupo_id = ?'
         );
@@ -110,8 +109,8 @@ class Quiniela
         }
         $st3 = $this->pdo->prepare(
             'SELECT COUNT(*) FROM quiniela_partido hijo
-             WHERE hijo.src_partido_local_id IN (SELECT id FROM quiniela_partido WHERE grupo_id = ?)
-                OR hijo.src_partido_der_id IN (SELECT id FROM quiniela_partido WHERE grupo_id = ?)'
+             WHERE hijo.src_partido_a_id IN (SELECT id FROM quiniela_partido WHERE grupo_id = ?)
+                OR hijo.src_partido_b_id IN (SELECT id FROM quiniela_partido WHERE grupo_id = ?)'
         );
         $st3->execute([$grupoId, $grupoId]);
         if ((int) $st3->fetchColumn() > 0) {
@@ -135,23 +134,23 @@ class Quiniela
         return $n + 1;
     }
 
-    public function agregarPartidoFijo(?int $grupoId, int $equipoLocalId, int $equipoVisitanteId, ?string $etiqueta = null): bool
+    public function agregarPartidoFijo(?int $grupoId, int $equipoAId, int $equipoBId, ?string $etiqueta = null, ?string $fase = null): bool
     {
-        if ($equipoLocalId === $equipoVisitanteId) {
+        if ($equipoAId === $equipoBId) {
             return false;
         }
-        if (!$this->equiposExistenYGrupo($grupoId, $equipoLocalId, $equipoVisitanteId)) {
+        if (!$this->equiposExistenYGrupo($grupoId, $equipoAId, $equipoBId)) {
             return false;
         }
         $ord = $this->siguienteOrdenPartido();
         $st = $this->pdo->prepare(
-            'INSERT INTO quiniela_partido (grupo_id, orden, tipo, etiqueta, equipo_local_id, equipo_visitante_id)
-             VALUES (?, ?, \'fijo\', ?, ?, ?)'
+            'INSERT INTO quiniela_partido (grupo_id, orden, fase, tipo, etiqueta, equipo_a_id, equipo_b_id)
+             VALUES (?, ?, ?, \'fijo\', ?, ?, ?)'
         );
-        return $st->execute([$grupoId, $ord, $etiqueta, $equipoLocalId, $equipoVisitanteId]);
+        return $st->execute([$grupoId, $ord, $fase, $etiqueta, $equipoAId, $equipoBId]);
     }
 
-    public function agregarPartidoGanadores(?int $grupoId, int $srcPartidoA, int $srcPartidoB, ?string $etiqueta = null): bool
+    public function agregarPartidoGanadores(?int $grupoId, int $srcPartidoA, int $srcPartidoB, ?string $etiqueta = null, ?string $fase = null): bool
     {
         if ($srcPartidoA === $srcPartidoB) {
             return false;
@@ -172,10 +171,20 @@ class Quiniela
         }
         $ord = $this->siguienteOrdenPartido();
         $ins = $this->pdo->prepare(
-            'INSERT INTO quiniela_partido (grupo_id, orden, tipo, etiqueta, src_partido_local_id, src_partido_der_id)
-             VALUES (?, ?, \'ganadores\', ?, ?, ?)'
+            'INSERT INTO quiniela_partido (grupo_id, orden, fase, tipo, etiqueta, src_partido_a_id, src_partido_b_id)
+             VALUES (?, ?, ?, \'ganadores\', ?, ?, ?)'
         );
-        return $ins->execute([$grupoId, $ord, $etiqueta, $srcPartidoA, $srcPartidoB]);
+        return $ins->execute([$grupoId, $ord, $fase, $etiqueta, $srcPartidoA, $srcPartidoB]);
+    }
+
+    public function actualizarPartidoMeta(int $partidoId, int $orden, ?string $fase, ?string $etiqueta): bool
+    {
+        $fase = $fase === null || trim($fase) === '' ? null : trim($fase);
+        $etq = $etiqueta === null || trim($etiqueta) === '' ? null : trim($etiqueta);
+        $st = $this->pdo->prepare(
+            'UPDATE quiniela_partido SET orden = ?, fase = ?, etiqueta = ? WHERE id = ?'
+        );
+        return $st->execute([$orden, $fase, $etq, $partidoId]);
     }
 
     private function equiposExistenYGrupo(?int $grupoId, int $e1, int $e2): bool
@@ -190,32 +199,35 @@ class Quiniela
         return (int) $st->fetchColumn() === 2;
     }
 
+    private function selectPartidoCampos(): string
+    {
+        return 'p.id, p.grupo_id, p.orden, p.fase, p.tipo, p.etiqueta, p.ganador_id,
+                p.equipo_a_id, p.equipo_b_id, p.src_partido_a_id, p.src_partido_b_id,
+                ea.nombre AS eq_a_nom, eb.nombre AS eq_b_nom,
+                g.nombre AS grupo_nom, g.orden_grupo';
+    }
+
     public function listarPartidosPorGrupo(?int $grupoId): array
     {
+        $cols = $this->selectPartidoCampos();
         if ($grupoId === null) {
-            $sql = 'SELECT p.id, p.grupo_id, p.orden, p.tipo, p.etiqueta, p.ganador_id,
-                           p.equipo_local_id, p.equipo_visitante_id, p.src_partido_local_id, p.src_partido_der_id,
-                           el.nombre AS eq_loc_nom, ev.nombre AS eq_vis_nom,
-                           g.nombre AS grupo_nom, g.orden_grupo
+            $sql = "SELECT {$cols}
                     FROM quiniela_partido p
-                    LEFT JOIN quiniela_equipo el ON el.id = p.equipo_local_id
-                    LEFT JOIN quiniela_equipo ev ON ev.id = p.equipo_visitante_id
+                    LEFT JOIN quiniela_equipo ea ON ea.id = p.equipo_a_id
+                    LEFT JOIN quiniela_equipo eb ON eb.id = p.equipo_b_id
                     LEFT JOIN quiniela_grupo g ON g.id = p.grupo_id
                     WHERE p.grupo_id IS NULL
-                    ORDER BY p.orden ASC, p.id ASC';
+                    ORDER BY p.orden ASC, p.id ASC";
             return $this->pdo->query($sql)->fetchAll(PDO::FETCH_ASSOC);
         }
         $st = $this->pdo->prepare(
-            'SELECT p.id, p.grupo_id, p.orden, p.tipo, p.etiqueta, p.ganador_id,
-                    p.equipo_local_id, p.equipo_visitante_id, p.src_partido_local_id, p.src_partido_der_id,
-                    el.nombre AS eq_loc_nom, ev.nombre AS eq_vis_nom,
-                    g.nombre AS grupo_nom, g.orden_grupo
+            "SELECT {$cols}
              FROM quiniela_partido p
-             LEFT JOIN quiniela_equipo el ON el.id = p.equipo_local_id
-             LEFT JOIN quiniela_equipo ev ON ev.id = p.equipo_visitante_id
+             LEFT JOIN quiniela_equipo ea ON ea.id = p.equipo_a_id
+             LEFT JOIN quiniela_equipo eb ON eb.id = p.equipo_b_id
              LEFT JOIN quiniela_grupo g ON g.id = p.grupo_id
              WHERE p.grupo_id = ?
-             ORDER BY p.orden ASC, p.id ASC'
+             ORDER BY p.orden ASC, p.id ASC"
         );
         $st->execute([$grupoId]);
         return $st->fetchAll(PDO::FETCH_ASSOC);
@@ -223,21 +235,24 @@ class Quiniela
 
     public function listarTodosPartidosOrdenados(): array
     {
-        $sql = 'SELECT p.id, p.grupo_id, p.orden, p.tipo, p.etiqueta, p.ganador_id,
-                       p.equipo_local_id, p.equipo_visitante_id, p.src_partido_local_id, p.src_partido_der_id,
-                       el.nombre AS eq_loc_nom, ev.nombre AS eq_vis_nom,
-                       g.nombre AS grupo_nom, g.orden_grupo
+        $cols = $this->selectPartidoCampos();
+        $sql = "SELECT {$cols}
                 FROM quiniela_partido p
-                LEFT JOIN quiniela_equipo el ON el.id = p.equipo_local_id
-                LEFT JOIN quiniela_equipo ev ON ev.id = p.equipo_visitante_id
+                LEFT JOIN quiniela_equipo ea ON ea.id = p.equipo_a_id
+                LEFT JOIN quiniela_equipo eb ON eb.id = p.equipo_b_id
                 LEFT JOIN quiniela_grupo g ON g.id = p.grupo_id
-                ORDER BY p.orden ASC, p.id ASC';
+                ORDER BY p.orden ASC, p.id ASC";
         return $this->pdo->query($sql)->fetchAll(PDO::FETCH_ASSOC);
     }
 
     public function totalPartidos(): int
     {
         return (int) $this->pdo->query('SELECT COUNT(*) FROM quiniela_partido')->fetchColumn();
+    }
+
+    public function totalPartidosConResultadoOficial(): int
+    {
+        return (int) $this->pdo->query('SELECT COUNT(*) FROM quiniela_partido WHERE ganador_id IS NOT NULL')->fetchColumn();
     }
 
     public function puedeEliminarPartido(int $partidoId): bool
@@ -248,7 +263,7 @@ class Quiniela
             return false;
         }
         $st2 = $this->pdo->prepare(
-            'SELECT COUNT(*) FROM quiniela_partido WHERE src_partido_local_id = ? OR src_partido_der_id = ?'
+            'SELECT COUNT(*) FROM quiniela_partido WHERE src_partido_a_id = ? OR src_partido_b_id = ?'
         );
         $st2->execute([$partidoId, $partidoId]);
         return (int) $st2->fetchColumn() === 0;
@@ -263,7 +278,6 @@ class Quiniela
         return $st->execute([$partidoId]);
     }
 
-    /** Oficiales: ids de equipos que pueden ganar (vacío si aún no aplica). */
     public function candidatosOficialesGanador(int $partidoId): array
     {
         $row = $this->obtenerPartidoRaw($partidoId);
@@ -271,10 +285,10 @@ class Quiniela
             return [];
         }
         if ($row['tipo'] === 'fijo') {
-            return [(int) $row['equipo_local_id'], (int) $row['equipo_visitante_id']];
+            return [(int) $row['equipo_a_id'], (int) $row['equipo_b_id']];
         }
-        $g1 = $this->ganadorOficialPartido((int) $row['src_partido_local_id']);
-        $g2 = $this->ganadorOficialPartido((int) $row['src_partido_der_id']);
+        $g1 = $this->ganadorOficialPartido((int) $row['src_partido_a_id']);
+        $g2 = $this->ganadorOficialPartido((int) $row['src_partido_b_id']);
         if ($g1 === null || $g2 === null) {
             return [];
         }
@@ -289,7 +303,6 @@ class Quiniela
         return $v !== null && $v !== false ? (int) $v : null;
     }
 
-    /** Con mapa partido_id => equipo_predicho (solo hojas y nodos ya resueltos en el mapa). */
     public function candidatosPrediccionGanador(int $partidoId, array $mapaPredicho): array
     {
         $row = $this->obtenerPartidoRaw($partidoId);
@@ -297,10 +310,10 @@ class Quiniela
             return [];
         }
         if ($row['tipo'] === 'fijo') {
-            return [(int) $row['equipo_local_id'], (int) $row['equipo_visitante_id']];
+            return [(int) $row['equipo_a_id'], (int) $row['equipo_b_id']];
         }
-        $sa = (int) $row['src_partido_local_id'];
-        $sb = (int) $row['src_partido_der_id'];
+        $sa = (int) $row['src_partido_a_id'];
+        $sb = (int) $row['src_partido_b_id'];
         if (!isset($mapaPredicho[$sa], $mapaPredicho[$sb])) {
             return [];
         }
@@ -331,67 +344,128 @@ class Quiniela
 
     public function usuarioCartaCerrada(string $codigo): bool
     {
-        $st = $this->pdo->prepare('SELECT 1 FROM quiniela_carta_cerrada WHERE codigo_empleado = ? LIMIT 1');
+        $st = $this->pdo->prepare(
+            'SELECT cerrada FROM quiniela_carta_cerrada WHERE codigo_empleado = ? LIMIT 1'
+        );
         $st->execute([$codigo]);
-        return (bool) $st->fetchColumn();
+        $v = $st->fetchColumn();
+        return (int) $v === 1;
     }
 
-    public function guardarQuinielaUsuario(string $codigo, array $mapaPartidoGanadorPredicho): bool
+    public function obtenerMapaPredicciones(string $codigo): array
+    {
+        $st = $this->pdo->prepare(
+            'SELECT partido_id, ganador_id FROM quiniela_prediccion WHERE codigo_empleado = ?'
+        );
+        $st->execute([$codigo]);
+        $m = [];
+        foreach ($st->fetchAll(PDO::FETCH_ASSOC) as $r) {
+            $m[(int) $r['partido_id']] = (int) $r['ganador_id'];
+        }
+        return $m;
+    }
+
+    /**
+     * Construye mapa partido_id => ganador_id válido según orden y reglas (solo lo enviado en POST que encadena bien).
+     *
+     * @param array<int,int|string> $postPred partido_id => ganador_id
+     * @return array<int,int>
+     */
+    public function construirMapaPredichoValido(array $postPred): array
+    {
+        $postPred = array_map('intval', $postPred);
+        $ordenados = $this->listarTodosPartidosOrdenados();
+        $valid = [];
+        foreach ($ordenados as $p) {
+            $pid = (int) $p['id'];
+            if ($p['tipo'] === 'fijo') {
+                if (!isset($postPred[$pid])) {
+                    continue;
+                }
+                $g = (int) $postPred[$pid];
+                $a = (int) $p['equipo_a_id'];
+                $b = (int) $p['equipo_b_id'];
+                if (in_array($g, [$a, $b], true)) {
+                    $valid[$pid] = $g;
+                }
+                continue;
+            }
+            $sa = (int) $p['src_partido_a_id'];
+            $sb = (int) $p['src_partido_b_id'];
+            if (!isset($valid[$sa], $valid[$sb])) {
+                continue;
+            }
+            if (!isset($postPred[$pid])) {
+                continue;
+            }
+            $g = (int) $postPred[$pid];
+            $c1 = $valid[$sa];
+            $c2 = $valid[$sb];
+            if (in_array($g, [$c1, $c2], true)) {
+                $valid[$pid] = $g;
+            }
+        }
+        return $valid;
+    }
+
+    public function guardarProgresoPredicciones(string $codigo, array $postPred): bool
     {
         if ($this->usuarioCartaCerrada($codigo)) {
             return false;
         }
-        $total = $this->totalPartidos();
-        if ($total === 0 || count($mapaPartidoGanadorPredicho) !== $total) {
+        $valid = $this->construirMapaPredichoValido($postPred);
+        $this->pdo->beginTransaction();
+        try {
+            $this->pdo->prepare('DELETE FROM quiniela_prediccion WHERE codigo_empleado = ?')->execute([$codigo]);
+            if (count($valid) > 0) {
+                $ins = $this->pdo->prepare(
+                    'INSERT INTO quiniela_prediccion (codigo_empleado, partido_id, ganador_id) VALUES (?,?,?)'
+                );
+                foreach ($valid as $pid => $gid) {
+                    $ins->execute([$codigo, (int) $pid, (int) $gid]);
+                }
+            }
+            $this->pdo->commit();
+            return true;
+        } catch (Throwable $e) {
+            $this->pdo->rollBack();
+            error_log('Quiniela::guardarProgresoPredicciones: ' . $e->getMessage());
             return false;
         }
-        $stAll = $this->pdo->query('SELECT id FROM quiniela_partido');
-        $todos = array_map('intval', $stAll->fetchAll(PDO::FETCH_COLUMN));
-        $idsMap = array_map('intval', array_keys($mapaPartidoGanadorPredicho));
-        sort($todos);
-        sort($idsMap);
-        if ($todos !== $idsMap) {
+    }
+
+    public function confirmarCartaColaborador(string $codigo): bool
+    {
+        if ($this->usuarioCartaCerrada($codigo)) {
+            return false;
+        }
+        $map = $this->obtenerMapaPredicciones($codigo);
+        $total = $this->totalPartidos();
+        if ($total === 0 || count($map) !== $total) {
             return false;
         }
         $ordenados = $this->listarTodosPartidosOrdenados();
         foreach ($ordenados as $p) {
             $pid = (int) $p['id'];
-            $eid = (int) $mapaPartidoGanadorPredicho[$pid];
-            $opts = $this->candidatosPrediccionGanador($pid, $mapaPartidoGanadorPredicho);
-            if (count($opts) !== 2 || !in_array($eid, $opts, true)) {
+            if (!isset($map[$pid])) {
+                return false;
+            }
+            $opts = $this->candidatosPrediccionGanador($pid, $map);
+            if (count($opts) !== 2 || !in_array($map[$pid], $opts, true)) {
                 return false;
             }
         }
-
-        $this->pdo->beginTransaction();
-        try {
-            $ins = $this->pdo->prepare(
-                'INSERT INTO quiniela_prediccion (codigo_empleado, partido_id, equipo_predicho_id) VALUES (?, ?, ?)'
-            );
-            foreach ($mapaPartidoGanadorPredicho as $pid => $eid) {
-                $ins->execute([$codigo, (int) $pid, (int) $eid]);
-            }
-            $this->pdo->prepare('INSERT INTO quiniela_carta_cerrada (codigo_empleado) VALUES (?)')->execute([$codigo]);
-            $this->pdo->commit();
-            return true;
-        } catch (Throwable $e) {
-            $this->pdo->rollBack();
-            error_log('Quiniela::guardarQuinielaUsuario: ' . $e->getMessage());
-            return false;
-        }
+        $st = $this->pdo->prepare(
+            'INSERT INTO quiniela_carta_cerrada (codigo_empleado, cerrada) VALUES (?, 1)
+             ON DUPLICATE KEY UPDATE cerrada = 1, updated_at = CURRENT_TIMESTAMP'
+        );
+        return $st->execute([$codigo]);
     }
 
     public function obtenerPrediccionesUsuarioDetalle(string $codigo): array
     {
         $partidos = $this->listarTodosPartidosOrdenados();
-        $st = $this->pdo->prepare(
-            'SELECT partido_id, equipo_predicho_id FROM quiniela_prediccion WHERE codigo_empleado = ?'
-        );
-        $st->execute([$codigo]);
-        $pred = [];
-        foreach ($st->fetchAll(PDO::FETCH_ASSOC) as $r) {
-            $pred[(int) $r['partido_id']] = (int) $r['equipo_predicho_id'];
-        }
+        $pred = $this->obtenerMapaPredicciones($codigo);
         $out = [];
         foreach ($partidos as $p) {
             $pid = (int) $p['id'];
@@ -400,7 +474,10 @@ class Quiniela
             }
             $desc = $this->etiquetaPartidoVista($p);
             $nomPred = $this->nombreEquipo($pred[$pid]);
-            $resOf = $p['ganador_id'] ? $this->nombreEquipo((int) $p['ganador_id']) : null;
+            $gidOf = $p['ganador_id'] ?? null;
+            $resOf = ($gidOf !== null && $gidOf !== '' && (int) $gidOf > 0)
+                ? $this->nombreEquipo((int) $gidOf)
+                : null;
             $out[] = [
                 'partido_id' => $pid,
                 'descripcion' => $desc,
@@ -417,17 +494,26 @@ class Quiniela
     public function etiquetaPartidoVista(array $p): string
     {
         if ($p['tipo'] === 'fijo') {
-            $a = $p['eq_loc_nom'] ?? '?';
-            $b = $p['eq_vis_nom'] ?? '?';
+            $a = $p['eq_a_nom'] ?? '?';
+            $b = $p['eq_b_nom'] ?? '?';
             $base = $a . ' vs ' . $b;
         } else {
-            $base = 'Ganador partido #' . (int) $p['src_partido_local_id']
-                . ' vs Ganador partido #' . (int) $p['src_partido_der_id'];
+            $base = 'Ganador partido #' . (int) $p['src_partido_a_id']
+                . ' vs Ganador partido #' . (int) $p['src_partido_b_id'];
         }
+        $fase = !empty($p['fase']) ? '[' . $p['fase'] . '] ' : '';
         if (!empty($p['etiqueta'])) {
-            return $p['etiqueta'] . ' — ' . $base;
+            return $fase . $p['etiqueta'] . ' — ' . $base;
         }
-        return $base;
+        return $fase . $base;
+    }
+
+    public function textoDependenciaPartido(array $p): string
+    {
+        if ($p['tipo'] !== 'ganadores') {
+            return '—';
+        }
+        return '#' . (int) $p['src_partido_a_id'] . ' y #' . (int) $p['src_partido_b_id'];
     }
 
     public function nombreEquipo(int $id): string
@@ -438,37 +524,52 @@ class Quiniela
         return $n ? (string) $n : (string) $id;
     }
 
-    public function estadoQuinielaUsuario(string $codigo): string
+    /** Pendiente | En juego | Perdió | Completada */
+    public function estadoColaboradorQuiniela(string $codigo): string
     {
         if (!$this->usuarioCartaCerrada($codigo)) {
-            return 'Sin quiniela';
+            return 'Pendiente';
         }
-        $sql = 'SELECT p.ganador_id, pr.equipo_predicho_id
+        $sql = 'SELECT p.ganador_id, pr.ganador_id AS pred_ganador
                 FROM quiniela_prediccion pr
                 INNER JOIN quiniela_partido p ON p.id = pr.partido_id
                 WHERE pr.codigo_empleado = ? AND p.ganador_id IS NOT NULL';
         $st = $this->pdo->prepare($sql);
         $st->execute([$codigo]);
+        $fallo = false;
         foreach ($st->fetchAll(PDO::FETCH_ASSOC) as $r) {
-            if ((int) $r['ganador_id'] !== (int) $r['equipo_predicho_id']) {
-                return 'Perdio';
+            if ((int) $r['ganador_id'] !== (int) $r['pred_ganador']) {
+                $fallo = true;
+                break;
             }
+        }
+        if ($fallo) {
+            return 'Perdió';
+        }
+        $total = $this->totalPartidos();
+        $conOf = $this->totalPartidosConResultadoOficial();
+        if ($total > 0 && $conOf === $total) {
+            return 'Completada';
         }
         return 'En juego';
     }
 
-    public function listarColaboradoresConQuiniela(PDO $pdoEmpleados): array
+    /** @return list<array{codigo_empleado: string, nombre: string, status: string}> */
+    public function listarResumenColaboradoresQuiniela(PDO $pdoEmpleados): array
     {
-        $sql = 'SELECT c.codigo_empleado, c.cerrada_at FROM quiniela_carta_cerrada c ORDER BY c.cerrada_at DESC';
-        $rows = $this->pdo->query($sql)->fetchAll(PDO::FETCH_ASSOC);
+        $sql = 'SELECT codigo_empleado FROM (
+                    SELECT DISTINCT codigo_empleado FROM quiniela_prediccion
+                    UNION
+                    SELECT codigo_empleado FROM quiniela_carta_cerrada WHERE cerrada = 1
+                ) t ORDER BY codigo_empleado ASC';
+        $codes = $this->pdo->query($sql)->fetchAll(PDO::FETCH_COLUMN);
         $out = [];
-        foreach ($rows as $r) {
-            $code = $r['codigo_empleado'];
+        foreach ($codes as $code) {
+            $code = (string) $code;
             $out[] = [
                 'codigo_empleado' => $code,
                 'nombre' => $this->resolverNombreColaborador($pdoEmpleados, $code),
-                'status' => $this->estadoQuinielaUsuario($code),
-                'cerrada_at' => $r['cerrada_at'],
+                'status' => $this->estadoColaboradorQuiniela($code),
             ];
         }
         return $out;

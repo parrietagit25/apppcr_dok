@@ -117,6 +117,9 @@ $nGrupos = count($gruposAdmin);
             <li class="list-group-item d-flex justify-content-between align-items-center px-0">
                 <span><strong>#<?php echo $pid; ?></strong> — <?php echo htmlspecialchars($quinielaModel->etiquetaPartidoVista($p)); ?>
                     <?php if ($p['tipo'] === 'fijo') { ?><span class="badge bg-secondary">directo</span><?php } else { ?><span class="badge bg-primary">ganadores</span><?php } ?>
+                    <?php if ($p['tipo'] === 'ganadores') { ?>
+                    <span class="small text-muted ms-1">(depende de <?php echo htmlspecialchars($quinielaModel->textoDependenciaPartido($p)); ?>)</span>
+                    <?php } ?>
                 </span>
                 <form method="post" action="<?php echo htmlspecialchars($qBase . '?v_quiniela=1'); ?>" class="ms-2" onsubmit="return confirm('¿Eliminar este partido?');">
                     <input type="hidden" name="partido_id" value="<?php echo $pid; ?>">
@@ -133,8 +136,8 @@ $nGrupos = count($gruposAdmin);
                 <form method="post" action="<?php echo htmlspecialchars($qBase . '?v_quiniela=1'); ?>">
                     <input type="hidden" name="grupo_id_partido" value="<?php echo $gid; ?>">
                     <div class="mb-2 quiniela-ts-wrap form-select-sm">
-                        <label class="form-label small">Equipo local</label>
-                        <select class="form-select form-select-sm quiniela-ts-equipo-por-id" name="equipo_local_id" required>
+                        <label class="form-label small">Equipo A</label>
+                        <select class="form-select form-select-sm quiniela-ts-equipo-por-id" name="equipo_a_id" required>
                             <option value="">—</option>
                             <?php foreach ($g['equipos'] as $eq) {
                                 $isoEq = quiniela_paises_iso_por_nombre($eq['nombre']);
@@ -144,8 +147,8 @@ $nGrupos = count($gruposAdmin);
                         </select>
                     </div>
                     <div class="mb-2 quiniela-ts-wrap form-select-sm">
-                        <label class="form-label small">Equipo visitante</label>
-                        <select class="form-select form-select-sm quiniela-ts-equipo-por-id" name="equipo_visitante_id" required>
+                        <label class="form-label small">Equipo B</label>
+                        <select class="form-select form-select-sm quiniela-ts-equipo-por-id" name="equipo_b_id" required>
                             <option value="">—</option>
                             <?php foreach ($g['equipos'] as $eq) {
                                 $isoEq = quiniela_paises_iso_por_nombre($eq['nombre']);
@@ -153,6 +156,10 @@ $nGrupos = count($gruposAdmin);
                             <option value="<?php echo (int) $eq['id']; ?>" data-iso="<?php echo htmlspecialchars($isoEq ?? ''); ?>"><?php echo htmlspecialchars($eq['nombre']); ?></option>
                             <?php } ?>
                         </select>
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label small">Fase (opcional)</label>
+                        <input type="text" class="form-control form-control-sm" name="fase_partido" maxlength="80" placeholder="Ej. Grupos, Octavos">
                     </div>
                     <div class="mb-2">
                         <label class="form-label small">Etiqueta (opcional)</label>
@@ -184,6 +191,10 @@ $nGrupos = count($gruposAdmin);
                         </select>
                     </div>
                     <div class="mb-2">
+                        <label class="form-label small">Fase (opcional)</label>
+                        <input type="text" class="form-control form-control-sm" name="fase_partido_g" maxlength="80" placeholder="Ej. Final del grupo">
+                    </div>
+                    <div class="mb-2">
                         <label class="form-label small">Etiqueta (opcional)</label>
                         <input type="text" class="form-control form-control-sm" name="etiqueta_partido_g" maxlength="200" placeholder="Ej. Final del grupo">
                     </div>
@@ -205,7 +216,11 @@ $nGrupos = count($gruposAdmin);
             $pid = (int) $p['id'];
             ?>
         <li class="list-group-item d-flex justify-content-between align-items-center">
-            <span><strong>#<?php echo $pid; ?></strong> — <?php echo htmlspecialchars($quinielaModel->etiquetaPartidoVista($p)); ?></span>
+            <span><strong>#<?php echo $pid; ?></strong> — <?php echo htmlspecialchars($quinielaModel->etiquetaPartidoVista($p)); ?>
+                <?php if ($p['tipo'] === 'ganadores') { ?>
+                <span class="small text-muted">(<?php echo htmlspecialchars($quinielaModel->textoDependenciaPartido($p)); ?>)</span>
+                <?php } ?>
+            </span>
             <form method="post" action="<?php echo htmlspecialchars($qBase . '?v_quiniela=1'); ?>" onsubmit="return confirm('¿Eliminar?');">
                 <input type="hidden" name="partido_id" value="<?php echo $pid; ?>">
                 <button type="submit" name="eliminar_partido_quiniela" value="1" class="btn btn-link text-danger btn-sm p-0">Quitar</button>
@@ -222,7 +237,7 @@ $nGrupos = count($gruposAdmin);
                 <input type="hidden" name="grupo_id_partido" value="">
                 <div class="mb-2 quiniela-ts-wrap form-select-sm">
                     <label class="form-label small">Equipo A</label>
-                    <select class="form-select form-select-sm quiniela-ts-equipo-por-id" name="equipo_local_id" required>
+                    <select class="form-select form-select-sm quiniela-ts-equipo-por-id" name="equipo_a_id" required>
                         <option value="">—</option>
                         <?php foreach ($equiposSelector as $eq) {
                             $isoEq = quiniela_paises_iso_por_nombre($eq['nombre']);
@@ -233,7 +248,7 @@ $nGrupos = count($gruposAdmin);
                 </div>
                 <div class="mb-2 quiniela-ts-wrap form-select-sm">
                     <label class="form-label small">Equipo B</label>
-                    <select class="form-select form-select-sm quiniela-ts-equipo-por-id" name="equipo_visitante_id" required>
+                    <select class="form-select form-select-sm quiniela-ts-equipo-por-id" name="equipo_b_id" required>
                         <option value="">—</option>
                         <?php foreach ($equiposSelector as $eq) {
                             $isoEq = quiniela_paises_iso_por_nombre($eq['nombre']);
@@ -241,6 +256,9 @@ $nGrupos = count($gruposAdmin);
                         <option value="<?php echo (int) $eq['id']; ?>" data-iso="<?php echo htmlspecialchars($isoEq ?? ''); ?>"><?php echo htmlspecialchars($eq['grupo_nom'] . ' — ' . $eq['nombre']); ?></option>
                         <?php } ?>
                     </select>
+                </div>
+                <div class="mb-2">
+                    <input type="text" class="form-control form-control-sm" name="fase_partido" maxlength="80" placeholder="Fase (opcional)">
                 </div>
                 <div class="mb-2">
                     <input type="text" class="form-control form-control-sm" name="etiqueta_partido" maxlength="200" placeholder="Etiqueta opcional">
@@ -271,12 +289,62 @@ $nGrupos = count($gruposAdmin);
                     </select>
                 </div>
                 <div class="mb-2">
+                    <input type="text" class="form-control form-control-sm" name="fase_partido_g" maxlength="80" placeholder="Fase (opcional)">
+                </div>
+                <div class="mb-2">
                     <input type="text" class="form-control form-control-sm" name="etiqueta_partido_g" maxlength="200" placeholder="Ej. G3 vs G4">
                 </div>
                 <button type="submit" name="agregar_partido_ganadores" value="1" class="btn btn-success btn-sm">Agregar a llave</button>
             </form>
         </div>
     </div>
+
+    <h6 class="section-title mt-4">Orden, fase y etiqueta (todos los partidos)</h6>
+    <p class="small text-muted mb-2">El <strong>orden</strong> define en qué secuencia ven y validan los colaboradores y el servidor los cruces dependientes. Edite fase y etiqueta para claridad en listados.</p>
+    <?php if (count($partidosAdmin) === 0) { ?>
+    <p class="text-muted small">No hay partidos aún.</p>
+    <?php } else { ?>
+    <div class="table-responsive bg-white rounded shadow-sm mb-3">
+        <table class="table table-sm align-middle mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>ID</th>
+                    <th>Resumen</th>
+                    <th>Depende de</th>
+                    <th>Orden, fase y etiqueta</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php foreach ($partidosAdmin as $pm) {
+                    $pmid = (int) $pm['id'];
+                    ?>
+                <tr>
+                    <td><?php echo $pmid; ?></td>
+                    <td class="small"><?php echo htmlspecialchars($quinielaModel->etiquetaPartidoVista($pm)); ?></td>
+                    <td class="small text-muted"><?php echo htmlspecialchars($quinielaModel->textoDependenciaPartido($pm)); ?></td>
+                    <td>
+                        <form method="post" action="<?php echo htmlspecialchars($qBase . '?v_quiniela=1'); ?>" class="row g-1 align-items-center">
+                            <input type="hidden" name="meta_partido_id" value="<?php echo $pmid; ?>">
+                            <div class="col-auto">
+                                <input type="number" class="form-control form-control-sm" name="meta_orden" value="<?php echo (int) ($pm['orden'] ?? 0); ?>" min="1" style="width:5rem;" title="Orden" required>
+                            </div>
+                            <div class="col">
+                                <input type="text" class="form-control form-control-sm" name="meta_fase" value="<?php echo htmlspecialchars((string) ($pm['fase'] ?? '')); ?>" maxlength="80" placeholder="Fase">
+                            </div>
+                            <div class="col">
+                                <input type="text" class="form-control form-control-sm" name="meta_etiqueta" value="<?php echo htmlspecialchars((string) ($pm['etiqueta'] ?? '')); ?>" maxlength="200" placeholder="Etiqueta">
+                            </div>
+                            <div class="col-auto">
+                                <button type="submit" name="actualizar_meta_partido" value="1" class="btn btn-outline-secondary btn-sm">Guardar</button>
+                            </div>
+                        </form>
+                    </td>
+                </tr>
+                <?php } ?>
+            </tbody>
+        </table>
+    </div>
+    <?php } ?>
 </div>
 
 <?php

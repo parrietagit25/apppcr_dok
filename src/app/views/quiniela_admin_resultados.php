@@ -43,7 +43,7 @@ $qBase = rtrim(BASE_URL_CONTROLLER, '/') . '/QuinielaController.php';
                     <td><?php echo $pid; ?></td>
                     <td><?php echo htmlspecialchars($quinielaModel->etiquetaPartidoVista($p)); ?>
                         <?php if ($p['tipo'] === 'ganadores') { ?>
-                        <div class="small text-muted">Entre ganadores: partidos #<?php echo (int) $p['src_partido_local_id']; ?> y #<?php echo (int) $p['src_partido_der_id']; ?></div>
+                        <div class="small text-muted">Entre ganadores: partidos #<?php echo (int) $p['src_partido_a_id']; ?> y #<?php echo (int) $p['src_partido_b_id']; ?></div>
                         <?php } ?>
                     </td>
                     <td>

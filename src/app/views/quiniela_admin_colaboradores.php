@@ -20,7 +20,7 @@ $jsonDetalle = json_encode($colaboradoresJson ?? [], JSON_HEX_TAG | JSON_HEX_AMP
     </div>
 
     <?php if (count($colaboradoresLista) === 0) { ?>
-    <div class="alert alert-info">Ningún colaborador ha cerrado su quiniela aún.</div>
+    <div class="alert alert-info">Aún no hay colaboradores con predicciones guardadas o quiniela cerrada.</div>
     <?php } else { ?>
     <div class="table-responsive bg-white rounded shadow-sm">
         <table class="table table-sm table-striped mb-0" id="tablaColabQuiniela">
@@ -34,7 +34,16 @@ $jsonDetalle = json_encode($colaboradoresJson ?? [], JSON_HEX_TAG | JSON_HEX_AMP
             </thead>
             <tbody>
                 <?php foreach ($colaboradoresLista as $row) {
-                    $badge = $row['status'] === 'Perdio' ? 'danger' : ($row['status'] === 'En juego' ? 'success' : 'secondary');
+                    $st = $row['status'] ?? '';
+                    if ($st === 'Perdió') {
+                        $badge = 'danger';
+                    } elseif ($st === 'En juego') {
+                        $badge = 'success';
+                    } elseif ($st === 'Completada') {
+                        $badge = 'primary';
+                    } else {
+                        $badge = 'warning text-dark';
+                    }
                     ?>
                 <tr>
                     <td><?php echo htmlspecialchars($row['nombre']); ?></td>
