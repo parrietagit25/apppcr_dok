@@ -13,6 +13,8 @@ $nGrupos = count($gruposAdmin);
     .quiniela-ts-wrap .ts-control { min-height: 38px; border-radius: 0.375rem; }
     .quiniela-ts-wrap.form-select-sm .ts-control { min-height: 31px; font-size: 0.875rem; }
     .ts-dropdown .option { padding: 0.35rem 0.5rem; }
+    .quiniela-flag-img { object-fit: cover; flex-shrink: 0; }
+    .ts-control .item .quiniela-flag-img { vertical-align: middle; }
 </style>
 
 <div class="container mt-3 mb-5 pb-5">
@@ -71,7 +73,7 @@ $nGrupos = count($gruposAdmin);
                         <select class="form-select form-select-sm quiniela-ts-pais-nuevo" name="equipo_<?php echo $n; ?>" id="quiniela_equipo_new_<?php echo $n; ?>" autocomplete="off" required>
                             <option value="">Buscar o escribir país…</option>
                             <?php foreach (quiniela_paises_mundial_lista() as $p) { ?>
-                            <option value="<?php echo htmlspecialchars($p['nombre']); ?>"><?php echo htmlspecialchars($p['bandera'] . ' ' . $p['nombre']); ?></option>
+                            <option value="<?php echo htmlspecialchars($p['nombre']); ?>" data-iso="<?php echo htmlspecialchars($p['iso']); ?>"><?php echo htmlspecialchars($p['nombre']); ?></option>
                             <?php } ?>
                         </select>
                     </div>
@@ -134,8 +136,10 @@ $nGrupos = count($gruposAdmin);
                         <label class="form-label small">Equipo local</label>
                         <select class="form-select form-select-sm quiniela-ts-equipo-por-id" name="equipo_local_id" required>
                             <option value="">—</option>
-                            <?php foreach ($g['equipos'] as $eq) { ?>
-                            <option value="<?php echo (int) $eq['id']; ?>"><?php echo htmlspecialchars(quiniela_paises_etiqueta_opcion($eq['nombre'])); ?></option>
+                            <?php foreach ($g['equipos'] as $eq) {
+                                $isoEq = quiniela_paises_iso_por_nombre($eq['nombre']);
+                                ?>
+                            <option value="<?php echo (int) $eq['id']; ?>" data-iso="<?php echo htmlspecialchars($isoEq ?? ''); ?>"><?php echo htmlspecialchars($eq['nombre']); ?></option>
                             <?php } ?>
                         </select>
                     </div>
@@ -143,8 +147,10 @@ $nGrupos = count($gruposAdmin);
                         <label class="form-label small">Equipo visitante</label>
                         <select class="form-select form-select-sm quiniela-ts-equipo-por-id" name="equipo_visitante_id" required>
                             <option value="">—</option>
-                            <?php foreach ($g['equipos'] as $eq) { ?>
-                            <option value="<?php echo (int) $eq['id']; ?>"><?php echo htmlspecialchars(quiniela_paises_etiqueta_opcion($eq['nombre'])); ?></option>
+                            <?php foreach ($g['equipos'] as $eq) {
+                                $isoEq = quiniela_paises_iso_por_nombre($eq['nombre']);
+                                ?>
+                            <option value="<?php echo (int) $eq['id']; ?>" data-iso="<?php echo htmlspecialchars($isoEq ?? ''); ?>"><?php echo htmlspecialchars($eq['nombre']); ?></option>
                             <?php } ?>
                         </select>
                     </div>
@@ -218,8 +224,10 @@ $nGrupos = count($gruposAdmin);
                     <label class="form-label small">Equipo A</label>
                     <select class="form-select form-select-sm quiniela-ts-equipo-por-id" name="equipo_local_id" required>
                         <option value="">—</option>
-                        <?php foreach ($equiposSelector as $eq) { ?>
-                        <option value="<?php echo (int) $eq['id']; ?>"><?php echo htmlspecialchars($eq['grupo_nom'] . ' — ' . quiniela_paises_etiqueta_opcion($eq['nombre'])); ?></option>
+                        <?php foreach ($equiposSelector as $eq) {
+                            $isoEq = quiniela_paises_iso_por_nombre($eq['nombre']);
+                            ?>
+                        <option value="<?php echo (int) $eq['id']; ?>" data-iso="<?php echo htmlspecialchars($isoEq ?? ''); ?>"><?php echo htmlspecialchars($eq['grupo_nom'] . ' — ' . $eq['nombre']); ?></option>
                         <?php } ?>
                     </select>
                 </div>
@@ -227,8 +235,10 @@ $nGrupos = count($gruposAdmin);
                     <label class="form-label small">Equipo B</label>
                     <select class="form-select form-select-sm quiniela-ts-equipo-por-id" name="equipo_visitante_id" required>
                         <option value="">—</option>
-                        <?php foreach ($equiposSelector as $eq) { ?>
-                        <option value="<?php echo (int) $eq['id']; ?>"><?php echo htmlspecialchars($eq['grupo_nom'] . ' — ' . quiniela_paises_etiqueta_opcion($eq['nombre'])); ?></option>
+                        <?php foreach ($equiposSelector as $eq) {
+                            $isoEq = quiniela_paises_iso_por_nombre($eq['nombre']);
+                            ?>
+                        <option value="<?php echo (int) $eq['id']; ?>" data-iso="<?php echo htmlspecialchars($isoEq ?? ''); ?>"><?php echo htmlspecialchars($eq['grupo_nom'] . ' — ' . $eq['nombre']); ?></option>
                         <?php } ?>
                     </select>
                 </div>
@@ -269,10 +279,47 @@ $nGrupos = count($gruposAdmin);
     </div>
 </div>
 
+<?php
+$mapEquipoIso = [];
+foreach ($equiposSelector as $eq) {
+    $iso = quiniela_paises_iso_por_nombre($eq['nombre']);
+    if ($iso !== null) {
+        $mapEquipoIso[(string) (int) $eq['id']] = $iso;
+    }
+}
+$mapNombreIsoJson = json_encode(quiniela_paises_mapa_nombre_a_iso(), JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT);
+$mapEquipoIsoJson = json_encode($mapEquipoIso, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT);
+?>
+
 <script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     if (typeof TomSelect === 'undefined') return;
+
+    var ISO_PAIS = <?php echo $mapNombreIsoJson; ?>;
+    var ISO_EQUIPO = <?php echo $mapEquipoIsoJson; ?>;
+
+    function quinielaFlagHtml(iso) {
+        iso = (iso || '').toString().toLowerCase().replace(/[^a-z]/g, '');
+        if (!iso) {
+            return '<span class="quiniela-flag-fallback me-2 align-middle d-inline-flex justify-content-center align-items-center rounded border bg-light" style="width:28px;height:21px;font-size:.7rem" title="">⚽</span>';
+        }
+        var u = 'https://flagcdn.com/w40/' + iso + '.png';
+        var u2 = 'https://flagcdn.com/w80/' + iso + '.png';
+        return '<img class="quiniela-flag-img me-2 align-middle rounded border bg-light" width="28" height="21" alt="" src="' + u + '" srcset="' + u2 + ' 2x" loading="lazy" referrerpolicy="no-referrer">';
+    }
+
+    function rowConBandera(data, escape, mapPais, mapEquipo) {
+        var label = (data.text !== undefined && data.text !== null) ? String(data.text) : String(data.value || '');
+        var iso = '';
+        if (mapPais && data.value && mapPais[data.value]) {
+            iso = mapPais[data.value];
+        }
+        if (!iso && mapEquipo && data.value !== undefined && mapEquipo[String(data.value)]) {
+            iso = mapEquipo[String(data.value)];
+        }
+        return '<div class="d-flex align-items-center py-1">' + quinielaFlagHtml(iso) + '<span>' + escape(label) + '</span></div>';
+    }
 
     document.querySelectorAll('.quiniela-ts-pais-nuevo').forEach(function (sel) {
         new TomSelect(sel, {
@@ -280,7 +327,7 @@ document.addEventListener('DOMContentLoaded', function () {
             create: function (input) {
                 var t = (input || '').trim();
                 if (t.length < 2) return null;
-                return { value: t, text: '⚽ ' + t };
+                return { value: t, text: t };
             },
             createOnBlur: true,
             sortField: { field: 'text', direction: 'asc' },
@@ -289,10 +336,10 @@ document.addEventListener('DOMContentLoaded', function () {
             placeholder: 'Buscar país…',
             render: {
                 option: function (data, escape) {
-                    return '<div class="py-1">' + escape(data.text) + '</div>';
+                    return rowConBandera(data, escape, ISO_PAIS, null);
                 },
                 item: function (data, escape) {
-                    return '<div>' + escape(data.text) + '</div>';
+                    return rowConBandera(data, escape, ISO_PAIS, null);
                 }
             }
         });
@@ -307,10 +354,10 @@ document.addEventListener('DOMContentLoaded', function () {
             placeholder: 'Buscar equipo…',
             render: {
                 option: function (data, escape) {
-                    return '<div class="py-1">' + escape(data.text) + '</div>';
+                    return rowConBandera(data, escape, null, ISO_EQUIPO);
                 },
                 item: function (data, escape) {
-                    return '<div>' + escape(data.text) + '</div>';
+                    return rowConBandera(data, escape, null, ISO_EQUIPO);
                 }
             }
         });
