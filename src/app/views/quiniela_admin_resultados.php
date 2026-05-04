@@ -6,21 +6,34 @@ if (!isset($_SESSION['code'])) {
 include __DIR__ . '/header.php';
 include __DIR__ . '/quiniela_include_banderas.php';
 $qBase = rtrim(BASE_URL_CONTROLLER, '/') . '/QuinielaController.php';
-$mapEquipoIsoJson = json_encode($quinielaIsoPorEquipoId ?? [], JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT);
-?>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.bootstrap5.min.css">
-<style>
-    .quiniela-ts-res .ts-control { min-height: 31px; font-size: 0.875rem; }
-    .ts-dropdown .option { padding: 0.35rem 0.5rem; }
-</style>
 
+$ofIds = $adminOficialIdsPorFase ?? [];
+$pools = $adminPoolOficial ?? [];
+$ofGrupo = $oficialGruposPorId ?? [];
+
+function quiniela_admin_eq_pool(array $equiposSelector, ?array $poolIds): array
+{
+    if ($poolIds === null || $poolIds === []) {
+        return [];
+    }
+    $flip = array_flip(array_map('intval', $poolIds));
+    $out = [];
+    foreach ($equiposSelector as $eq) {
+        if (isset($flip[(int) $eq['id']])) {
+            $out[] = $eq;
+        }
+    }
+    return $out;
+}
+
+?>
 <div class="container mt-3 mb-5 pb-5">
     <div class="d-flex align-items-center mb-3 flex-wrap gap-2">
         <div class="bg-warning text-dark px-3 py-2 rounded-start">
             <i class="bi bi-pencil-square"></i> V-Resultados
         </div>
         <div class="bg-white text-muted px-3 py-2 rounded-end flex-grow-1">
-            Ganador oficial por partido
+            Registrar clasificados oficiales por fase
         </div>
         <a href="<?php echo htmlspecialchars($qBase); ?>" class="btn btn-outline-secondary btn-sm">Menú quiniela</a>
     </div>
@@ -29,98 +42,194 @@ $mapEquipoIsoJson = json_encode($quinielaIsoPorEquipoId ?? [], JSON_UNESCAPED_UN
     <div class="alert alert-<?php echo htmlspecialchars($mensajeTipo); ?>"><?php echo htmlspecialchars($mensaje); ?></div>
     <?php } ?>
 
-    <?php if ($totalPartidos === 0) { ?>
-    <div class="alert alert-warning">No hay partidos. Configúrelos en V-Quiniela.</div>
-    <?php } else { ?>
-    <div class="table-responsive bg-white rounded shadow-sm">
-        <table class="table table-sm align-middle mb-0">
-            <thead class="table-light">
-                <tr>
-                    <th>#</th>
-                    <th>Partido</th>
-                    <th>Ganador</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php foreach ($partidosAdmin as $p) {
-                    $pid = (int) $p['id'];
-                    $opts = $quinielaModel->candidatosOficialesGanador($pid);
-                    ?>
-                <tr>
-                    <td><?php echo $pid; ?></td>
-                    <td><?php echo $quinielaModel->etiquetaPartidoHtml($p); ?>
-                        <?php if ($p['tipo'] === 'ganadores') { ?>
-                        <div class="small text-muted">Entre ganadores: partidos #<?php echo (int) $p['src_partido_a_id']; ?> y #<?php echo (int) $p['src_partido_b_id']; ?></div>
-                        <?php } ?>
-                    </td>
-                    <td>
-                        <form method="post" action="<?php echo htmlspecialchars($qBase . '?v_resultados=1'); ?>" class="d-flex flex-wrap gap-1 align-items-center">
-                            <input type="hidden" name="partido_id" value="<?php echo $pid; ?>">
-                            <div class="quiniela-ts-res" style="min-width:12rem;">
-                            <select class="form-select form-select-sm quiniela-ts-resultado-ganador" name="ganador_id" <?php echo count($opts) !== 2 ? 'disabled' : ''; ?>>
-                                <option value="0">— Pendiente —</option>
-                                <?php
-                                if (count($opts) === 2) {
-                                    foreach ($opts as $eid) {
-                                        $eid = (int) $eid;
-                                        $de = $quinielaModel->datosEquipo($eid);
-                                        $nom = $de['nombre'] ?? $quinielaModel->nombreEquipo($eid);
-                                        $isoAttr = htmlspecialchars((string) ($de['iso'] ?? ''), ENT_QUOTES, 'UTF-8');
-                                        $sel = ((int) ($p['ganador_id'] ?? 0) === $eid) ? 'selected' : '';
-                                        echo '<option value="' . $eid . '" data-iso="' . $isoAttr . '" ' . $sel . '>' . htmlspecialchars($nom) . '</option>';
-                                    }
-                                }
-                                ?>
-                            </select>
-                            </div>
-                            <?php if (count($opts) === 2) { ?>
-                            <button type="submit" name="guardar_resultado_partido" value="1" class="btn btn-primary btn-sm">Guardar</button>
-                            <?php } else { ?>
-                            <span class="small text-muted">Defina antes el ganador de los partidos previos.</span>
-                            <?php } ?>
-                        </form>
-                    </td>
-                </tr>
-                <?php } ?>
-            </tbody>
-        </table>
+    <div class="alert alert-info small mb-4">
+        Guarde cada fase en orden: primero los 2 clasificados por grupo, luego 8 mejores terceros, y así sucesivamente hasta el campeón.
     </div>
-    <?php } ?>
-</div>
 
-<script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-    if (typeof TomSelect === 'undefined') return;
-    var ISO_EQUIPO = <?php echo $mapEquipoIsoJson; ?>;
-    function normIso(iso) {
-        iso = (iso || '').toString().toLowerCase().replace(/[^a-z]/g, '');
-        return (iso.length === 2) ? iso : 'un';
-    }
-    function flagRow(iso, text, escape) {
-        var i = normIso(iso);
-        var u = 'https://flagcdn.com/w40/' + i + '.png';
-        return '<div class="d-flex align-items-center">' +
-            '<img class="flag-icon" src="' + u + '" width="20" height="15" alt="" loading="lazy" referrerpolicy="no-referrer">' +
-            '<span>' + escape(text) + '</span></div>';
-    }
-    document.querySelectorAll('.quiniela-ts-resultado-ganador:not([disabled])').forEach(function (sel) {
-        new TomSelect(sel, {
-            allowEmptyOption: true,
-            plugins: ['clear_button'],
-            render: {
-                option: function (data, escape) {
-                    var iso = data.iso || (ISO_EQUIPO[String(data.value)] || '');
-                    return flagRow(iso, data.text, escape);
-                },
-                item: function (data, escape) {
-                    var iso = data.iso || (ISO_EQUIPO[String(data.value)] || '');
-                    return flagRow(iso, data.text, escape);
-                }
+    <h6 class="section-title"><?php echo htmlspecialchars(Quiniela::etiquetaFase(Quiniela::F_GRUPOS)); ?></h6>
+    <form method="post" action="<?php echo htmlspecialchars($qBase . '?v_resultados=1'); ?>" class="mb-4" id="formOfGruposAdmin">
+        <?php foreach ($gruposAdmin as $g) {
+            $gid = (int) $g['id'];
+            $prev = $ofGrupo[$gid] ?? [];
+            ?>
+        <div class="bg-white rounded shadow-sm p-3 mb-3">
+            <div class="fw-bold mb-2"><?php echo htmlspecialchars($g['nombre_grupo']); ?> <span class="text-muted small">(Grupo <?php echo (int) $g['orden_grupo']; ?>)</span></div>
+            <div class="row">
+                <?php foreach ($g['equipos'] as $eq) {
+                    $eid = (int) $eq['id'];
+                    $chk = in_array($eid, $prev, true) ? ' checked' : '';
+                    ?>
+                <div class="col-6 col-md-3 mb-2">
+                    <label class="form-check d-flex align-items-center">
+                        <input type="checkbox" class="form-check-input js-of-grupo" name="of_grupo_<?php echo $gid; ?>[]" value="<?php echo $eid; ?>" data-grupo="<?php echo $gid; ?>"<?php echo $chk; ?>>
+                        <span class="ms-2"><?php echo quiniela_flag_icon_html($eq['iso'] ?? null, (string) $eq['nombre'], true); ?></span>
+                    </label>
+                </div>
+                <?php } ?>
+            </div>
+        </div>
+        <?php } ?>
+        <button type="submit" name="guardar_oficial_grupos" value="1" class="btn btn-warning btn-sm">Guardar clasificados por grupo</button>
+    </form>
+
+    <?php
+    $poolMt = $pools['mejores_terceros'] ?? [];
+    $eqMt = quiniela_admin_eq_pool($equiposSelector, $poolMt);
+    $selMt = $ofIds[Quiniela::F_MEJORES_TERCEROS] ?? [];
+    ?>
+    <h6 class="section-title"><?php echo htmlspecialchars(Quiniela::etiquetaFase(Quiniela::F_MEJORES_TERCEROS)); ?></h6>
+    <?php if (count($poolMt) < 12) { ?>
+    <p class="text-muted small">Complete y guarde primero los clasificados oficiales por grupo (2 por cada uno de los 12 grupos).</p>
+    <?php } else { ?>
+    <form method="post" action="<?php echo htmlspecialchars($qBase . '?v_resultados=1'); ?>" class="bg-white rounded shadow-sm p-3 mb-4" id="formOfMt">
+        <input type="hidden" name="fase_oficial" value="<?php echo htmlspecialchars(Quiniela::F_MEJORES_TERCEROS); ?>">
+        <p class="small text-muted">Elija exactamente <strong>8</strong> equipos entre los terceros de cada grupo.</p>
+        <div class="row">
+            <?php foreach ($eqMt as $eq) {
+                $eid = (int) $eq['id'];
+                $iso = $eq['iso'] ?? quiniela_paises_iso_por_nombre((string) $eq['nombre']);
+                $chk = in_array($eid, $selMt, true) ? ' checked' : '';
+                ?>
+            <div class="col-6 col-md-4 col-lg-3 mb-2">
+                <label class="form-check d-flex align-items-center">
+                    <input type="checkbox" class="form-check-input js-of-mt" name="equipo_oficial[]" value="<?php echo $eid; ?>"<?php echo $chk; ?>>
+                    <span class="ms-2"><?php echo quiniela_flag_icon_html($iso, (string) $eq['nombre'], true); ?></span>
+                </label>
+            </div>
+            <?php } ?>
+        </div>
+        <button type="submit" name="guardar_oficial_fase" value="1" class="btn btn-warning btn-sm mt-2">Guardar mejores terceros</button>
+    </form>
+    <script>
+    (function () {
+        var form = document.getElementById('formOfMt');
+        if (!form) return;
+        form.querySelectorAll('.js-of-mt').forEach(function (cb) {
+            cb.addEventListener('change', function () {
+                var n = form.querySelectorAll('.js-of-mt:checked').length;
+                if (n > 8) { cb.checked = false; alert('Máximo 8 equipos.'); }
+            });
+        });
+        form.addEventListener('submit', function (e) {
+            if (form.querySelectorAll('.js-of-mt:checked').length !== 8) {
+                e.preventDefault();
+                alert('Debe elegir exactamente 8 equipos.');
             }
         });
+    })();
+    </script>
+    <?php } ?>
+
+    <?php
+    $phasesKnock = [
+        Quiniela::F_DIECISEISAVOS => ['max' => 16, 'poolKey' => 'dieciseisavos'],
+        Quiniela::F_OCTAVOS => ['max' => 8, 'poolKey' => 'octavos'],
+        Quiniela::F_CUARTOS => ['max' => 4, 'poolKey' => 'cuartos'],
+        Quiniela::F_SEMIFINAL => ['max' => 2, 'poolKey' => 'semifinal'],
+        Quiniela::F_FINAL => ['max' => 1, 'poolKey' => 'final'],
+    ];
+    foreach ($phasesKnock as $faseCode => $meta) {
+        $pk = $meta['poolKey'];
+        $poolRaw = $pools[$pk] ?? null;
+        $eqList = quiniela_admin_eq_pool($equiposSelector, is_array($poolRaw) ? $poolRaw : []);
+        $sel = $ofIds[$faseCode] ?? [];
+        $fid = 'formOf_' . preg_replace('/[^a-z0-9]/', '_', $faseCode);
+        ?>
+    <h6 class="section-title"><?php echo htmlspecialchars(Quiniela::etiquetaFase($faseCode)); ?></h6>
+    <?php if ($poolRaw === null) { ?>
+    <p class="text-muted small mb-4">Complete las fases anteriores para habilitar esta sección.</p>
+    <?php } else { ?>
+    <form method="post" action="<?php echo htmlspecialchars($qBase . '?v_resultados=1'); ?>" class="bg-white rounded shadow-sm p-3 mb-4" id="<?php echo htmlspecialchars($fid); ?>">
+        <input type="hidden" name="fase_oficial" value="<?php echo htmlspecialchars($faseCode); ?>">
+        <p class="small text-muted">Seleccione exactamente <strong><?php echo (int) $meta['max']; ?></strong> equipo(s).</p>
+        <div class="row">
+            <?php
+            foreach ($eqList as $eq) {
+                $eid = (int) $eq['id'];
+                $iso = $eq['iso'] ?? quiniela_paises_iso_por_nombre((string) $eq['nombre']);
+                $chk = in_array($eid, $sel, true);
+                if ($faseCode === Quiniela::F_FINAL) {
+                    ?>
+            <div class="col-12 mb-2">
+                <label class="form-check d-flex align-items-center">
+                    <input type="radio" class="form-check-input" name="equipo_oficial_rad" value="<?php echo $eid; ?>"<?php echo $chk ? ' checked' : ''; ?> required>
+                    <span class="ms-2"><?php echo quiniela_flag_icon_html($iso, (string) $eq['nombre'], true); ?></span>
+                </label>
+            </div>
+                    <?php
+                } else {
+                    ?>
+            <div class="col-6 col-md-4 col-lg-3 mb-2">
+                <label class="form-check d-flex align-items-center">
+                    <input type="checkbox" class="form-check-input js-of-kn" name="equipo_oficial[]" value="<?php echo $eid; ?>"<?php echo $chk ? ' checked' : ''; ?>>
+                    <span class="ms-2"><?php echo quiniela_flag_icon_html($iso, (string) $eq['nombre'], true); ?></span>
+                </label>
+            </div>
+                    <?php
+                }
+            }
+            ?>
+        </div>
+        <button type="submit" name="guardar_oficial_fase" value="1" class="btn btn-warning btn-sm mt-2">Guardar</button>
+    </form>
+        <?php
+        $maxJs = (int) $meta['max'];
+        if ($faseCode !== Quiniela::F_FINAL) {
+            ?>
+    <script>
+    (function () {
+        var form = document.getElementById('<?php echo htmlspecialchars($fid); ?>');
+        if (!form) return;
+        var max = <?php echo $maxJs; ?>;
+        form.querySelectorAll('.js-of-kn').forEach(function (cb) {
+            cb.addEventListener('change', function () {
+                var n = form.querySelectorAll('.js-of-kn:checked').length;
+                if (n > max) { cb.checked = false; alert('Máximo ' + max + ' equipos.'); }
+            });
+        });
+        form.addEventListener('submit', function (e) {
+            if (form.querySelectorAll('.js-of-kn:checked').length !== max) {
+                e.preventDefault();
+                alert('Debe elegir exactamente ' + max + ' equipo(s).');
+            }
+        });
+    })();
+    </script>
+            <?php
+        }
+    }
+    }
+    ?>
+</div>
+
+<script>
+document.querySelectorAll('.js-of-grupo').forEach(function (cb) {
+    cb.addEventListener('change', function () {
+        var g = cb.getAttribute('data-grupo');
+        var boxes = document.querySelectorAll('.js-of-grupo[data-grupo="' + g + '"]');
+        var n = 0;
+        boxes.forEach(function (b) { if (b.checked) n++; });
+        if (n > 2) { cb.checked = false; alert('Solo 2 equipos por grupo.'); }
     });
 });
+(function () {
+    var form = document.getElementById('formOfGruposAdmin');
+    if (!form) return;
+    form.addEventListener('submit', function (e) {
+        var map = {};
+        form.querySelectorAll('.js-of-grupo').forEach(function (cb) {
+            var g = cb.getAttribute('data-grupo');
+            if (!map[g]) map[g] = 0;
+            if (cb.checked) map[g]++;
+        });
+        for (var k in map) {
+            if (map[k] !== 2) {
+                e.preventDefault();
+                alert('Debe elegir exactamente 2 clasificados por cada grupo.');
+                return;
+            }
+        }
+    });
+})();
 </script>
-
 <?php include __DIR__ . '/footer.php'; ?>

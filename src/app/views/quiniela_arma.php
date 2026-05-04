@@ -7,35 +7,58 @@ include __DIR__ . '/header.php';
 include __DIR__ . '/quiniela_include_banderas.php';
 $qBase = rtrim(BASE_URL_CONTROLLER, '/') . '/QuinielaController.php';
 
-$mapaPred = $mapaPrediccionesUsuario ?? [];
-$equipoMetaJson = json_encode($quinielaEquipoMetaPorId ?? [], JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_UNESCAPED_UNICODE);
+$ordenFases = Quiniela::ordenFases();
 
-$metaJs = [];
-foreach ($partidosAdmin as $p) {
-    if ($p['tipo'] === 'fijo') {
-        $metaJs[] = [
-            'id' => (int) $p['id'],
-            'tipo' => 'fijo',
-            'a' => (int) $p['equipo_a_id'],
-            'b' => (int) $p['equipo_b_id'],
-            'na' => $p['eq_a_nom'] ?? '',
-            'nb' => $p['eq_b_nom'] ?? '',
-        ];
-    } else {
-        $metaJs[] = [
-            'id' => (int) $p['id'],
-            'tipo' => 'ganadores',
-            'sa' => (int) $p['src_partido_a_id'],
-            'sb' => (int) $p['src_partido_b_id'],
-        ];
+$poolIds = is_array($poolDisponibleArma ?? null) ? $poolDisponibleArma : [];
+$equiposEnPool = [];
+if ($poolIds !== []) {
+    $flip = array_flip(array_map('intval', $poolIds));
+    foreach ($equiposSelector as $eq) {
+        if (isset($flip[(int) $eq['id']])) {
+            $equiposEnPool[] = $eq;
+        }
     }
 }
-$metaJson = json_encode($metaJs, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_UNESCAPED_UNICODE);
+
+$nGrupos = count($gruposAdmin ?? []);
+$mapSelGrupos = $mapSelGruposUsuario ?? [];
+$idxActual = array_search($faseActualUsuario, $ordenFases, true);
+if ($idxActual === false) {
+    $idxActual = 0;
+}
+
+/** @var array $resumenQuinielaUsuario */
+$resumen = $resumenQuinielaUsuario ?? ['fases' => [], 'cerrada' => false];
+$fasesResumen = $resumen['fases'] ?? [];
+
+function quiniela_arma_fase_completada_en_resumen(string $fase, array $fasesResumen): bool
+{
+    foreach ($fasesResumen as $bloque) {
+        if (($bloque['fase'] ?? '') !== $fase) {
+            continue;
+        }
+        if ($fase === Quiniela::F_GRUPOS) {
+            $grs = $bloque['grupos'] ?? [];
+            $totalEq = 0;
+            foreach ($grs as $g) {
+                if (count($g['equipos'] ?? []) !== 2) {
+                    return false;
+                }
+                $totalEq += 2;
+            }
+            return $totalEq === 24;
+        }
+        $n = Quiniela::cuentaEsperadaFase($fase);
+        return $n > 0 && count($bloque['equipos'] ?? []) === $n;
+    }
+    return false;
+}
 ?>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.bootstrap5.min.css">
 <style>
-    .quiniela-ts-wrap .ts-control { min-height: 31px; font-size: 0.875rem; }
-    .ts-dropdown .option { padding: 0.35rem 0.5rem; }
+.quiniela-paso { font-size: 0.75rem; white-space: nowrap; }
+.quiniela-paso.activa { font-weight: 700; color: #0d6efd; }
+.quiniela-paso.hecha { color: #198754; }
+.quiniela-check-grid .form-check { min-height: 2.25rem; }
 </style>
 
 <div class="container mt-3 mb-5 pb-5">
@@ -44,7 +67,7 @@ $metaJson = json_encode($metaJs, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | J
             <i class="bi bi-ui-checks-grid"></i> Arma tu quiniela
         </div>
         <div class="bg-white text-muted px-3 py-2 rounded-end flex-grow-1">
-            Elige ganador en cada partido (en orden)
+            Selecciona tus clasificados por fase hasta elegir campeón
         </div>
         <a href="<?php echo htmlspecialchars($qBase); ?>" class="btn btn-outline-secondary btn-sm">Menú quiniela</a>
     </div>
@@ -53,246 +76,251 @@ $metaJson = json_encode($metaJs, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | J
     <div class="alert alert-<?php echo htmlspecialchars($mensajeTipo); ?>"><?php echo htmlspecialchars($mensaje); ?></div>
     <?php } ?>
 
-    <?php if ($totalPartidos === 0) { ?>
-    <div class="alert alert-warning">
-        La quiniela aún no está lista. Espere a que administración cargue grupos y partidos.
-    </div>
-    <?php } elseif ($cartaCerrada) { ?>
-    <p class="text-muted">Su quiniela ya está confirmada. Solo consulta.</p>
-    <div class="table-responsive bg-white rounded shadow-sm">
-        <table class="table table-sm table-striped mb-0">
-            <thead class="table-light">
-                <tr>
-                    <th>Partido</th>
-                    <th>Su ganador</th>
-                    <th>Resultado oficial</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php foreach ($prediccionesDetalle as $fila) { ?>
-                <tr>
-                    <td><?php echo $fila['descripcion_html'] ?? htmlspecialchars($fila['descripcion']); ?></td>
-                    <td><strong><?php echo $fila['predicho_html'] ?? htmlspecialchars($fila['predicho_nombre']); ?></strong></td>
-                    <td><?php echo isset($fila['resultado_html']) && $fila['resultado_html'] !== null
-                        ? $fila['resultado_html']
-                        : '<span class="text-muted">Pendiente</span>'; ?></td>
-                </tr>
-                <?php } ?>
-            </tbody>
-        </table>
-    </div>
-    <?php } else { ?>
-    <form method="post" action="<?php echo htmlspecialchars($qBase . '?arma_tu_quiniela=1'); ?>" id="formQuiniela">
-        <p class="small text-muted">
-            Use <strong>Guardar progreso</strong> para ir avanzando; el servidor descartará predicciones que ya no sean coherentes si cambia un partido anterior.
-            Cuando esté todo listo, pulse <strong>Confirmar quiniela</strong> (no podrá editar después).
-        </p>
-        <div class="table-responsive bg-white rounded shadow-sm mb-3">
-            <table class="table table-sm align-middle mb-0">
-                <thead class="table-light">
-                    <tr>
-                        <th>#</th>
-                        <th>Partido</th>
-                        <th style="min-width:12rem;">Tu ganador</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php foreach ($partidosAdmin as $p) {
-                        $pid = (int) $p['id'];
-                        $predSel = isset($mapaPred[$pid]) ? (int) $mapaPred[$pid] : 0;
-                        ?>
-                    <tr>
-                        <td><?php echo $pid; ?></td>
-                        <td><?php echo $quinielaModel->etiquetaPartidoHtml($p); ?></td>
-                        <td class="quiniela-ts-wrap">
-                            <?php if ($p['tipo'] === 'fijo') {
-                                $aid = (int) $p['equipo_a_id'];
-                                $bid = (int) $p['equipo_b_id'];
-                                $isoA = htmlspecialchars((string) ($p['eq_a_iso'] ?? ''), ENT_QUOTES, 'UTF-8');
-                                $isoB = htmlspecialchars((string) ($p['eq_b_iso'] ?? ''), ENT_QUOTES, 'UTF-8');
-                                ?>
-                            <select class="form-select form-select-sm pred-fijo quiniela-ts-pred" name="pred_<?php echo $pid; ?>" id="pred_<?php echo $pid; ?>">
-                                <option value="">— Elegir —</option>
-                                <option value="<?php echo $aid; ?>" data-iso="<?php echo $isoA; ?>"<?php echo $predSel === $aid ? ' selected' : ''; ?>><?php echo htmlspecialchars($p['eq_a_nom'] ?? ''); ?></option>
-                                <option value="<?php echo $bid; ?>" data-iso="<?php echo $isoB; ?>"<?php echo $predSel === $bid ? ' selected' : ''; ?>><?php echo htmlspecialchars($p['eq_b_nom'] ?? ''); ?></option>
-                            </select>
-                            <?php } else {
-                                $sa = (int) $p['src_partido_a_id'];
-                                $sb = (int) $p['src_partido_b_id'];
-                                $ga = $mapaPred[$sa] ?? null;
-                                $gb = $mapaPred[$sb] ?? null;
-                                $optsOk = ($ga !== null && $gb !== null && (int) $ga !== (int) $gb);
-                                $da = $optsOk ? $quinielaModel->datosEquipo((int) $ga) : null;
-                                $db = $optsOk ? $quinielaModel->datosEquipo((int) $gb) : null;
-                                $isoGa = $da['iso'] ?? '';
-                                $isoGb = $db['iso'] ?? '';
-                                ?>
-                            <select class="form-select form-select-sm pred-ganadores quiniela-ts-pred" name="pred_<?php echo $pid; ?>" id="pred_<?php echo $pid; ?>"
-                                data-pid="<?php echo $pid; ?>"
-                                data-sa="<?php echo $sa; ?>"
-                                data-sb="<?php echo $sb; ?>"
-                                <?php echo $optsOk ? '' : 'disabled'; ?>>
-                                <?php if (!$optsOk) { ?>
-                                <option value="">Primero debes seleccionar los ganadores de los partidos anteriores</option>
-                                <?php } else { ?>
-                                <option value="">— Elegir —</option>
-                                <option value="<?php echo (int) $ga; ?>" data-iso="<?php echo htmlspecialchars((string) $isoGa, ENT_QUOTES, 'UTF-8'); ?>"<?php echo $predSel === (int) $ga ? ' selected' : ''; ?>><?php echo htmlspecialchars($quinielaModel->nombreEquipo((int) $ga)); ?></option>
-                                <option value="<?php echo (int) $gb; ?>" data-iso="<?php echo htmlspecialchars((string) $isoGb, ENT_QUOTES, 'UTF-8'); ?>"<?php echo $predSel === (int) $gb ? ' selected' : ''; ?>><?php echo htmlspecialchars($quinielaModel->nombreEquipo((int) $gb)); ?></option>
-                                <?php } ?>
-                            </select>
-                            <?php } ?>
-                        </td>
-                    </tr>
-                    <?php } ?>
-                </tbody>
-            </table>
-        </div>
-        <div class="d-flex flex-wrap gap-2">
-            <button type="submit" name="guardar_progreso_quiniela" value="1" class="btn btn-outline-primary" id="btnGuardarProgreso">
-                <i class="bi bi-save"></i> Guardar progreso
-            </button>
-            <button type="submit" name="confirmar_quiniela" value="1" class="btn btn-success" id="btnConfirmarQuiniela">
-                <i class="bi bi-check2-circle"></i> Confirmar quiniela
-            </button>
-        </div>
-    </form>
+    <p class="small text-muted mb-2">
+        <strong>Fase actual:</strong> <?php echo htmlspecialchars(Quiniela::etiquetaFase($faseActualUsuario)); ?>
+        <?php if ($cartaCerrada) { ?>
+        <span class="badge bg-secondary ms-1">Quiniela cerrada</span>
+        <?php } ?>
+    </p>
 
-    <script type="application/json" id="quiniela-meta-partidos"><?php echo $metaJson; ?></script>
-    <script type="application/json" id="quiniela-equipo-meta"><?php echo $equipoMetaJson; ?></script>
-    <script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
+    <div class="d-flex flex-wrap gap-1 mb-4 align-items-center">
+        <?php
+        foreach ($ordenFases as $i => $code) {
+            $cls = 'quiniela-paso text-muted';
+            if ($code === $faseActualUsuario && !$cartaCerrada) {
+                $cls = 'quiniela-paso activa';
+            } elseif ($cartaCerrada || ($i < $idxActual) || quiniela_arma_fase_completada_en_resumen($code, $fasesResumen)) {
+                $cls = 'quiniela-paso hecha';
+            }
+            $sep = $i > 0 ? '<span class="text-muted px-1">→</span>' : '';
+            echo $sep . '<span class="' . htmlspecialchars($cls) . '">' . htmlspecialchars(Quiniela::etiquetaFase($code)) . '</span>';
+        }
+        ?>
+    </div>
+
+    <?php if ($nGrupos === 0) { ?>
+    <div class="alert alert-warning">La quiniela aún no está lista. Espere a que administración cargue los grupos y equipos.</div>
+    <?php } elseif ($cartaCerrada) { ?>
+    <p class="text-muted small">Su quiniela está cerrada. Solo consulta.</p>
+    <?php foreach ($fasesResumen as $bloque) {
+        $et = htmlspecialchars($bloque['etiqueta'] ?? '');
+        ?>
+    <div class="card mb-3 shadow-sm">
+        <div class="card-header py-2 fw-bold"><?php echo $et; ?></div>
+        <div class="card-body py-2">
+            <?php if (!empty($bloque['grupos'])) { ?>
+            <div class="row g-2">
+                <?php foreach ($bloque['grupos'] as $gr) { ?>
+                <div class="col-md-6">
+                    <div class="small text-secondary"><?php echo htmlspecialchars($gr['nombre_grupo'] ?? ''); ?></div>
+                    <ul class="list-unstyled mb-0 small">
+                        <?php foreach ($gr['equipos'] ?? [] as $it) {
+                            echo '<li>' . ($it['html'] ?? htmlspecialchars($it['nombre'] ?? '')) . '</li>';
+                        } ?>
+                    </ul>
+                </div>
+                <?php } ?>
+            </div>
+            <?php } else { ?>
+            <ul class="list-unstyled mb-0">
+                <?php foreach ($bloque['equipos'] ?? [] as $it) {
+                    echo '<li>' . ($it['html'] ?? htmlspecialchars($it['nombre'] ?? '')) . '</li>';
+                } ?>
+            </ul>
+            <?php } ?>
+        </div>
+    </div>
+    <?php } ?>
+
+    <?php } else { ?>
+
+    <?php
+    foreach ($fasesResumen as $bloque) {
+        $fc = $bloque['fase'] ?? '';
+        if ($fc === $faseActualUsuario || $fc === '') {
+            continue;
+        }
+        if (!quiniela_arma_fase_completada_en_resumen($fc, $fasesResumen)) {
+            continue;
+        }
+        ?>
+    <div class="card mb-3 border-secondary">
+        <div class="card-header py-2 bg-light small"><?php echo htmlspecialchars($bloque['etiqueta'] ?? ''); ?> <span class="text-muted">(guardado)</span></div>
+        <div class="card-body py-2 small">
+            <?php if (!empty($bloque['grupos'])) { ?>
+            <div class="row g-2">
+                <?php foreach ($bloque['grupos'] as $gr) { ?>
+                <div class="col-md-6">
+                    <strong><?php echo htmlspecialchars($gr['nombre_grupo'] ?? ''); ?></strong>
+                    <ul class="list-unstyled mb-0">
+                        <?php foreach ($gr['equipos'] ?? [] as $it) {
+                            echo '<li>' . ($it['html'] ?? '') . '</li>';
+                        } ?>
+                    </ul>
+                </div>
+                <?php } ?>
+            </div>
+            <?php } else { ?>
+            <ul class="list-unstyled mb-0">
+                <?php foreach ($bloque['equipos'] ?? [] as $it) {
+                    echo '<li>' . ($it['html'] ?? '') . '</li>';
+                } ?>
+            </ul>
+            <?php } ?>
+        </div>
+    </div>
+    <?php } ?>
+
+    <?php if ($faseActualUsuario === Quiniela::F_GRUPOS) { ?>
+    <form method="post" action="<?php echo htmlspecialchars($qBase . '?arma_tu_quiniela=1'); ?>" id="formFaseGrupos">
+        <p class="small text-muted">Marque exactamente <strong>2 equipos</strong> por grupo que pasan de ronda.</p>
+        <?php foreach ($gruposAdmin as $g) {
+            $gid = (int) $g['id'];
+            $prev = $mapSelGrupos[$gid] ?? [];
+            ?>
+        <div class="bg-white rounded shadow-sm p-3 mb-3">
+            <div class="fw-bold mb-2"><?php echo htmlspecialchars($g['nombre_grupo']); ?> <span class="text-muted small">(Grupo <?php echo (int) $g['orden_grupo']; ?>)</span></div>
+            <div class="row quiniela-check-grid">
+                <?php foreach ($g['equipos'] as $eq) {
+                    $eid = (int) $eq['id'];
+                    $chk = in_array($eid, $prev, true) ? ' checked' : '';
+                    ?>
+                <div class="col-6 col-md-3">
+                    <label class="form-check d-flex align-items-center">
+                        <input type="checkbox" class="form-check-input js-grupo-check" name="grupo_<?php echo $gid; ?>[]" value="<?php echo $eid; ?>" data-grupo="<?php echo $gid; ?>"<?php echo $chk; ?>>
+                        <span class="ms-2"><?php echo quiniela_flag_icon_html($eq['iso'] ?? null, (string) $eq['nombre'], true); ?></span>
+                    </label>
+                </div>
+                <?php } ?>
+            </div>
+        </div>
+        <?php } ?>
+        <button type="submit" name="guardar_fase_grupos" value="1" class="btn btn-success">
+            <i class="bi bi-save"></i> Guardar fase
+        </button>
+    </form>
+    <script>
+    document.querySelectorAll('.js-grupo-check').forEach(function (cb) {
+        cb.addEventListener('change', function () {
+            var g = cb.getAttribute('data-grupo');
+            var boxes = document.querySelectorAll('.js-grupo-check[data-grupo="' + g + '"]');
+            var n = 0;
+            boxes.forEach(function (b) { if (b.checked) n++; });
+            if (n > 2) {
+                cb.checked = false;
+                alert('Solo puede elegir 2 equipos por grupo.');
+            }
+        });
+    });
+    document.getElementById('formFaseGrupos').addEventListener('submit', function (e) {
+        var grupos = {};
+        document.querySelectorAll('.js-grupo-check').forEach(function (cb) {
+            var g = cb.getAttribute('data-grupo');
+            if (!grupos[g]) grupos[g] = 0;
+            if (cb.checked) grupos[g]++;
+        });
+        for (var k in grupos) {
+            if (grupos[k] !== 2) {
+                e.preventDefault();
+                alert('Debe elegir exactamente 2 equipos en cada grupo.');
+                return;
+            }
+        }
+    });
+    </script>
+
+    <?php } elseif ($poolDisponibleArma === null && $faseActualUsuario === Quiniela::F_DIECISEISAVOS) { ?>
+    <div class="alert alert-warning">Complete primero la fase de grupos y los 8 mejores terceros para continuar.</div>
+
+    <?php } elseif (in_array($faseActualUsuario, [
+        Quiniela::F_MEJORES_TERCEROS,
+        Quiniela::F_DIECISEISAVOS,
+        Quiniela::F_OCTAVOS,
+        Quiniela::F_CUARTOS,
+        Quiniela::F_SEMIFINAL,
+        Quiniela::F_FINAL,
+    ], true)) {
+        $max = Quiniela::cuentaEsperadaFase($faseActualUsuario);
+        $prevSel = $idsSeleccionFasePantalla ?? [];
+        ?>
+    <form method="post" action="<?php echo htmlspecialchars($qBase . '?arma_tu_quiniela=1'); ?>" id="formFaseSel" class="bg-white rounded shadow-sm p-3">
+        <input type="hidden" name="fase_guardar" value="<?php echo htmlspecialchars($faseActualUsuario); ?>">
+        <p class="small text-muted mb-3">
+            Seleccione exactamente <strong><?php echo (int) $max; ?></strong>
+            equipo<?php echo $max === 1 ? '' : 's'; ?>.
+            <?php if ($faseActualUsuario === Quiniela::F_FINAL) { ?>
+            El equipo elegido será su campeón y se cerrará la quiniela.
+            <?php } ?>
+        </p>
+        <div class="row quiniela-check-grid">
+            <?php
+            foreach ($equiposEnPool as $eq) {
+                $eid = (int) $eq['id'];
+                $iso = $eq['iso'] ?? quiniela_paises_iso_por_nombre((string) $eq['nombre']);
+                $chk = in_array($eid, $prevSel, true);
+                if ($faseActualUsuario === Quiniela::F_FINAL) {
+                    ?>
+            <div class="col-12 mb-2">
+                <label class="form-check d-flex align-items-center">
+                    <input type="radio" class="form-check-input js-fase-sel" name="equipo_sel" value="<?php echo $eid; ?>"<?php echo $chk ? ' checked' : ''; ?> required>
+                    <span class="ms-2"><?php echo quiniela_flag_icon_html($iso, (string) $eq['nombre'], true); ?></span>
+                </label>
+            </div>
+                    <?php
+                } else {
+                    ?>
+            <div class="col-6 col-md-4 col-lg-3 mb-2">
+                <label class="form-check d-flex align-items-center">
+                    <input type="checkbox" class="form-check-input js-fase-sel" name="equipo_sel[]" value="<?php echo $eid; ?>"<?php echo $chk ? ' checked' : ''; ?>>
+                    <span class="ms-2"><?php echo quiniela_flag_icon_html($iso, (string) $eq['nombre'], true); ?></span>
+                </label>
+            </div>
+                    <?php
+                }
+            }
+            ?>
+        </div>
+        <?php if (count($equiposEnPool) === 0) { ?>
+        <div class="alert alert-danger mt-2">No hay equipos disponibles para esta fase. Revise que guardó las fases anteriores.</div>
+        <?php } else { ?>
+        <button type="submit" name="guardar_fase_seleccion" value="1" class="btn btn-success mt-3">
+            <i class="bi bi-save"></i> Guardar fase
+        </button>
+        <?php } ?>
+    </form>
     <script>
     (function () {
-        var rawMeta = document.getElementById('quiniela-meta-partidos');
-        var rawEq = document.getElementById('quiniela-equipo-meta');
-        var meta = [];
-        var EQUIPO_META = {};
-        try { meta = JSON.parse(rawMeta.textContent || '[]'); } catch (e) { meta = []; }
-        try { EQUIPO_META = JSON.parse(rawEq.textContent || '{}'); } catch (e) { EQUIPO_META = {}; }
-
-        function normIso(iso) {
-            iso = (iso || '').toString().toLowerCase().replace(/[^a-z]/g, '');
-            return (iso.length === 2) ? iso : 'un';
-        }
-        function flagRowHtml(iso, text, escape) {
-            var i = normIso(iso);
-            var u = 'https://flagcdn.com/w40/' + i + '.png';
-            return '<div class="d-flex align-items-center">' +
-                '<img class="flag-icon" src="' + u + '" width="20" height="15" alt="" loading="lazy" referrerpolicy="no-referrer">' +
-                '<span>' + escape(text) + '</span></div>';
-        }
-        function isoForEquipoId(id) {
-            var m = EQUIPO_META[String(id)];
-            return (m && m.iso) ? m.iso : '';
-        }
-        function destroyTs(sel) {
-            if (sel && sel.tomselect) {
-                sel.tomselect.destroy();
-                sel.removeAttribute('data-quiniela-ts');
-            }
-        }
-        function initPredTom(sel) {
-            if (!sel || sel.disabled || !sel.name || sel.name.indexOf('pred_') !== 0) return;
-            destroyTs(sel);
-            sel.setAttribute('data-quiniela-ts', '1');
-            new TomSelect(sel, {
-                allowEmptyOption: true,
-                plugins: ['clear_button'],
-                render: {
-                    option: function (data, escape) {
-                        var iso = data.iso || '';
-                        if (!iso && data.value) {
-                            iso = isoForEquipoId(data.value);
-                        }
-                        return flagRowHtml(iso, data.text, escape);
-                    },
-                    item: function (data, escape) {
-                        var iso = data.iso || '';
-                        if (!iso && data.value) {
-                            iso = isoForEquipoId(data.value);
-                        }
-                        return flagRowHtml(iso, data.text, escape);
+        var max = <?php echo (int) $max; ?>;
+        var form = document.getElementById('formFaseSel');
+        if (!form) return;
+        if (max > 1) {
+            form.querySelectorAll('.js-fase-sel').forEach(function (cb) {
+                cb.addEventListener('change', function () {
+                    var boxes = form.querySelectorAll('.js-fase-sel:checked');
+                    if (boxes.length > max) {
+                        cb.checked = false;
+                        alert('Máximo ' + max + ' equipos.');
                     }
-                }
-            });
-        }
-
-        function val(pid) {
-            var s = document.getElementById('pred_' + pid);
-            return s ? s.value : '';
-        }
-        function labelFor(pid, teamId) {
-            var s = document.getElementById('pred_' + pid);
-            if (!s) return teamId;
-            var o = s.querySelector('option[value="' + teamId + '"]');
-            return o ? o.textContent : teamId;
-        }
-        function syncGanadores() {
-            meta.filter(function (m) { return m.tipo === 'ganadores'; }).forEach(function (m) {
-                var sel = document.getElementById('pred_' + m.id);
-                if (!sel) return;
-                destroyTs(sel);
-                var va = val(m.sa), vb = val(m.sb);
-                if (!va || !vb) {
-                    sel.innerHTML = '<option value="">Primero debes seleccionar los ganadores de los partidos anteriores</option>';
-                    sel.value = '';
-                    sel.disabled = true;
-                    return;
-                }
-                if (va === vb) {
-                    sel.innerHTML = '<option value="">Error: mismo equipo en ambos lados</option>';
-                    sel.disabled = true;
-                    return;
-                }
-                var cur = sel.value;
-                sel.innerHTML = '<option value="">— Elegir —</option>';
-                var o1 = document.createElement('option');
-                o1.value = va;
-                o1.textContent = labelFor(m.sa, va);
-                o1.setAttribute('data-iso', normIso(isoForEquipoId(va)));
-                var o2 = document.createElement('option');
-                o2.value = vb;
-                o2.textContent = labelFor(m.sb, vb);
-                o2.setAttribute('data-iso', normIso(isoForEquipoId(vb)));
-                sel.appendChild(o1);
-                sel.appendChild(o2);
-                sel.disabled = false;
-                if (cur === va || cur === vb) sel.value = cur;
-                initPredTom(sel);
-            });
-        }
-        var formQ = document.getElementById('formQuiniela');
-        if (!formQ) return;
-
-        document.querySelectorAll('select.pred-fijo').forEach(function (sel) {
-            initPredTom(sel);
-        });
-        document.querySelectorAll('select.pred-ganadores:not([disabled])').forEach(function (sel) {
-            initPredTom(sel);
-        });
-
-        formQ.addEventListener('change', function (e) {
-            if (e.target && e.target.id && e.target.id.indexOf('pred_') === 0) syncGanadores();
-        });
-        formQ.addEventListener('submit', function (e) {
-            var sub = e.submitter;
-            var isConfirm = sub && (sub.name === 'confirmar_quiniela' || sub.id === 'btnConfirmarQuiniela');
-            syncGanadores();
-            if (isConfirm) {
-                var ok = true;
-                formQ.querySelectorAll('select[name^="pred_"]').forEach(function (s) {
-                    if (s.disabled || !s.value) ok = false;
                 });
-                if (!ok) {
-                    e.preventDefault();
-                    alert('Complete todos los partidos, incluidos los cruces entre ganadores, antes de confirmar.');
-                    return;
-                }
-                if (!confirm('¿Confirmar quiniela? No podrá cambiarla después.')) e.preventDefault();
+            });
+        }
+        form.addEventListener('submit', function (e) {
+            var boxes = form.querySelectorAll('.js-fase-sel:checked');
+            if (boxes.length !== max) {
+                e.preventDefault();
+                alert('Debe elegir exactamente ' + max + ' equipo(s).');
+                return;
             }
+            <?php if ($faseActualUsuario === Quiniela::F_FINAL) { ?>
+            if (!confirm('¿Confirmar campeón? La quiniela quedará cerrada.')) e.preventDefault();
+            <?php } ?>
         });
-        document.addEventListener('DOMContentLoaded', syncGanadores);
     })();
     </script>
+    <?php } else { ?>
+    <div class="alert alert-info">No hay acciones disponibles para esta fase.</div>
+    <?php } ?>
+
     <?php } ?>
 </div>
 

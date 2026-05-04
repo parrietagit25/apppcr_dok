@@ -4,17 +4,84 @@ require_once __DIR__ . '/../config/quiniela_paises_mundial.php';
 
 class Quiniela
 {
+    public const F_GRUPOS = 'grupos';
+    public const F_MEJORES_TERCEROS = 'mejores_terceros';
+    public const F_DIECISEISAVOS = 'dieciseisavos';
+    public const F_OCTAVOS = 'octavos';
+    public const F_CUARTOS = 'cuartos';
+    public const F_SEMIFINAL = 'semifinal';
+    public const F_FINAL = 'final';
+
     private $pdo;
 
     /** @var array<int, array{id:int,nombre:string,iso:?string,flag_url:string}> */
     private $equipoCache = [];
 
-    /** @var list<array>|null Cache por petición */
+    /** @var list<array>|null */
     private $cacheListarTodosEquipos = null;
 
     public function __construct(PDO $pdo)
     {
         $this->pdo = $pdo;
+    }
+
+    /** @return list<string> */
+    public static function ordenFases(): array
+    {
+        return [
+            self::F_GRUPOS,
+            self::F_MEJORES_TERCEROS,
+            self::F_DIECISEISAVOS,
+            self::F_OCTAVOS,
+            self::F_CUARTOS,
+            self::F_SEMIFINAL,
+            self::F_FINAL,
+        ];
+    }
+
+    public static function etiquetaFase(string $f): string
+    {
+        $m = [
+            self::F_GRUPOS => 'Fase de grupos',
+            self::F_MEJORES_TERCEROS => 'Mejores terceros',
+            self::F_DIECISEISAVOS => 'Dieciseisavos',
+            self::F_OCTAVOS => 'Octavos de final',
+            self::F_CUARTOS => 'Cuartos de final',
+            self::F_SEMIFINAL => 'Semifinal',
+            self::F_FINAL => 'Final — Campeón',
+        ];
+        return $m[$f] ?? $f;
+    }
+
+    /** Selecciones requeridas por fase (excepto grupos: 2 por grupo). */
+    public static function cuentaEsperadaFase(string $fase): int
+    {
+        switch ($fase) {
+            case self::F_MEJORES_TERCEROS:
+                return 8;
+            case self::F_DIECISEISAVOS:
+                return 16;
+            case self::F_OCTAVOS:
+                return 8;
+            case self::F_CUARTOS:
+                return 4;
+            case self::F_SEMIFINAL:
+                return 2;
+            case self::F_FINAL:
+                return 1;
+            default:
+                return 0;
+        }
+    }
+
+    public static function siguienteFase(?string $actual): ?string
+    {
+        $ord = self::ordenFases();
+        $i = array_search($actual, $ord, true);
+        if ($i === false) {
+            return self::F_GRUPOS;
+        }
+        return isset($ord[(int) $i + 1]) ? $ord[(int) $i + 1] : null;
     }
 
     public function contarGrupos(): int
@@ -57,7 +124,7 @@ class Quiniela
     }
 
     /**
-     * @param list<array{nombre: string, iso?: ?string}> $equiposCuatro Exactamente 4 equipos (nombre + ISO opcional 2 letras).
+     * @param list<array{nombre: string, iso?: ?string}> $equiposCuatro
      */
     public function crearGrupoSoloEquipos(int $ordenGrupo, string $nombreGrupo, array $equiposCuatro): bool
     {
@@ -108,6 +175,7 @@ class Quiniela
             }
 
             $this->pdo->commit();
+            $this->cacheListarTodosEquipos = null;
             return true;
         } catch (Throwable $e) {
             $this->pdo->rollBack();
@@ -119,35 +187,21 @@ class Quiniela
     public function puedeEliminarGrupo(int $grupoId): bool
     {
         $st = $this->pdo->prepare(
-            'SELECT COUNT(*) FROM quiniela_prediccion pr
-             INNER JOIN quiniela_partido pt ON pt.id = pr.partido_id
-             WHERE pt.grupo_id = ?'
+            'SELECT COUNT(*) FROM quiniela_seleccion s
+             INNER JOIN quiniela_equipo e ON e.id = s.equipo_id
+             WHERE e.grupo_id = ?'
         );
         $st->execute([$grupoId]);
         if ((int) $st->fetchColumn() > 0) {
             return false;
         }
         $st2 = $this->pdo->prepare(
-            'SELECT COUNT(*) FROM quiniela_partido p
-             INNER JOIN quiniela_partido hijo ON (
-               hijo.src_partido_a_id = p.id OR hijo.src_partido_b_id = p.id
-             )
-             WHERE p.grupo_id = ?'
+            'SELECT COUNT(*) FROM quiniela_oficial o
+             INNER JOIN quiniela_equipo e ON e.id = o.equipo_id
+             WHERE e.grupo_id = ?'
         );
         $st2->execute([$grupoId]);
-        if ((int) $st2->fetchColumn() > 0) {
-            return false;
-        }
-        $st3 = $this->pdo->prepare(
-            'SELECT COUNT(*) FROM quiniela_partido hijo
-             WHERE hijo.src_partido_a_id IN (SELECT id FROM quiniela_partido WHERE grupo_id = ?)
-                OR hijo.src_partido_b_id IN (SELECT id FROM quiniela_partido WHERE grupo_id = ?)'
-        );
-        $st3->execute([$grupoId, $grupoId]);
-        if ((int) $st3->fetchColumn() > 0) {
-            return false;
-        }
-        return true;
+        return (int) $st2->fetchColumn() === 0;
     }
 
     public function eliminarGrupo(int $grupoId): bool
@@ -159,454 +213,711 @@ class Quiniela
         return $st->execute([$grupoId]);
     }
 
-    public function siguienteOrdenPartido(): int
-    {
-        $n = (int) $this->pdo->query('SELECT COALESCE(MAX(orden), 0) FROM quiniela_partido')->fetchColumn();
-        return $n + 1;
-    }
+    // ——— Carta y fases (colaborador) ———
 
-    public function agregarPartidoFijo(?int $grupoId, int $equipoAId, int $equipoBId, ?string $etiqueta = null, ?string $fase = null): bool
+    public function obtenerCartaPorCodigo(string $codigo): ?array
     {
-        if ($equipoAId === $equipoBId) {
-            return false;
-        }
-        if (!$this->equiposExistenYGrupo($grupoId, $equipoAId, $equipoBId)) {
-            return false;
-        }
-        $ord = $this->siguienteOrdenPartido();
-        $st = $this->pdo->prepare(
-            'INSERT INTO quiniela_partido (grupo_id, orden, fase, tipo, etiqueta, equipo_a_id, equipo_b_id)
-             VALUES (?, ?, ?, \'fijo\', ?, ?, ?)'
-        );
-        return $st->execute([$grupoId, $ord, $fase, $etiqueta, $equipoAId, $equipoBId]);
-    }
-
-    public function agregarPartidoGanadores(?int $grupoId, int $srcPartidoA, int $srcPartidoB, ?string $etiqueta = null, ?string $fase = null): bool
-    {
-        if ($srcPartidoA === $srcPartidoB) {
-            return false;
-        }
-        $st = $this->pdo->prepare('SELECT COUNT(*) FROM quiniela_partido WHERE id IN (?,?)');
-        $st->execute([$srcPartidoA, $srcPartidoB]);
-        if ((int) $st->fetchColumn() !== 2) {
-            return false;
-        }
-        if ($grupoId !== null) {
-            $chk = $this->pdo->prepare(
-                'SELECT COUNT(*) FROM quiniela_partido WHERE id IN (?,?) AND (grupo_id IS NULL OR grupo_id <> ?)'
-            );
-            $chk->execute([$srcPartidoA, $srcPartidoB, $grupoId]);
-            if ((int) $chk->fetchColumn() > 0) {
-                return false;
-            }
-        }
-        $ord = $this->siguienteOrdenPartido();
-        $ins = $this->pdo->prepare(
-            'INSERT INTO quiniela_partido (grupo_id, orden, fase, tipo, etiqueta, src_partido_a_id, src_partido_b_id)
-             VALUES (?, ?, ?, \'ganadores\', ?, ?, ?)'
-        );
-        return $ins->execute([$grupoId, $ord, $fase, $etiqueta, $srcPartidoA, $srcPartidoB]);
-    }
-
-    public function actualizarPartidoMeta(int $partidoId, int $orden, ?string $fase, ?string $etiqueta): bool
-    {
-        $fase = $fase === null || trim($fase) === '' ? null : trim($fase);
-        $etq = $etiqueta === null || trim($etiqueta) === '' ? null : trim($etiqueta);
-        $st = $this->pdo->prepare(
-            'UPDATE quiniela_partido SET orden = ?, fase = ?, etiqueta = ? WHERE id = ?'
-        );
-        return $st->execute([$orden, $fase, $etq, $partidoId]);
-    }
-
-    private function equiposExistenYGrupo(?int $grupoId, int $e1, int $e2): bool
-    {
-        if ($grupoId === null) {
-            $st = $this->pdo->prepare('SELECT COUNT(*) FROM quiniela_equipo WHERE id IN (?,?)');
-            $st->execute([$e1, $e2]);
-            return (int) $st->fetchColumn() === 2;
-        }
-        $st = $this->pdo->prepare('SELECT COUNT(*) FROM quiniela_equipo WHERE id IN (?,?) AND grupo_id = ?');
-        $st->execute([$e1, $e2, $grupoId]);
-        return (int) $st->fetchColumn() === 2;
-    }
-
-    private function selectPartidoCampos(): string
-    {
-        return 'p.id, p.grupo_id, p.orden, p.fase, p.tipo, p.etiqueta, p.ganador_id,
-                p.equipo_a_id, p.equipo_b_id, p.src_partido_a_id, p.src_partido_b_id,
-                ea.nombre AS eq_a_nom, eb.nombre AS eq_b_nom,
-                ea.iso AS eq_a_iso, eb.iso AS eq_b_iso,
-                g.nombre AS grupo_nom, g.orden_grupo';
-    }
-
-    /** Normaliza ISO en fila de partido y añade URLs de bandera. */
-    private function decorarFilaPartido(array $p): array
-    {
-        foreach (['eq_a_iso', 'eq_b_iso'] as $k) {
-            $v = $p[$k] ?? null;
-            if ($v === null || $v === '') {
-                $p[$k] = null;
-            } else {
-                $p[$k] = strtolower(substr((string) $v, 0, 2));
-            }
-        }
-        $p['eq_a_flag_url'] = quiniela_get_flag_url($p['eq_a_iso'] ?? null);
-        $p['eq_b_flag_url'] = quiniela_get_flag_url($p['eq_b_iso'] ?? null);
-        return $p;
-    }
-
-    public function listarPartidosPorGrupo(?int $grupoId): array
-    {
-        $cols = $this->selectPartidoCampos();
-        if ($grupoId === null) {
-            $sql = "SELECT {$cols}
-                    FROM quiniela_partido p
-                    LEFT JOIN quiniela_equipo ea ON ea.id = p.equipo_a_id
-                    LEFT JOIN quiniela_equipo eb ON eb.id = p.equipo_b_id
-                    LEFT JOIN quiniela_grupo g ON g.id = p.grupo_id
-                    WHERE p.grupo_id IS NULL
-                    ORDER BY p.orden ASC, p.id ASC";
-            $rows = $this->pdo->query($sql)->fetchAll(PDO::FETCH_ASSOC);
-            return array_map([$this, 'decorarFilaPartido'], $rows);
-        }
-        $st = $this->pdo->prepare(
-            "SELECT {$cols}
-             FROM quiniela_partido p
-             LEFT JOIN quiniela_equipo ea ON ea.id = p.equipo_a_id
-             LEFT JOIN quiniela_equipo eb ON eb.id = p.equipo_b_id
-             LEFT JOIN quiniela_grupo g ON g.id = p.grupo_id
-             WHERE p.grupo_id = ?
-             ORDER BY p.orden ASC, p.id ASC"
-        );
-        $st->execute([$grupoId]);
-        $rows = $st->fetchAll(PDO::FETCH_ASSOC);
-        return array_map([$this, 'decorarFilaPartido'], $rows);
-    }
-
-    public function listarTodosPartidosOrdenados(): array
-    {
-        $cols = $this->selectPartidoCampos();
-        $sql = "SELECT {$cols}
-                FROM quiniela_partido p
-                LEFT JOIN quiniela_equipo ea ON ea.id = p.equipo_a_id
-                LEFT JOIN quiniela_equipo eb ON eb.id = p.equipo_b_id
-                LEFT JOIN quiniela_grupo g ON g.id = p.grupo_id
-                ORDER BY p.orden ASC, p.id ASC";
-        $rows = $this->pdo->query($sql)->fetchAll(PDO::FETCH_ASSOC);
-        return array_map([$this, 'decorarFilaPartido'], $rows);
-    }
-
-    public function totalPartidos(): int
-    {
-        return (int) $this->pdo->query('SELECT COUNT(*) FROM quiniela_partido')->fetchColumn();
-    }
-
-    public function totalPartidosConResultadoOficial(): int
-    {
-        return (int) $this->pdo->query('SELECT COUNT(*) FROM quiniela_partido WHERE ganador_id IS NOT NULL')->fetchColumn();
-    }
-
-    public function puedeEliminarPartido(int $partidoId): bool
-    {
-        $st = $this->pdo->prepare('SELECT COUNT(*) FROM quiniela_prediccion WHERE partido_id = ?');
-        $st->execute([$partidoId]);
-        if ((int) $st->fetchColumn() > 0) {
-            return false;
-        }
-        $st2 = $this->pdo->prepare(
-            'SELECT COUNT(*) FROM quiniela_partido WHERE src_partido_a_id = ? OR src_partido_b_id = ?'
-        );
-        $st2->execute([$partidoId, $partidoId]);
-        return (int) $st2->fetchColumn() === 0;
-    }
-
-    public function eliminarPartido(int $partidoId): bool
-    {
-        if (!$this->puedeEliminarPartido($partidoId)) {
-            return false;
-        }
-        $st = $this->pdo->prepare('DELETE FROM quiniela_partido WHERE id = ?');
-        return $st->execute([$partidoId]);
-    }
-
-    public function candidatosOficialesGanador(int $partidoId): array
-    {
-        $row = $this->obtenerPartidoRaw($partidoId);
-        if (!$row) {
-            return [];
-        }
-        if ($row['tipo'] === 'fijo') {
-            return [(int) $row['equipo_a_id'], (int) $row['equipo_b_id']];
-        }
-        $g1 = $this->ganadorOficialPartido((int) $row['src_partido_a_id']);
-        $g2 = $this->ganadorOficialPartido((int) $row['src_partido_b_id']);
-        if ($g1 === null || $g2 === null) {
-            return [];
-        }
-        return [$g1, $g2];
-    }
-
-    public function ganadorOficialPartido(int $partidoId): ?int
-    {
-        $st = $this->pdo->prepare('SELECT ganador_id FROM quiniela_partido WHERE id = ?');
-        $st->execute([$partidoId]);
-        $v = $st->fetchColumn();
-        return $v !== null && $v !== false ? (int) $v : null;
-    }
-
-    public function candidatosPrediccionGanador(int $partidoId, array $mapaPredicho): array
-    {
-        $row = $this->obtenerPartidoRaw($partidoId);
-        if (!$row) {
-            return [];
-        }
-        if ($row['tipo'] === 'fijo') {
-            return [(int) $row['equipo_a_id'], (int) $row['equipo_b_id']];
-        }
-        $sa = (int) $row['src_partido_a_id'];
-        $sb = (int) $row['src_partido_b_id'];
-        if (!isset($mapaPredicho[$sa], $mapaPredicho[$sb])) {
-            return [];
-        }
-        return [(int) $mapaPredicho[$sa], (int) $mapaPredicho[$sb]];
-    }
-
-    private function obtenerPartidoRaw(int $id): ?array
-    {
-        $st = $this->pdo->prepare('SELECT * FROM quiniela_partido WHERE id = ?');
-        $st->execute([$id]);
+        $st = $this->pdo->prepare('SELECT * FROM quiniela_carta WHERE codigo_empleado = ? LIMIT 1');
+        $st->execute([$codigo]);
         $r = $st->fetch(PDO::FETCH_ASSOC);
         return $r ?: null;
     }
 
-    public function guardarGanadorPartido(int $partidoId, ?int $ganadorId): bool
+    public function crearCartaSiNoExiste(string $codigo): int
     {
-        if ($ganadorId === null || $ganadorId === 0) {
-            $st = $this->pdo->prepare('UPDATE quiniela_partido SET ganador_id = NULL WHERE id = ?');
-            return $st->execute([$partidoId]);
+        $row = $this->obtenerCartaPorCodigo($codigo);
+        if ($row) {
+            return (int) $row['id'];
         }
-        $opts = $this->candidatosOficialesGanador($partidoId);
-        if (count($opts) !== 2 || !in_array((int) $ganadorId, $opts, true)) {
-            return false;
-        }
-        $up = $this->pdo->prepare('UPDATE quiniela_partido SET ganador_id = ? WHERE id = ?');
-        return $up->execute([$ganadorId, $partidoId]);
+        $st = $this->pdo->prepare(
+            'INSERT INTO quiniela_carta (codigo_empleado, fase_actual, cerrada) VALUES (?, ?, 0)'
+        );
+        $st->execute([$codigo, self::F_GRUPOS]);
+        return (int) $this->pdo->lastInsertId();
     }
 
+    public function quinielaEstaCerrada(string $codigo): bool
+    {
+        $c = $this->obtenerCartaPorCodigo($codigo);
+        return $c ? (int) $c['cerrada'] === 1 : false;
+    }
+
+    /** Alias compatibilidad */
     public function usuarioCartaCerrada(string $codigo): bool
     {
-        $st = $this->pdo->prepare(
-            'SELECT cerrada FROM quiniela_carta_cerrada WHERE codigo_empleado = ? LIMIT 1'
-        );
-        $st->execute([$codigo]);
-        $v = $st->fetchColumn();
-        return (int) $v === 1;
+        return $this->quinielaEstaCerrada($codigo);
     }
 
-    public function obtenerMapaPredicciones(string $codigo): array
+    public function obtenerFaseActual(string $codigo): string
     {
-        $st = $this->pdo->prepare(
-            'SELECT partido_id, ganador_id FROM quiniela_prediccion WHERE codigo_empleado = ?'
-        );
-        $st->execute([$codigo]);
-        $m = [];
-        foreach ($st->fetchAll(PDO::FETCH_ASSOC) as $r) {
-            $m[(int) $r['partido_id']] = (int) $r['ganador_id'];
+        $c = $this->obtenerCartaPorCodigo($codigo);
+        if (!$c) {
+            return self::F_GRUPOS;
         }
-        return $m;
+        return (string) $c['fase_actual'];
+    }
+
+    private function eliminarSeleccionesFase(int $cartaId, string $fase): void
+    {
+        $this->pdo->prepare('DELETE FROM quiniela_seleccion WHERE carta_id = ? AND fase = ?')->execute([$cartaId, $fase]);
     }
 
     /**
-     * Construye mapa partido_id => ganador_id válido según orden y reglas (solo lo enviado en POST que encadena bien).
-     *
-     * @param array<int,int|string> $postPred partido_id => ganador_id
-     * @return array<int,int>
+     * @return list<int>
      */
-    public function construirMapaPredichoValido(array $postPred): array
+    public function obtenerIdsSeleccionFase(int $cartaId, string $fase): array
     {
-        $postPred = array_map('intval', $postPred);
-        $ordenados = $this->listarTodosPartidosOrdenados();
-        $valid = [];
-        foreach ($ordenados as $p) {
-            $pid = (int) $p['id'];
-            if ($p['tipo'] === 'fijo') {
-                if (!isset($postPred[$pid])) {
-                    continue;
-                }
-                $g = (int) $postPred[$pid];
-                $a = (int) $p['equipo_a_id'];
-                $b = (int) $p['equipo_b_id'];
-                if (in_array($g, [$a, $b], true)) {
-                    $valid[$pid] = $g;
-                }
-                continue;
-            }
-            $sa = (int) $p['src_partido_a_id'];
-            $sb = (int) $p['src_partido_b_id'];
-            if (!isset($valid[$sa], $valid[$sb])) {
-                continue;
-            }
-            if (!isset($postPred[$pid])) {
-                continue;
-            }
-            $g = (int) $postPred[$pid];
-            $c1 = $valid[$sa];
-            $c2 = $valid[$sb];
-            if (in_array($g, [$c1, $c2], true)) {
-                $valid[$pid] = $g;
-            }
-        }
-        return $valid;
+        $st = $this->pdo->prepare(
+            'SELECT equipo_id FROM quiniela_seleccion WHERE carta_id = ? AND fase = ? ORDER BY id ASC'
+        );
+        $st->execute([$cartaId, $fase]);
+        return array_map('intval', $st->fetchAll(PDO::FETCH_COLUMN));
     }
 
-    public function guardarProgresoPredicciones(string $codigo, array $postPred): bool
+    /**
+     * Mapa grupo_id => [equipo_id, equipo_id] para fase grupos.
+     *
+     * @return array<int, array{0:int,1:int}>
+     */
+    public function seleccionGruposPorGrupo(int $cartaId): array
     {
-        if ($this->usuarioCartaCerrada($codigo)) {
+        $st = $this->pdo->prepare(
+            'SELECT grupo_id, equipo_id FROM quiniela_seleccion
+             WHERE carta_id = ? AND fase = ? AND grupo_id IS NOT NULL
+             ORDER BY grupo_id, id ASC'
+        );
+        $st->execute([$cartaId, self::F_GRUPOS]);
+        $out = [];
+        foreach ($st->fetchAll(PDO::FETCH_ASSOC) as $r) {
+            $g = (int) $r['grupo_id'];
+            if (!isset($out[$g])) {
+                $out[$g] = [];
+            }
+            $out[$g][] = (int) $r['equipo_id'];
+        }
+        return $out;
+    }
+
+    /**
+     * Equipos no clasificados en 1er y 2º lugar (pool para mejores terceros): 2 por grupo.
+     *
+     * @return list<int>
+     */
+    public function poolIdsMejoresTerceros(int $cartaId): array
+    {
+        $grupos = $this->listarGruposConEquipos();
+        $selPorGrupo = $this->seleccionGruposPorGrupo($cartaId);
+        $pool = [];
+        foreach ($grupos as $g) {
+            $gid = (int) $g['id'];
+            $eids = array_column($g['equipos'], 'id');
+            $pick = $selPorGrupo[$gid] ?? [];
+            $pick = array_values(array_unique(array_map('intval', $pick)));
+            foreach ($eids as $eid) {
+                if (!in_array($eid, $pick, true)) {
+                    $pool[] = (int) $eid;
+                }
+            }
+        }
+        return $pool;
+    }
+
+    /**
+     * 24 clasificados directos + 8 mejores terceros = 32.
+     *
+     * @return list<int>|null null si faltan fases previas
+     */
+    public function poolIdsDieciseisavos(int $cartaId): ?array
+    {
+        $g1 = $this->obtenerIdsSeleccionFase($cartaId, self::F_GRUPOS);
+        if (count($g1) < 24) {
+            return null;
+        }
+        $mt = $this->obtenerIdsSeleccionFase($cartaId, self::F_MEJORES_TERCEROS);
+        if (count($mt) !== 8) {
+            return null;
+        }
+        return array_values(array_unique(array_merge($g1, $mt)));
+    }
+
+    /**
+     * @param list<int> $idsPermitidos
+     * @param list<int> $elegidos
+     */
+    private function validarSubconjunto(array $idsPermitidos, array $elegidos, int $cuenta, bool $exacto = true): bool
+    {
+        $perm = array_flip(array_map('intval', $idsPermitidos));
+        $elegidos = array_map('intval', $elegidos);
+        if ($exacto && count($elegidos) !== $cuenta) {
             return false;
         }
-        $valid = $this->construirMapaPredichoValido($postPred);
+        if (count($elegidos) !== count(array_unique($elegidos))) {
+            return false;
+        }
+        foreach ($elegidos as $id) {
+            if (!isset($perm[$id])) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * @param array<int, array<int>> $porGrupo grupo_id => [eq1, eq2]
+     */
+    public function guardarSeleccionGrupos(string $codigo, array $porGrupo): bool
+    {
+        if ($this->quinielaEstaCerrada($codigo)) {
+            return false;
+        }
+        $cartaId = $this->crearCartaSiNoExiste($codigo);
+        $carta = $this->obtenerCartaPorCodigo($codigo);
+        if (!$carta || (string) $carta['fase_actual'] !== self::F_GRUPOS) {
+            return false;
+        }
+
+        $grupos = $this->listarGruposConEquipos();
+        foreach ($grupos as $g) {
+            $gid = (int) $g['id'];
+            if (!isset($porGrupo[$gid])) {
+                return false;
+            }
+            $pair = array_values(array_unique(array_map('intval', $porGrupo[$gid])));
+            if (count($pair) !== 2) {
+                return false;
+            }
+            $valid = array_column($g['equipos'], 'id');
+            foreach ($pair as $eid) {
+                if (!in_array($eid, $valid, true)) {
+                    return false;
+                }
+            }
+        }
+
         $this->pdo->beginTransaction();
         try {
-            $this->pdo->prepare('DELETE FROM quiniela_prediccion WHERE codigo_empleado = ?')->execute([$codigo]);
-            if (count($valid) > 0) {
-                $ins = $this->pdo->prepare(
-                    'INSERT INTO quiniela_prediccion (codigo_empleado, partido_id, ganador_id) VALUES (?,?,?)'
-                );
-                foreach ($valid as $pid => $gid) {
-                    $ins->execute([$codigo, (int) $pid, (int) $gid]);
+            $this->eliminarSeleccionesFase($cartaId, self::F_GRUPOS);
+            $ins = $this->pdo->prepare(
+                'INSERT INTO quiniela_seleccion (carta_id, fase, grupo_id, equipo_id) VALUES (?,?,?,?)'
+            );
+            foreach ($grupos as $g) {
+                $gid = (int) $g['id'];
+                foreach ($porGrupo[$gid] as $eid) {
+                    $ins->execute([$cartaId, self::F_GRUPOS, $gid, (int) $eid]);
                 }
+            }
+            $sig = self::siguienteFase(self::F_GRUPOS);
+            $this->pdo->prepare('UPDATE quiniela_carta SET fase_actual = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?')->execute([$sig, $cartaId]);
+            $this->pdo->commit();
+            return true;
+        } catch (Throwable $e) {
+            $this->pdo->rollBack();
+            error_log('Quiniela::guardarSeleccionGrupos: ' . $e->getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * @param list<int> $equipoIds
+     */
+    public function guardarSeleccionFaseLista(string $codigo, string $fase, array $equipoIds): bool
+    {
+        if ($this->quinielaEstaCerrada($codigo)) {
+            return false;
+        }
+        $carta = $this->obtenerCartaPorCodigo($codigo);
+        if (!$carta || (string) $carta['fase_actual'] !== $fase) {
+            return false;
+        }
+        $cartaId = (int) $carta['id'];
+        $n = self::cuentaEsperadaFase($fase);
+        if ($n <= 0 || count($equipoIds) !== $n) {
+            return false;
+        }
+
+        $equipoIds = array_map('intval', $equipoIds);
+        if (count($equipoIds) !== count(array_unique($equipoIds))) {
+            return false;
+        }
+
+        $pool = [];
+        switch ($fase) {
+            case self::F_MEJORES_TERCEROS:
+                $pool = $this->poolIdsMejoresTerceros($cartaId);
+                if (!$this->validarSubconjunto($pool, $equipoIds, 8)) {
+                    return false;
+                }
+                break;
+            case self::F_DIECISEISAVOS:
+                $pool32 = $this->poolIdsDieciseisavos($cartaId);
+                if ($pool32 === null || !$this->validarSubconjunto($pool32, $equipoIds, 16)) {
+                    return false;
+                }
+                break;
+            case self::F_OCTAVOS:
+                $prev = $this->obtenerIdsSeleccionFase($cartaId, self::F_DIECISEISAVOS);
+                if (!$this->validarSubconjunto($prev, $equipoIds, 8)) {
+                    return false;
+                }
+                break;
+            case self::F_CUARTOS:
+                $prev = $this->obtenerIdsSeleccionFase($cartaId, self::F_OCTAVOS);
+                if (!$this->validarSubconjunto($prev, $equipoIds, 4)) {
+                    return false;
+                }
+                break;
+            case self::F_SEMIFINAL:
+                $prev = $this->obtenerIdsSeleccionFase($cartaId, self::F_CUARTOS);
+                if (!$this->validarSubconjunto($prev, $equipoIds, 2)) {
+                    return false;
+                }
+                break;
+            case self::F_FINAL:
+                $prev = $this->obtenerIdsSeleccionFase($cartaId, self::F_SEMIFINAL);
+                if (!$this->validarSubconjunto($prev, $equipoIds, 1)) {
+                    return false;
+                }
+                break;
+            default:
+                return false;
+        }
+
+        $this->pdo->beginTransaction();
+        try {
+            $this->eliminarSeleccionesFase($cartaId, $fase);
+            $ins = $this->pdo->prepare(
+                'INSERT INTO quiniela_seleccion (carta_id, fase, grupo_id, equipo_id) VALUES (?,?,?,?)'
+            );
+            foreach ($equipoIds as $eid) {
+                $grupoId = null;
+                if ($fase === self::F_MEJORES_TERCEROS) {
+                    $grupoId = $this->grupoIdDeEquipo((int) $eid);
+                }
+                $ins->execute([$cartaId, $fase, $grupoId, (int) $eid]);
+            }
+
+            if ($fase === self::F_FINAL) {
+                $this->pdo->prepare(
+                    'UPDATE quiniela_carta SET cerrada = 1, fase_actual = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?'
+                )->execute([self::F_FINAL, $cartaId]);
+            } else {
+                $sig = self::siguienteFase($fase);
+                $this->pdo->prepare(
+                    'UPDATE quiniela_carta SET fase_actual = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?'
+                )->execute([$sig, $cartaId]);
             }
             $this->pdo->commit();
             return true;
         } catch (Throwable $e) {
             $this->pdo->rollBack();
-            error_log('Quiniela::guardarProgresoPredicciones: ' . $e->getMessage());
+            error_log('Quiniela::guardarSeleccionFaseLista: ' . $e->getMessage());
             return false;
         }
     }
 
-    public function confirmarCartaColaborador(string $codigo): bool
+    private function grupoIdDeEquipo(int $equipoId): ?int
     {
-        if ($this->usuarioCartaCerrada($codigo)) {
-            return false;
-        }
-        $map = $this->obtenerMapaPredicciones($codigo);
-        $total = $this->totalPartidos();
-        if ($total === 0 || count($map) !== $total) {
-            return false;
-        }
-        $ordenados = $this->listarTodosPartidosOrdenados();
-        foreach ($ordenados as $p) {
-            $pid = (int) $p['id'];
-            if (!isset($map[$pid])) {
-                return false;
-            }
-            $opts = $this->candidatosPrediccionGanador($pid, $map);
-            if (count($opts) !== 2 || !in_array($map[$pid], $opts, true)) {
-                return false;
-            }
-        }
-        $st = $this->pdo->prepare(
-            'INSERT INTO quiniela_carta_cerrada (codigo_empleado, cerrada) VALUES (?, 1)
-             ON DUPLICATE KEY UPDATE cerrada = 1, updated_at = CURRENT_TIMESTAMP'
-        );
-        return $st->execute([$codigo]);
+        $st = $this->pdo->prepare('SELECT grupo_id FROM quiniela_equipo WHERE id = ?');
+        $st->execute([$equipoId]);
+        $v = $st->fetchColumn();
+        return $v !== false && $v !== null ? (int) $v : null;
     }
 
-    public function obtenerPrediccionesUsuarioDetalle(string $codigo): array
+    /**
+     * Equipos disponibles para la fase actual (ids).
+     *
+     * @return list<int>|null
+     */
+    public function obtenerEquiposDisponiblesPorFase(string $codigo, string $fase): ?array
     {
-        $partidos = $this->listarTodosPartidosOrdenados();
-        $pred = $this->obtenerMapaPredicciones($codigo);
-        $out = [];
-        foreach ($partidos as $p) {
-            $pid = (int) $p['id'];
-            if (!isset($pred[$pid])) {
-                continue;
+        $carta = $this->obtenerCartaPorCodigo($codigo);
+        if (!$carta) {
+            return [];
+        }
+        $cartaId = (int) $carta['id'];
+        switch ($fase) {
+            case self::F_GRUPOS:
+                return [];
+            case self::F_MEJORES_TERCEROS:
+                return $this->poolIdsMejoresTerceros($cartaId);
+            case self::F_DIECISEISAVOS:
+                return $this->poolIdsDieciseisavos($cartaId);
+            case self::F_OCTAVOS:
+                return $this->obtenerIdsSeleccionFase($cartaId, self::F_DIECISEISAVOS);
+            case self::F_CUARTOS:
+                return $this->obtenerIdsSeleccionFase($cartaId, self::F_OCTAVOS);
+            case self::F_SEMIFINAL:
+                return $this->obtenerIdsSeleccionFase($cartaId, self::F_CUARTOS);
+            case self::F_FINAL:
+                return $this->obtenerIdsSeleccionFase($cartaId, self::F_SEMIFINAL);
+            default:
+                return [];
+        }
+    }
+
+    // ——— Oficial (admin) ———
+
+    /**
+     * Reemplaza todas las filas oficiales de una fase.
+     *
+     * @param list<array{equipo_id:int, grupo_id?:?int}> $filas
+     */
+    public function guardarOficialFase(string $fase, array $filas): bool
+    {
+        $this->pdo->beginTransaction();
+        try {
+            $this->pdo->prepare('DELETE FROM quiniela_oficial WHERE fase = ?')->execute([$fase]);
+            $ins = $this->pdo->prepare(
+                'INSERT INTO quiniela_oficial (fase, grupo_id, equipo_id) VALUES (?,?,?)'
+            );
+            foreach ($filas as $row) {
+                $gid = null;
+                if (array_key_exists('grupo_id', $row) && $row['grupo_id'] !== null && $row['grupo_id'] !== '') {
+                    $gid = (int) $row['grupo_id'];
+                }
+                $ins->execute([$fase, $gid, (int) $row['equipo_id']]);
             }
-            $desc = $this->etiquetaPartidoVista($p);
-            $descHtml = $this->etiquetaPartidoHtml($p);
-            $predE = $this->datosEquipo((int) $pred[$pid]);
-            $nomPred = $this->nombreEquipo((int) $pred[$pid]);
-            $predIso = $predE ? ($predE['iso'] ?? null) : null;
-            $predHtml = quiniela_flag_icon_html($predIso, $nomPred, true);
-            $gidOf = $p['ganador_id'] ?? null;
-            $resNom = null;
-            $resHtml = null;
-            if ($gidOf !== null && $gidOf !== '' && (int) $gidOf > 0) {
-                $re = $this->datosEquipo((int) $gidOf);
-                if ($re) {
-                    $resNom = $re['nombre'];
-                    $resHtml = quiniela_flag_icon_html($re['iso'] ?? null, $re['nombre'], true);
+            $this->pdo->commit();
+            return true;
+        } catch (Throwable $e) {
+            $this->pdo->rollBack();
+            error_log('Quiniela::guardarOficialFase: ' . $e->getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * @return list<array{fase:string, grupo_id:?int, equipo_id:int}>
+     */
+    public function listarOficialPorFase(string $fase): array
+    {
+        $st = $this->pdo->prepare('SELECT fase, grupo_id, equipo_id FROM quiniela_oficial WHERE fase = ? ORDER BY id ASC');
+        $st->execute([$fase]);
+        return $st->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function obtenerIdsOficialFase(string $fase): array
+    {
+        $st = $this->pdo->prepare('SELECT equipo_id FROM quiniela_oficial WHERE fase = ? ORDER BY id ASC');
+        $st->execute([$fase]);
+        return array_map('intval', $st->fetchAll(PDO::FETCH_COLUMN));
+    }
+
+    public function oficialFaseTieneDatos(string $fase): bool
+    {
+        $st = $this->pdo->prepare('SELECT COUNT(*) FROM quiniela_oficial WHERE fase = ?');
+        $st->execute([$fase]);
+        return (int) $st->fetchColumn() > 0;
+    }
+
+    // ——— Comparación y estados ———
+
+    /**
+     * Comparación por conjuntos (orden irrelevante), excepto final (1 equipo).
+     */
+    public function faseCoincideConOficial(int $cartaId, string $fase): ?bool
+    {
+        if (!$this->oficialFaseTieneDatos($fase)) {
+            return null;
+        }
+        $usr = $this->obtenerIdsSeleccionFase($cartaId, $fase);
+        $of = $this->obtenerIdsOficialFase($fase);
+        if ($fase === self::F_GRUPOS) {
+            $mapU = $this->seleccionGruposPorGrupo($cartaId);
+            $st = $this->pdo->prepare(
+                'SELECT grupo_id, equipo_id FROM quiniela_oficial WHERE fase = ? AND grupo_id IS NOT NULL ORDER BY grupo_id, id'
+            );
+            $st->execute([$fase]);
+            $ofPorG = [];
+            foreach ($st->fetchAll(PDO::FETCH_ASSOC) as $r) {
+                $g = (int) $r['grupo_id'];
+                if (!isset($ofPorG[$g])) {
+                    $ofPorG[$g] = [];
+                }
+                $ofPorG[$g][] = (int) $r['equipo_id'];
+            }
+            $grupos = $this->listarGruposConEquipos();
+            foreach ($grupos as $g) {
+                $gid = (int) $g['id'];
+                $a = isset($mapU[$gid]) ? $mapU[$gid] : [];
+                $b = isset($ofPorG[$gid]) ? $ofPorG[$gid] : [];
+                sort($a);
+                sort($b);
+                if ($a !== $b) {
+                    return false;
                 }
             }
+            return true;
+        }
+        sort($usr);
+        sort($of);
+        return $usr === $of;
+    }
+
+    /** Pendiente | En juego | Perdió | Completada */
+    public function estadoColaboradorQuiniela(string $codigo): string
+    {
+        if (!$this->quinielaEstaCerrada($codigo)) {
+            return 'Pendiente';
+        }
+        $carta = $this->obtenerCartaPorCodigo($codigo);
+        if (!$carta) {
+            return 'Pendiente';
+        }
+        $cartaId = (int) $carta['id'];
+        foreach (self::ordenFases() as $f) {
+            if (!$this->oficialFaseTieneDatos($f)) {
+                return 'En juego';
+            }
+            if ($this->faseCoincideConOficial($cartaId, $f) !== true) {
+                return 'Perdió';
+            }
+        }
+        return 'Completada';
+    }
+
+    /** @return list<array{codigo_empleado: string, nombre: string, status: string}> */
+    public function listarResumenColaboradoresQuiniela(PDO $pdoEmpleados): array
+    {
+        $codes = $this->pdo->query(
+            'SELECT codigo_empleado FROM quiniela_carta ORDER BY codigo_empleado ASC'
+        )->fetchAll(PDO::FETCH_COLUMN);
+        $out = [];
+        foreach ($codes as $code) {
+            $code = (string) $code;
             $out[] = [
-                'partido_id' => $pid,
-                'descripcion' => $desc,
-                'descripcion_html' => $descHtml,
-                'grupo_nombre' => $p['grupo_nom'] ?? 'Llave / final',
-                'orden_grupo' => $p['orden_grupo'] ?? 0,
-                'predicho_nombre' => $nomPred,
-                'predicho_html' => $predHtml,
-                'resultado_nombre' => $resNom,
-                'resultado_html' => $resHtml,
-                'tipo' => $p['tipo'],
+                'codigo_empleado' => $code,
+                'nombre' => $this->resolverNombreColaborador($pdoEmpleados, $code),
+                'status' => $this->estadoColaboradorQuiniela($code),
             ];
         }
         return $out;
     }
 
-    public function etiquetaPartidoVista(array $p): string
+    /** Resumen para modal / lectura */
+    public function obtenerResumenQuiniela(string $codigo): array
     {
-        if ($p['tipo'] === 'fijo') {
-            $a = $p['eq_a_nom'] ?? '?';
-            $b = $p['eq_b_nom'] ?? '?';
-            $base = $a . ' vs ' . $b;
-        } else {
-            $base = 'Ganador partido #' . (int) $p['src_partido_a_id']
-                . ' vs Ganador partido #' . (int) $p['src_partido_b_id'];
+        $carta = $this->obtenerCartaPorCodigo($codigo);
+        if (!$carta) {
+            return ['fases' => [], 'cerrada' => false];
         }
-        $fase = !empty($p['fase']) ? '[' . $p['fase'] . '] ' : '';
-        if (!empty($p['etiqueta'])) {
-            return $fase . $p['etiqueta'] . ' — ' . $base;
+        $cid = (int) $carta['id'];
+        $out = [];
+        foreach (self::ordenFases() as $f) {
+            if ($f === self::F_GRUPOS) {
+                $map = $this->seleccionGruposPorGrupo($cid);
+                $gruposList = $this->listarGruposConEquipos();
+                $bloques = [];
+                foreach ($gruposList as $g) {
+                    $gid = (int) $g['id'];
+                    $ids = $map[$gid] ?? [];
+                    $items = [];
+                    foreach ($ids as $eid) {
+                        $d = $this->datosEquipo((int) $eid);
+                        $items[] = [
+                            'equipo_id' => (int) $eid,
+                            'nombre' => $d['nombre'] ?? '',
+                            'html' => $d ? quiniela_flag_icon_html($d['iso'], $d['nombre'], true) : '',
+                        ];
+                    }
+                    $bloques[] = [
+                        'grupo_id' => $gid,
+                        'nombre_grupo' => $g['nombre_grupo'],
+                        'orden_grupo' => (int) $g['orden_grupo'],
+                        'equipos' => $items,
+                    ];
+                }
+                $out[] = [
+                    'fase' => $f,
+                    'etiqueta' => self::etiquetaFase($f),
+                    'grupos' => $bloques,
+                    'equipos' => [],
+                ];
+                continue;
+            }
+            $ids = $this->obtenerIdsSeleccionFase($cid, $f);
+            $items = [];
+            foreach ($ids as $eid) {
+                $d = $this->datosEquipo((int) $eid);
+                $items[] = [
+                    'equipo_id' => (int) $eid,
+                    'nombre' => $d['nombre'] ?? '',
+                    'html' => $d ? quiniela_flag_icon_html($d['iso'], $d['nombre'], true) : '',
+                ];
+            }
+            $out[] = [
+                'fase' => $f,
+                'etiqueta' => self::etiquetaFase($f),
+                'equipos' => $items,
+            ];
         }
-        return $fase . $base;
-    }
-
-    /** Etiqueta con banderas (HTML seguro) para partidos tipo fijo. */
-    public function etiquetaPartidoHtml(array $p): string
-    {
-        if ($p['tipo'] === 'fijo') {
-            $left = quiniela_flag_icon_html($p['eq_a_iso'] ?? null, (string) ($p['eq_a_nom'] ?? '?'), true);
-            $right = quiniela_flag_icon_html($p['eq_b_iso'] ?? null, (string) ($p['eq_b_nom'] ?? '?'), true);
-            $base = '<span class="d-inline-flex align-items-center flex-wrap gap-2">'
-                . $left . ' <span class="text-muted small">vs</span> ' . $right . '</span>';
-        } else {
-            $base = htmlspecialchars(
-                'Ganador partido #' . (int) $p['src_partido_a_id']
-                . ' vs Ganador partido #' . (int) $p['src_partido_b_id'],
-                ENT_QUOTES,
-                'UTF-8'
-            );
-        }
-        $fase = !empty($p['fase'])
-            ? '<span class="text-muted small">[' . htmlspecialchars((string) $p['fase'], ENT_QUOTES, 'UTF-8') . ']</span> '
-            : '';
-        if (!empty($p['etiqueta'])) {
-            return $fase . htmlspecialchars((string) $p['etiqueta'], ENT_QUOTES, 'UTF-8') . ' — ' . $base;
-        }
-        return $fase . $base;
-    }
-
-    public function textoDependenciaPartido(array $p): string
-    {
-        if ($p['tipo'] !== 'ganadores') {
-            return '—';
-        }
-        return '#' . (int) $p['src_partido_a_id'] . ' y #' . (int) $p['src_partido_b_id'];
+        return [
+            'fases' => $out,
+            'cerrada' => (int) $carta['cerrada'] === 1,
+            'fase_actual' => (string) $carta['fase_actual'],
+        ];
     }
 
     /**
-     * @return array{id:int,nombre:string,iso:?string,flag_url:string}|null
+     * Resultados oficiales para vista pública (misma forma que resumen colaborador).
+     *
+     * @return array{fases: list<array>}
+     */
+    public function obtenerResumenOficial(): array
+    {
+        $out = [];
+        foreach (self::ordenFases() as $f) {
+            if ($f === self::F_GRUPOS) {
+                $st = $this->pdo->prepare(
+                    'SELECT grupo_id, equipo_id FROM quiniela_oficial WHERE fase = ? AND grupo_id IS NOT NULL ORDER BY grupo_id, id ASC'
+                );
+                $st->execute([$f]);
+                $porG = [];
+                foreach ($st->fetchAll(PDO::FETCH_ASSOC) as $r) {
+                    $gid = (int) $r['grupo_id'];
+                    if (!isset($porG[$gid])) {
+                        $porG[$gid] = [];
+                    }
+                    $porG[$gid][] = (int) $r['equipo_id'];
+                }
+                $gruposList = $this->listarGruposConEquipos();
+                $bloques = [];
+                foreach ($gruposList as $g) {
+                    $gid = (int) $g['id'];
+                    $ids = $porG[$gid] ?? [];
+                    $items = [];
+                    foreach ($ids as $eid) {
+                        $d = $this->datosEquipo((int) $eid);
+                        $items[] = [
+                            'equipo_id' => (int) $eid,
+                            'nombre' => $d['nombre'] ?? '',
+                            'html' => $d ? quiniela_flag_icon_html($d['iso'], $d['nombre'], true) : '',
+                        ];
+                    }
+                    $bloques[] = [
+                        'grupo_id' => $gid,
+                        'nombre_grupo' => $g['nombre_grupo'],
+                        'orden_grupo' => (int) $g['orden_grupo'],
+                        'equipos' => $items,
+                    ];
+                }
+                $nOk = 0;
+                foreach ($gruposList as $g) {
+                    $gid = (int) $g['id'];
+                    if (isset($porG[$gid]) && count($porG[$gid]) === 2) {
+                        $nOk++;
+                    }
+                }
+                $def = count($gruposList) === 12 && $nOk === 12;
+                $out[] = [
+                    'fase' => $f,
+                    'etiqueta' => self::etiquetaFase($f),
+                    'grupos' => $bloques,
+                    'equipos' => [],
+                    'definida' => $def,
+                ];
+                continue;
+            }
+            $ids = $this->obtenerIdsOficialFase($f);
+            $nEsp = self::cuentaEsperadaFase($f);
+            $def = $nEsp > 0 && count($ids) === $nEsp;
+            $items = [];
+            foreach ($ids as $eid) {
+                $d = $this->datosEquipo((int) $eid);
+                $items[] = [
+                    'equipo_id' => (int) $eid,
+                    'nombre' => $d['nombre'] ?? '',
+                    'html' => $d ? quiniela_flag_icon_html($d['iso'], $d['nombre'], true) : '',
+                ];
+            }
+            $out[] = [
+                'fase' => $f,
+                'etiqueta' => self::etiquetaFase($f),
+                'equipos' => $items,
+                'definida' => $def,
+            ];
+        }
+        return ['fases' => $out];
+    }
+
+    /**
+     * Pool de terceros para admin (equipos no en 1.º y 2.º oficial por grupo).
+     *
+     * @return list<int>
+     */
+    /** @return array<int, list<int>> */
+    public function oficialGruposPorGrupo(): array
+    {
+        $st = $this->pdo->prepare(
+            'SELECT grupo_id, equipo_id FROM quiniela_oficial WHERE fase = ? AND grupo_id IS NOT NULL ORDER BY grupo_id, id ASC'
+        );
+        $st->execute([self::F_GRUPOS]);
+        $out = [];
+        foreach ($st->fetchAll(PDO::FETCH_ASSOC) as $r) {
+            $g = (int) $r['grupo_id'];
+            if (!isset($out[$g])) {
+                $out[$g] = [];
+            }
+            $out[$g][] = (int) $r['equipo_id'];
+        }
+        return $out;
+    }
+
+    public function poolTercerosDesdeOficialGrupos(): array
+    {
+        $st = $this->pdo->prepare(
+            'SELECT grupo_id, equipo_id FROM quiniela_oficial WHERE fase = ? AND grupo_id IS NOT NULL ORDER BY grupo_id, id ASC'
+        );
+        $st->execute([self::F_GRUPOS]);
+        $porG = [];
+        foreach ($st->fetchAll(PDO::FETCH_ASSOC) as $r) {
+            $gid = (int) $r['grupo_id'];
+            if (!isset($porG[$gid])) {
+                $porG[$gid] = [];
+            }
+            $porG[$gid][] = (int) $r['equipo_id'];
+        }
+        $grupos = $this->listarGruposConEquipos();
+        $pool = [];
+        foreach ($grupos as $g) {
+            $gid = (int) $g['id'];
+            $top2 = $porG[$gid] ?? [];
+            if (count($top2) !== 2) {
+                return [];
+            }
+            foreach ($g['equipos'] as $eq) {
+                $eid = (int) $eq['id'];
+                if (!in_array($eid, $top2, true)) {
+                    $pool[] = $eid;
+                }
+            }
+        }
+        return $pool;
+    }
+
+    /**
+     * @return list<int>|null 32 equipos o null si faltan grupos o mejores terceros oficiales
+     */
+    public function poolDieciseisavosOficial(): ?array
+    {
+        $g = $this->obtenerIdsOficialFase(self::F_GRUPOS);
+        if (count($g) < 24) {
+            return null;
+        }
+        $mt = $this->obtenerIdsOficialFase(self::F_MEJORES_TERCEROS);
+        if (count($mt) !== 8) {
+            return null;
+        }
+        return array_values(array_unique(array_merge($g, $mt)));
+    }
+
+    public function detalleJsonColaborador(string $codigo): array
+    {
+        return array_merge($this->obtenerResumenQuiniela($codigo), ['codigo' => $codigo]);
+    }
+
+    /**
+     * @return array<int, array{id:int,nombre:string,iso:?string,flag_url:string}>|null
      */
     public function datosEquipo(int $id): ?array
     {
@@ -653,65 +964,6 @@ class Quiniela
         return quiniela_flag_icon_html($d['iso'], $d['nombre'], true);
     }
 
-    /** Pendiente | En juego | Perdió | Completada */
-    public function estadoColaboradorQuiniela(string $codigo): string
-    {
-        if (!$this->usuarioCartaCerrada($codigo)) {
-            return 'Pendiente';
-        }
-        $sql = 'SELECT p.ganador_id, pr.ganador_id AS pred_ganador
-                FROM quiniela_prediccion pr
-                INNER JOIN quiniela_partido p ON p.id = pr.partido_id
-                WHERE pr.codigo_empleado = ? AND p.ganador_id IS NOT NULL';
-        $st = $this->pdo->prepare($sql);
-        $st->execute([$codigo]);
-        $fallo = false;
-        foreach ($st->fetchAll(PDO::FETCH_ASSOC) as $r) {
-            if ((int) $r['ganador_id'] !== (int) $r['pred_ganador']) {
-                $fallo = true;
-                break;
-            }
-        }
-        if ($fallo) {
-            return 'Perdió';
-        }
-        $total = $this->totalPartidos();
-        $conOf = $this->totalPartidosConResultadoOficial();
-        if ($total > 0 && $conOf === $total) {
-            return 'Completada';
-        }
-        return 'En juego';
-    }
-
-    /** @return list<array{codigo_empleado: string, nombre: string, status: string}> */
-    public function listarResumenColaboradoresQuiniela(PDO $pdoEmpleados): array
-    {
-        $sql = 'SELECT codigo_empleado FROM (
-                    SELECT DISTINCT codigo_empleado FROM quiniela_prediccion
-                    UNION
-                    SELECT codigo_empleado FROM quiniela_carta_cerrada WHERE cerrada = 1
-                ) t ORDER BY codigo_empleado ASC';
-        $codes = $this->pdo->query($sql)->fetchAll(PDO::FETCH_COLUMN);
-        $out = [];
-        foreach ($codes as $code) {
-            $code = (string) $code;
-            $out[] = [
-                'codigo_empleado' => $code,
-                'nombre' => $this->resolverNombreColaborador($pdoEmpleados, $code),
-                'status' => $this->estadoColaboradorQuiniela($code),
-            ];
-        }
-        return $out;
-    }
-
-    public function detalleJsonColaborador(string $codigo): array
-    {
-        return [
-            'codigo' => $codigo,
-            'predicciones' => $this->obtenerPrediccionesUsuarioDetalle($codigo),
-        ];
-    }
-
     public function listarTodosEquiposParaSelector(): array
     {
         if ($this->cacheListarTodosEquipos !== null) {
@@ -736,7 +988,7 @@ class Quiniela
         return $rows;
     }
 
-    /** @return array<string, string> id equipo => iso minúsculas o cadena vacía */
+    /** @return array<string, string> */
     public function mapaIsoPorEquipoId(): array
     {
         $out = [];

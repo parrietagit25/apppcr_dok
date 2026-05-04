@@ -23,7 +23,7 @@ $qBase = rtrim(BASE_URL_CONTROLLER, '/') . '/QuinielaController.php';
                 <div class="card-icon h-100 text-center p-4">
                     <i class="bi bi-ui-checks-grid text-success" style="font-size:2rem;"></i>
                     <div class="card-title mt-2">Arma tu quiniela</div>
-                    <small class="text-muted">Elige tu ganador en cada partido de la fase de grupos</small>
+                    <small class="text-muted">Selecciona tus clasificados por fase hasta elegir campeón</small>
                 </div>
             </a>
         </div>
@@ -32,7 +32,7 @@ $qBase = rtrim(BASE_URL_CONTROLLER, '/') . '/QuinielaController.php';
                 <div class="card-icon h-100 text-center p-4">
                     <i class="bi bi-list-ol text-primary" style="font-size:2rem;"></i>
                     <div class="card-title mt-2">Resultados</div>
-                    <small class="text-muted">Partidos y ganadores oficiales</small>
+                    <small class="text-muted">Clasificados oficiales y campeón</small>
                 </div>
             </a>
         </div>
@@ -46,7 +46,7 @@ $qBase = rtrim(BASE_URL_CONTROLLER, '/') . '/QuinielaController.php';
                 <div class="card-icon h-100 text-center p-3 border border-warning border-2">
                     <i class="bi bi-diagram-3 text-warning" style="font-size:1.75rem;"></i>
                     <div class="card-title mt-2 small">V-Quiniela</div>
-                    <small class="text-muted">Grupos, equipos y partidos</small>
+                    <small class="text-muted">Grupos y equipos</small>
                 </div>
             </a>
         </div>
@@ -55,7 +55,7 @@ $qBase = rtrim(BASE_URL_CONTROLLER, '/') . '/QuinielaController.php';
                 <div class="card-icon h-100 text-center p-3 border border-warning border-2">
                     <i class="bi bi-pencil-square text-warning" style="font-size:1.75rem;"></i>
                     <div class="card-title mt-2 small">V-Resultados</div>
-                    <small class="text-muted">Registrar ganadores por partido</small>
+                    <small class="text-muted">Registrar clasificados oficiales por fase</small>
                 </div>
             </a>
         </div>

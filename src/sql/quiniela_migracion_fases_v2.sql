@@ -1,36 +1,18 @@
--- Quiniela Mundial 2026 — bracket / llave (admin define estructura).
--- Migración desde versión anterior: ejecute quiniela_mundial_2026_migracion_esquema.sql y luego este archivo.
+-- Migración: quiniela por fases (elimina partidos/predicciones antiguos).
+-- Ejecutar DESPUÉS de backup si necesita conservar predicciones viejas.
+-- Conserva quiniela_grupo y quiniela_equipo intactos.
 
-SET NAMES utf8mb4;
-
-CREATE TABLE IF NOT EXISTS quiniela_grupo (
-  id INT UNSIGNED NOT NULL AUTO_INCREMENT,
-  nombre VARCHAR(120) NOT NULL,
-  orden_grupo TINYINT UNSIGNED NOT NULL,
-  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (id),
-  UNIQUE KEY uq_orden_grupo (orden_grupo)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
-CREATE TABLE IF NOT EXISTS quiniela_equipo (
-  id INT UNSIGNED NOT NULL AUTO_INCREMENT,
-  grupo_id INT UNSIGNED NOT NULL,
-  nombre VARCHAR(120) NOT NULL,
-  iso VARCHAR(2) NULL COMMENT 'ISO 3166-1 alpha-2 minúsculas; bandera flagcdn',
-  slot TINYINT UNSIGNED NOT NULL COMMENT '1-4',
-  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (id),
-  UNIQUE KEY uq_grupo_slot (grupo_id, slot),
-  CONSTRAINT fk_equipo_grupo FOREIGN KEY (grupo_id) REFERENCES quiniela_grupo (id) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+SET FOREIGN_KEY_CHECKS = 0;
+DROP TABLE IF EXISTS quiniela_prediccion;
+DROP TABLE IF EXISTS quiniela_partido;
+DROP TABLE IF EXISTS quiniela_carta_cerrada;
+SET FOREIGN_KEY_CHECKS = 1;
 
 CREATE TABLE IF NOT EXISTS quiniela_carta (
   id INT UNSIGNED NOT NULL AUTO_INCREMENT,
   codigo_empleado VARCHAR(32) NOT NULL COLLATE utf8mb4_unicode_ci,
   fase_actual VARCHAR(32) NOT NULL DEFAULT 'grupos',
-  cerrada TINYINT(1) NOT NULL DEFAULT 0 COMMENT '1 = quiniela terminada (campeón elegido)',
+  cerrada TINYINT(1) NOT NULL DEFAULT 0 COMMENT '1 = quiniela terminada (campeón)',
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (id),
@@ -41,9 +23,9 @@ CREATE TABLE IF NOT EXISTS quiniela_seleccion (
   id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   carta_id INT UNSIGNED NOT NULL,
   fase VARCHAR(32) NOT NULL,
-  grupo_id INT UNSIGNED NULL,
+  grupo_id INT UNSIGNED NULL COMMENT 'Origen en fases grupos/mejores_terceros',
   equipo_id INT UNSIGNED NOT NULL,
-  posicion TINYINT UNSIGNED NULL,
+  posicion TINYINT UNSIGNED NULL COMMENT 'Orden opcional dentro de la fase',
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (id),

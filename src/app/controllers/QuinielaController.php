@@ -36,11 +36,8 @@ if (!$es_administrador_quiniela && $_SERVER['REQUEST_METHOD'] === 'POST') {
     $adminPosts = [
         'crear_grupo_quiniela',
         'eliminar_grupo_quiniela',
-        'agregar_partido_fijo',
-        'agregar_partido_ganadores',
-        'eliminar_partido_quiniela',
-        'guardar_resultado_partido',
-        'actualizar_meta_partido',
+        'guardar_oficial_grupos',
+        'guardar_oficial_fase',
     ];
     foreach ($adminPosts as $k) {
         if (isset($_POST[$k])) {
@@ -62,7 +59,7 @@ if ($es_administrador_quiniela && isset($_GET['v_quiniela']) && $_SERVER['REQUES
             $equiposCrear[] = ['nombre' => $nom, 'iso' => $iso];
         }
         if ($quinielaModel->crearGrupoSoloEquipos($orden, $nomGrupo, $equiposCrear)) {
-            $mensaje = 'Grupo y equipos registrados. Ahora defina los partidos (enfrentamientos directos o entre ganadores).';
+            $mensaje = 'Grupo y equipos registrados.';
             $mensajeTipo = 'success';
         } else {
             $mensaje = 'No se pudo crear el grupo. Verifique número 1–12 sin duplicar y los 4 equipos.';
@@ -74,129 +71,173 @@ if ($es_administrador_quiniela && isset($_GET['v_quiniela']) && $_SERVER['REQUES
             $mensaje = 'Grupo eliminado.';
             $mensajeTipo = 'success';
         } else {
-            $mensaje = 'No se puede eliminar el grupo (predicciones, partidos referenciados o error).';
-            $mensajeTipo = 'danger';
-        }
-    } elseif (isset($_POST['agregar_partido_fijo'])) {
-        $gidRaw = $_POST['grupo_id_partido'] ?? '';
-        $grupoId = ($gidRaw === '' || $gidRaw === null) ? null : (int) $gidRaw;
-        $eqA = (int) ($_POST['equipo_a_id'] ?? $_POST['equipo_local_id'] ?? 0);
-        $eqB = (int) ($_POST['equipo_b_id'] ?? $_POST['equipo_visitante_id'] ?? 0);
-        $etq = trim((string) ($_POST['etiqueta_partido'] ?? ''));
-        $etq = $etq === '' ? null : $etq;
-        $fase = trim((string) ($_POST['fase_partido'] ?? ''));
-        $fase = $fase === '' ? null : $fase;
-        if ($quinielaModel->agregarPartidoFijo($grupoId, $eqA, $eqB, $etq, $fase)) {
-            $mensaje = 'Partido (enfrentamiento directo) agregado.';
-            $mensajeTipo = 'success';
-        } else {
-            $mensaje = 'No se pudo agregar el partido. Revise equipos y grupo.';
-            $mensajeTipo = 'danger';
-        }
-    } elseif (isset($_POST['agregar_partido_ganadores'])) {
-        $gidRaw = $_POST['grupo_id_partido_g'] ?? '';
-        $grupoId = ($gidRaw === '' || $gidRaw === null) ? null : (int) $gidRaw;
-        $sa = (int) ($_POST['src_partido_a'] ?? 0);
-        $sb = (int) ($_POST['src_partido_b'] ?? 0);
-        $etq = trim((string) ($_POST['etiqueta_partido_g'] ?? ''));
-        $etq = $etq === '' ? null : $etq;
-        $fase = trim((string) ($_POST['fase_partido_g'] ?? ''));
-        $fase = $fase === '' ? null : $fase;
-        if ($quinielaModel->agregarPartidoGanadores($grupoId, $sa, $sb, $etq, $fase)) {
-            $mensaje = 'Partido "entre ganadores" agregado.';
-            $mensajeTipo = 'success';
-        } else {
-            $mensaje = 'No se pudo agregar. Revise que los dos partidos existan y, si aplica, pertenezcan al mismo grupo.';
-            $mensajeTipo = 'danger';
-        }
-    } elseif (isset($_POST['eliminar_partido_quiniela'])) {
-        $pid = (int) ($_POST['partido_id'] ?? 0);
-        if ($pid > 0 && $quinielaModel->eliminarPartido($pid)) {
-            $mensaje = 'Partido eliminado.';
-            $mensajeTipo = 'success';
-        } else {
-            $mensaje = 'No se puede eliminar (hay predicciones u otros partidos dependen de este).';
-            $mensajeTipo = 'danger';
-        }
-    } elseif (isset($_POST['actualizar_meta_partido'])) {
-        $pid = (int) ($_POST['meta_partido_id'] ?? 0);
-        $ord = (int) ($_POST['meta_orden'] ?? 0);
-        $faseM = trim((string) ($_POST['meta_fase'] ?? ''));
-        $faseM = $faseM === '' ? null : $faseM;
-        $etqM = trim((string) ($_POST['meta_etiqueta'] ?? ''));
-        $etqM = $etqM === '' ? null : $etqM;
-        if ($pid > 0 && $ord > 0 && $quinielaModel->actualizarPartidoMeta($pid, $ord, $faseM, $etqM)) {
-            $mensaje = 'Partido actualizado (orden / fase / etiqueta).';
-            $mensajeTipo = 'success';
-        } else {
-            $mensaje = 'No se pudo actualizar el partido.';
+            $mensaje = 'No se puede eliminar el grupo (hay selecciones de quiniela u oficial que lo referencian).';
             $mensajeTipo = 'danger';
         }
     }
 }
 
-if ($es_administrador_quiniela && isset($_GET['v_resultados']) && $_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['guardar_resultado_partido'])) {
-    $pid = (int) ($_POST['partido_id'] ?? 0);
-    $gan = isset($_POST['ganador_id']) ? (int) $_POST['ganador_id'] : 0;
-    if ($gan === 0) {
-        $quinielaModel->guardarGanadorPartido($pid, null);
-        $mensaje = 'Resultado borrado.';
-        $mensajeTipo = 'warning';
-    } elseif ($quinielaModel->guardarGanadorPartido($pid, $gan)) {
-        $mensaje = 'Resultado guardado.';
-        $mensajeTipo = 'success';
-    } else {
-        $mensaje = 'No se pudo guardar: el ganador debe ser uno de los dos equipos en juego (en partidos "entre ganadores", ambos partidos previos deben tener resultado).';
-        $mensajeTipo = 'danger';
+if ($es_administrador_quiniela && isset($_GET['v_resultados']) && $_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (isset($_POST['guardar_oficial_grupos'])) {
+        $gruposAdminPost = $quinielaModel->listarGruposConEquipos();
+        $filas = [];
+        $err = false;
+        foreach ($gruposAdminPost as $g) {
+            $gid = (int) $g['id'];
+            $key = 'of_grupo_' . $gid;
+            $sel = isset($_POST[$key]) && is_array($_POST[$key]) ? array_map('intval', $_POST[$key]) : [];
+            $sel = array_values(array_unique($sel));
+            if (count($sel) !== 2) {
+                $mensaje = 'Debe elegir exactamente 2 clasificados por grupo.';
+                $mensajeTipo = 'danger';
+                $err = true;
+                break;
+            }
+            $valid = array_column($g['equipos'], 'id');
+            foreach ($sel as $eid) {
+                if (!in_array($eid, $valid, true)) {
+                    $mensaje = 'Equipo inválido en grupo.';
+                    $mensajeTipo = 'danger';
+                    $err = true;
+                    break 2;
+                }
+                $filas[] = ['equipo_id' => $eid, 'grupo_id' => $gid];
+            }
+        }
+        if (!$err && count($filas) > 0 && $quinielaModel->guardarOficialFase(Quiniela::F_GRUPOS, $filas)) {
+            $mensaje = 'Clasificados oficiales por grupo guardados.';
+            $mensajeTipo = 'success';
+        } elseif (!$err) {
+            $mensaje = 'No se pudo guardar.';
+            $mensajeTipo = 'danger';
+        }
+    } elseif (isset($_POST['guardar_oficial_fase'])) {
+        $fase = trim((string) ($_POST['fase_oficial'] ?? ''));
+        $ids = isset($_POST['equipo_oficial']) && is_array($_POST['equipo_oficial'])
+            ? array_map('intval', $_POST['equipo_oficial'])
+            : [];
+        if ($ids === [] && $fase === Quiniela::F_FINAL && isset($_POST['equipo_oficial_rad']) && is_numeric($_POST['equipo_oficial_rad'])) {
+            $ids = [(int) $_POST['equipo_oficial_rad']];
+        }
+        $esperado = Quiniela::cuentaEsperadaFase($fase);
+        if ($esperado <= 0 || count($ids) !== $esperado) {
+            $mensaje = 'Cantidad incorrecta de equipos para esta fase.';
+            $mensajeTipo = 'danger';
+        } else {
+            $filas = [];
+            foreach ($ids as $eid) {
+                $row = ['equipo_id' => $eid];
+                if ($fase === Quiniela::F_MEJORES_TERCEROS) {
+                    $gid = null;
+                    $st = $pdo->prepare('SELECT grupo_id FROM quiniela_equipo WHERE id = ?');
+                    $st->execute([$eid]);
+                    $gid = $st->fetchColumn();
+                    $row['grupo_id'] = $gid !== false ? (int) $gid : null;
+                }
+                $filas[] = $row;
+            }
+            if ($quinielaModel->guardarOficialFase($fase, $filas)) {
+                $mensaje = 'Resultado oficial guardado.';
+                $mensajeTipo = 'success';
+            } else {
+                $mensaje = 'No se pudo guardar.';
+                $mensajeTipo = 'danger';
+            }
+        }
     }
 }
 
 if (isset($_GET['arma_tu_quiniela']) && $_SERVER['REQUEST_METHOD'] === 'POST') {
-    if ($quinielaModel->usuarioCartaCerrada($codigoSesion)) {
-        $mensaje = 'Su quiniela ya está cerrada; no se puede modificar.';
+    if ($quinielaModel->quinielaEstaCerrada($codigoSesion)) {
+        $mensaje = 'Su quiniela está cerrada; no se puede modificar.';
         $mensajeTipo = 'info';
-    } else {
-        $mapPost = [];
-        foreach ($_POST as $k => $v) {
-            if (strpos($k, 'pred_') === 0) {
-                $mapPost[(int) substr($k, 5)] = (int) $v;
-            }
+    } elseif (isset($_POST['guardar_fase_grupos'])) {
+        $gruposPost = $quinielaModel->listarGruposConEquipos();
+        $porGrupo = [];
+        foreach ($gruposPost as $g) {
+            $gid = (int) $g['id'];
+            $key = 'grupo_' . $gid;
+            $sel = isset($_POST[$key]) && is_array($_POST[$key]) ? array_map('intval', $_POST[$key]) : [];
+            $porGrupo[$gid] = array_values(array_unique($sel));
         }
-        if (isset($_POST['guardar_progreso_quiniela'])) {
-            if ($quinielaModel->guardarProgresoPredicciones($codigoSesion, $mapPost)) {
-                $mensaje = 'Progreso guardado. Los cruces posteriores se actualizan según sus elecciones válidas.';
-                $mensajeTipo = 'success';
-            } else {
-                $mensaje = 'No se pudo guardar el progreso.';
-                $mensajeTipo = 'danger';
-            }
-        } elseif (isset($_POST['confirmar_quiniela'])) {
-            if ($quinielaModel->guardarProgresoPredicciones($codigoSesion, $mapPost)
-                && $quinielaModel->confirmarCartaColaborador($codigoSesion)) {
-                $mensaje = '¡Quiniela confirmada! Ya no podrá modificarla.';
-                $mensajeTipo = 'success';
-            } else {
-                $mensaje = 'No se puede confirmar: complete todos los partidos en orden y elija ganadores válidos en cada cruce (incluido el campeón). Guarde el progreso antes si hace falta.';
-                $mensajeTipo = 'danger';
-            }
+        if ($quinielaModel->guardarSeleccionGrupos($codigoSesion, $porGrupo)) {
+            $mensaje = 'Fase de grupos guardada. Continúe con la siguiente fase.';
+            $mensajeTipo = 'success';
+        } else {
+            $mensaje = 'Revise que marque exactamente 2 equipos por grupo.';
+            $mensajeTipo = 'danger';
+        }
+    } elseif (isset($_POST['guardar_fase_seleccion'])) {
+        $fase = trim((string) ($_POST['fase_guardar'] ?? ''));
+        $ids = [];
+        if (isset($_POST['equipo_sel']) && is_array($_POST['equipo_sel'])) {
+            $ids = array_map('intval', $_POST['equipo_sel']);
+        } elseif (isset($_POST['equipo_sel']) && is_numeric($_POST['equipo_sel']) && $fase === Quiniela::F_FINAL) {
+            $ids = [(int) $_POST['equipo_sel']];
+        }
+        if ($quinielaModel->guardarSeleccionFaseLista($codigoSesion, $fase, $ids)) {
+            $mensaje = $fase === Quiniela::F_FINAL
+                ? '¡Campeón registrado! Su quiniela ha quedado cerrada.'
+                : 'Fase guardada.';
+            $mensajeTipo = 'success';
+        } else {
+            $mensaje = 'Selección inválida para esta fase o fase incorrecta.';
+            $mensajeTipo = 'danger';
         }
     }
 }
 
 $gruposAdmin = $quinielaModel->listarGruposConEquipos();
-$partidosAdmin = $quinielaModel->listarTodosPartidosOrdenados();
 $equiposSelector = $quinielaModel->listarTodosEquiposParaSelector();
 $quinielaIsoPorEquipoId = $quinielaModel->mapaIsoPorEquipoId();
 $quinielaEquipoMetaPorId = $quinielaModel->mapaEquipoMetaPorId();
-$partidosPorGrupo = [];
-foreach ($gruposAdmin as $g) {
-    $partidosPorGrupo[$g['id']] = $quinielaModel->listarPartidosPorGrupo((int) $g['id']);
+
+if (isset($_GET['arma_tu_quiniela'])) {
+    $quinielaModel->crearCartaSiNoExiste($codigoSesion);
 }
-$partidosLlave = $quinielaModel->listarPartidosPorGrupo(null);
-$totalPartidos = $quinielaModel->totalPartidos();
-$cartaCerrada = $quinielaModel->usuarioCartaCerrada($codigoSesion);
-$mapaPrediccionesUsuario = $quinielaModel->obtenerMapaPredicciones($codigoSesion);
-$prediccionesDetalle = $cartaCerrada ? $quinielaModel->obtenerPrediccionesUsuarioDetalle($codigoSesion) : [];
+
+$cartaColaborador = $quinielaModel->obtenerCartaPorCodigo($codigoSesion);
+$faseActualUsuario = $cartaColaborador ? (string) $cartaColaborador['fase_actual'] : Quiniela::F_GRUPOS;
+$cartaCerrada = $quinielaModel->quinielaEstaCerrada($codigoSesion);
+$resumenQuinielaUsuario = $cartaColaborador ? $quinielaModel->obtenerResumenQuiniela($codigoSesion) : ['fases' => [], 'cerrada' => false];
+
+$poolDisponibleArma = null;
+if ($cartaColaborador && !$cartaCerrada) {
+    $poolDisponibleArma = $quinielaModel->obtenerEquiposDisponiblesPorFase($codigoSesion, $faseActualUsuario);
+}
+
+$resumenOficialPublico = $quinielaModel->obtenerResumenOficial();
+$adminOficialIdsPorFase = [];
+$adminPoolOficial = [
+    'mejores_terceros' => $quinielaModel->poolTercerosDesdeOficialGrupos(),
+    'dieciseisavos' => $quinielaModel->poolDieciseisavosOficial(),
+    'octavos' => null,
+    'cuartos' => null,
+    'semifinal' => null,
+    'final' => null,
+];
+foreach (Quiniela::ordenFases() as $f) {
+    $adminOficialIdsPorFase[$f] = $quinielaModel->obtenerIdsOficialFase($f);
+}
+$idsDieciO = $adminOficialIdsPorFase[Quiniela::F_DIECISEISAVOS] ?? [];
+$adminPoolOficial['octavos'] = count($idsDieciO) === 16 ? $idsDieciO : null;
+$idsOct = $adminOficialIdsPorFase[Quiniela::F_OCTAVOS] ?? [];
+$adminPoolOficial['cuartos'] = count($idsOct) === 8 ? $idsOct : null;
+$idsCua = $adminOficialIdsPorFase[Quiniela::F_CUARTOS] ?? [];
+$adminPoolOficial['semifinal'] = count($idsCua) === 4 ? $idsCua : null;
+$idsSemi = $adminOficialIdsPorFase[Quiniela::F_SEMIFINAL] ?? [];
+$adminPoolOficial['final'] = count($idsSemi) === 2 ? $idsSemi : null;
+
+$oficialGruposPorId = $quinielaModel->oficialGruposPorGrupo();
+
+$mapSelGruposUsuario = [];
+$idsSeleccionFasePantalla = [];
+if ($cartaColaborador) {
+    $cidu = (int) $cartaColaborador['id'];
+    $mapSelGruposUsuario = $quinielaModel->seleccionGruposPorGrupo($cidu);
+    $idsSeleccionFasePantalla = $quinielaModel->obtenerIdsSeleccionFase($cidu, $faseActualUsuario);
+}
+
 $colaboradoresLista = [];
 $colaboradoresJson = [];
 if ($es_administrador_quiniela && isset($_GET['colaboradores_quiniela'])) {
@@ -217,12 +258,12 @@ if (isset($_GET['resultados'])) {
     require_once __DIR__ . '/../views/quiniela_resultados.php';
     exit();
 }
-if (isset($_GET['v_quiniela'])) {
-    require_once __DIR__ . '/../views/quiniela_admin_grupos.php';
-    exit();
-}
 if (isset($_GET['v_resultados'])) {
     require_once __DIR__ . '/../views/quiniela_admin_resultados.php';
+    exit();
+}
+if (isset($_GET['v_quiniela'])) {
+    require_once __DIR__ . '/../views/quiniela_admin_grupos.php';
     exit();
 }
 if (isset($_GET['colaboradores_quiniela'])) {

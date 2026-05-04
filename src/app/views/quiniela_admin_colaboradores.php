@@ -21,7 +21,7 @@ $jsonDetalle = json_encode($colaboradoresJson ?? [], JSON_HEX_TAG | JSON_HEX_AMP
     </div>
 
     <?php if (count($colaboradoresLista) === 0) { ?>
-    <div class="alert alert-info">Aún no hay colaboradores con predicciones guardadas o quiniela cerrada.</div>
+    <div class="alert alert-info">Aún no hay cartas de quiniela registradas.</div>
     <?php } else { ?>
     <div class="table-responsive bg-white rounded shadow-sm">
         <table class="table table-sm table-striped mb-0" id="tablaColabQuiniela">
@@ -88,19 +88,31 @@ document.addEventListener('DOMContentLoaded', function () {
             var data = detalle[codigo];
             var titulo = document.getElementById('modalQuinielaTitulo');
             var body = document.getElementById('modalQuinielaBody');
-            if (!data || !data.predicciones) {
+            if (!data || !data.fases) {
                 body.innerHTML = '<p class="text-muted">Sin datos.</p>';
             } else {
                 titulo.textContent = 'Quiniela — ' + (data.nombre ? (data.nombre + ' · ') : '') + codigo;
-                var rows = data.predicciones.map(function (p) {
-                    var desc = p.descripcion_html || esc(p.descripcion || '');
-                    var pred = p.predicho_html || esc(p.predicho_nombre || '');
-                    var off = p.resultado_html
-                        ? p.resultado_html
-                        : (p.resultado_nombre ? ('<strong>' + esc(p.resultado_nombre) + '</strong>') : '<span class="text-muted">Pendiente</span>');
-                    return '<tr><td>' + esc(p.grupo_nombre || '') + '</td><td>' + desc + '</td><td>' + pred + '</td><td>' + off + '</td></tr>';
-                }).join('');
-                body.innerHTML = '<div class="table-responsive"><table class="table table-sm"><thead><tr><th>Grupo / fase</th><th>Partido</th><th>Predicción</th><th>Oficial</th></tr></thead><tbody>' + rows + '</tbody></table></div>';
+                var cerrada = data.cerrada ? ' <span class="badge bg-secondary">Cerrada</span>' : '';
+                var html = '<p class="small">' + cerrada + '</p>';
+                data.fases.forEach(function (bloque) {
+                    html += '<h6 class="mt-3">' + esc(bloque.etiqueta || bloque.fase || '') + '</h6>';
+                    if (bloque.grupos && bloque.grupos.length) {
+                        bloque.grupos.forEach(function (gr) {
+                            html += '<p class="mb-1 small text-muted">' + esc(gr.nombre_grupo || '') + '</p><ul class="small">';
+                            (gr.equipos || []).forEach(function (it) {
+                                html += '<li>' + (it.html || esc(it.nombre || '')) + '</li>';
+                            });
+                            html += '</ul>';
+                        });
+                    } else {
+                        html += '<ul class="small">';
+                        (bloque.equipos || []).forEach(function (it) {
+                            html += '<li>' + (it.html || esc(it.nombre || '')) + '</li>';
+                        });
+                        html += '</ul>';
+                    }
+                });
+                body.innerHTML = html;
             }
             var elModal = document.getElementById('modalDetalleQuiniela');
             if (typeof bootstrap !== 'undefined' && elModal) {
