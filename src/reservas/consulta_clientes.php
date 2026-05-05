@@ -14,10 +14,10 @@ register_shutdown_function(function () {
   }
 });
 
-$host = "db";  // Contenedor Docker MySQL
-$user = "appuser";
-$pass = "apppass";
-$db   = "apppcr";
+$host = getenv('DB_HOST') ?: 'db';
+$user = getenv('DB_USER') ?: 'appuser';
+$pass = getenv('DB_PASS') ?: '';
+$db   = getenv('DB_NAME') ?: 'apppcr';
 
 try {
   $pdo = new PDO("mysql:host=$host;dbname=$db;charset=utf8mb4", $user, $pass, [
@@ -26,7 +26,8 @@ try {
   ]);
 } catch (Throwable $e) {
   http_response_code(500);
-  echo json_encode(["error"=>"db_connect", "detail"=>$e->getMessage()]);
+  error_log("[clientes] DB connect error: " . $e->getMessage());
+  echo json_encode(["error"=>"db_connect"]);
   exit;
 }
 
@@ -51,5 +52,5 @@ try {
 } catch (Throwable $e) {
   http_response_code(500);
   error_log("[clientes] SQL error: ".$e->getMessage());
-  echo json_encode(["error"=>"sql", "detail"=>$e->getMessage()]);
+  echo json_encode(["error"=>"sql"]);
 }
