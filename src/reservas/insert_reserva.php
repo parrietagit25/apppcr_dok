@@ -12,10 +12,10 @@ register_shutdown_function(function () {
   }
 });
 
-$host = getenv('DB_HOST') ?: 'db';
-$usuario = getenv('DB_USER') ?: 'appuser';
-$contraseña = getenv('DB_PASS') ?: '';
-$dbname = getenv('DB_NAME') ?: 'apppcr';
+$host = "db";  // Contenedor Docker MySQL
+$usuario = "appuser";
+$contraseña = "apppass";
+$dbname = "apppcr";
 
 try {
   $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8mb4", $usuario, $contraseña, [
@@ -24,8 +24,7 @@ try {
   ]);
 } catch (Throwable $e) {
   http_response_code(500);
-  error_log("[reservas] DB connect error: ".$e->getMessage());
-  echo json_encode(["error"=>"DB connect"]);
+  echo json_encode(["error"=>"DB connect", "detail"=>$e->getMessage()]);
   exit;
 }
 
@@ -74,5 +73,5 @@ try {
 } catch (Throwable $e) {
   http_response_code(400);
   error_log("[reservas] Insert error: ".$e->getMessage()." | payload=".substr(json_encode($params),0,500));
-  echo json_encode(["error"=>"Error al insertar"]);
+  echo json_encode(["error"=>"Error al insertar","detail"=>$e->getMessage()]);
 }

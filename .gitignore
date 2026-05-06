@@ -1,5 +1,4 @@
 .env
-.env.example
 *.key
 src/prueba_mail.php
 src/mail.php

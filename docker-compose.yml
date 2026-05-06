@@ -11,28 +11,15 @@ services:
       - ./src:/var/www/html
     depends_on:
       - db
-    environment:
-      DB_HOST: ${DB_HOST}
-      DB_NAME: ${DB_NAME}
-      DB_USER: ${DB_USER}
-      DB_PASS: ${DB_PASS}
-      EMAIL_GLOBAL: ${EMAIL_GLOBAL}
-      API_IA: ${API_IA}
-      DB_EXTERNAL_HOST: ${DB_EXTERNAL_HOST}
-      DB_EXTERNAL_NAME: ${DB_EXTERNAL_NAME}
-      DB_EXTERNAL_USER: ${DB_EXTERNAL_USER}
-      DB_EXTERNAL_PASS: ${DB_EXTERNAL_PASS}
-      ENCRYPTION_KEY: ${ENCRYPTION_KEY}
-      API_SECRET_KEY: ${API_SECRET_KEY}
 
   db:
     image: mysql:8.0
     container_name: apppcr_db
     environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-      MYSQL_DATABASE: ${MYSQL_DATABASE}
-      MYSQL_USER: ${MYSQL_USER}
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_ROOT_PASSWORD: rootpass
+      MYSQL_DATABASE: apppcr
+      MYSQL_USER: appuser
+      MYSQL_PASSWORD: apppass
     volumes:
       - ./mysql:/var/lib/mysql
       - ./initdb:/docker-entrypoint-initdb.d  # <- 🔥 Carga SQL inicial automática
@@ -46,5 +33,5 @@ services:
       - "8087:80"
     environment:
       PMA_HOST: db
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_ROOT_PASSWORD: rootpass
 

@@ -3,17 +3,16 @@ header("Content-Type: application/json");
 
 // Configuración de la base de datos
 
-$host = getenv('DB_HOST') ?: 'db';
-$usuario = getenv('DB_USER') ?: 'appuser';
-$contraseña = getenv('DB_PASS') ?: '';
-$dbname = getenv('DB_NAME') ?: 'apppcr';
+$host = "db";  // Contenedor Docker MySQL
+$usuario = "appuser";
+$contraseña = "apppass";
+$dbname = "apppcr";
 
 // Conectar a MySQL
 $conn = new mysqli($host, $usuario, $contraseña, $dbname);
 
 if ($conn->connect_error) {
-    error_log("[reservas] DB connect error: " . $conn->connect_error);
-    die(json_encode(["error" => "Error de conexión a la base de datos"]));
+    die(json_encode(["error" => "Error de conexión a la base de datos: " . $conn->connect_error]));
 }
 
 // Recibir datos JSON
@@ -31,8 +30,7 @@ $stmt = $conn->prepare("DELETE FROM reservas");
 if ($stmt->execute()) {
     echo json_encode(["success" => true, "message" => "Registros Eliminados"]);
 } else {
-    error_log("[reservas] Delete error: " . $stmt->error);
-    echo json_encode(["error" => "Error al borrar"]);
+    echo json_encode(["error" => "Error al Borrar : " . $stmt->error]);
 }
 
 $stmt->close();
