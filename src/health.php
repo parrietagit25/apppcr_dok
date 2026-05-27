@@ -78,14 +78,18 @@ try {
         throw new RuntimeException('Constantes de base de datos no definidas en config.php');
     }
 
+    $pdoOptions = [
+        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+    ];
+    if (defined('PDO::MYSQL_ATTR_CONNECT_TIMEOUT')) {
+        $pdoOptions[constant('PDO::MYSQL_ATTR_CONNECT_TIMEOUT')] = 3;
+    }
+
     $pdo = new PDO(
         'mysql:host=' . DB_HOST . ';dbname=' . DB_NAME . ';charset=utf8mb4',
         DB_USER,
         DB_PASS,
-        [
-            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-            PDO::MYSQL_ATTR_CONNECT_TIMEOUT => 3,
-        ]
+        $pdoOptions
     );
     $pdo->query('SELECT 1');
     $dbStatus = 'ok';
