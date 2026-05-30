@@ -41,6 +41,14 @@ include __DIR__ . '/header.php';
                 </div>
             </a>
         </div>
+        <div class="col-4 mb-3">
+            <a href="https://palig.com/es/pa/busca-un-proveedor-medico" class="text-decoration-none" target="_blank" rel="noopener noreferrer">
+                <div class="card-icon">
+                    <img src="<?php echo BASE_URL_IMAGE; ?>red_proveedores_medicos.svg" alt="Red de proveedores médicos">
+                    <div class="card-title"><small>Red de proveedores médicos</small></div>
+                </div>
+            </a>
+        </div>
     </div>
 </div>
 
