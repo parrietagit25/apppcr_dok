@@ -67,7 +67,7 @@ $url_app_store = 'https://palig.com/_next/image?url=https%3A%2F%2Fimages.ctfasse
                 </a>
             </div>
             <div class="col">
-                <a href="<?php echo BASE_URL_CONTROLLER; ?>/MainController.php" class="text-white text-decoration-none d-block py-2">
+                <a href="<?php echo BASE_URL_CONTROLLER; ?>/MainController.php?n_poliza=1" class="text-white text-decoration-none d-block py-2">
                     <i class="bi bi-arrow-left-square-fill fs-4"></i><br><small>Volver</small>
                 </a>
             </div>

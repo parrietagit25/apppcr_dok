@@ -8,9 +8,14 @@ include __DIR__ . '/header.php';
 ?>
 
 <div class="container mt-4">
-    <div class="row">
-        <div class="col-12">
-            <div style="min-height: 60vh; background: #fff;"></div>
+    <div class="row text-center mb-3">
+        <div class="col-6 mb-4 mx-auto">
+            <a href="<?php echo BASE_URL_CONTROLLER; ?>/MainController.php?telemedicina=1" class="text-decoration-none">
+                <div style="background-color: #f8f9fa; padding: 20px; border-radius: 10px;">
+                    <img width="100" src="<?php echo BASE_URL_IMAGE; ?>telemedicina.png" alt="Telemedicina">
+                    <div class="card-title"><small>Telemedicina</small></div>
+                </div>
+            </a>
         </div>
     </div>
 </div>

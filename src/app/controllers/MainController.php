@@ -502,6 +502,11 @@ if (isset($_GET['info_poliza'])) {
 
 if (isset($_GET['telemedicina'])) {
 
+    if ((int) $tipo_usuario !== 1) {
+        header("Location: " . BASE_URL_CONTROLLER . "/MainController.php");
+        exit();
+    }
+
     require_once __DIR__ . '/../views/telemedicina.php';
     exit();
     
