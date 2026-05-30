@@ -50,7 +50,7 @@ include __DIR__ . '/header.php';
             </a>
         </div>
         <div class="col-4 mb-3">
-            <a href="<?php echo BASE_URL_CONTROLLER; ?>/CarnetController.php" class="text-decoration-none">
+            <a href="<?php echo BASE_URL_CONTROLLER; ?>/MainController.php?mi_carnet_n_poliza=1" class="text-decoration-none">
                 <div class="card-icon">
                     <img src="<?php echo BASE_URL_IMAGE; ?>carnet.svg" alt="Mi carnet">
                     <div class="card-title"><small>Mi carnet</small></div>

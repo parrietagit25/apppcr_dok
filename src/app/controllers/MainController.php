@@ -493,6 +493,18 @@ if (isset($_GET['n_poliza'])) {
     
 }
 
+if (isset($_GET['mi_carnet_n_poliza'])) {
+
+    if ((int) $tipo_usuario !== 1) {
+        header("Location: " . BASE_URL_CONTROLLER . "/MainController.php");
+        exit();
+    }
+
+    require_once __DIR__ . '/../views/mi_carnet_n_poliza.php';
+    exit();
+    
+}
+
 if (isset($_GET['info_poliza'])) {
 
     require_once __DIR__ . '/../views/info_mapfre.php';
