@@ -71,31 +71,8 @@ $url_volver_instructivos = (isset($_GET['from']) && $_GET['from'] === 'poliza')
 </div>
 
 <?php if ($tiene_acceso_rrhh_instructivos): ?>
-<style>
-.instructivos-autocomplete-wrap { position: relative; }
-.instructivos-autocomplete-list {
-    position: absolute;
-    z-index: 1060;
-    left: 0;
-    right: 0;
-    max-height: 220px;
-    overflow-y: auto;
-    background: #fff;
-    border: 1px solid #dee2e6;
-    border-radius: 0.375rem;
-    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
-    display: none;
-}
-.instructivos-autocomplete-list.show { display: block; }
-.instructivos-autocomplete-item {
-    padding: 0.5rem 0.75rem;
-    cursor: pointer;
-    border-bottom: 1px solid #f1f3f5;
-}
-.instructivos-autocomplete-item:hover,
-.instructivos-autocomplete-item.active { background: #e7f1ff; }
-.instructivos-autocomplete-item:last-child { border-bottom: none; }
-</style>
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" rel="stylesheet" />
 <div class="modal fade" id="modalAsignarInstructivo" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog">
         <form method="POST" action="<?php echo rtrim(BASE_URL_CONTROLLER, '/'); ?>/MainController.php?instructivos_asegurado=1">
@@ -108,26 +85,16 @@ $url_volver_instructivos = (isset($_GET['from']) && $_GET['from'] === 'poliza')
                     <p class="text-muted small mb-3" id="asignarDocTitulo"></p>
                     <input type="hidden" name="instructivos_asignar" value="1">
                     <input type="hidden" name="documento_codigo" id="asignarDocumentoCodigo" value="">
-                    <label for="buscar_colaborador_instructivo" class="form-label">Buscar colaborador (rápido)</label>
-                    <div class="instructivos-autocomplete-wrap mb-3">
-                        <input type="text"
-                               id="buscar_colaborador_instructivo"
-                               class="form-control"
-                               placeholder="Código, nombre o apellido (mín. 2 caracteres)"
-                               autocomplete="off">
-                        <div id="listaColaboradoresInstructivo" class="instructivos-autocomplete-list" role="listbox"></div>
-                    </div>
-                    <label for="codigo_empleado" class="form-label">O seleccione de la lista</label>
+                    <label for="codigo_empleado" class="form-label">Colaborador</label>
                     <select name="codigo_empleado" id="codigo_empleado" class="form-select" required>
-                        <option value="">-- Seleccione colaborador --</option>
+                        <option value=""></option>
                         <?php foreach ($colaboradores_instructivos as $colab): ?>
-                        <option value="<?php echo htmlspecialchars($colab['codigo_empleado'], ENT_QUOTES, 'UTF-8'); ?>"
-                                data-label="<?php echo htmlspecialchars($colab['codigo_empleado'] . ' - ' . $colab['nombre'] . ' ' . $colab['apellido'], ENT_QUOTES, 'UTF-8'); ?>">
+                        <option value="<?php echo htmlspecialchars($colab['codigo_empleado'], ENT_QUOTES, 'UTF-8'); ?>">
                             <?php echo htmlspecialchars($colab['codigo_empleado'] . ' - ' . $colab['nombre'] . ' ' . $colab['apellido'], ENT_QUOTES, 'UTF-8'); ?>
                         </option>
                         <?php endforeach; ?>
                     </select>
-                    <small class="text-muted d-block mt-2">Puede usar la búsqueda rápida o el listado completo.</small>
+                    <small class="text-muted d-block mt-2">Escriba en el campo para buscar por código o nombre.</small>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
@@ -153,114 +120,43 @@ $url_volver_instructivos = (isset($_GET['from']) && $_GET['from'] === 'poliza')
     </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script>
 (function () {
     const baseController = <?php echo json_encode(rtrim(BASE_URL_CONTROLLER, '/') . '/MainController.php'); ?>;
 
-    const inputBuscar = document.getElementById('buscar_colaborador_instructivo');
-    const selectCodigo = document.getElementById('codigo_empleado');
-    const listaAutocomplete = document.getElementById('listaColaboradoresInstructivo');
-    let debounceTimer = null;
-    let resultadosActuales = [];
-
-    function resetAutocompleteAsignar() {
-        if (inputBuscar) inputBuscar.value = '';
-        if (selectCodigo) selectCodigo.value = '';
-        if (listaAutocomplete) {
-            listaAutocomplete.innerHTML = '';
-            listaAutocomplete.classList.remove('show');
-        }
-        resultadosActuales = [];
-    }
-
-    function syncBuscarDesdeSelect() {
-        if (!selectCodigo || !inputBuscar) return;
-        const opt = selectCodigo.options[selectCodigo.selectedIndex];
-        if (selectCodigo.value && opt) {
-            inputBuscar.value = opt.getAttribute('data-label') || opt.textContent;
-        }
-    }
-
-    function renderAutocomplete(items) {
-        resultadosActuales = items;
-        if (!items.length) {
-            listaAutocomplete.innerHTML = '<div class="instructivos-autocomplete-item text-muted">Sin resultados</div>';
-            listaAutocomplete.classList.add('show');
-            return;
-        }
-        listaAutocomplete.innerHTML = items.map(function (u, idx) {
-            const label = escapeHtml(u.codigo_empleado + ' - ' + (u.nombre || '') + ' ' + (u.apellido || ''));
-            return '<div class="instructivos-autocomplete-item" data-idx="' + idx + '" role="option">' + label + '</div>';
-        }).join('');
-        listaAutocomplete.classList.add('show');
-        listaAutocomplete.querySelectorAll('.instructivos-autocomplete-item[data-idx]').forEach(function (el) {
-            el.addEventListener('click', function () {
-                seleccionarColaborador(resultadosActuales[parseInt(el.getAttribute('data-idx'), 10)]);
-            });
-        });
-    }
-
-    function seleccionarColaborador(u) {
-        if (!u || !selectCodigo) return;
-        selectCodigo.value = u.codigo_empleado;
-        inputBuscar.value = u.codigo_empleado + ' - ' + (u.nombre || '') + ' ' + (u.apellido || '');
-        listaAutocomplete.classList.remove('show');
-    }
-
-    if (selectCodigo) {
-        selectCodigo.addEventListener('change', syncBuscarDesdeSelect);
-    }
-
-    if (inputBuscar) {
-        inputBuscar.addEventListener('input', function () {
-            if (selectCodigo) selectCodigo.value = '';
-            const q = inputBuscar.value.trim();
-            if (q.length < 2) {
-                listaAutocomplete.classList.remove('show');
-                listaAutocomplete.innerHTML = '';
-                return;
-            }
-            clearTimeout(debounceTimer);
-            debounceTimer = setTimeout(function () {
-                fetch(baseController + '?instructivos_buscar_colaborador=1&q=' + encodeURIComponent(q))
-                    .then(function (r) { return r.json(); })
-                    .then(function (data) { renderAutocomplete(Array.isArray(data) ? data : []); })
-                    .catch(function () {
-                        listaAutocomplete.innerHTML = '<div class="instructivos-autocomplete-item text-danger">Error al buscar</div>';
-                        listaAutocomplete.classList.add('show');
-                    });
-            }, 300);
-        });
-
-        inputBuscar.addEventListener('keydown', function (e) {
-            if (e.key === 'Escape') {
-                listaAutocomplete.classList.remove('show');
-            }
-        });
-    }
-
-    document.addEventListener('click', function (e) {
-        if (!e.target.closest('.instructivos-autocomplete-wrap')) {
-            listaAutocomplete.classList.remove('show');
-        }
+    $('#modalAsignarInstructivo').on('show.bs.modal', function (event) {
+        const btn = event.relatedTarget;
+        document.getElementById('asignarDocumentoCodigo').value = btn.getAttribute('data-documento') || '';
+        document.getElementById('asignarDocTitulo').textContent = btn.getAttribute('data-titulo') || '';
     });
 
-    const modalAsignar = document.getElementById('modalAsignarInstructivo');
-    if (modalAsignar) {
-        modalAsignar.addEventListener('show.bs.modal', function (event) {
-            const btn = event.relatedTarget;
-            document.getElementById('asignarDocumentoCodigo').value = btn.getAttribute('data-documento') || '';
-            document.getElementById('asignarDocTitulo').textContent = btn.getAttribute('data-titulo') || '';
-            resetAutocompleteAsignar();
-        });
-
-        modalAsignar.querySelector('form').addEventListener('submit', function (e) {
-            if (!selectCodigo || !selectCodigo.value.trim()) {
-                e.preventDefault();
-                alert('Seleccione un colaborador (búsqueda rápida o listado).');
+    $('#modalAsignarInstructivo').on('shown.bs.modal', function () {
+        const $select = $('#codigo_empleado');
+        if ($select.data('select2')) {
+            $select.select2('destroy');
+        }
+        $select.select2({
+            theme: 'bootstrap-5',
+            dropdownParent: $('#modalAsignarInstructivo'),
+            width: '100%',
+            placeholder: 'Buscar o seleccione colaborador...',
+            allowClear: true,
+            minimumResultsForSearch: 0,
+            language: {
+                noResults: function () { return 'No se encontraron resultados'; },
+                searching: function () { return 'Buscando...'; }
             }
         });
-    }
+        $select.val(null).trigger('change');
+    });
+
+    $('#modalAsignarInstructivo').on('hidden.bs.modal', function () {
+        const $select = $('#codigo_empleado');
+        if ($select.data('select2')) {
+            $select.select2('destroy');
+        }
+    });
 
     document.querySelectorAll('.btn-ver-asignados').forEach(function (btn) {
         btn.addEventListener('click', function () {
