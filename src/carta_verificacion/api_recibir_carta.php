@@ -6,8 +6,7 @@
 
 header('Content-Type: application/json');
 
-// Configuración
-define('API_SECRET_KEY', 'PCR_API_KEY_2025_SECURE_CHANGE_THIS'); // Cambiar por una clave segura
+require_once __DIR__ . '/config.php';
 
 // Solo permitir POST
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -16,12 +15,32 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit;
 }
 
-// Verificar autenticación
-$headers = getallheaders();
-// Apache puede normalizar headers, buscar en diferentes formatos
-$auth_key = $headers['X-API-Key'] ?? $headers['X-Api-Key'] ?? $headers['x-api-key'] ?? '';
+/**
+ * Lee X-API-Key (Apache, Nginx/FPM y proxies suelen exponerlo distinto).
+ */
+function carta_api_obtener_clave_request(): string
+{
+    $headers = function_exists('getallheaders') ? getallheaders() : [];
+    if (!is_array($headers)) {
+        $headers = [];
+    }
+    $normalized = [];
+    foreach ($headers as $name => $value) {
+        $normalized[strtolower((string) $name)] = trim((string) $value);
+    }
+    if (!empty($normalized['x-api-key'])) {
+        return $normalized['x-api-key'];
+    }
+    if (!empty($_SERVER['HTTP_X_API_KEY'])) {
+        return trim((string) $_SERVER['HTTP_X_API_KEY']);
+    }
+    return '';
+}
 
-if ($auth_key !== API_SECRET_KEY) {
+// Verificar autenticación
+$auth_key = carta_api_obtener_clave_request();
+
+if ($auth_key === '' || !defined('API_SECRET_KEY') || $auth_key !== API_SECRET_KEY) {
     http_response_code(401);
     echo json_encode(['error' => 'No autorizado']);
     exit;
@@ -48,8 +67,6 @@ foreach ($required as $field) {
 }
 
 try {
-    // Conectar a BD local de GoDaddy
-    require_once __DIR__ . '/config.php';
     require_once __DIR__ . '/DatabaseExternal.php';
     
     $db = DatabaseExternal::getInstance();

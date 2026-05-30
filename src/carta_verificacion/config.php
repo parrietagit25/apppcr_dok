@@ -26,5 +26,5 @@ define('QR_FORMAT', 'png');
 
 // API de sincronización con GoDaddy
 define('API_GODADDY_URL', 'https://grupopcr.com.pa/carta/api_recibir_carta.php');
-define('API_SECRET_KEY', 'PCR_API_KEY_2025_SECURE_CHANGE_THIS'); // ⚠️ Cambiar por una clave segura única
+define('API_SECRET_KEY', 'c25854f002ca4cd308ff123e63df6c3786d84a5a9b7b7ef6a64cc96fdb25fad9'); // ⚠️ Cambiar por una clave segura única
 

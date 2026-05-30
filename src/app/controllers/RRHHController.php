@@ -989,7 +989,7 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
         try {
             $resultado_godaddy = $verificacionService->enviarAGoDaddy($datos_carta_bd, $deducciones_para_bd);
             error_log("Carta sincronizada con GoDaddy. ID local: $carta_bd_id, ID remoto: " . $resultado_godaddy['carta_id']);
-        } catch (Exception $e) {
+        } catch (Throwable $e) {
             // Log del error pero no falla la generación de carta
             error_log("ADVERTENCIA: No se pudo sincronizar con GoDaddy: " . $e->getMessage());
             // La carta ya está guardada localmente, así que continuamos
