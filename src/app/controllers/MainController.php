@@ -500,5 +500,12 @@ if (isset($_GET['info_poliza'])) {
     
 }
 
+if (isset($_GET['telemedicina'])) {
+
+    require_once __DIR__ . '/../views/telemedicina.php';
+    exit();
+    
+}
+
 // Cargar la vista
 require_once __DIR__ . '/../views/main.php';
