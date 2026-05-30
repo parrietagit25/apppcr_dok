@@ -98,6 +98,14 @@ include __DIR__ . '/header.php';
                 </a>
             </div>
             <div class="col-4 mb-3">
+                <a href="<?php echo BASE_URL_CONTROLLER; ?>/MainController.php?n_poliza=1" class="text-decoration-none">
+                    <div class="card-icon">
+                        <img src="<?php echo BASE_URL_IMAGE; ?>mi_poliza.svg" alt="N- Poliza">
+                        <div class="card-title"><small>N- Poliza</small></div>
+                    </div>
+                </a>
+            </div>
+            <div class="col-4 mb-3">
                 <a href="https://www.talentoen360.com/loginForm" class="text-decoration-none" target="_blank">
                     <div class="card-icon">
                         <img src="<?php echo BASE_URL_IMAGE; ?>ico_evaluacion.svg" alt="Evaluación">

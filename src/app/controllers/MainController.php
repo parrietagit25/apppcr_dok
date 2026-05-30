@@ -481,6 +481,13 @@ if (isset($_GET['poliza'])) {
     
 }
 
+if (isset($_GET['n_poliza'])) {
+
+    require_once __DIR__ . '/../views/n_poliza.php';
+    exit();
+    
+}
+
 if (isset($_GET['info_poliza'])) {
 
     require_once __DIR__ . '/../views/info_mapfre.php';
