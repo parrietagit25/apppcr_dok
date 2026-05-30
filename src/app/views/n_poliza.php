@@ -18,7 +18,7 @@ include __DIR__ . '/header.php';
             </a>
         </div>
         <div class="col-4 mb-3">
-            <a href="<?php echo BASE_URL_CONTROLLER; ?>/MainController.php?instructivos_asegurado=1" class="text-decoration-none">
+            <a href="<?php echo BASE_URL_CONTROLLER; ?>/MainController.php?instructivos_asegurado=1&amp;from=n_poliza" class="text-decoration-none">
                 <div class="card-icon">
                     <img src="<?php echo BASE_URL_IMAGE; ?>instructivos_asegurado.svg" alt="Instructivos para el asegurado">
                     <div class="card-title"><small>Instructivos para el asegurado</small></div>

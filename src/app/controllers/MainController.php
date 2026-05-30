@@ -512,12 +512,76 @@ if (isset($_GET['telemedicina'])) {
     
 }
 
-if (isset($_GET['instructivos_asegurado'])) {
-
-    if ((int) $tipo_usuario !== 1) {
-        header("Location: " . BASE_URL_CONTROLLER . "/MainController.php");
+if (isset($_GET['instructivos_asignados_json'])) {
+    header('Content-Type: application/json; charset=utf-8');
+    $tiene_acceso_rrhh_json = ((int) $tipo_usuario === 1 || (int) $tipo_usuario === 4
+        || in_array(trim($_SESSION['code'] ?? ''), ['001404', '001688'], true));
+    if (!$tiene_acceso_rrhh_json) {
+        http_response_code(403);
+        echo json_encode(['success' => false, 'message' => 'No autorizado']);
         exit();
     }
+    require_once __DIR__ . '/../models/Instructivos.php';
+    $instructivosModel = new Instructivos($pdo);
+    $doc = $_GET['documento'] ?? '';
+    if (!$instructivosModel->codigoValido($doc) || !empty(Instructivos::DOCUMENTOS[$doc]['publico'])) {
+        echo json_encode(['success' => false, 'message' => 'Documento inválido']);
+        exit();
+    }
+    echo json_encode([
+        'success' => true,
+        'asignados' => $instructivosModel->listarAsignados($doc),
+    ]);
+    exit();
+}
+
+if (isset($_GET['instructivos_asegurado'])) {
+
+    require_once __DIR__ . '/../models/Instructivos.php';
+    $instructivosModel = new Instructivos($pdo);
+
+    $tiene_acceso_rrhh_instructivos = ((int) $tipo_usuario === 1 || (int) $tipo_usuario === 4
+        || in_array(trim($_SESSION['code'] ?? ''), ['001404', '001688'], true));
+    $codigo_sesion = trim($_SESSION['code'] ?? '');
+    $url_base_instructivos = rtrim(BASE_URL_CONTROLLER, '/') . '/MainController.php?instructivos_asegurado=1';
+
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && $tiene_acceso_rrhh_instructivos) {
+        if (isset($_POST['instructivos_asignar'])) {
+            $doc = $_POST['documento_codigo'] ?? '';
+            $codigo_colab = $_POST['codigo_empleado'] ?? '';
+            if ($instructivosModel->asignar($doc, $codigo_colab, $codigo_sesion)) {
+                header('Location: ' . $url_base_instructivos . '&msg=asignado');
+            } else {
+                header('Location: ' . $url_base_instructivos . '&msg=error_asignar');
+            }
+            exit();
+        }
+        if (isset($_POST['instructivos_quitar'])) {
+            $id = (int) ($_POST['id_asignacion'] ?? 0);
+            if ($id > 0 && $instructivosModel->quitar($id)) {
+                header('Location: ' . $url_base_instructivos . '&msg=quitado');
+            } else {
+                header('Location: ' . $url_base_instructivos . '&msg=error_quitar');
+            }
+            exit();
+        }
+    }
+
+    $documentos_instructivos = [];
+    foreach (Instructivos::DOCUMENTOS as $codigo => $meta) {
+        $puede_ver = $instructivosModel->puedeVer($codigo, $codigo_sesion, $tiene_acceso_rrhh_instructivos);
+        if (!$puede_ver) {
+            continue;
+        }
+        $documentos_instructivos[$codigo] = $meta;
+        $documentos_instructivos[$codigo]['codigo'] = $codigo;
+        $documentos_instructivos[$codigo]['url_pdf'] = Instructivos::urlPdf($meta['archivo']);
+        $documentos_instructivos[$codigo]['restringido'] = empty($meta['publico']);
+    }
+
+    $colaboradores_instructivos = $tiene_acceso_rrhh_instructivos
+        ? $instructivosModel->listarColaboradoresActivos()
+        : [];
 
     require_once __DIR__ . '/../views/instructivos_asegurado.php';
     exit();
