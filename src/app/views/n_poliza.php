@@ -9,11 +9,27 @@ include __DIR__ . '/header.php';
 
 <div class="container mt-4">
     <div class="row text-center mb-3">
-        <div class="col-6 mb-4 mx-auto">
+        <div class="col-4 mb-3">
             <a href="<?php echo BASE_URL_CONTROLLER; ?>/MainController.php?telemedicina=1" class="text-decoration-none">
-                <div style="background-color: #f8f9fa; padding: 20px; border-radius: 10px;">
-                    <img width="100" src="<?php echo BASE_URL_IMAGE; ?>telemedicina.png" alt="Telemedicina">
+                <div class="card-icon">
+                    <img src="<?php echo BASE_URL_IMAGE; ?>telemedicina.png" alt="Telemedicina">
                     <div class="card-title"><small>Telemedicina</small></div>
+                </div>
+            </a>
+        </div>
+        <div class="col-4 mb-3">
+            <a href="<?php echo BASE_URL_CONTROLLER; ?>/MainController.php?instructivos_asegurado=1" class="text-decoration-none">
+                <div class="card-icon">
+                    <img src="<?php echo BASE_URL_IMAGE; ?>instructivos_asegurado.svg" alt="Instructivos para el asegurado">
+                    <div class="card-title"><small>Instructivos para el asegurado</small></div>
+                </div>
+            </a>
+        </div>
+        <div class="col-4 mb-3">
+            <a href="<?php echo BASE_URL_CONTROLLER; ?>/MainController.php?portal_asegurados=1" class="text-decoration-none">
+                <div class="card-icon">
+                    <img src="<?php echo BASE_URL_IMAGE; ?>portal_asegurados.svg" alt="Portal de asegurados">
+                    <div class="card-title"><small>Portal de asegurados</small></div>
                 </div>
             </a>
         </div>

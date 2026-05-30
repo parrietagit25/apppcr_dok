@@ -512,5 +512,29 @@ if (isset($_GET['telemedicina'])) {
     
 }
 
+if (isset($_GET['instructivos_asegurado'])) {
+
+    if ((int) $tipo_usuario !== 1) {
+        header("Location: " . BASE_URL_CONTROLLER . "/MainController.php");
+        exit();
+    }
+
+    require_once __DIR__ . '/../views/instructivos_asegurado.php';
+    exit();
+    
+}
+
+if (isset($_GET['portal_asegurados'])) {
+
+    if ((int) $tipo_usuario !== 1) {
+        header("Location: " . BASE_URL_CONTROLLER . "/MainController.php");
+        exit();
+    }
+
+    require_once __DIR__ . '/../views/portal_asegurados.php';
+    exit();
+    
+}
+
 // Cargar la vista
 require_once __DIR__ . '/../views/main.php';
