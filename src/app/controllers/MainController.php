@@ -536,5 +536,17 @@ if (isset($_GET['portal_asegurados'])) {
     
 }
 
+if (isset($_GET['info_palig'])) {
+
+    if ((int) $tipo_usuario !== 1) {
+        header("Location: " . BASE_URL_CONTROLLER . "/MainController.php");
+        exit();
+    }
+
+    require_once __DIR__ . '/../views/info_palig.php';
+    exit();
+    
+}
+
 // Cargar la vista
 require_once __DIR__ . '/../views/main.php';
