@@ -97,6 +97,7 @@ include __DIR__ . '/header.php';
                     </div>
                 </a>
             </div>
+            <?php if ((int) ($tipo_usuario ?? 0) === 1) { ?>
             <div class="col-4 mb-3">
                 <a href="<?php echo BASE_URL_CONTROLLER; ?>/MainController.php?n_poliza=1" class="text-decoration-none">
                     <div class="card-icon">
@@ -105,6 +106,7 @@ include __DIR__ . '/header.php';
                     </div>
                 </a>
             </div>
+            <?php } ?>
             <div class="col-4 mb-3">
                 <a href="https://www.talentoen360.com/loginForm" class="text-decoration-none" target="_blank">
                     <div class="card-icon">

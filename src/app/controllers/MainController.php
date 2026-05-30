@@ -483,6 +483,11 @@ if (isset($_GET['poliza'])) {
 
 if (isset($_GET['n_poliza'])) {
 
+    if ((int) $tipo_usuario !== 1) {
+        header("Location: " . BASE_URL_CONTROLLER . "/MainController.php");
+        exit();
+    }
+
     require_once __DIR__ . '/../views/n_poliza.php';
     exit();
     
