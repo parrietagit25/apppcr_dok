@@ -598,6 +598,10 @@ if (isset($_GET['instructivos_asegurado'])) {
         $documentos_instructivos[$codigo]['restringido'] = empty($meta['publico']);
     }
 
+    $colaboradores_instructivos = $tiene_acceso_rrhh_instructivos
+        ? $instructivosModel->listarColaboradoresActivos()
+        : [];
+
     require_once __DIR__ . '/../views/instructivos_asegurado.php';
     exit();
     

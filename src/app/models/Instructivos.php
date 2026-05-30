@@ -119,6 +119,19 @@ class Instructivos
         return $stmt->execute([':id' => $id]);
     }
 
+    public function listarColaboradoresActivos(): array
+    {
+        $stmt = $this->pdo->query(
+            'SELECT e.codigo_empleado, e.nombre, e.apellido
+             FROM empleados e
+             INNER JOIN empleado_log el ON e.codigo_empleado = el.codigo
+             WHERE el.stat = 1
+             ORDER BY e.nombre ASC, e.apellido ASC'
+        );
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
     public function buscarColaboradores(string $termino, int $limite = 20): array
     {
         $termino = trim($termino);

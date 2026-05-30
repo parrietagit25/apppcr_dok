@@ -108,17 +108,26 @@ $url_volver_instructivos = (isset($_GET['from']) && $_GET['from'] === 'poliza')
                     <p class="text-muted small mb-3" id="asignarDocTitulo"></p>
                     <input type="hidden" name="instructivos_asignar" value="1">
                     <input type="hidden" name="documento_codigo" id="asignarDocumentoCodigo" value="">
-                    <label for="buscar_colaborador_instructivo" class="form-label">Buscar colaborador</label>
-                    <div class="instructivos-autocomplete-wrap">
+                    <label for="buscar_colaborador_instructivo" class="form-label">Buscar colaborador (rápido)</label>
+                    <div class="instructivos-autocomplete-wrap mb-3">
                         <input type="text"
                                id="buscar_colaborador_instructivo"
                                class="form-control"
                                placeholder="Código, nombre o apellido (mín. 2 caracteres)"
                                autocomplete="off">
-                        <input type="hidden" name="codigo_empleado" id="codigo_empleado" value="">
                         <div id="listaColaboradoresInstructivo" class="instructivos-autocomplete-list" role="listbox"></div>
                     </div>
-                    <small class="text-muted">Escriba al menos 2 caracteres y seleccione de la lista.</small>
+                    <label for="codigo_empleado" class="form-label">O seleccione de la lista</label>
+                    <select name="codigo_empleado" id="codigo_empleado" class="form-select" required>
+                        <option value="">-- Seleccione colaborador --</option>
+                        <?php foreach ($colaboradores_instructivos as $colab): ?>
+                        <option value="<?php echo htmlspecialchars($colab['codigo_empleado'], ENT_QUOTES, 'UTF-8'); ?>"
+                                data-label="<?php echo htmlspecialchars($colab['codigo_empleado'] . ' - ' . $colab['nombre'] . ' ' . $colab['apellido'], ENT_QUOTES, 'UTF-8'); ?>">
+                            <?php echo htmlspecialchars($colab['codigo_empleado'] . ' - ' . $colab['nombre'] . ' ' . $colab['apellido'], ENT_QUOTES, 'UTF-8'); ?>
+                        </option>
+                        <?php endforeach; ?>
+                    </select>
+                    <small class="text-muted d-block mt-2">Puede usar la búsqueda rápida o el listado completo.</small>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
@@ -149,19 +158,27 @@ $url_volver_instructivos = (isset($_GET['from']) && $_GET['from'] === 'poliza')
     const baseController = <?php echo json_encode(rtrim(BASE_URL_CONTROLLER, '/') . '/MainController.php'); ?>;
 
     const inputBuscar = document.getElementById('buscar_colaborador_instructivo');
-    const inputCodigo = document.getElementById('codigo_empleado');
+    const selectCodigo = document.getElementById('codigo_empleado');
     const listaAutocomplete = document.getElementById('listaColaboradoresInstructivo');
     let debounceTimer = null;
     let resultadosActuales = [];
 
     function resetAutocompleteAsignar() {
         if (inputBuscar) inputBuscar.value = '';
-        if (inputCodigo) inputCodigo.value = '';
+        if (selectCodigo) selectCodigo.value = '';
         if (listaAutocomplete) {
             listaAutocomplete.innerHTML = '';
             listaAutocomplete.classList.remove('show');
         }
         resultadosActuales = [];
+    }
+
+    function syncBuscarDesdeSelect() {
+        if (!selectCodigo || !inputBuscar) return;
+        const opt = selectCodigo.options[selectCodigo.selectedIndex];
+        if (selectCodigo.value && opt) {
+            inputBuscar.value = opt.getAttribute('data-label') || opt.textContent;
+        }
     }
 
     function renderAutocomplete(items) {
@@ -184,15 +201,19 @@ $url_volver_instructivos = (isset($_GET['from']) && $_GET['from'] === 'poliza')
     }
 
     function seleccionarColaborador(u) {
-        if (!u) return;
-        inputCodigo.value = u.codigo_empleado;
+        if (!u || !selectCodigo) return;
+        selectCodigo.value = u.codigo_empleado;
         inputBuscar.value = u.codigo_empleado + ' - ' + (u.nombre || '') + ' ' + (u.apellido || '');
         listaAutocomplete.classList.remove('show');
     }
 
+    if (selectCodigo) {
+        selectCodigo.addEventListener('change', syncBuscarDesdeSelect);
+    }
+
     if (inputBuscar) {
         inputBuscar.addEventListener('input', function () {
-            inputCodigo.value = '';
+            if (selectCodigo) selectCodigo.value = '';
             const q = inputBuscar.value.trim();
             if (q.length < 2) {
                 listaAutocomplete.classList.remove('show');
@@ -234,9 +255,9 @@ $url_volver_instructivos = (isset($_GET['from']) && $_GET['from'] === 'poliza')
         });
 
         modalAsignar.querySelector('form').addEventListener('submit', function (e) {
-            if (!inputCodigo.value.trim()) {
+            if (!selectCodigo || !selectCodigo.value.trim()) {
                 e.preventDefault();
-                alert('Seleccione un colaborador de la lista de sugerencias.');
+                alert('Seleccione un colaborador (búsqueda rápida o listado).');
             }
         });
     }
