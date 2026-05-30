@@ -49,6 +49,14 @@ include __DIR__ . '/header.php';
                 </div>
             </a>
         </div>
+        <div class="col-4 mb-3">
+            <a href="<?php echo BASE_URL_CONTROLLER; ?>/CarnetController.php" class="text-decoration-none">
+                <div class="card-icon">
+                    <img src="<?php echo BASE_URL_IMAGE; ?>carnet.svg" alt="Mi carnet">
+                    <div class="card-title"><small>Mi carnet</small></div>
+                </div>
+            </a>
+        </div>
     </div>
 </div>
 
