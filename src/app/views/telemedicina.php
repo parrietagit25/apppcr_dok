@@ -6,7 +6,7 @@ if (!isset($_SESSION['code'])) {
 
 include __DIR__ . '/header.php';
 
-$pdf_telemedicina = BASE_URL_IMAGE . 'telemedicina.pdf';
+$pdf_telemedicina = BASE_URL_IMAGE . 'instructivos/PAN_TELEMEDICINA_INSTRUCTIVO.pdf';
 $url_google_play = 'https://palig.com/_next/image?url=https%3A%2F%2Fimages.ctfassets.net%2Fem61esqt6ro0%2F4gZsKvnLZC2szm48mAolEq%2F82f49cb7fcb2593b9d34931db1bb162c%2FGetItOnGooglePlay_Badge_Web_color_Spanish-LATAM.png&w=1600&q=75';
 $url_app_store = 'https://palig.com/_next/image?url=https%3A%2F%2Fimages.ctfassets.net%2Fem61esqt6ro0%2F4E9Ia9VbFY1OLzAqz2PLiZ%2Fec9315d9e8dce61bc8c91f2fde9325ed%2FDownload_on_the_App_Store_Badge_ES_wht_100217.png&w=1600&q=75';
 ?>
