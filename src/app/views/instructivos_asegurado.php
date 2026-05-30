@@ -71,6 +71,31 @@ $url_volver_instructivos = (isset($_GET['from']) && $_GET['from'] === 'poliza')
 </div>
 
 <?php if ($tiene_acceso_rrhh_instructivos): ?>
+<style>
+.instructivos-autocomplete-wrap { position: relative; }
+.instructivos-autocomplete-list {
+    position: absolute;
+    z-index: 1060;
+    left: 0;
+    right: 0;
+    max-height: 220px;
+    overflow-y: auto;
+    background: #fff;
+    border: 1px solid #dee2e6;
+    border-radius: 0.375rem;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    display: none;
+}
+.instructivos-autocomplete-list.show { display: block; }
+.instructivos-autocomplete-item {
+    padding: 0.5rem 0.75rem;
+    cursor: pointer;
+    border-bottom: 1px solid #f1f3f5;
+}
+.instructivos-autocomplete-item:hover,
+.instructivos-autocomplete-item.active { background: #e7f1ff; }
+.instructivos-autocomplete-item:last-child { border-bottom: none; }
+</style>
 <div class="modal fade" id="modalAsignarInstructivo" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog">
         <form method="POST" action="<?php echo rtrim(BASE_URL_CONTROLLER, '/'); ?>/MainController.php?instructivos_asegurado=1">
@@ -83,15 +108,17 @@ $url_volver_instructivos = (isset($_GET['from']) && $_GET['from'] === 'poliza')
                     <p class="text-muted small mb-3" id="asignarDocTitulo"></p>
                     <input type="hidden" name="instructivos_asignar" value="1">
                     <input type="hidden" name="documento_codigo" id="asignarDocumentoCodigo" value="">
-                    <label for="codigo_empleado" class="form-label">Colaborador</label>
-                    <select name="codigo_empleado" id="codigo_empleado" class="form-select" required>
-                        <option value="">-- Seleccione --</option>
-                        <?php foreach ($colaboradores_instructivos as $colab): ?>
-                        <option value="<?php echo htmlspecialchars($colab['codigo_empleado'], ENT_QUOTES, 'UTF-8'); ?>">
-                            <?php echo htmlspecialchars($colab['codigo_empleado'] . ' - ' . $colab['nombre'] . ' ' . $colab['apellido'], ENT_QUOTES, 'UTF-8'); ?>
-                        </option>
-                        <?php endforeach; ?>
-                    </select>
+                    <label for="buscar_colaborador_instructivo" class="form-label">Buscar colaborador</label>
+                    <div class="instructivos-autocomplete-wrap">
+                        <input type="text"
+                               id="buscar_colaborador_instructivo"
+                               class="form-control"
+                               placeholder="Código, nombre o apellido (mín. 2 caracteres)"
+                               autocomplete="off">
+                        <input type="hidden" name="codigo_empleado" id="codigo_empleado" value="">
+                        <div id="listaColaboradoresInstructivo" class="instructivos-autocomplete-list" role="listbox"></div>
+                    </div>
+                    <small class="text-muted">Escriba al menos 2 caracteres y seleccione de la lista.</small>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
@@ -121,12 +148,96 @@ $url_volver_instructivos = (isset($_GET['from']) && $_GET['from'] === 'poliza')
 (function () {
     const baseController = <?php echo json_encode(rtrim(BASE_URL_CONTROLLER, '/') . '/MainController.php'); ?>;
 
+    const inputBuscar = document.getElementById('buscar_colaborador_instructivo');
+    const inputCodigo = document.getElementById('codigo_empleado');
+    const listaAutocomplete = document.getElementById('listaColaboradoresInstructivo');
+    let debounceTimer = null;
+    let resultadosActuales = [];
+
+    function resetAutocompleteAsignar() {
+        if (inputBuscar) inputBuscar.value = '';
+        if (inputCodigo) inputCodigo.value = '';
+        if (listaAutocomplete) {
+            listaAutocomplete.innerHTML = '';
+            listaAutocomplete.classList.remove('show');
+        }
+        resultadosActuales = [];
+    }
+
+    function renderAutocomplete(items) {
+        resultadosActuales = items;
+        if (!items.length) {
+            listaAutocomplete.innerHTML = '<div class="instructivos-autocomplete-item text-muted">Sin resultados</div>';
+            listaAutocomplete.classList.add('show');
+            return;
+        }
+        listaAutocomplete.innerHTML = items.map(function (u, idx) {
+            const label = escapeHtml(u.codigo_empleado + ' - ' + (u.nombre || '') + ' ' + (u.apellido || ''));
+            return '<div class="instructivos-autocomplete-item" data-idx="' + idx + '" role="option">' + label + '</div>';
+        }).join('');
+        listaAutocomplete.classList.add('show');
+        listaAutocomplete.querySelectorAll('.instructivos-autocomplete-item[data-idx]').forEach(function (el) {
+            el.addEventListener('click', function () {
+                seleccionarColaborador(resultadosActuales[parseInt(el.getAttribute('data-idx'), 10)]);
+            });
+        });
+    }
+
+    function seleccionarColaborador(u) {
+        if (!u) return;
+        inputCodigo.value = u.codigo_empleado;
+        inputBuscar.value = u.codigo_empleado + ' - ' + (u.nombre || '') + ' ' + (u.apellido || '');
+        listaAutocomplete.classList.remove('show');
+    }
+
+    if (inputBuscar) {
+        inputBuscar.addEventListener('input', function () {
+            inputCodigo.value = '';
+            const q = inputBuscar.value.trim();
+            if (q.length < 2) {
+                listaAutocomplete.classList.remove('show');
+                listaAutocomplete.innerHTML = '';
+                return;
+            }
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(function () {
+                fetch(baseController + '?instructivos_buscar_colaborador=1&q=' + encodeURIComponent(q))
+                    .then(function (r) { return r.json(); })
+                    .then(function (data) { renderAutocomplete(Array.isArray(data) ? data : []); })
+                    .catch(function () {
+                        listaAutocomplete.innerHTML = '<div class="instructivos-autocomplete-item text-danger">Error al buscar</div>';
+                        listaAutocomplete.classList.add('show');
+                    });
+            }, 300);
+        });
+
+        inputBuscar.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape') {
+                listaAutocomplete.classList.remove('show');
+            }
+        });
+    }
+
+    document.addEventListener('click', function (e) {
+        if (!e.target.closest('.instructivos-autocomplete-wrap')) {
+            listaAutocomplete.classList.remove('show');
+        }
+    });
+
     const modalAsignar = document.getElementById('modalAsignarInstructivo');
     if (modalAsignar) {
         modalAsignar.addEventListener('show.bs.modal', function (event) {
             const btn = event.relatedTarget;
             document.getElementById('asignarDocumentoCodigo').value = btn.getAttribute('data-documento') || '';
             document.getElementById('asignarDocTitulo').textContent = btn.getAttribute('data-titulo') || '';
+            resetAutocompleteAsignar();
+        });
+
+        modalAsignar.querySelector('form').addEventListener('submit', function (e) {
+            if (!inputCodigo.value.trim()) {
+                e.preventDefault();
+                alert('Seleccione un colaborador de la lista de sugerencias.');
+            }
         });
     }
 

@@ -512,6 +512,25 @@ if (isset($_GET['telemedicina'])) {
     
 }
 
+if (isset($_GET['instructivos_buscar_colaborador'])) {
+    header('Content-Type: application/json; charset=utf-8');
+    $tiene_acceso_rrhh_json = ((int) $tipo_usuario === 1 || (int) $tipo_usuario === 4
+        || in_array(trim($_SESSION['code'] ?? ''), ['001404', '001688'], true));
+    if (!$tiene_acceso_rrhh_json) {
+        http_response_code(403);
+        echo json_encode([]);
+        exit();
+    }
+    require_once __DIR__ . '/../models/Instructivos.php';
+    $instructivosModel = new Instructivos($pdo);
+    $termino = $_GET['q'] ?? '';
+    echo json_encode(
+        $instructivosModel->buscarColaboradores($termino),
+        JSON_UNESCAPED_UNICODE
+    );
+    exit();
+}
+
 if (isset($_GET['instructivos_asignados_json'])) {
     header('Content-Type: application/json; charset=utf-8');
     $tiene_acceso_rrhh_json = ((int) $tipo_usuario === 1 || (int) $tipo_usuario === 4
@@ -578,10 +597,6 @@ if (isset($_GET['instructivos_asegurado'])) {
         $documentos_instructivos[$codigo]['url_pdf'] = Instructivos::urlPdf($meta['archivo']);
         $documentos_instructivos[$codigo]['restringido'] = empty($meta['publico']);
     }
-
-    $colaboradores_instructivos = $tiene_acceso_rrhh_instructivos
-        ? $instructivosModel->listarColaboradoresActivos()
-        : [];
 
     require_once __DIR__ . '/../views/instructivos_asegurado.php';
     exit();

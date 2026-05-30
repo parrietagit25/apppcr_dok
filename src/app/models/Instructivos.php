@@ -119,15 +119,27 @@ class Instructivos
         return $stmt->execute([':id' => $id]);
     }
 
-    public function listarColaboradoresActivos(): array
+    public function buscarColaboradores(string $termino, int $limite = 20): array
     {
-        $stmt = $this->pdo->query(
+        $termino = trim($termino);
+        if (strlen($termino) < 2) {
+            return [];
+        }
+
+        $like = '%' . $termino . '%';
+        $stmt = $this->pdo->prepare(
             'SELECT e.codigo_empleado, e.nombre, e.apellido
              FROM empleados e
              INNER JOIN empleado_log el ON e.codigo_empleado = el.codigo
              WHERE el.stat = 1
-             ORDER BY e.nombre ASC, e.apellido ASC'
+               AND (e.codigo_empleado LIKE :t OR e.nombre LIKE :t OR e.apellido LIKE :t
+                    OR CONCAT(e.nombre, " ", e.apellido) LIKE :t)
+             ORDER BY e.nombre ASC, e.apellido ASC
+             LIMIT :limite'
         );
+        $stmt->bindValue(':t', $like, PDO::PARAM_STR);
+        $stmt->bindValue(':limite', $limite, PDO::PARAM_INT);
+        $stmt->execute();
 
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
