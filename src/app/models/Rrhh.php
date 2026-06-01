@@ -760,7 +760,7 @@ class Rrhh {
             FROM empleados
             WHERE MONTH(fecha_nacimiento) = MONTH(CURDATE())
             AND DAY(fecha_nacimiento) >= DAY(CURDATE())
-            AND estatus_empleado = 'A'
+            AND estatus_empleado IN ('A', 'V')
             AND codigo_empleado not in('002567', '001023')
 
             UNION ALL
