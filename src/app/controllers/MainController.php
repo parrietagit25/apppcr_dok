@@ -483,22 +483,12 @@ if (isset($_GET['poliza'])) {
 
 if (isset($_GET['n_poliza'])) {
 
-    if ((int) $tipo_usuario !== 1) {
-        header("Location: " . BASE_URL_CONTROLLER . "/MainController.php");
-        exit();
-    }
-
     require_once __DIR__ . '/../views/n_poliza.php';
     exit();
     
 }
 
 if (isset($_GET['mi_carnet_n_poliza'])) {
-
-    if ((int) $tipo_usuario !== 1) {
-        header("Location: " . BASE_URL_CONTROLLER . "/MainController.php");
-        exit();
-    }
 
     require_once __DIR__ . '/../views/mi_carnet_n_poliza.php';
     exit();
@@ -513,11 +503,6 @@ if (isset($_GET['info_poliza'])) {
 }
 
 if (isset($_GET['telemedicina'])) {
-
-    if ((int) $tipo_usuario !== 1) {
-        header("Location: " . BASE_URL_CONTROLLER . "/MainController.php");
-        exit();
-    }
 
     require_once __DIR__ . '/../views/telemedicina.php';
     exit();
@@ -621,22 +606,12 @@ if (isset($_GET['instructivos_asegurado'])) {
 
 if (isset($_GET['portal_asegurados'])) {
 
-    if ((int) $tipo_usuario !== 1) {
-        header("Location: " . BASE_URL_CONTROLLER . "/MainController.php");
-        exit();
-    }
-
     require_once __DIR__ . '/../views/portal_asegurados.php';
     exit();
     
 }
 
 if (isset($_GET['info_palig'])) {
-
-    if ((int) $tipo_usuario !== 1) {
-        header("Location: " . BASE_URL_CONTROLLER . "/MainController.php");
-        exit();
-    }
 
     require_once __DIR__ . '/../views/info_palig.php';
     exit();
