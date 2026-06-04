@@ -455,13 +455,14 @@ class Rrhh {
                                             WHEN 1 THEN 'Enviado'
                                             WHEN 2 THEN 'Revisado'
                                             WHEN 3 THEN 'Anulado'
-                                        END AS estado, 
-                                        c.nombre,
-                                        ct.file_add FROM incapacidad ct inner join col_datos_generales c on ct.code_user = c.codigo  
-                                        WHERE 
-                                        ct.stat in(1,2)
-                                        AND 
-                                        ct.code_user = :code_user");
+                                        END AS estado,
+                                        CONCAT(e.nombre, ' ', e.apellido) AS nombre,
+                                        ct.file_add
+                                    FROM incapacidad ct
+                                    INNER JOIN empleados e
+                                        ON ct.code_user = RIGHT(e.codigo_empleado, CHAR_LENGTH(e.codigo_empleado) - 2)
+                                    WHERE ct.stat IN (1, 2)
+                                      AND ct.code_user = :code_user");
         $stmt->bindParam(':code_user', $code, PDO::PARAM_STR);
         $stmt->execute();
         $array_datos = [];
@@ -472,18 +473,23 @@ class Rrhh {
     }
 
     public function incapacidad_por_code_user($code_user) {
+        $code_user = ltrim((string) $code_user, '0');
+        if ($code_user === '') {
+            $code_user = '0';
+        }
         $stmt = $this->pdo->prepare("SELECT ct.id, ct.descripcion, ct.fecha_log, ct.fecha_retroactiva,
                                         CASE ct.stat
                                             WHEN 1 THEN 'Enviado'
                                             WHEN 2 THEN 'Revisado'
                                             WHEN 3 THEN 'Anulado'
                                         END AS estado,
-                                        c.nombre,
+                                        CONCAT(e.nombre, ' ', e.apellido) AS nombre,
                                         ct.file_add
                                      FROM incapacidad ct
-                                     INNER JOIN col_datos_generales c ON ct.code_user = c.codigo
-                                     WHERE ct.stat IN (1,2)
-                                     AND ct.code_user = :code_user");
+                                     INNER JOIN empleados e
+                                         ON ct.code_user = RIGHT(e.codigo_empleado, CHAR_LENGTH(e.codigo_empleado) - 2)
+                                     WHERE ct.stat IN (1, 2)
+                                       AND ct.code_user = :code_user");
         $stmt->bindParam(':code_user', $code_user, PDO::PARAM_STR);
         $stmt->execute();
         $array_datos = [];
