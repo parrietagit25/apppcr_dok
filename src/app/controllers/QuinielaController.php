@@ -17,7 +17,12 @@ $tipo_usuario = $userModel->get_tyte_user();
 $nombre = $userModel->nombre_colaborador();
 $codigoSesion = trim((string) ($_SESSION['code'] ?? ''));
 
-$es_administrador_quiniela = ((int) ($tipo_usuario ?? 0) === 1);
+// Zona administrativa: admin (tipo 1), RRHH (tipo 4) o supervisores autorizados
+$es_administrador_quiniela = (
+    (int) ($tipo_usuario ?? 0) === 1
+    || (int) ($tipo_usuario ?? 0) === 4
+    || in_array($codigoSesion, ['001404', '001688'], true)
+);
 $qMenu = rtrim(BASE_URL_CONTROLLER, '/') . '/QuinielaController.php';
 
 if (!$es_administrador_quiniela) {
