@@ -9,17 +9,17 @@ class Instructivos
             'publico' => true,
         ],
         'car_rental_clase1' => [
-            'titulo' => 'PANAMA CAR RENTAL - Clase 1 Gerentes',
+            'titulo' => 'Plan Integral',
             'archivo' => 'PANAMA CAR RENTAL, S.A. 44528 Clase 1 – Gerentes.pdf',
             'publico' => false,
         ],
         'car_rental_clase2' => [
-            'titulo' => 'PANAMA CAR RENTAL - Clase 2 Administrativos',
+            'titulo' => 'Plan Integral',
             'archivo' => 'PANAMA CAR RENTAL, S.A. 44528 Clase 2 – Administrativos.pdf',
             'publico' => false,
         ],
         'car_rental_clase3' => [
-            'titulo' => 'PANAMA CAR RENTAL - Clase 3 Resto del Personal',
+            'titulo' => 'Plan Preferente',
             'archivo' => 'PANAMA CAR RENTAL, S.A. 44528 Clase 3 – Resto del Personal.pdf',
             'publico' => false,
         ],
