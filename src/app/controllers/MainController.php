@@ -528,6 +528,55 @@ if (isset($_GET['instructivos_buscar_colaborador'])) {
     exit();
 }
 
+if (isset($_GET['instructivos_disponibles_json'])) {
+    header('Content-Type: application/json; charset=utf-8');
+    $tiene_acceso_rrhh_json = ((int) $tipo_usuario === 1 || (int) $tipo_usuario === 4
+        || in_array(trim($_SESSION['code'] ?? ''), ['001404', '001688'], true));
+    if (!$tiene_acceso_rrhh_json) {
+        http_response_code(403);
+        echo json_encode(['success' => false, 'message' => 'No autorizado']);
+        exit();
+    }
+    require_once __DIR__ . '/../models/Instructivos.php';
+    $instructivosModel = new Instructivos($pdo);
+    $doc = $_GET['documento'] ?? '';
+    if (!$instructivosModel->codigoValido($doc) || !empty(Instructivos::DOCUMENTOS[$doc]['publico'])) {
+        echo json_encode(['success' => false, 'message' => 'Documento inválido']);
+        exit();
+    }
+    echo json_encode([
+        'success' => true,
+        'colaboradores' => $instructivosModel->listarColaboradoresDisponibles($doc),
+    ], JSON_UNESCAPED_UNICODE);
+    exit();
+}
+
+if (isset($_GET['instructivos_asignar_json']) && $_SERVER['REQUEST_METHOD'] === 'POST') {
+    header('Content-Type: application/json; charset=utf-8');
+    $tiene_acceso_rrhh_json = ((int) $tipo_usuario === 1 || (int) $tipo_usuario === 4
+        || in_array(trim($_SESSION['code'] ?? ''), ['001404', '001688'], true));
+    if (!$tiene_acceso_rrhh_json) {
+        http_response_code(403);
+        echo json_encode(['success' => false, 'message' => 'No autorizado']);
+        exit();
+    }
+    require_once __DIR__ . '/../models/Instructivos.php';
+    $instructivosModel = new Instructivos($pdo);
+    $codigo_sesion = trim($_SESSION['code'] ?? '');
+    $doc = $_POST['documento_codigo'] ?? '';
+    $codigo_colab = $_POST['codigo_empleado'] ?? '';
+    if ($instructivosModel->asignar($doc, $codigo_colab, $codigo_sesion)) {
+        echo json_encode([
+            'success' => true,
+            'message' => 'Colaborador asignado correctamente.',
+            'codigo_empleado' => trim($codigo_colab),
+        ], JSON_UNESCAPED_UNICODE);
+    } else {
+        echo json_encode(['success' => false, 'message' => 'No se pudo asignar el colaborador.'], JSON_UNESCAPED_UNICODE);
+    }
+    exit();
+}
+
 if (isset($_GET['instructivos_asignados_json'])) {
     header('Content-Type: application/json; charset=utf-8');
     $tiene_acceso_rrhh_json = ((int) $tipo_usuario === 1 || (int) $tipo_usuario === 4

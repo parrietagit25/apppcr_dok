@@ -73,32 +73,28 @@ $url_volver_instructivos = (isset($_GET['from']) && $_GET['from'] === 'poliza')
 <?php if ($tiene_acceso_rrhh_instructivos): ?>
 <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 <link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" rel="stylesheet" />
-<div class="modal fade" id="modalAsignarInstructivo" tabindex="-1" aria-hidden="true">
+<div class="modal fade" id="modalAsignarInstructivo" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
     <div class="modal-dialog">
-        <form method="POST" action="<?php echo rtrim(BASE_URL_CONTROLLER, '/'); ?>/MainController.php?instructivos_asegurado=1">
+        <form method="POST" id="formAsignarInstructivo" action="<?php echo rtrim(BASE_URL_CONTROLLER, '/'); ?>/MainController.php?instructivos_asignar_json=1">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title">Asignar colaborador</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
+                    <div id="asignarFeedback" class="d-none alert mb-3" role="alert"></div>
                     <p class="text-muted small mb-3" id="asignarDocTitulo"></p>
-                    <input type="hidden" name="instructivos_asignar" value="1">
                     <input type="hidden" name="documento_codigo" id="asignarDocumentoCodigo" value="">
                     <label for="codigo_empleado" class="form-label">Colaborador</label>
                     <select name="codigo_empleado" id="codigo_empleado" class="form-select" required>
                         <option value=""></option>
-                        <?php foreach ($colaboradores_instructivos as $colab): ?>
-                        <option value="<?php echo htmlspecialchars($colab['codigo_empleado'], ENT_QUOTES, 'UTF-8'); ?>">
-                            <?php echo htmlspecialchars($colab['codigo_empleado'] . ' - ' . $colab['nombre'] . ' ' . $colab['apellido'], ENT_QUOTES, 'UTF-8'); ?>
-                        </option>
-                        <?php endforeach; ?>
                     </select>
-                    <small class="text-muted d-block mt-2">Escriba en el campo para buscar por código o nombre.</small>
+                    <small class="text-muted d-block mt-2">Escriba en el campo para buscar por código o nombre. Solo se muestran colaboradores sin asignar a este plan.</small>
+                    <p id="asignarSinDisponibles" class="text-muted small mt-2 d-none mb-0">Todos los colaboradores activos ya están asignados a este plan.</p>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="submit" class="btn btn-primary">Asignar</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                    <button type="submit" class="btn btn-primary" id="btnAsignarInstructivo">Asignar</button>
                 </div>
             </div>
         </form>
@@ -124,14 +120,28 @@ $url_volver_instructivos = (isset($_GET['from']) && $_GET['from'] === 'poliza')
 <script>
 (function () {
     const baseController = <?php echo json_encode(rtrim(BASE_URL_CONTROLLER, '/') . '/MainController.php'); ?>;
+    let documentoActual = '';
 
-    $('#modalAsignarInstructivo').on('show.bs.modal', function (event) {
-        const btn = event.relatedTarget;
-        document.getElementById('asignarDocumentoCodigo').value = btn.getAttribute('data-documento') || '';
-        document.getElementById('asignarDocTitulo').textContent = btn.getAttribute('data-titulo') || '';
-    });
+    function escapeHtml(text) {
+        const d = document.createElement('div');
+        d.textContent = text == null ? '' : String(text);
+        return d.innerHTML;
+    }
 
-    $('#modalAsignarInstructivo').on('shown.bs.modal', function () {
+    function mostrarFeedback(tipo, mensaje) {
+        const el = document.getElementById('asignarFeedback');
+        el.className = 'alert alert-' + tipo + ' mb-3';
+        el.textContent = mensaje;
+        el.classList.remove('d-none');
+    }
+
+    function ocultarFeedback() {
+        const el = document.getElementById('asignarFeedback');
+        el.classList.add('d-none');
+        el.textContent = '';
+    }
+
+    function initSelect2Colaboradores() {
         const $select = $('#codigo_empleado');
         if ($select.data('select2')) {
             $select.select2('destroy');
@@ -149,6 +159,58 @@ $url_volver_instructivos = (isset($_GET['from']) && $_GET['from'] === 'poliza')
             }
         });
         $select.val(null).trigger('change');
+    }
+
+    function cargarColaboradoresDisponibles(doc) {
+        const $select = $('#codigo_empleado');
+        const btnAsignar = document.getElementById('btnAsignarInstructivo');
+        const sinDisponibles = document.getElementById('asignarSinDisponibles');
+
+        if ($select.data('select2')) {
+            $select.select2('destroy');
+        }
+        $select.empty().append('<option value=""></option>');
+        $select.prop('disabled', true);
+        btnAsignar.disabled = true;
+        sinDisponibles.classList.add('d-none');
+
+        return fetch(baseController + '?instructivos_disponibles_json=1&documento=' + encodeURIComponent(doc))
+            .then(function (r) { return r.json(); })
+            .then(function (data) {
+                if (!data.success) {
+                    mostrarFeedback('danger', data.message || 'Error al cargar colaboradores.');
+                    return;
+                }
+                const colaboradores = data.colaboradores || [];
+                colaboradores.forEach(function (c) {
+                    const label = c.codigo_empleado + ' - ' + c.nombre + ' ' + c.apellido;
+                    $select.append(new Option(label, c.codigo_empleado, false, false));
+                });
+                initSelect2Colaboradores();
+                if (colaboradores.length === 0) {
+                    $select.prop('disabled', true);
+                    btnAsignar.disabled = true;
+                    sinDisponibles.classList.remove('d-none');
+                } else {
+                    $select.prop('disabled', false);
+                    btnAsignar.disabled = false;
+                }
+            })
+            .catch(function () {
+                mostrarFeedback('danger', 'Error al cargar colaboradores.');
+            });
+    }
+
+    $('#modalAsignarInstructivo').on('show.bs.modal', function (event) {
+        const btn = event.relatedTarget;
+        documentoActual = btn.getAttribute('data-documento') || '';
+        document.getElementById('asignarDocumentoCodigo').value = documentoActual;
+        document.getElementById('asignarDocTitulo').textContent = btn.getAttribute('data-titulo') || '';
+        ocultarFeedback();
+    });
+
+    $('#modalAsignarInstructivo').on('shown.bs.modal', function () {
+        cargarColaboradoresDisponibles(documentoActual);
     });
 
     $('#modalAsignarInstructivo').on('hidden.bs.modal', function () {
@@ -156,6 +218,55 @@ $url_volver_instructivos = (isset($_GET['from']) && $_GET['from'] === 'poliza')
         if ($select.data('select2')) {
             $select.select2('destroy');
         }
+        ocultarFeedback();
+        document.getElementById('asignarSinDisponibles').classList.add('d-none');
+    });
+
+    document.getElementById('formAsignarInstructivo').addEventListener('submit', function (e) {
+        e.preventDefault();
+        const form = e.target;
+        const btnAsignar = document.getElementById('btnAsignarInstructivo');
+        const codigo = $('#codigo_empleado').val();
+        if (!codigo) {
+            mostrarFeedback('warning', 'Seleccione un colaborador.');
+            return;
+        }
+
+        btnAsignar.disabled = true;
+        btnAsignar.textContent = 'Asignando...';
+        ocultarFeedback();
+
+        const fd = new FormData(form);
+        fetch(baseController + '?instructivos_asignar_json=1', {
+            method: 'POST',
+            body: fd,
+        })
+            .then(function (r) { return r.json(); })
+            .then(function (data) {
+                if (data.success) {
+                    mostrarFeedback('success', data.message || 'Colaborador asignado correctamente.');
+                    const $select = $('#codigo_empleado');
+                    $select.find('option').filter(function () { return this.value === codigo; }).remove();
+                    $select.val(null).trigger('change');
+                    if ($select.find('option').length <= 1) {
+                        $select.prop('disabled', true);
+                        btnAsignar.disabled = true;
+                        document.getElementById('asignarSinDisponibles').classList.remove('d-none');
+                    } else {
+                        btnAsignar.disabled = false;
+                    }
+                } else {
+                    mostrarFeedback('danger', data.message || 'No se pudo asignar.');
+                    btnAsignar.disabled = false;
+                }
+            })
+            .catch(function () {
+                mostrarFeedback('danger', 'Error de conexión al asignar.');
+                btnAsignar.disabled = false;
+            })
+            .finally(function () {
+                btnAsignar.textContent = 'Asignar';
+            });
     });
 
     document.querySelectorAll('.btn-ver-asignados').forEach(function (btn) {
@@ -190,12 +301,6 @@ $url_volver_instructivos = (isset($_GET['from']) && $_GET['from'] === 'poliza')
                 });
         });
     });
-
-    function escapeHtml(text) {
-        const d = document.createElement('div');
-        d.textContent = text == null ? '' : String(text);
-        return d.innerHTML;
-    }
 })();
 </script>
 <?php endif; ?>

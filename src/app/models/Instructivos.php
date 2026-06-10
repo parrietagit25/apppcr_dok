@@ -132,6 +132,29 @@ class Instructivos
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    /** Colaboradores activos que aún no están asignados al documento. */
+    public function listarColaboradoresDisponibles(string $documentoCodigo): array
+    {
+        if (!$this->codigoValido($documentoCodigo) || !empty(self::DOCUMENTOS[$documentoCodigo]['publico'])) {
+            return [];
+        }
+
+        $stmt = $this->pdo->prepare(
+            'SELECT e.codigo_empleado, e.nombre, e.apellido
+             FROM empleados e
+             INNER JOIN empleado_log el ON e.codigo_empleado = el.codigo
+             WHERE el.stat = 1
+               AND NOT EXISTS (
+                   SELECT 1 FROM instructivos_asignacion ia
+                   WHERE ia.documento_codigo = :doc AND ia.codigo_empleado = e.codigo_empleado
+               )
+             ORDER BY e.nombre ASC, e.apellido ASC'
+        );
+        $stmt->execute([':doc' => $documentoCodigo]);
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
     public function buscarColaboradores(string $termino, int $limite = 20): array
     {
         $termino = trim($termino);
