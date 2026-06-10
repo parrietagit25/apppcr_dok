@@ -89,8 +89,8 @@ $url_volver_instructivos = (isset($_GET['from']) && $_GET['from'] === 'poliza')
                     <select name="codigo_empleado" id="codigo_empleado" class="form-select" required>
                         <option value=""></option>
                     </select>
-                    <small class="text-muted d-block mt-2">Escriba en el campo para buscar por código o nombre. Solo se muestran colaboradores sin asignar a este plan.</small>
-                    <p id="asignarSinDisponibles" class="text-muted small mt-2 d-none mb-0">Todos los colaboradores activos ya están asignados a este plan.</p>
+                    <small class="text-muted d-block mt-2">Escriba en el campo para buscar por código o nombre. Cada colaborador solo puede tener un plan asignado.</small>
+                    <p id="asignarSinDisponibles" class="text-muted small mt-2 d-none mb-0">No hay colaboradores disponibles: todos los activos ya tienen un plan asignado.</p>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>

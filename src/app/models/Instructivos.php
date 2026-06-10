@@ -74,6 +74,56 @@ class Instructivos
         return (bool) $stmt->fetchColumn();
     }
 
+    /** @return list<string> Códigos de documentos restringidos (planes). */
+    public static function codigosDocumentosRestringidos(): array
+    {
+        $codigos = [];
+        foreach (self::DOCUMENTOS as $code => $meta) {
+            if (empty($meta['publico'])) {
+                $codigos[] = $code;
+            }
+        }
+        return $codigos;
+    }
+
+    /** Plan restringido ya asignado al colaborador (solo uno permitido). */
+    public function obtenerAsignacionPlan(string $codigoEmpleado): ?array
+    {
+        $codigos = self::codigosDocumentosRestringidos();
+        if ($codigos === []) {
+            return null;
+        }
+
+        $placeholders = implode(',', array_fill(0, count($codigos), '?'));
+        $stmt = $this->pdo->prepare(
+            "SELECT documento_codigo, codigo_empleado, fecha_asignacion
+             FROM instructivos_asignacion
+             WHERE codigo_empleado = ? AND documento_codigo IN ($placeholders)
+             LIMIT 1"
+        );
+        $params = array_merge([$this->normalizarCodigo($codigoEmpleado)], $codigos);
+        $stmt->execute($params);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        return $row ?: null;
+    }
+
+    public function mensajeErrorAsignacion(string $documentoCodigo, string $codigoEmpleado): ?string
+    {
+        $codigo = $this->normalizarCodigo($codigoEmpleado);
+        if ($codigo === '') {
+            return 'Colaborador inválido.';
+        }
+
+        $planActual = $this->obtenerAsignacionPlan($codigo);
+        if ($planActual !== null && $planActual['documento_codigo'] !== $documentoCodigo) {
+            $titulo = self::DOCUMENTOS[$planActual['documento_codigo']]['titulo'] ?? $planActual['documento_codigo'];
+            return 'Este colaborador ya tiene asignado el plan «' . $titulo . '». Solo puede tener un plan. Quítelo antes de reasignar.';
+        }
+
+        return null;
+    }
+
     public function listarAsignados(string $documentoCodigo): array
     {
         $stmt = $this->pdo->prepare(
@@ -97,6 +147,10 @@ class Instructivos
 
         $codigo = $this->normalizarCodigo($codigoEmpleado);
         if ($codigo === '') {
+            return false;
+        }
+
+        if ($this->mensajeErrorAsignacion($documentoCodigo, $codigo) !== null) {
             return false;
         }
 
@@ -132,25 +186,32 @@ class Instructivos
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    /** Colaboradores activos que aún no están asignados al documento. */
+    /** Colaboradores activos sin ningún plan asignado (un solo plan por persona). */
     public function listarColaboradoresDisponibles(string $documentoCodigo): array
     {
         if (!$this->codigoValido($documentoCodigo) || !empty(self::DOCUMENTOS[$documentoCodigo]['publico'])) {
             return [];
         }
 
+        $codigosPlan = self::codigosDocumentosRestringidos();
+        if ($codigosPlan === []) {
+            return [];
+        }
+
+        $placeholders = implode(',', array_fill(0, count($codigosPlan), '?'));
         $stmt = $this->pdo->prepare(
-            'SELECT e.codigo_empleado, e.nombre, e.apellido
+            "SELECT e.codigo_empleado, e.nombre, e.apellido
              FROM empleados e
              INNER JOIN empleado_log el ON e.codigo_empleado = el.codigo
              WHERE el.stat = 1
                AND NOT EXISTS (
                    SELECT 1 FROM instructivos_asignacion ia
-                   WHERE ia.documento_codigo = :doc AND ia.codigo_empleado = e.codigo_empleado
+                   WHERE ia.codigo_empleado = e.codigo_empleado
+                     AND ia.documento_codigo IN ($placeholders)
                )
-             ORDER BY e.nombre ASC, e.apellido ASC'
+             ORDER BY e.nombre ASC, e.apellido ASC"
         );
-        $stmt->execute([':doc' => $documentoCodigo]);
+        $stmt->execute($codigosPlan);
 
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }

@@ -565,6 +565,11 @@ if (isset($_GET['instructivos_asignar_json']) && $_SERVER['REQUEST_METHOD'] === 
     $codigo_sesion = trim($_SESSION['code'] ?? '');
     $doc = $_POST['documento_codigo'] ?? '';
     $codigo_colab = $_POST['codigo_empleado'] ?? '';
+    $errorAsignacion = $instructivosModel->mensajeErrorAsignacion($doc, $codigo_colab);
+    if ($errorAsignacion !== null) {
+        echo json_encode(['success' => false, 'message' => $errorAsignacion], JSON_UNESCAPED_UNICODE);
+        exit();
+    }
     if ($instructivosModel->asignar($doc, $codigo_colab, $codigo_sesion)) {
         echo json_encode([
             'success' => true,
