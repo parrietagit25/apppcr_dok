@@ -166,19 +166,22 @@
     <!-- Iconos de funcionalidades -->
     <div class="row text-center mb-4">
 
-        <form action="" method="POST">
+        <?php if (!empty($mensaje)): ?>
+        <div class="alert alert-danger"><?php echo htmlspecialchars($mensaje, ENT_QUOTES, 'UTF-8'); ?></div>
+        <?php endif; ?>
+
+        <form action="" method="POST" id="form_reg_col">
             <div class="form-group">
-                <input type="text" name="reg_code" placeholder="Código de Colaborador" class="form-control prefijo" required id="reg_col_code" oninput="buscar_code_col()">
+                <input type="text" name="reg_code" placeholder="Código de Colaborador" class="form-control prefijo" required id="reg_col_code" oninput="buscar_code_col()" autocomplete="off">
             </div>
             <div class="form-group" id="buscar_user">
             </div>
             <br>
             <div class="form-group">
-                <input type="text" name="reg_password" placeholder="Password" class="form-control" required>
+                <input type="password" name="reg_password" placeholder="Password" class="form-control" required autocomplete="new-password">
             </div>
 
-            
-            <button type="submit" class="btn btn-primary mt-3" id="reg_col" name="registro_colaborador">Registrar Colaborador</button>
+            <button type="submit" class="btn btn-primary mt-3" id="reg_col" name="registro_colaborador" disabled>Registrar Colaborador</button>
             <br>
             <a href="<?php echo BASE_URL_CONTROLLER; ?>/AuthController.php" class="btn btn-primary mt-3">Volver al login</a>
         </form>

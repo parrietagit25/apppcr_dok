@@ -93,39 +93,56 @@ public function nombre_colaborador() {
 
     } 
 
-    public function buscar_code_col_reg($codigo){
+    public function buscar_code_col_reg($codigo)
+    {
+        $validacion = $this->puedeRegistrarColaborador($codigo);
+        return $validacion['ok'] ? 1 : 0;
+    }
 
-        $code = $codigo;
-        $stmt = $this->pdo->prepare("SELECT count(*) as contar FROM empleados WHERE codigo_empleado = :code");
-        $stmt->bindParam(':code', $code, PDO::PARAM_INT);
-        $stmt->execute();
-
-        $nombre = "";
-        if ($list_code = $stmt->fetch(PDO::FETCH_ASSOC)) {
-
-            if ($list_code['contar'] == 1) {
-                return 1;
-            }elseif($list_code['contar'] == 0){
-
-                $stmt = $this->pdo->prepare("SELECT count(*) as contar FROM encargados_colab WHERE code_empleado = :code");
-                $stmt->bindParam(':code', $code, PDO::PARAM_INT);
-                $stmt->execute();
-
-                if ($list_code = $stmt->fetch(PDO::FETCH_ASSOC)) {
-                    if ($list_code['contar'] >= 1) {
-                        return 1;
-                    }else {
-                        return 0;
-                    }
-                }else {
-                    return 0;
-                }
-            }else{
-                return 0;
-            } 
-
+    /**
+     * @return array{ok: bool, mensaje: string}
+     */
+    public function puedeRegistrarColaborador(string $codigo): array
+    {
+        $codigo = trim($codigo);
+        if ($codigo === '') {
+            return ['ok' => false, 'mensaje' => 'Código inválido.'];
         }
 
+        if (!$this->codigoExisteEnRrhh($codigo)) {
+            return ['ok' => false, 'mensaje' => 'El código no existe en la base de datos de RRHH.'];
+        }
+
+        if ($this->codigoYaRegistradoEnApp($codigo)) {
+            return ['ok' => false, 'mensaje' => 'Ya usted está registrado.'];
+        }
+
+        return ['ok' => true, 'mensaje' => ''];
+    }
+
+    private function codigoExisteEnRrhh(string $codigo): bool
+    {
+        $stmt = $this->pdo->prepare('SELECT COUNT(*) FROM empleados WHERE codigo_empleado = :code');
+        $stmt->bindValue(':code', $codigo, PDO::PARAM_STR);
+        $stmt->execute();
+        if ((int) $stmt->fetchColumn() > 0) {
+            return true;
+        }
+
+        $stmt = $this->pdo->prepare('SELECT COUNT(*) FROM encargados_colab WHERE code_empleado = :code');
+        $stmt->bindValue(':code', $codigo, PDO::PARAM_STR);
+        $stmt->execute();
+
+        return (int) $stmt->fetchColumn() > 0;
+    }
+
+    private function codigoYaRegistradoEnApp(string $codigo): bool
+    {
+        $stmt = $this->pdo->prepare('SELECT COUNT(*) FROM empleado_log WHERE codigo = :code');
+        $stmt->bindValue(':code', $codigo, PDO::PARAM_STR);
+        $stmt->execute();
+
+        return (int) $stmt->fetchColumn() > 0;
     }
 
     public function buscar_code_col($codigo){
@@ -151,6 +168,10 @@ public function nombre_colaborador() {
 
     public function insertar_colaborador($codigo, $password) {
         try {
+            if (!$this->puedeRegistrarColaborador($codigo)['ok']) {
+                return false;
+            }
+
             $hashed_password = password_hash($password, PASSWORD_DEFAULT); // Encripta la contraseña
     
             $sql = "INSERT INTO empleado_log (codigo, pass, stat, type_user) VALUES (:codigo, :password, 1, 2)";

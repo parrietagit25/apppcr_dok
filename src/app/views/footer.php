@@ -8,10 +8,22 @@
     <script src="js/app.js"></script>
     <script>
         let timeout = null;
+        window.regColRegistroPermitido = false;
+
+        function actualizarEstadoRegistroCol(permitido) {
+            window.regColRegistroPermitido = permitido;
+            const btn = document.getElementById('reg_col');
+            if (!btn) {
+                return;
+            }
+            btn.disabled = !permitido;
+            btn.style.display = permitido ? 'block' : 'none';
+        }
 
         function buscar_code_col() {
 
             document.getElementById("buscar_user").innerHTML = '<div class="loader-container"><div class="loader"></div></div>';
+            actualizarEstadoRegistroCol(false);
 
             clearTimeout(timeout); 
             timeout = setTimeout(() => {
@@ -19,30 +31,31 @@
 
                 if (codigo.trim() === "") {
                     document.getElementById("buscar_user").innerHTML = "";
+                    actualizarEstadoRegistroCol(false);
                     return;
                 }
 
-                fetch("<?php echo JS_FETCH; ?>?codigo=" + codigo)
+                fetch("<?php echo JS_FETCH; ?>?codigo=" + encodeURIComponent(codigo))
                     .then(response => response.json())
                     .then(data => {
                         let mensaje = "";
-                        console.log(data.existe);
                         
                         if (data.existe) {
                             mensaje = '<div class="alert alert-danger mt-2">El código ya está registrado.</div>';
-                            document.getElementById('reg_col').style.display = 'none';
-                        }else if(data.no_existe){
+                            actualizarEstadoRegistroCol(false);
+                        } else if (data.no_existe) {
                             mensaje = '<div class="alert alert-danger mt-2">El código no existe en la base de datos de RRHH.</div>';
-                            document.getElementById('reg_col').style.display = 'none';
-                        }else {
+                            actualizarEstadoRegistroCol(false);
+                        } else {
                             mensaje = '<div class="alert alert-success mt-2">El código está disponible.</div>';
-                            document.getElementById('reg_col').style.display = 'block';
+                            actualizarEstadoRegistroCol(true);
                         }
                         document.getElementById("buscar_user").innerHTML = mensaje;
                     })
                     .catch(error => {
                         console.error("Error en la consulta:", error);
                         document.getElementById("buscar_user").innerHTML = '<div class="alert alert-warning mt-2">Error en la verificación.</div>';
+                        actualizarEstadoRegistroCol(false);
                     });
             }, 3000); 
         }
@@ -149,6 +162,20 @@
         // Invocación automática al cargar la página
         document.addEventListener("DOMContentLoaded", function () {
             bloquearFechasPasadas(".bloquear-pasado");
+
+            const formRegCol = document.getElementById('form_reg_col');
+            if (formRegCol) {
+                formRegCol.addEventListener('submit', function (e) {
+                    if (!window.regColRegistroPermitido) {
+                        e.preventDefault();
+                    }
+                });
+                formRegCol.addEventListener('keydown', function (e) {
+                    if (e.key === 'Enter' && !window.regColRegistroPermitido) {
+                        e.preventDefault();
+                    }
+                });
+            }
         });
     </script>
 </body>

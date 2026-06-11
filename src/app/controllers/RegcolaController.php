@@ -18,23 +18,15 @@ $userModel = new User($pdo);
 if (isset($_GET['reg_col'])) {
     
     if (isset($_POST['registro_colaborador'])) {
+        $regCode = trim((string) ($_POST['reg_code'] ?? ''));
+        $validacion = $userModel->puedeRegistrarColaborador($regCode);
 
-        $result_bus = $userModel->buscar_code_col_reg($_POST['reg_code']);
-
-        if ($result_bus == 1) {
-        
-            //echo 'pasando';
-            $userModel->insertar_colaborador($_POST['reg_code'], $_POST['reg_password']);
-            $mensaje = 'Colaborador Registrado';
-            sleep(3);
-            header("Location: /index.php");
-            //require_once __DIR__ . '/../views/login.php';
+        if ($validacion['ok'] && $userModel->insertar_colaborador($regCode, $_POST['reg_password'] ?? '')) {
+            header('Location: /index.php');
             exit();
-        }else {
-            $mensaje = 'Ya usted esta registrado';
         }
 
-
+        $mensaje = $validacion['mensaje'] !== '' ? $validacion['mensaje'] : 'No se pudo completar el registro.';
     } 
     require_once __DIR__ . '/../views/reg_col.php';
     exit();
