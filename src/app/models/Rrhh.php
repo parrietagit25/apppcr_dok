@@ -852,8 +852,11 @@ class Rrhh {
     }
 
     /**
-     * Días entre fecha inicio y fin de vacaciones (diferencia calendario, sin sumar día extra).
-     * Ej.: 2026-06-15 a 2026-06-30 => 15 días.
+     * Días de vacaciones según el rango permitido:
+     * - Del 1 al 15: ambos días cuentan (ej. 1–15 jun = 15 días).
+     * - Del 16 al último día del mes: ambos días cuentan (ej. 16–30 jun = 15 días).
+     * - Del 1 al último día: mes completo (ej. 1–30 jun = 30 días).
+     * - Del 15 al último día del mismo mes: fin − inicio (ej. 15–30 jun = 15 días).
      */
     public static function calcular_dias_vacaciones($fecha_inicio, $fecha_fin): int
     {
@@ -863,7 +866,19 @@ class Rrhh {
             return 0;
         }
 
-        return (int) $inicio->diff($fin)->days;
+        $diff = (int) $inicio->diff($fin)->days;
+        $diaInicio = (int) $inicio->format('j');
+        $diaFin = (int) $fin->format('j');
+        $ultimoDelMes = (int) (clone $inicio)->modify('last day of this month')->format('j');
+        $mismoMes = $inicio->format('Y-m') === $fin->format('Y-m');
+
+        // Segunda mitad del 15 al último día del mismo mes (15–30, 15–31, etc.)
+        if ($diaInicio === 15 && $mismoMes && $diaFin === $ultimoDelMes) {
+            return $diff;
+        }
+
+        // Primera quincena, segunda desde el 16, mes completo y demás rangos: inclusivo
+        return $diff + 1;
     }
 
     /**
