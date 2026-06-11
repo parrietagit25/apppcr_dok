@@ -852,6 +852,21 @@ class Rrhh {
     }
 
     /**
+     * Días entre fecha inicio y fin de vacaciones (diferencia calendario, sin sumar día extra).
+     * Ej.: 2026-06-15 a 2026-06-30 => 15 días.
+     */
+    public static function calcular_dias_vacaciones($fecha_inicio, $fecha_fin): int
+    {
+        $inicio = \DateTime::createFromFormat('Y-m-d', $fecha_inicio);
+        $fin = \DateTime::createFromFormat('Y-m-d', $fecha_fin);
+        if (!$inicio || !$fin || $inicio > $fin) {
+            return 0;
+        }
+
+        return (int) $inicio->diff($fin)->days;
+    }
+
+    /**
      * Indica si el usuario ya envió hoy una solicitud de permiso de este tipo.
      * Límite: 1 solicitud por tipo de permiso por día (pueden ser casos distintos otro día).
      */

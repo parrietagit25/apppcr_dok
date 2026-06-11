@@ -1622,12 +1622,7 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
 
         /***** ######################### email para el enargado **************************** */
 
-        $cantidad_dias = 0;
-        $inicio = new DateTime($fecha_inicio);
-        $fin = new DateTime($fecha_fin);
-        $diferencia = $inicio->diff($fin);
-        $cantidad_dias = $diferencia->days;
-        $cantidad_dias = $cantidad_dias + 1;
+        $cantidad_dias = Rrhh::calcular_dias_vacaciones($fecha_inicio, $fecha_fin);
 
         $mensaje = '
         <h4 style="color:rgb(250, 11, 2);">Aprobación pendiente: Solicitud de permiso de colaborador </h4>

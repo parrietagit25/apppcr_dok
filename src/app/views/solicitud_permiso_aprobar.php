@@ -48,10 +48,7 @@ include __DIR__ . '/header.php';
 
                         $cantidad_dias = 0;
                         if($row['tipo_licencia'] == 'Vacaciones'){
-                            $inicio = new DateTime($row['fecha_inicio']);
-                            $fin = new DateTime($row['fecha_fin']);
-                            $diferencia = $inicio->diff($fin);
-                            $cantidad_dias = $diferencia->days;
+                            $cantidad_dias = Rrhh::calcular_dias_vacaciones($row['fecha_inicio'], $row['fecha_fin']);
                         }
 
                         echo "<tr>
