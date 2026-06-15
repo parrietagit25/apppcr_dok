@@ -339,6 +339,48 @@ if (isset($_GET['mantenimiento_vacaciones'])) {
     exit();
 }
 
+if (isset($_GET['mantenimiento_cumple'])) {
+    $codeSesion = trim($_SESSION['code'] ?? '');
+    $tiene_acceso_mant_cumple = (
+        $tipo_usuario == 1
+        || $tipo_usuario == 4
+        || $tipo_usuario == 5
+        || in_array($codeSesion, ['001404', '001688'], true)
+    );
+    if (!$tiene_acceso_mant_cumple) {
+        header('Location: ' . BASE_URL_CONTROLLER . '/MainController.php');
+        exit();
+    }
+
+    $mensaje_cumple = '';
+    $mensaje_cumple_tipo = 'info';
+    $cumple_config_disponible = $class_rrhh->cumpleConfigTablaDisponible();
+
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['accion_cumple'], $_POST['codigo_empleado'])) {
+        $codigoCumple = trim((string) $_POST['codigo_empleado']);
+        $accion = (string) $_POST['accion_cumple'];
+        if ($codigoCumple !== '') {
+            if ($accion === 'ocultar') {
+                $ok = $class_rrhh->guardarVisibilidadCumple($codigoCumple, false, $codeSesion, 'Oculto desde Mant Cumple');
+                $mensaje_cumple = $ok
+                    ? 'Colaborador quitado de la lista pública de cumpleaños.'
+                    : 'No se pudo ocultar. Verifique que exista la tabla cumple_config.';
+                $mensaje_cumple_tipo = $ok ? 'success' : 'danger';
+            } elseif ($accion === 'mostrar') {
+                $ok = $class_rrhh->guardarVisibilidadCumple($codigoCumple, true, $codeSesion);
+                $mensaje_cumple = $ok
+                    ? 'Colaborador visible nuevamente en la lista de cumpleaños.'
+                    : 'No se pudo restaurar la visibilidad.';
+                $mensaje_cumple_tipo = $ok ? 'success' : 'danger';
+            }
+        }
+    }
+
+    $cumple_mantenimiento = $class_rrhh->listarCumpleanerosMantenimiento();
+    require_once __DIR__ . '/../views/mantenimiento_cumple.php';
+    exit();
+}
+
 if (isset($_GET['cambiar_estado_usuario'])) {
 
     $codigo = $_POST['codigo_empleado'];

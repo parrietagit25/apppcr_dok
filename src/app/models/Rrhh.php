@@ -752,8 +752,94 @@ class Rrhh {
 
     } */
 
-    public function dia_cumple() {
-        $array_datos = [];
+    /** @return bool */
+    public function cumpleConfigTablaDisponible(): bool
+    {
+        return $this->cumpleConfigDisponible();
+    }
+
+    /** @return bool */
+    private function cumpleConfigDisponible(): bool
+    {
+        static $cache = null;
+        if ($cache !== null) {
+            return $cache;
+        }
+        try {
+            $this->pdo->query('SELECT 1 FROM cumple_config LIMIT 1');
+            $cache = true;
+        } catch (Throwable $e) {
+            $cache = false;
+        }
+        return $cache;
+    }
+
+    /**
+     * Códigos ocultos en cumpleaños (mantenimiento Mant Cumple).
+     *
+     * @return list<string>
+     */
+    private function codigosCumpleOcultos(): array
+    {
+        if (!$this->cumpleConfigDisponible()) {
+            return ['002567', '001023'];
+        }
+        $st = $this->pdo->query(
+            "SELECT codigo_empleado FROM cumple_config WHERE accion = 'ocultar' AND activo = 1"
+        );
+        return array_map('strval', $st->fetchAll(PDO::FETCH_COLUMN));
+    }
+
+    /**
+     * Códigos forzados a mostrar aunque no cumplan estatus habitual.
+     *
+     * @return list<string>
+     */
+    private function codigosCumpleForzados(): array
+    {
+        if (!$this->cumpleConfigDisponible()) {
+            return ['002465'];
+        }
+        $st = $this->pdo->query(
+            "SELECT codigo_empleado FROM cumple_config WHERE accion = 'forzar' AND activo = 1"
+        );
+        return array_map('strval', $st->fetchAll(PDO::FETCH_COLUMN));
+    }
+
+    /**
+     * @param list<string> $codigos
+     */
+    private function sqlNotInCodigos(string $columna, array $codigos): string
+    {
+        if ($codigos === []) {
+            return '';
+        }
+        $quoted = array_map(function ($c) {
+            return $this->pdo->quote((string) $c);
+        }, $codigos);
+        return ' AND ' . $columna . ' NOT IN (' . implode(',', $quoted) . ')';
+    }
+
+    /**
+     * @param list<string> $codigos
+     */
+    private function sqlInCodigos(string $columna, array $codigos): string
+    {
+        if ($codigos === []) {
+            return ' AND 1 = 0';
+        }
+        $quoted = array_map(function ($c) {
+            return $this->pdo->quote((string) $c);
+        }, $codigos);
+        return ' AND ' . $columna . ' IN (' . implode(',', $quoted) . ')';
+    }
+
+    public function dia_cumple()
+    {
+        $ocultos = $this->codigosCumpleOcultos();
+        $forzados = $this->codigosCumpleForzados();
+        $notIn = $this->sqlNotInCodigos('codigo_empleado', $ocultos);
+        $inForzados = $this->sqlInCodigos('codigo_empleado', $forzados);
 
         $sql = "
             SELECT 
@@ -767,7 +853,7 @@ class Rrhh {
             WHERE MONTH(fecha_nacimiento) = MONTH(CURDATE())
             AND DAY(fecha_nacimiento) >= DAY(CURDATE())
             AND estatus_empleado IN ('A', 'V')
-            AND codigo_empleado not in('002567', '001023')
+            {$notIn}
 
             UNION ALL
 
@@ -781,7 +867,11 @@ class Rrhh {
             FROM colaboradores_externos
             WHERE MONTH(fecha_nacimiento) = MONTH(CURDATE())
             AND DAY(fecha_nacimiento) >= DAY(CURDATE())
+            {$notIn}
+        ";
 
+        if ($forzados !== []) {
+            $sql .= "
             UNION ALL
 
             SELECT 
@@ -794,19 +884,194 @@ class Rrhh {
             FROM empleados
             WHERE MONTH(fecha_nacimiento) = MONTH(CURDATE())
             AND DAY(fecha_nacimiento) >= DAY(CURDATE())
-            AND codigo_empleado in('002465')
+            {$inForzados}
+            ";
+        }
 
-            ORDER BY dia_cumpleaños;
-        ";
+        $sql .= ' ORDER BY dia_cumpleaños';
 
-        $stmt = $this->pdo->prepare($sql);
-        $stmt->execute();
-
+        $stmt = $this->pdo->query($sql);
+        $vistos = [];
+        $array_datos = [];
         while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            $code = (string) $row['codigo_empleado'];
+            if (isset($vistos[$code])) {
+                continue;
+            }
+            $vistos[$code] = true;
             $array_datos[] = $row;
         }
 
         return $array_datos;
+    }
+
+    /**
+     * Candidatos del mes (desde hoy) para pantalla Mant Cumple.
+     *
+     * @return list<array<string, mixed>>
+     */
+    public function listarCumpleanerosMantenimiento(): array
+    {
+        $ocultos = array_flip($this->codigosCumpleOcultos());
+        $forzados = array_flip($this->codigosCumpleForzados());
+
+        $sql = "
+            SELECT 
+                codigo_empleado COLLATE utf8mb4_unicode_ci AS codigo_empleado,
+                nombre COLLATE utf8mb4_unicode_ci AS nombre,
+                apellido COLLATE utf8mb4_unicode_ci AS apellido,
+                fecha_nacimiento,
+                'empleado' AS tipo,
+                DAY(fecha_nacimiento) AS dia_cumpleaños,
+                estatus_empleado AS estatus
+            FROM empleados
+            WHERE MONTH(fecha_nacimiento) = MONTH(CURDATE())
+            AND DAY(fecha_nacimiento) >= DAY(CURDATE())
+            AND estatus_empleado IN ('A', 'V')
+
+            UNION ALL
+
+            SELECT 
+                codigo_empleado COLLATE utf8mb4_unicode_ci AS codigo_empleado,
+                nombre COLLATE utf8mb4_unicode_ci AS nombre,
+                apellido COLLATE utf8mb4_unicode_ci AS apellido,
+                fecha_nacimiento,
+                'externo' AS tipo,
+                DAY(fecha_nacimiento) AS dia_cumpleaños,
+                'EXT' AS estatus
+            FROM colaboradores_externos
+            WHERE MONTH(fecha_nacimiento) = MONTH(CURDATE())
+            AND DAY(fecha_nacimiento) >= DAY(CURDATE())
+
+            UNION ALL
+
+            SELECT 
+                codigo_empleado COLLATE utf8mb4_unicode_ci AS codigo_empleado,
+                nombre COLLATE utf8mb4_unicode_ci AS nombre,
+                apellido COLLATE utf8mb4_unicode_ci AS apellido,
+                fecha_nacimiento,
+                'empleado' AS tipo,
+                DAY(fecha_nacimiento) AS dia_cumpleaños,
+                estatus_empleado AS estatus
+            FROM empleados
+            WHERE MONTH(fecha_nacimiento) = MONTH(CURDATE())
+            AND DAY(fecha_nacimiento) >= DAY(CURDATE())
+            AND estatus_empleado NOT IN ('A', 'V')
+        ";
+
+        $stmt = $this->pdo->query($sql);
+        $configs = $this->listarCumpleConfiguracionMapa();
+        $porCodigo = [];
+
+        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            $code = (string) $row['codigo_empleado'];
+            if (isset($porCodigo[$code])) {
+                continue;
+            }
+            $cfg = $configs[$code] ?? null;
+            $forzado = isset($forzados[$code])
+                || ($cfg && $cfg['accion'] === 'forzar' && (int) $cfg['activo'] === 1);
+            $oculto = isset($ocultos[$code])
+                || ($cfg && $cfg['accion'] === 'ocultar' && (int) $cfg['activo'] === 1);
+            $esCandidato = in_array($row['estatus'], ['A', 'V', 'EXT'], true);
+            $visible = $forzado || ($esCandidato && !$oculto);
+            $row['visible'] = $visible ? 1 : 0;
+            $row['forzado'] = $forzado ? 1 : 0;
+            $row['motivo'] = $cfg['motivo'] ?? '';
+            $porCodigo[$code] = $row;
+        }
+
+        foreach ($forzados as $code => $_) {
+            if (isset($porCodigo[$code])) {
+                continue;
+            }
+            $st = $this->pdo->prepare(
+                'SELECT codigo_empleado, nombre, apellido, fecha_nacimiento, estatus_empleado AS estatus
+                 FROM empleados WHERE codigo_empleado = ? LIMIT 1'
+            );
+            $st->execute([$code]);
+            $emp = $st->fetch(PDO::FETCH_ASSOC);
+            if ($emp && (int) date('n', strtotime($emp['fecha_nacimiento'])) === (int) date('n')) {
+                $cfg = $configs[$code] ?? null;
+                $porCodigo[$code] = [
+                    'codigo_empleado' => $emp['codigo_empleado'],
+                    'nombre' => $emp['nombre'],
+                    'apellido' => $emp['apellido'],
+                    'fecha_nacimiento' => $emp['fecha_nacimiento'],
+                    'tipo' => 'empleado',
+                    'dia_cumpleaños' => (int) date('j', strtotime($emp['fecha_nacimiento'])),
+                    'estatus' => $emp['estatus'],
+                    'visible' => 1,
+                    'forzado' => 1,
+                    'motivo' => $cfg['motivo'] ?? '',
+                ];
+            }
+        }
+
+        $lista = array_values($porCodigo);
+        usort($lista, function ($a, $b) {
+            return (int) $a['dia_cumpleaños'] <=> (int) $b['dia_cumpleaños'];
+        });
+        return $lista;
+    }
+
+    /** @return array<string, array{accion:string,activo:int,motivo:?string}> */
+    public function listarCumpleConfiguracionMapa(): array
+    {
+        if (!$this->cumpleConfigDisponible()) {
+            return [];
+        }
+        $st = $this->pdo->query(
+            'SELECT codigo_empleado, accion, activo, motivo FROM cumple_config'
+        );
+        $map = [];
+        while ($row = $st->fetch(PDO::FETCH_ASSOC)) {
+            $map[(string) $row['codigo_empleado']] = $row;
+        }
+        return $map;
+    }
+
+    public function guardarVisibilidadCumple(
+        string $codigo,
+        bool $visible,
+        ?string $modificadoPor = null,
+        ?string $motivo = null,
+        bool $forzar = false
+    ): bool {
+        if (!$this->cumpleConfigDisponible()) {
+            return false;
+        }
+        $codigo = trim($codigo);
+        if ($codigo === '') {
+            return false;
+        }
+
+        if ($visible && !$forzar) {
+            $st = $this->pdo->prepare(
+                "UPDATE cumple_config SET activo = 0, modificado_por = ?, updated_at = CURRENT_TIMESTAMP
+                 WHERE codigo_empleado = ? AND accion = 'ocultar'"
+            );
+            $st->execute([$modificadoPor, $codigo]);
+            return true;
+        }
+
+        if ($visible && $forzar) {
+            $st = $this->pdo->prepare(
+                "INSERT INTO cumple_config (codigo_empleado, accion, activo, motivo, modificado_por)
+                 VALUES (?, 'forzar', 1, ?, ?)
+                 ON DUPLICATE KEY UPDATE accion = 'forzar', activo = 1, motivo = VALUES(motivo),
+                 modificado_por = VALUES(modificado_por), updated_at = CURRENT_TIMESTAMP"
+            );
+            return $st->execute([$codigo, $motivo, $modificadoPor]);
+        }
+
+        $st = $this->pdo->prepare(
+            "INSERT INTO cumple_config (codigo_empleado, accion, activo, motivo, modificado_por)
+             VALUES (?, 'ocultar', 1, ?, ?)
+             ON DUPLICATE KEY UPDATE accion = 'ocultar', activo = 1, motivo = VALUES(motivo),
+             modificado_por = VALUES(modificado_por), updated_at = CURRENT_TIMESTAMP"
+        );
+        return $st->execute([$codigo, $motivo, $modificadoPor]);
     }
 
 

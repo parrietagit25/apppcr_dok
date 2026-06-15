@@ -84,6 +84,15 @@ include __DIR__ . '/header.php';
             </a>
         </div>
 
+        <div class="col-4">
+            <a href="<?php echo BASE_URL_CONTROLLER; ?>/MainController.php?mantenimiento_cumple=1" class="text-decoration-none">
+                <div class="p-2">
+                    <img src="<?php echo BASE_URL_IMAGE; ?>hb.svg" alt="Mant Cumple" class="mb-2" width="50">
+                    <p>Mant Cumple</p>
+                </div>
+            </a>
+        </div>
+
         <?php } ?>
     <br>
     <br><br><br><br>
