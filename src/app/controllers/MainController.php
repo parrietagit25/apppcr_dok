@@ -26,6 +26,14 @@ if (!isset($_SESSION['code'])) {
 /* nombre de usuario */
 $nombre = $userModel->nombre_colaborador();
 $tipo_usuario = $userModel->get_tyte_user();
+$codeSesion = trim($_SESSION['code'] ?? '');
+$tiene_acceso_rrhh = (
+    (int) $tipo_usuario === 1
+    || (int) $tipo_usuario === 4
+    || in_array($codeSesion, ['001404', '001688'], true)
+);
+$puede_manual_supervisor = ((int) $tipo_usuario === 1 || (int) $tipo_usuario === 6);
+$puede_manual_mantenimiento = $tiene_acceso_rrhh || (int) $tipo_usuario === 5;
 
 /* update frase de la semana */
 if (isset($_POST['boton_frase_semana'])) {
@@ -62,6 +70,29 @@ if (isset($_GET['cumple'])) {
 
     $cumple = $class_rrhh->dia_cumple();
     require_once __DIR__ . '/../views/cumple.php';
+    exit();
+}
+
+if (isset($_GET['manual_colaborador'])) {
+    require_once __DIR__ . '/../views/manuales/manual_colaborador.php';
+    exit();
+}
+
+if (isset($_GET['manual_supervisor'])) {
+    if (!$puede_manual_supervisor) {
+        header('Location: ' . BASE_URL_CONTROLLER . '/MainController.php?manual_colaborador=1');
+        exit();
+    }
+    require_once __DIR__ . '/../views/manuales/manual_supervisor.php';
+    exit();
+}
+
+if (isset($_GET['manual_mantenimiento'])) {
+    if (!$puede_manual_mantenimiento) {
+        header('Location: ' . BASE_URL_CONTROLLER . '/MainController.php');
+        exit();
+    }
+    require_once __DIR__ . '/../views/manuales/manual_mantenimiento.php';
     exit();
 }
 

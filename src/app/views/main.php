@@ -47,6 +47,27 @@ include __DIR__ . '/header.php';
         </div>
         
         <div class="row text-center mb-3">
+            <div class="col-6 mb-3">
+                <a href="<?php echo BASE_URL_CONTROLLER; ?>/MainController.php?manual_colaborador=1" class="text-decoration-none">
+                    <div style="background-color: #eef3ff; padding: 16px; border-radius: 10px;">
+                        <i class="bi bi-book text-primary d-block mb-2" style="font-size: 2rem;"></i>
+                        <div class="card-title"><small>Manual del Colaborador</small></div>
+                    </div>
+                </a>
+            </div>
+            <?php if (!empty($puede_manual_supervisor)) { ?>
+            <div class="col-6 mb-3">
+                <a href="<?php echo BASE_URL_CONTROLLER; ?>/MainController.php?manual_supervisor=1" class="text-decoration-none">
+                    <div style="background-color: #fff8e6; padding: 16px; border-radius: 10px;">
+                        <i class="bi bi-person-check text-warning d-block mb-2" style="font-size: 2rem;"></i>
+                        <div class="card-title"><small>Manual Supervisor</small></div>
+                    </div>
+                </a>
+            </div>
+            <?php } ?>
+        </div>
+
+        <div class="row text-center mb-3">
             <div class="col-12 mb-3">
                 <a href="<?php echo rtrim(BASE_URL_CONTROLLER, '/'); ?>/QuinielaController.php" class="text-decoration-none">
                     <div class="card-icon" style="background: linear-gradient(135deg, #0d6efd 0%, #198754 100%); color: #fff;">
