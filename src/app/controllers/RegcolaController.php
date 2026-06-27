@@ -7,6 +7,7 @@ use PHPMailer\PHPMailer\Exception;
 require_once __DIR__ . '/../../config/config.php';
 require_once __DIR__ . '/../core/Database.php';
 require_once __DIR__ . '/../models/User.php';
+require_once __DIR__ . '/../models/Telemetria.php';
 
 $mensaje = '';
 
@@ -22,6 +23,11 @@ if (isset($_GET['reg_col'])) {
         $validacion = $userModel->puedeRegistrarColaborador($regCode);
 
         if ($validacion['ok'] && $userModel->insertar_colaborador($regCode, $_POST['reg_password'] ?? '')) {
+            Telemetria::registrar($pdo, 'registro', [
+                'codigo_empleado' => $regCode,
+                'modulo' => 'Registro',
+                'accion' => 'Nuevo colaborador registrado',
+            ]);
             header('Location: /index.php');
             exit();
         }

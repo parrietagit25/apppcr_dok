@@ -132,6 +132,16 @@ include __DIR__ . '/header.php';
                     </div>
                 </a>
             </div>
+            <?php if ((int) ($tipo_usuario ?? 0) === 1) { ?>
+            <div class="col-4 mb-3">
+                <a href="<?php echo BASE_URL_CONTROLLER; ?>/TelemetriaController.php" class="text-decoration-none">
+                    <div class="card-icon" style="background: linear-gradient(135deg, #1a1f36, #0078d4); color: #fff;">
+                        <i class="bi bi-graph-up-arrow d-block mb-2" style="font-size: 2rem;"></i>
+                        <div class="card-title" style="color: #fff;"><small>Telemetría</small></div>
+                    </div>
+                </a>
+            </div>
+            <?php } ?>
             <?php if ($tiene_acceso_rrhh) { ?>
             <div class="col-4 mb-3">
                 <a href="<?php echo BASE_URL_CONTROLLER; ?>/CarnetController.php?verificar_carnet=1" class="text-decoration-none">

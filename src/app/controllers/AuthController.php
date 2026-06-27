@@ -7,6 +7,7 @@ require_once __DIR__ . '/../../config/config.php';
 require_once __DIR__ . '/../core/Database.php';
 require_once __DIR__ . '/../models/User.php';
 require_once __DIR__ . '/../models/Rrhh.php';
+require_once __DIR__ . '/../models/Telemetria.php';
 
 if (isset($_SESSION['code'])) {
     //require_once __DIR__ . '/../views/main.php';
@@ -27,6 +28,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['password']) && isset(
 
         if ($userModel->authenticate($code, $password)) {
             $_SESSION['code'] = $code;
+            $_SESSION['type_user'] = $userModel->get_tyte_user();
+            Telemetria::registrar($pdo, 'login', [
+                'codigo_empleado' => $code,
+                'type_user' => $_SESSION['type_user'],
+                'modulo' => 'Login',
+                'accion' => 'Ingreso exitoso',
+            ]);
 
             $frase = $class_rrhh->frase_semana();
             $nombre = $userModel->nombre_colaborador();

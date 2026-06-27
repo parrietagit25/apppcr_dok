@@ -34,6 +34,7 @@ $tiene_acceso_rrhh = (
 );
 $puede_manual_supervisor = $tiene_acceso_rrhh || (int) $tipo_usuario === 6;
 $puede_manual_mantenimiento = $tiene_acceso_rrhh || (int) $tipo_usuario === 5;
+$_SESSION['type_user'] = $tipo_usuario;
 
 /* update frase de la semana */
 if (isset($_POST['boton_frase_semana'])) {
