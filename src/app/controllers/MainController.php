@@ -32,7 +32,7 @@ $tiene_acceso_rrhh = (
     || (int) $tipo_usuario === 4
     || in_array($codeSesion, ['001404', '001688'], true)
 );
-$puede_manual_supervisor = ((int) $tipo_usuario === 1 || (int) $tipo_usuario === 6);
+$puede_manual_supervisor = $tiene_acceso_rrhh || (int) $tipo_usuario === 6;
 $puede_manual_mantenimiento = $tiene_acceso_rrhh || (int) $tipo_usuario === 5;
 
 /* update frase de la semana */

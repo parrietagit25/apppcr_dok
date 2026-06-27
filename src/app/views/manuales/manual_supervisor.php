@@ -18,8 +18,8 @@ $rrhhUrl = BASE_URL_CONTROLLER . '/RRHHController.php';
 
     <div class="alert alert-info">
         <i class="bi bi-info-circle"></i>
-        Este manual es para colaboradores con rol de <strong>supervisor / jefe</strong> (tipo de usuario 6).
-        Si no ve las opciones descritas, solicite a RRHH la activación de su perfil.
+        Este manual es para <strong>supervisores / jefes</strong> (tipo 6) y para el equipo de <strong>RRHH</strong>.
+        Si un colaborador no ve las opciones descritas, debe solicitar a RRHH la activación de su perfil de supervisor.
     </div>
 
     <div class="card manual-section">
