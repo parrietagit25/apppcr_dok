@@ -41,5 +41,12 @@ $eventosPorTipo = $tablaOk ? $telemetria->getEventosPorTipo($fecha_desde, $fecha
 $actividadPorHora = $tablaOk ? $telemetria->getActividadPorHora($fecha_desde, $fecha_hasta) : [];
 $usuariosPorDia = $tablaOk ? $telemetria->getUsuariosActivosPorDia($fecha_desde, $fecha_hasta) : [];
 $eventosRecientes = $tablaOk ? $telemetria->getEventosRecientes($fecha_desde, $fecha_hasta) : [];
+$columnasDispositivo = $tablaOk && Telemetria::columnasDispositivoDisponible($pdo);
+$porDispositivo = $columnasDispositivo ? $telemetria->getAgrupadoPorCampo('dispositivo_tipo', $fecha_desde, $fecha_hasta) : [];
+$porNavegador = $columnasDispositivo ? $telemetria->getAgrupadoPorCampo('navegador', $fecha_desde, $fecha_hasta, 8) : [];
+$porSO = $columnasDispositivo ? $telemetria->getAgrupadoPorCampo('sistema_operativo', $fecha_desde, $fecha_hasta, 8) : [];
+$porResolucion = $columnasDispositivo ? $telemetria->getAgrupadoPorCampo('resolucion_pantalla', $fecha_desde, $fecha_hasta, 8) : [];
+$porConexion = $columnasDispositivo ? $telemetria->getAgrupadoPorCampo('tipo_conexion', $fecha_desde, $fecha_hasta) : [];
+$dispositivosUsuarios = $columnasDispositivo ? $telemetria->getUltimosDispositivosDistintos($fecha_desde, $fecha_hasta) : [];
 
 require_once __DIR__ . '/../views/telemetria.php';

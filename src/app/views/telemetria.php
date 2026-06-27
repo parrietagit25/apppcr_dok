@@ -38,6 +38,18 @@ $labelsTopUsers = array_map(function ($r) {
     return $n !== '' ? $n : ($r['codigo_empleado'] ?? '');
 }, $topUsuarios ?? []);
 $dataTopUsers = array_column($topUsuarios ?? [], 'total');
+
+$labelsDispositivo = array_column($porDispositivo ?? [], 'etiqueta');
+$dataDispositivo = array_column($porDispositivo ?? [], 'total');
+$labelsNavegador = array_column($porNavegador ?? [], 'etiqueta');
+$dataNavegador = array_column($porNavegador ?? [], 'total');
+$labelsSO = array_column($porSO ?? [], 'etiqueta');
+$dataSO = array_column($porSO ?? [], 'total');
+$labelsResolucion = array_column($porResolucion ?? [], 'etiqueta');
+$dataResolucion = array_column($porResolucion ?? [], 'total');
+$labelsConexion = array_column($porConexion ?? [], 'etiqueta');
+$dataConexion = array_column($porConexion ?? [], 'total');
+$tieneColumnasDispositivo = !empty($columnasDispositivo);
 ?>
 
 <style>
@@ -237,6 +249,107 @@ $dataTopUsers = array_column($topUsuarios ?? [], 'total');
         </div>
     </div>
 
+    <?php if (!$tieneColumnasDispositivo && !empty($tablaOk)) { ?>
+    <div class="alert alert-info">
+        Para registrar IP, dispositivo, resolución y ubicación ejecute
+        <code>src/sql/telemetria_dispositivo.sql</code> y despliegue el script
+        <code>js/telemetria_client.js</code>.
+    </div>
+    <?php } ?>
+
+    <?php if ($tieneColumnasDispositivo) { ?>
+    <div class="tel-hero mb-3" style="padding: 1rem 1.25rem;">
+        <h5 class="mb-0"><i class="bi bi-phone"></i> Dispositivos (recolección silenciosa)</h5>
+    </div>
+
+    <div class="row g-3 mb-3">
+        <div class="col-lg-4">
+            <div class="tel-chart-card">
+                <h6><i class="bi bi-tablet"></i> Tipo de dispositivo</h6>
+                <canvas id="chartDispositivo" height="160"></canvas>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="tel-chart-card">
+                <h6><i class="bi bi-browser-chrome"></i> Navegadores</h6>
+                <canvas id="chartNavegador" height="160"></canvas>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="tel-chart-card">
+                <h6><i class="bi bi-windows"></i> Sistemas operativos</h6>
+                <canvas id="chartSO" height="160"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-3 mb-3">
+        <div class="col-lg-6">
+            <div class="tel-chart-card">
+                <h6><i class="bi bi-aspect-ratio"></i> Resoluciones de pantalla</h6>
+                <canvas id="chartResolucion" height="130"></canvas>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="tel-chart-card">
+                <h6><i class="bi bi-wifi"></i> Tipo de conexión</h6>
+                <canvas id="chartConexion" height="130"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <div class="tel-table-wrap mb-4">
+        <div class="p-3 border-bottom">
+            <h6 class="mb-0 fw-bold"><i class="bi bi-hdd-network"></i> Últimos dispositivos por usuario</h6>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-hover table-sm mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Usuario</th>
+                        <th>IP</th>
+                        <th>Dispositivo</th>
+                        <th>Navegador / SO</th>
+                        <th>Resolución</th>
+                        <th>Ubicación</th>
+                        <th>Conexión</th>
+                        <th>Último uso</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php if (empty($dispositivosUsuarios)) { ?>
+                        <tr><td colspan="8" class="text-center text-muted py-3">Sin datos de dispositivo en el período</td></tr>
+                    <?php } else { ?>
+                        <?php foreach ($dispositivosUsuarios as $d) { ?>
+                        <tr>
+                            <td>
+                                <small class="text-muted d-block"><?php echo htmlspecialchars($d['codigo_empleado']); ?></small>
+                                <?php echo htmlspecialchars($d['nombre']); ?>
+                            </td>
+                            <td><small><?php echo htmlspecialchars($d['ip'] ?? '—'); ?></small></td>
+                            <td><?php echo htmlspecialchars($d['dispositivo_tipo'] ?? '—'); ?></td>
+                            <td>
+                                <small><?php echo htmlspecialchars($d['navegador'] ?? '—'); ?></small><br>
+                                <small class="text-muted"><?php echo htmlspecialchars($d['sistema_operativo'] ?? '—'); ?></small>
+                            </td>
+                            <td>
+                                <small><?php echo htmlspecialchars($d['resolucion_pantalla'] ?? '—'); ?></small>
+                                <?php if (!empty($d['resolucion_viewport'])) { ?>
+                                    <br><small class="text-muted">VP: <?php echo htmlspecialchars($d['resolucion_viewport']); ?></small>
+                                <?php } ?>
+                            </td>
+                            <td><small><?php echo htmlspecialchars($d['ubicacion_texto'] ?? '—'); ?></small></td>
+                            <td><small><?php echo htmlspecialchars($d['tipo_conexion'] ?? '—'); ?></small></td>
+                            <td><small><?php echo htmlspecialchars(date('d/m/Y H:i', strtotime($d['ultimo_uso']))); ?></small></td>
+                        </tr>
+                        <?php } ?>
+                    <?php } ?>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <?php } ?>
+
     <div class="tel-table-wrap mb-4">
         <div class="p-3 border-bottom">
             <h6 class="mb-0 fw-bold"><i class="bi bi-list-ul"></i> Eventos recientes</h6>
@@ -249,12 +362,13 @@ $dataTopUsers = array_column($topUsuarios ?? [], 'total');
                         <th>Usuario</th>
                         <th>Evento</th>
                         <th>Módulo</th>
+                        <?php if ($tieneColumnasDispositivo) { ?><th>IP / Dispositivo</th><?php } ?>
                         <th>Detalle</th>
                     </tr>
                 </thead>
                 <tbody>
                     <?php if (empty($eventosRecientes)) { ?>
-                        <tr><td colspan="5" class="text-center text-muted py-4">Sin eventos en el período seleccionado</td></tr>
+                        <tr><td colspan="<?php echo $tieneColumnasDispositivo ? 6 : 5; ?>" class="text-center text-muted py-4">Sin eventos en el período seleccionado</td></tr>
                     <?php } else { ?>
                         <?php foreach ($eventosRecientes as $ev) {
                             $evClass = 'badge-evento-' . preg_replace('/[^a-z_]/', '', $ev['evento']);
@@ -267,6 +381,15 @@ $dataTopUsers = array_column($topUsuarios ?? [], 'total');
                                 </td>
                                 <td><span class="badge <?php echo htmlspecialchars($evClass); ?>"><?php echo htmlspecialchars($ev['evento']); ?></span></td>
                                 <td><?php echo htmlspecialchars($ev['modulo'] ?? '—'); ?></td>
+                                <?php if ($tieneColumnasDispositivo) { ?>
+                                <td>
+                                    <small class="d-block"><?php echo htmlspecialchars($ev['ip'] ?? '—'); ?></small>
+                                    <small class="text-muted"><?php echo htmlspecialchars(($ev['dispositivo_tipo'] ?? '') . ' · ' . ($ev['navegador'] ?? '')); ?></small>
+                                    <?php if (!empty($ev['ubicacion_texto'])) { ?>
+                                        <br><small><?php echo htmlspecialchars($ev['ubicacion_texto']); ?></small>
+                                    <?php } ?>
+                                </td>
+                                <?php } ?>
                                 <td><small><?php echo htmlspecialchars($ev['accion'] ?? $ev['ruta'] ?? '—'); ?></small></td>
                             </tr>
                         <?php } ?>
@@ -385,6 +508,35 @@ document.addEventListener('DOMContentLoaded', function () {
             scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } }, x: { grid: { display: false } } }
         }
     });
+
+    <?php if ($tieneColumnasDispositivo) { ?>
+    function telBarChart(id, labels, data, color) {
+        var el = document.getElementById(id);
+        if (!el || !labels.length) return;
+        new Chart(el, {
+            type: 'bar',
+            data: { labels: labels, datasets: [{ data: data, backgroundColor: color, borderRadius: 4 }] },
+            options: {
+                indexAxis: id === 'chartResolucion' ? 'y' : 'x',
+                responsive: true,
+                plugins: { legend: { display: false } },
+                scales: { x: { beginAtZero: true }, y: { beginAtZero: true } }
+            }
+        });
+    }
+    new Chart(document.getElementById('chartDispositivo'), {
+        type: 'doughnut',
+        data: {
+            labels: <?= json_encode($labelsDispositivo) ?>,
+            datasets: [{ data: <?= json_encode($dataDispositivo) ?>, backgroundColor: palette, borderWidth: 2, borderColor: '#fff' }]
+        },
+        options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
+    });
+    telBarChart('chartNavegador', <?= json_encode($labelsNavegador) ?>, <?= json_encode($dataNavegador) ?>, '#0078d4');
+    telBarChart('chartSO', <?= json_encode($labelsSO) ?>, <?= json_encode($dataSO) ?>, '#5c2d91');
+    telBarChart('chartResolucion', <?= json_encode($labelsResolucion) ?>, <?= json_encode($dataResolucion) ?>, '#008272');
+    telBarChart('chartConexion', <?= json_encode($labelsConexion) ?>, <?= json_encode($dataConexion) ?>, '#d83b01');
+    <?php } ?>
 });
 </script>
 

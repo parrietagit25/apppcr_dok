@@ -26,6 +26,194 @@ class Telemetria
         return self::$tablaOk;
     }
 
+    /** @var bool|null */
+    private static $columnasDispositivoOk = null;
+
+    public static function columnasDispositivoDisponible(PDO $pdo): bool
+    {
+        if (self::$columnasDispositivoOk !== null) {
+            return self::$columnasDispositivoOk;
+        }
+        if (!self::tablaDisponible($pdo)) {
+            self::$columnasDispositivoOk = false;
+            return false;
+        }
+        try {
+            $st = $pdo->query("SHOW COLUMNS FROM telemetria_eventos LIKE 'dispositivo_tipo'");
+            self::$columnasDispositivoOk = (bool) $st->fetch(PDO::FETCH_ASSOC);
+        } catch (Throwable $e) {
+            self::$columnasDispositivoOk = false;
+        }
+        return self::$columnasDispositivoOk;
+    }
+
+    /**
+     * Contexto del navegador enviado por JS (sesión + enriquecimiento).
+     *
+     * @param array<string, mixed> $data
+     */
+    public static function guardarContextoCliente(PDO $pdo, array $data): void
+    {
+        $ctx = self::normalizarContextoCliente($data);
+        $uaRaw = !empty($data['user_agent_cliente']) ? (string) $data['user_agent_cliente'] : (self::userAgent() ?? '');
+        $ua = self::parseUserAgent($uaRaw);
+        foreach ($ua as $k => $v) {
+            if (empty($ctx[$k]) && $v !== null && $v !== '') {
+                $ctx[$k] = $v;
+            }
+        }
+        // Ubicación solo por IP en servidor (sin permisos del navegador).
+        $ip = self::clientIp();
+        if ($ip) {
+            $geo = self::resolverGeoIp($ip);
+            if ($geo) {
+                $ctx['ubicacion_texto'] = $geo['ubicacion_texto'] ?? null;
+                $ctx['isp'] = $geo['isp'] ?? null;
+                $ctx['latitud'] = $geo['latitud'] ?? null;
+                $ctx['longitud'] = $geo['longitud'] ?? null;
+            }
+        }
+        $_SESSION['telemetria_contexto'] = $ctx;
+        if (self::tablaDisponible($pdo)) {
+            self::registrar($pdo, 'device_info', [
+                'modulo' => 'Dispositivo',
+                'accion' => 'Contexto cliente',
+                'metadata' => $data,
+            ]);
+        }
+    }
+
+    /**
+     * @param array<string, mixed> $data
+     * @return array<string, mixed>
+     */
+    private static function normalizarContextoCliente(array $data): array
+    {
+        return [
+            'dispositivo_tipo' => substr((string) ($data['dispositivo_tipo'] ?? ''), 0, 24),
+            'navegador' => substr((string) ($data['navegador'] ?? ''), 0, 80),
+            'sistema_operativo' => substr((string) ($data['sistema_operativo'] ?? ''), 0, 80),
+            'resolucion_pantalla' => substr((string) ($data['resolucion_pantalla'] ?? ''), 0, 24),
+            'resolucion_viewport' => substr((string) ($data['resolucion_viewport'] ?? ''), 0, 24),
+            'pixel_ratio' => isset($data['pixel_ratio']) ? (float) $data['pixel_ratio'] : null,
+            'timezone' => substr((string) ($data['timezone'] ?? ''), 0, 64),
+            'idioma' => substr((string) ($data['idioma'] ?? ''), 0, 16),
+            'latitud' => null,
+            'longitud' => null,
+            'ubicacion_texto' => null,
+            'tipo_conexion' => substr((string) ($data['tipo_conexion'] ?? ''), 0, 32),
+            'plataforma' => substr((string) ($data['plataforma'] ?? ''), 0, 80),
+            'isp' => substr((string) ($data['isp'] ?? ''), 0, 120),
+            'referrer' => substr((string) ($data['referrer'] ?? ''), 0, 500),
+        ];
+    }
+
+    /**
+     * @return array<string, string|null>
+     */
+    private static function parseUserAgent(string $ua): array
+    {
+        if ($ua === '') {
+            return ['navegador' => null, 'sistema_operativo' => null, 'dispositivo_tipo' => null];
+        }
+        $os = 'Desconocido';
+        if (preg_match('/Windows NT 10/i', $ua)) {
+            $os = 'Windows 10+';
+        } elseif (preg_match('/Windows/i', $ua)) {
+            $os = 'Windows';
+        } elseif (preg_match('/Mac OS X/i', $ua)) {
+            $os = 'macOS';
+        } elseif (preg_match('/Android ([0-9\.]+)/i', $ua, $m)) {
+            $os = 'Android ' . $m[1];
+        } elseif (preg_match('/iPhone OS ([0-9_]+)/i', $ua, $m)) {
+            $os = 'iOS ' . str_replace('_', '.', $m[1]);
+        } elseif (preg_match('/iPad/i', $ua)) {
+            $os = 'iPadOS';
+        } elseif (preg_match('/Linux/i', $ua)) {
+            $os = 'Linux';
+        }
+
+        $browser = 'Desconocido';
+        if (preg_match('/Edg\/([0-9\.]+)/i', $ua, $m)) {
+            $browser = 'Edge ' . explode('.', $m[1])[0];
+        } elseif (preg_match('/Chrome\/([0-9\.]+)/i', $ua, $m) && stripos($ua, 'Edg') === false) {
+            $browser = 'Chrome ' . explode('.', $m[1])[0];
+        } elseif (preg_match('/Firefox\/([0-9\.]+)/i', $ua, $m)) {
+            $browser = 'Firefox ' . explode('.', $m[1])[0];
+        } elseif (preg_match('/Version\/([0-9\.]+).*Safari/i', $ua, $m)) {
+            $browser = 'Safari ' . explode('.', $m[1])[0];
+        }
+
+        $tipo = 'desktop';
+        if (preg_match('/iPad|Tablet|PlayBook/i', $ua)) {
+            $tipo = 'tablet';
+        } elseif (preg_match('/Mobi|Android|iPhone|iPod/i', $ua)) {
+            $tipo = 'mobile';
+        }
+
+        return [
+            'navegador' => $browser,
+            'sistema_operativo' => $os,
+            'dispositivo_tipo' => $tipo,
+        ];
+    }
+
+    /**
+     * @return array<string, mixed>|null
+     */
+    private static function resolverGeoIp(string $ip): ?array
+    {
+        if (!filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE)) {
+            return null;
+        }
+        $url = 'http://ip-api.com/json/' . urlencode($ip) . '?fields=status,country,regionName,city,lat,lon,isp,mobile';
+        $ctx = stream_context_create(['http' => ['timeout' => 2, 'ignore_errors' => true]]);
+        $raw = @file_get_contents($url, false, $ctx);
+        if ($raw === false) {
+            return null;
+        }
+        $j = json_decode($raw, true);
+        if (!is_array($j) || ($j['status'] ?? '') !== 'success') {
+            return null;
+        }
+        $partes = array_filter([$j['city'] ?? '', $j['regionName'] ?? '', $j['country'] ?? '']);
+        return [
+            'ubicacion_texto' => implode(', ', $partes),
+            'latitud' => isset($j['lat']) ? (float) $j['lat'] : null,
+            'longitud' => isset($j['lon']) ? (float) $j['lon'] : null,
+            'isp' => $j['isp'] ?? null,
+        ];
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private static function contextoDispositivoParaInserto(PDO $pdo): array
+    {
+        $ctx = $_SESSION['telemetria_contexto'] ?? [];
+        if (!is_array($ctx)) {
+            $ctx = [];
+        }
+        if (empty($ctx['navegador']) || empty($ctx['sistema_operativo'])) {
+            $ua = self::parseUserAgent(self::userAgent() ?? '');
+            $ctx = array_merge($ua, $ctx);
+        }
+        if (empty($ctx['ubicacion_texto']) && self::columnasDispositivoDisponible($pdo)) {
+            $ip = self::clientIp();
+            if ($ip) {
+                $geo = self::resolverGeoIp($ip);
+                if ($geo) {
+                    foreach ($geo as $k => $v) {
+                        if ($v !== null && $v !== '') {
+                            $ctx[$k] = $v;
+                        }
+                    }
+                }
+            }
+        }
+        return $ctx;
+    }
+
     /**
      * @param array<string, mixed> $extra
      */
@@ -47,6 +235,51 @@ class Telemetria
                 $meta = json_encode($meta, JSON_UNESCAPED_UNICODE);
             }
 
+            $dev = self::contextoDispositivoParaInserto($pdo);
+            $ip = self::clientIp();
+
+            if (self::columnasDispositivoDisponible($pdo)) {
+                $st = $pdo->prepare(
+                    'INSERT INTO telemetria_eventos
+                    (codigo_empleado, type_user, evento, modulo, ruta, accion, metadata, ip, user_agent,
+                     dispositivo_tipo, navegador, sistema_operativo, resolucion_pantalla, resolucion_viewport,
+                     pixel_ratio, timezone, idioma, latitud, longitud, ubicacion_texto, tipo_conexion,
+                     plataforma, isp, referrer)
+                    VALUES
+                    (:codigo, :type_user, :evento, :modulo, :ruta, :accion, :metadata, :ip, :user_agent,
+                     :dispositivo_tipo, :navegador, :sistema_operativo, :resolucion_pantalla, :resolucion_viewport,
+                     :pixel_ratio, :timezone, :idioma, :latitud, :longitud, :ubicacion_texto, :tipo_conexion,
+                     :plataforma, :isp, :referrer)'
+                );
+                $st->execute([
+                    ':codigo' => $codigo !== null && $codigo !== '' ? (string) $codigo : null,
+                    ':type_user' => $typeUser !== null ? (int) $typeUser : null,
+                    ':evento' => substr($evento, 0, 50),
+                    ':modulo' => isset($extra['modulo']) ? substr((string) $extra['modulo'], 0, 100) : null,
+                    ':ruta' => isset($extra['ruta']) ? substr((string) $extra['ruta'], 0, 500) : null,
+                    ':accion' => isset($extra['accion']) ? substr((string) $extra['accion'], 0, 150) : null,
+                    ':metadata' => $meta,
+                    ':ip' => $ip,
+                    ':user_agent' => self::userAgent(),
+                    ':dispositivo_tipo' => $dev['dispositivo_tipo'] ?? null,
+                    ':navegador' => $dev['navegador'] ?? null,
+                    ':sistema_operativo' => $dev['sistema_operativo'] ?? null,
+                    ':resolucion_pantalla' => $dev['resolucion_pantalla'] ?? null,
+                    ':resolucion_viewport' => $dev['resolucion_viewport'] ?? null,
+                    ':pixel_ratio' => isset($dev['pixel_ratio']) ? (float) $dev['pixel_ratio'] : null,
+                    ':timezone' => $dev['timezone'] ?? null,
+                    ':idioma' => $dev['idioma'] ?? null,
+                    ':latitud' => isset($dev['latitud']) ? (float) $dev['latitud'] : null,
+                    ':longitud' => isset($dev['longitud']) ? (float) $dev['longitud'] : null,
+                    ':ubicacion_texto' => $dev['ubicacion_texto'] ?? null,
+                    ':tipo_conexion' => $dev['tipo_conexion'] ?? null,
+                    ':plataforma' => $dev['plataforma'] ?? null,
+                    ':isp' => $dev['isp'] ?? null,
+                    ':referrer' => $dev['referrer'] ?? null,
+                ]);
+                return;
+            }
+
             $st = $pdo->prepare(
                 'INSERT INTO telemetria_eventos
                 (codigo_empleado, type_user, evento, modulo, ruta, accion, metadata, ip, user_agent)
@@ -60,7 +293,7 @@ class Telemetria
                 ':ruta' => isset($extra['ruta']) ? substr((string) $extra['ruta'], 0, 500) : null,
                 ':accion' => isset($extra['accion']) ? substr((string) $extra['accion'], 0, 150) : null,
                 ':metadata' => $meta,
-                ':ip' => self::clientIp(),
+                ':ip' => $ip,
                 ':user_agent' => self::userAgent(),
             ]);
         } catch (Throwable $e) {
@@ -402,8 +635,13 @@ class Telemetria
     public function getEventosRecientes(string $desde, string $hasta, int $limit = 40): array
     {
         $r = $this->rangoSql($desde, $hasta);
+        $cols = 'id, codigo_empleado, evento, modulo, accion, ruta, ip, created_at';
+        if (self::columnasDispositivoDisponible($this->pdo)) {
+            $cols .= ', dispositivo_tipo, navegador, sistema_operativo, resolucion_pantalla, resolucion_viewport';
+            $cols .= ', ubicacion_texto, tipo_conexion, plataforma, isp';
+        }
         $st = $this->pdo->prepare(
-            "SELECT id, codigo_empleado, evento, modulo, accion, ruta, created_at
+            "SELECT {$cols}
              FROM telemetria_eventos
              WHERE created_at BETWEEN :desde AND :hasta
              ORDER BY created_at DESC
@@ -415,6 +653,59 @@ class Telemetria
             $row['nombre'] = $row['codigo_empleado']
                 ? $this->nombreColaborador((string) $row['codigo_empleado'])
                 : '—';
+        }
+        unset($row);
+        return $rows;
+    }
+
+    /** @return list<array{etiqueta:string,total:int}> */
+    public function getAgrupadoPorCampo(string $campo, string $desde, string $hasta, int $limit = 10): array
+    {
+        if (!self::columnasDispositivoDisponible($this->pdo)) {
+            return [];
+        }
+        $permitidos = [
+            'dispositivo_tipo', 'navegador', 'sistema_operativo', 'resolucion_pantalla',
+            'tipo_conexion', 'plataforma', 'idioma', 'timezone',
+        ];
+        if (!in_array($campo, $permitidos, true)) {
+            return [];
+        }
+        $r = $this->rangoSql($desde, $hasta);
+        $sql = "SELECT COALESCE(NULLIF(TRIM({$campo}), ''), 'Sin dato') AS etiqueta, COUNT(*) AS total
+                FROM telemetria_eventos
+                WHERE created_at BETWEEN :desde AND :hasta
+                GROUP BY etiqueta
+                ORDER BY total DESC
+                LIMIT " . (int) $limit;
+        $st = $this->pdo->prepare($sql);
+        $st->execute($r);
+        return $st->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    /** @return list<array<string, mixed>> */
+    public function getUltimosDispositivosDistintos(string $desde, string $hasta, int $limit = 15): array
+    {
+        if (!self::columnasDispositivoDisponible($this->pdo)) {
+            return [];
+        }
+        $r = $this->rangoSql($desde, $hasta);
+        $st = $this->pdo->prepare(
+            "SELECT codigo_empleado, ip, dispositivo_tipo, navegador, sistema_operativo,
+                    resolucion_pantalla, resolucion_viewport, ubicacion_texto, tipo_conexion, isp,
+                    MAX(created_at) AS ultimo_uso
+             FROM telemetria_eventos
+             WHERE created_at BETWEEN :desde AND :hasta
+               AND codigo_empleado IS NOT NULL
+             GROUP BY codigo_empleado, ip, dispositivo_tipo, navegador, sistema_operativo,
+                      resolucion_pantalla, resolucion_viewport, ubicacion_texto, tipo_conexion, isp
+             ORDER BY ultimo_uso DESC
+             LIMIT " . (int) $limit
+        );
+        $st->execute($r);
+        $rows = $st->fetchAll(PDO::FETCH_ASSOC);
+        foreach ($rows as &$row) {
+            $row['nombre'] = $this->nombreColaborador((string) $row['codigo_empleado']);
         }
         unset($row);
         return $rows;

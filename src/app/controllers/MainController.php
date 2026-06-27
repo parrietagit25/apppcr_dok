@@ -5,6 +5,7 @@ require_once __DIR__ . '/../../config/config.php';
 require_once __DIR__ . '/../core/Database.php';
 require_once __DIR__ . '/../models/User.php';
 require_once __DIR__ . '/../models/Rrhh.php';
+require_once __DIR__ . '/../models/Telemetria.php';
 
 $pdo = Database::connect();
 $userModel = new User($pdo);
@@ -35,6 +36,23 @@ $tiene_acceso_rrhh = (
 $puede_manual_supervisor = $tiene_acceso_rrhh || (int) $tipo_usuario === 6;
 $puede_manual_mantenimiento = $tiene_acceso_rrhh || (int) $tipo_usuario === 5;
 $_SESSION['type_user'] = $tipo_usuario;
+
+if (isset($_GET['telemetria_contexto']) && $_SERVER['REQUEST_METHOD'] === 'POST') {
+    header('Content-Type: application/json; charset=utf-8');
+    if (!isset($_SESSION['code'])) {
+        http_response_code(401);
+        echo json_encode(['ok' => false, 'error' => 'No autenticado']);
+        exit();
+    }
+    $raw = file_get_contents('php://input');
+    $data = json_decode($raw ?: '{}', true);
+    if (!is_array($data)) {
+        $data = [];
+    }
+    Telemetria::guardarContextoCliente($pdo, $data);
+    echo json_encode(['ok' => true]);
+    exit();
+}
 
 /* update frase de la semana */
 if (isset($_POST['boton_frase_semana'])) {

@@ -178,5 +178,9 @@
             }
         });
     </script>
+    <?php if (isset($_SESSION['code'])) { ?>
+    <script>window.APPPCR_TELEMETRIA_URL = <?php echo json_encode(BASE_URL_CONTROLLER . '/MainController.php?telemetria_contexto=1'); ?>;</script>
+    <script src="<?php echo BASE_URL_LINK; ?>/js/telemetria_client.js" async></script>
+    <?php } ?>
 </body>
 </html>
