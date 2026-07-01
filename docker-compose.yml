@@ -4,6 +4,8 @@ services:
   app:
     build: .
     container_name: apppcr_php
+    env_file:
+      - .env
     ports:
       - "8084:80"
       - "4444:443"

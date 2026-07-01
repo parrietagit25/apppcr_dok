@@ -35,7 +35,9 @@ include __DIR__ . '/header.php';
                     <?php if (!empty($resend_api_configurada)) { ?>
                         <span class="text-success">Configurada</span>
                     <?php } else { ?>
-                        <span class="text-danger">No configurada</span> — agregue <code>RESEND_API_KEY</code> en el <code>.env</code>
+                        <span class="text-danger">No configurada</span>
+                        — verifique <code>RESEND_API_KEY</code> en el <code>.env</code> (raíz del proyecto o <code>src/.env</code>)
+                        y reinicie el contenedor: <code>docker compose up -d</code>
                     <?php } ?>
                 </li>
                 <li><strong>Remitente:</strong> <?php echo htmlspecialchars($resend_from_name); ?> &lt;<?php echo htmlspecialchars($resend_from_email); ?>&gt;</li>
