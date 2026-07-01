@@ -4,19 +4,37 @@ require_once __DIR__ . '/../../vendor/autoload.php';
 
 class MailService
 {
+    private static function cfg(string $key, string $default = ''): string
+    {
+        if (function_exists('cfg_env')) {
+            $value = cfg_env($key, $default);
+            if (trim($value) !== '') {
+                return $value;
+            }
+        }
+        if (defined($key)) {
+            $const = constant($key);
+            if (is_string($const) && trim($const) !== '') {
+                return $const;
+            }
+        }
+        return $default;
+    }
+
     private static function remitente(): string
     {
-        $nombre = defined('RESEND_FROM_NAME') ? RESEND_FROM_NAME : 'AM Gente notificaciones';
-        $email = defined('RESEND_FROM_EMAIL') ? RESEND_FROM_EMAIL : 'notificaciones@automarket.com.pa';
+        $nombre = self::cfg('RESEND_FROM_NAME', 'AM Gente notificaciones');
+        $email = self::cfg('RESEND_FROM_EMAIL', 'notificaciones@automarket.com.pa');
         return $nombre . ' <' . $email . '>';
     }
 
     private static function apiKey(): string
     {
-        if (!defined('RESEND_API_KEY') || RESEND_API_KEY === '') {
+        $key = self::cfg('RESEND_API_KEY', '');
+        if (trim($key) === '') {
             throw new RuntimeException('RESEND_API_KEY no está configurada.');
         }
-        return RESEND_API_KEY;
+        return $key;
     }
 
     /**
