@@ -11,6 +11,7 @@ services:
       - "4444:443"
     volumes:
       - ./src:/var/www/html
+      - ./.env:/var/www/html/.env:ro
     depends_on:
       - db
 

@@ -41,6 +41,20 @@ include __DIR__ . '/header.php';
                     <?php } ?>
                 </li>
                 <li><strong>Remitente:</strong> <?php echo htmlspecialchars($resend_from_name); ?> &lt;<?php echo htmlspecialchars($resend_from_email); ?>&gt;</li>
+                <li>
+                    <strong>Archivo .env en contenedor:</strong>
+                    <?php if (!empty($env_archivo_existe)) { ?>
+                        <span class="text-success">Encontrado</span>
+                        <code class="small"><?php echo htmlspecialchars($env_archivo_ruta ?? ''); ?></code>
+                    <?php } else { ?>
+                        <span class="text-danger">No encontrado</span>
+                        — monte <code>./.env:/var/www/html/.env</code> y ejecute <code>docker compose up -d --build</code>
+                    <?php } ?>
+                </li>
+                <li>
+                    <strong>Variable en entorno Apache:</strong>
+                    <?php echo !empty($env_getenv_activo) ? '<span class="text-success">Sí</span>' : '<span class="text-warning">No</span> (se usa lectura directa del .env)'; ?>
+                </li>
             </ul>
         </div>
     </div>

@@ -30,3 +30,13 @@ RUN { \
 
 # Copiar el código fuente
 COPY ./src /var/www/html
+
+# Apache: exponer variables de entorno a PHP (mod_php)
+COPY docker/apache/pass-env.conf /etc/apache2/conf-available/app-pass-env.conf
+RUN a2enconf app-pass-env
+
+COPY docker/entrypoint.sh /usr/local/bin/app-entrypoint.sh
+RUN chmod +x /usr/local/bin/app-entrypoint.sh
+
+ENTRYPOINT ["app-entrypoint.sh"]
+CMD ["apache2-foreground"]

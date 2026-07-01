@@ -476,6 +476,10 @@ if (isset($_GET['mantenimiento_correo'])) {
     $resend_from_email = defined('RESEND_FROM_EMAIL') ? RESEND_FROM_EMAIL : '';
     $resend_from_name = defined('RESEND_FROM_NAME') ? RESEND_FROM_NAME : '';
 
+    $env_archivo_ruta = realpath(__DIR__ . '/../../.env') ?: (__DIR__ . '/../../.env');
+    $env_archivo_existe = is_readable($env_archivo_ruta);
+    $env_getenv_activo = getenv('RESEND_API_KEY') !== false && getenv('RESEND_API_KEY') !== '';
+
     require_once __DIR__ . '/../views/mantenimiento_correo.php';
     exit();
 }
