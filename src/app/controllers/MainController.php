@@ -431,6 +431,55 @@ if (isset($_GET['mantenimiento_cumple'])) {
     exit();
 }
 
+if (isset($_GET['mantenimiento_correo'])) {
+    if (!$puede_manual_mantenimiento) {
+        header('Location: ' . BASE_URL_CONTROLLER . '/MainController.php');
+        exit();
+    }
+
+    require_once __DIR__ . '/../core/MailService.php';
+
+    $mensaje_correo = '';
+    $mensaje_correo_tipo = 'info';
+    $email_destino_default = '';
+
+    $stmtEmail = $pdo->prepare(
+        'SELECT email FROM empleados WHERE codigo_empleado = :code LIMIT 1'
+    );
+    $stmtEmail->execute([':code' => $codeSesion]);
+    $rowEmail = $stmtEmail->fetch(PDO::FETCH_ASSOC);
+    if ($rowEmail && !empty($rowEmail['email'])) {
+        $email_destino_default = trim((string) $rowEmail['email']);
+    }
+
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['enviar_prueba_correo'])) {
+        $email_destino = trim((string) ($_POST['email_destino'] ?? ''));
+        $asunto = 'Prueba Resend — apppcr.net';
+        $cuerpo = '<p>Este es un correo de prueba enviado desde <strong>apppcr.net</strong> mediante Resend.</p>'
+            . '<p><strong>Fecha:</strong> ' . htmlspecialchars(date('d/m/Y H:i:s'), ENT_QUOTES, 'UTF-8') . '</p>'
+            . '<p><strong>Usuario sesión:</strong> ' . htmlspecialchars($codeSesion, ENT_QUOTES, 'UTF-8')
+            . ' — ' . htmlspecialchars((string) $nombre, ENT_QUOTES, 'UTF-8') . '</p>'
+            . '<p>Si recibió este mensaje, el envío de correos está funcionando correctamente.</p>';
+
+        $resultado = MailService::enviar($email_destino, [], $asunto, $cuerpo);
+        if ($resultado === true) {
+            $mensaje_correo = 'Correo de prueba enviado a ' . $email_destino . '. Revise la bandeja de entrada (y spam).';
+            $mensaje_correo_tipo = 'success';
+        } else {
+            $mensaje_correo = $resultado;
+            $mensaje_correo_tipo = 'danger';
+        }
+        $email_destino_default = $email_destino;
+    }
+
+    $resend_api_configurada = defined('RESEND_API_KEY') && RESEND_API_KEY !== '';
+    $resend_from_email = defined('RESEND_FROM_EMAIL') ? RESEND_FROM_EMAIL : '';
+    $resend_from_name = defined('RESEND_FROM_NAME') ? RESEND_FROM_NAME : '';
+
+    require_once __DIR__ . '/../views/mantenimiento_correo.php';
+    exit();
+}
+
 if (isset($_GET['cambiar_estado_usuario'])) {
 
     $codigo = $_POST['codigo_empleado'];

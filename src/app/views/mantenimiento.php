@@ -102,6 +102,15 @@ include __DIR__ . '/header.php';
             </a>
         </div>
 
+        <div class="col-4">
+            <a href="<?php echo BASE_URL_CONTROLLER; ?>/MainController.php?mantenimiento_correo=1" class="text-decoration-none">
+                <div class="p-2">
+                    <i class="bi bi-envelope-check text-success d-block mb-2" style="font-size: 2rem;"></i>
+                    <p>Test Correo</p>
+                </div>
+            </a>
+        </div>
+
         <?php } ?>
     <br>
     <br><br><br><br>
