@@ -18,7 +18,7 @@ if [ -f "$ENV_FILE" ]; then
       value="${value#\"}"
       value="${value%\'}"
       value="${value#\'}"
-      if [ -n "$key" ] && [ -z "${!key:-}" ]; then
+      if [ -n "$key" ]; then
         export "${key}=${value}"
       fi
     fi

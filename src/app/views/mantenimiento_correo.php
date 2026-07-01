@@ -53,7 +53,19 @@ include __DIR__ . '/header.php';
                 </li>
                 <li>
                     <strong>Variable en entorno Apache:</strong>
-                    <?php echo !empty($env_getenv_activo) ? '<span class="text-success">Sí</span>' : '<span class="text-warning">No</span> (se usa lectura directa del .env)'; ?>
+                    <?php if (!empty($env_getenv_activo)) { ?>
+                        <span class="text-success">Sí</span> (<?php echo (int) ($env_getenv_len ?? 0); ?> caracteres)
+                    <?php } else { ?>
+                        <span class="text-warning">No</span>
+                    <?php } ?>
+                </li>
+                <li>
+                    <strong>RESEND_API_KEY en archivo .env:</strong>
+                    <?php if (!empty($env_archivo_tiene_key)) { ?>
+                        <span class="text-success">Presente</span> (<?php echo (int) $env_archivo_key_len; ?> caracteres)
+                    <?php } else { ?>
+                        <span class="text-danger">No encontrada o vacía</span> — revise que la línea sea exactamente <code>RESEND_API_KEY=re_...</code>
+                    <?php } ?>
                 </li>
             </ul>
         </div>

@@ -472,13 +472,28 @@ if (isset($_GET['mantenimiento_correo'])) {
         $email_destino_default = $email_destino;
     }
 
-    $resend_api_configurada = defined('RESEND_API_KEY') && RESEND_API_KEY !== '';
+    $resend_api_configurada = defined('RESEND_API_KEY') && trim((string) RESEND_API_KEY) !== '';
     $resend_from_email = defined('RESEND_FROM_EMAIL') ? RESEND_FROM_EMAIL : '';
     $resend_from_name = defined('RESEND_FROM_NAME') ? RESEND_FROM_NAME : '';
 
     $env_archivo_ruta = realpath(__DIR__ . '/../../.env') ?: (__DIR__ . '/../../.env');
     $env_archivo_existe = is_readable($env_archivo_ruta);
-    $env_getenv_activo = getenv('RESEND_API_KEY') !== false && getenv('RESEND_API_KEY') !== '';
+    $env_getenv_valor = getenv('RESEND_API_KEY');
+    $env_getenv_activo = $env_getenv_valor !== false && trim((string) $env_getenv_valor) !== '';
+    $env_getenv_len = $env_getenv_activo ? strlen(trim((string) $env_getenv_valor)) : 0;
+
+    $env_archivo_tiene_key = false;
+    $env_archivo_key_len = 0;
+    if ($env_archivo_existe) {
+        $lineas = file($env_archivo_ruta, FILE_IGNORE_NEW_LINES);
+        if ($lineas !== false && function_exists('parse_dotenv_lines')) {
+            $varsArchivo = parse_dotenv_lines($lineas);
+            if (isset($varsArchivo['RESEND_API_KEY'])) {
+                $env_archivo_tiene_key = trim($varsArchivo['RESEND_API_KEY']) !== '';
+                $env_archivo_key_len = strlen(trim($varsArchivo['RESEND_API_KEY']));
+            }
+        }
+    }
 
     require_once __DIR__ . '/../views/mantenimiento_correo.php';
     exit();
