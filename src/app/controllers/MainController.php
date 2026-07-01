@@ -437,6 +437,7 @@ if (isset($_GET['mantenimiento_correo'])) {
         exit();
     }
 
+    require_once __DIR__ . '/../helpers/resend_env.php';
     require_once __DIR__ . '/../core/MailService.php';
 
     $mensaje_correo = '';
@@ -472,10 +473,10 @@ if (isset($_GET['mantenimiento_correo'])) {
         $email_destino_default = $email_destino;
     }
 
-    $resend_api_valor = function_exists('resend_env') ? resend_env('RESEND_API_KEY', '') : '';
+    $resend_api_valor = resend_env('RESEND_API_KEY', '');
     $resend_api_configurada = trim($resend_api_valor) !== '';
-    $resend_from_email = function_exists('resend_env') ? resend_env('RESEND_FROM_EMAIL', 'notificaciones@automarket.com.pa') : '';
-    $resend_from_name = function_exists('resend_env') ? resend_env('RESEND_FROM_NAME', 'AM Gente notificaciones') : '';
+    $resend_from_email = resend_env('RESEND_FROM_EMAIL', 'notificaciones@automarket.com.pa');
+    $resend_from_name = resend_env('RESEND_FROM_NAME', 'AM Gente notificaciones');
 
     $env_archivo_ruta = realpath(__DIR__ . '/../../.env') ?: (__DIR__ . '/../../.env');
     $env_archivo_existe = is_readable($env_archivo_ruta);

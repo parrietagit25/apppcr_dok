@@ -1,24 +1,14 @@
 <?php
 
 require_once __DIR__ . '/../../vendor/autoload.php';
+require_once __DIR__ . '/../helpers/resend_env.php';
 
 class MailService
 {
     private static function cfg(string $key, string $default = ''): string
     {
-        if (function_exists('resend_env')) {
-            $value = resend_env($key, $default);
-            if (trim($value) !== '') {
-                return $value;
-            }
-        }
-        if (function_exists('cfg_env')) {
-            $value = cfg_env($key, $default);
-            if (trim($value) !== '') {
-                return $value;
-            }
-        }
-        return $default;
+        $value = resend_env($key, $default);
+        return trim($value) !== '' ? $value : $default;
     }
 
     private static function remitente(): string

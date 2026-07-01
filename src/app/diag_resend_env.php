@@ -12,6 +12,7 @@ $configPath = __DIR__ . '/../config/config.php';
 if (is_readable($configPath)) {
     require_once $configPath;
 }
+require_once __DIR__ . '/helpers/resend_env.php';
 
 $envPath = realpath(__DIR__ . '/../.env') ?: (__DIR__ . '/../.env');
 
