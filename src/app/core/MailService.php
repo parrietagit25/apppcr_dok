@@ -6,16 +6,16 @@ class MailService
 {
     private static function cfg(string $key, string $default = ''): string
     {
-        if (function_exists('cfg_env')) {
-            $value = cfg_env($key, $default);
+        if (function_exists('resend_env')) {
+            $value = resend_env($key, $default);
             if (trim($value) !== '') {
                 return $value;
             }
         }
-        if (defined($key)) {
-            $const = constant($key);
-            if (is_string($const) && trim($const) !== '') {
-                return $const;
+        if (function_exists('cfg_env')) {
+            $value = cfg_env($key, $default);
+            if (trim($value) !== '') {
+                return $value;
             }
         }
         return $default;
