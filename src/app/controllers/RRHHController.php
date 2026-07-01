@@ -2,8 +2,6 @@
 // app/controllers/RRHHController.php   
 require_once __DIR__ . '/../../vendor/autoload.php'; 
 
-use PHPMailer\PHPMailer\PHPMailer;
-use PHPMailer\PHPMailer\Exception;
 use Dompdf\Dompdf;        // Se mantiene porque otras funciones lo usan
 use Mpdf\Mpdf;            // Se agrega para usar en nuevas funciones
 
@@ -12,6 +10,7 @@ require_once __DIR__ . '/../../config/config.php';
 require_once __DIR__ . '/../core/Database.php';
 require_once __DIR__ . '/../models/Rrhh.php';
 require_once __DIR__ . '/../models/User.php';
+require_once __DIR__ . '/../core/MailService.php';
 
 
 if (!isset($_SESSION['code'])) {
@@ -1985,29 +1984,12 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
 
         if ($_POST['respuesta_jefe'] == 'A') {
 
-            $mail = new PHPMailer(true);
-
-            try {
-                $mail->isSMTP();
-                $mail->Host = 'smtp-mail.outlook.com'; // Cambia esto según tu proveedor
-                $mail->SMTPAuth = true;
-                $mail->Username = 'notificaciones@grupopcr.com.pa';
-                $mail->Password = EMAIL_GLOBAL;
-                $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-                $mail->Port = 587;
-
-                $mail->setFrom('notificaciones@grupopcr.com.pa', 'PCR notificaciones');
-                $mail->addAddress('pedro.arrieta@grupopcr.com.pa');
-
-                $mail->isHTML(true);
-                $mail->Subject = 'Solicitud de Permiso';
-                $mail->Body = $class->correo_solicitud_vacaciones($_POST['permiso_id']);
-
-                $mail->send();
-                //return 'Correo enviado correctamente';
-            } catch (Exception $e) {
-                //return "Error al enviar el correo: {$mail->ErrorInfo}";
-            } 
+            MailService::enviar(
+                'pedro.arrieta@grupopcr.com.pa',
+                [],
+                'Solicitud de Permiso',
+                $class->correo_solicitud_vacaciones($_POST['permiso_id'])
+            );
 
         }
 

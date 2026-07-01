@@ -1,8 +1,6 @@
 <?php
 require_once __DIR__ . '/../../config/config.php';
-require_once __DIR__ . '/../../vendor/autoload.php'; 
-use PHPMailer\PHPMailer\PHPMailer;
-use PHPMailer\PHPMailer\Exception;
+require_once __DIR__ . '/../core/MailService.php';
 
 class Rrhh {
     public $pdo;
@@ -1700,36 +1698,9 @@ class Rrhh {
 
     } 
 
-    public function enviar_correo($email, $mail_copia, $asunto, $mensaje){
-
-        $mail = new PHPMailer(true);
-        $mail->CharSet = 'UTF-8'; 
-
-        try {
-            $mail->isSMTP();
-            $mail->Host = 'smtp-mail.outlook.com'; // Cambia esto según tu proveedor
-            $mail->SMTPAuth = true;
-            $mail->Username = 'notificaciones@grupopcr.com.pa';
-            $mail->Password = EMAIL_GLOBAL;
-            $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-            $mail->Port = 587;
-
-            $mail->setFrom('notificaciones@grupopcr.com.pa', 'PCR notificaciones');
-            $mail->addAddress($email);
-            //$mail->addCC('rrhh@grupopcr.com.pa', $mail_copia);
-            foreach ($mail_copia as $cc) {
-                $mail->addCC($cc);
-            }
-
-            $mail->isHTML(true);
-            $mail->Subject = $asunto;
-            $mail->Body = $mensaje;
-
-            $mail->send();
-            //return 'Correo enviado correctamente';
-        } catch (Exception $e) {
-            return "Error al enviar el correo: {$mail->ErrorInfo}";
-        } 
+    public function enviar_correo($email, $mail_copia, $asunto, $mensaje)
+    {
+        return MailService::enviar($email, $mail_copia ?? [], $asunto, $mensaje);
     }
 
     public function obtenerSolicitudesUnificadas() {
@@ -1826,36 +1797,9 @@ class Rrhh {
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
-    public function enviar_correo_con_adjunto($email, $mail_copia, $asunto, $mensaje, $ruta_archivo) {
-        $mail = new PHPMailer(true);
-        $mail->CharSet = 'UTF-8'; 
-
-        try {
-            $mail->isSMTP();
-            $mail->Host = 'smtp-mail.outlook.com';
-            $mail->SMTPAuth = true;
-            $mail->Username = 'notificaciones@grupopcr.com.pa';
-            $mail->Password = EMAIL_GLOBAL;
-            $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-            $mail->Port = 587;
-
-            $mail->setFrom('notificaciones@grupopcr.com.pa', 'PCR notificaciones');
-            $mail->addAddress($email);
-
-            foreach ($mail_copia as $cc) {
-                $mail->addCC($cc);
-            }
-
-            $mail->addAttachment($ruta_archivo); // adjunto PDF
-
-            $mail->isHTML(true);
-            $mail->Subject = $asunto;
-            $mail->Body = $mensaje;
-
-            $mail->send();
-        } catch (Exception $e) {
-            return "Error al enviar el correo: {$mail->ErrorInfo}";
-        }
+    public function enviar_correo_con_adjunto($email, $mail_copia, $asunto, $mensaje, $ruta_archivo)
+    {
+        return MailService::enviarConAdjunto($email, $mail_copia ?? [], $asunto, $mensaje, $ruta_archivo);
     }
 
     public function get_otros_descuentos_por_carta($carta_id) {

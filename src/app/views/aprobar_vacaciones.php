@@ -3,10 +3,8 @@ if (!isset($_GET['codigo_empleado'])) {
     die("Error: Acceso restringido.");
 }
 
-include_once __DIR__ . '/../../vendor/autoload.php';
-use PHPMailer\PHPMailer\PHPMailer;
-use PHPMailer\PHPMailer\Exception;
 include_once __DIR__ . '/../../config/config.php';
+require_once __DIR__ . '/../core/MailService.php';
 
 class Database {
     private static $pdo = null;
@@ -28,35 +26,9 @@ class Database {
     }
 }
 
-    function enviar_correo($email, $mail_copia, $asunto, $mensaje){
-
-        $mail = new PHPMailer(true);
-        $mail->CharSet = 'UTF-8'; 
-
-        try {
-            $mail->isSMTP();
-            $mail->Host = 'smtp-mail.outlook.com'; // Cambia esto según tu proveedor
-            $mail->SMTPAuth = true;
-            $mail->Username = 'notificaciones@grupopcr.com.pa';
-            $mail->Password = EMAIL_GLOBAL;
-            $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-            $mail->Port = 587;
-
-            $mail->setFrom('notificaciones@grupopcr.com.pa', 'PCR notificaciones');
-            $mail->addAddress($email);
-            //$mail->addCC('rrhh@grupopcr.com.pa', $mail_copia);
-            foreach ($mail_copia as $cc) {
-                $mail->addCC($cc);
-            }
-
-            $mail->isHTML(true);
-            $mail->Subject = $asunto;
-            $mail->Body = $mensaje;
-            $mail->send();
-            //return 'Correo enviado correctamente';
-        } catch (Exception $e) {
-            return "Error al enviar el correo: {$mail->ErrorInfo}";
-        } 
+    function enviar_correo($email, $mail_copia, $asunto, $mensaje)
+    {
+        return MailService::enviar($email, $mail_copia ?? [], $asunto, $mensaje);
     }
 
     function get_email_permiso($id_permiso) {

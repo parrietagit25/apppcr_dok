@@ -5,7 +5,8 @@
         "phpoffice/phpspreadsheet": "1.23.0",
         "dompdf/dompdf": "^3.1",
         "endroid/qr-code": "3.5.6",
-        "mpdf/mpdf": "^8.2"
+        "mpdf/mpdf": "^8.2",
+        "resend/resend-php": "^1.4"
     },
     "config": {
         "allow-plugins": {
