@@ -84,13 +84,14 @@ include __DIR__ . '/header.php';
                         <div class="modal fade" id="modalAdjuntar<?php echo $row['id']; ?>" tabindex="-1" aria-labelledby="modalLabel<?php echo $row['id']; ?>" aria-hidden="true">
                             <div class="modal-dialog">
                                 <div class="modal-content">
-                                    <form method="POST">
+                                    <form method="POST" class="form-enviar-carta" data-form-id="<?php echo (int) $row['id']; ?>">
                                         <div class="modal-header">
                                             <h5 class="modal-title" id="modalLabel<?php echo $row['id']; ?>">Enviar carta al colaborador</h5>
-                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar" id="btnCerrarEnviar<?php echo (int) $row['id']; ?>"></button>
                                         </div>
                                         <div class="modal-body">
                                             <input type="hidden" name="solicitud_id" value="<?php echo $row['id']; ?>">
+                                            <input type="hidden" name="enviar_carta_pdf" value="1">
                                             <?php if ($ver_aprobadas): ?><input type="hidden" name="ver" value="aprobadas"><?php endif; ?>
                                             <p>
                                                 ¿Desea generar y enviar la carta de trabajo al colaborador
@@ -100,9 +101,15 @@ include __DIR__ . '/header.php';
                                                 <label for="comentario<?php echo $row['id']; ?>" class="form-label">Comentario adicional (opcional)</label>
                                                 <textarea class="form-control" name="comentario" id="comentario<?php echo $row['id']; ?>" rows="3"></textarea>
                                             </div>
+                                            <div id="estadoEnviar<?php echo (int) $row['id']; ?>" class="alert alert-info d-none mb-0 py-2">
+                                                Generando y enviando la carta… Por favor espere.
+                                            </div>
                                         </div>
                                         <div class="modal-footer">
-                                            <button type="submit" class="btn btn-success" name="enviar_carta_pdf">Generar y Enviar</button>
+                                            <button type="submit" class="btn btn-success" id="btnEnviarCarta<?php echo (int) $row['id']; ?>">
+                                                <span class="btn-texto">Generar y Enviar</span>
+                                                <span class="spinner-border spinner-border-sm d-none ms-1" role="status" aria-hidden="true"></span>
+                                            </button>
                                         </div>
                                     </form>
                                 </div>
@@ -297,6 +304,51 @@ function eliminarDescuento(grupoId) {
         },
         pageLength: 10,
         order: [[2, 'desc']]
+    });
+
+    // Evitar doble envío al aprobar/enviar carta de trabajo
+    document.querySelectorAll('.form-enviar-carta').forEach(function (form) {
+        form.addEventListener('submit', function (e) {
+            if (form.dataset.enviando === '1') {
+                e.preventDefault();
+                return false;
+            }
+
+            form.dataset.enviando = '1';
+
+            const id = form.dataset.formId;
+            const btn = document.getElementById('btnEnviarCarta' + id);
+            const btnCerrar = document.getElementById('btnCerrarEnviar' + id);
+            const estado = document.getElementById('estadoEnviar' + id);
+
+            if (btn) {
+                btn.disabled = true;
+                const texto = btn.querySelector('.btn-texto');
+                const spinner = btn.querySelector('.spinner-border');
+                if (texto) {
+                    texto.textContent = 'Enviando…';
+                }
+                if (spinner) {
+                    spinner.classList.remove('d-none');
+                }
+            }
+            if (btnCerrar) {
+                btnCerrar.disabled = true;
+            }
+            if (estado) {
+                estado.classList.remove('d-none');
+            }
+
+            // Deshabilitar cierre de la modal mientras procesa
+            const modalEl = form.closest('.modal');
+            if (modalEl && typeof bootstrap !== 'undefined') {
+                const modalInstance = bootstrap.Modal.getInstance(modalEl);
+                if (modalInstance) {
+                    modalEl.setAttribute('data-bs-backdrop', 'static');
+                    modalEl.setAttribute('data-bs-keyboard', 'false');
+                }
+            }
+        }, { capture: true });
     });
 </script>
 <script>

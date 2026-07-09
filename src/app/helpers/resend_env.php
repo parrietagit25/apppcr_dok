@@ -146,3 +146,13 @@ if (!function_exists('resend_env')) {
         return $default;
     }
 }
+
+if (!defined('RESEND_API_KEY')) {
+    define('RESEND_API_KEY', resend_env('RESEND_API_KEY', ''));
+}
+if (!defined('RESEND_FROM_EMAIL')) {
+    define('RESEND_FROM_EMAIL', resend_env('RESEND_FROM_EMAIL', 'notificaciones@automarket.com.pa'));
+}
+if (!defined('RESEND_FROM_NAME')) {
+    define('RESEND_FROM_NAME', resend_env('RESEND_FROM_NAME', 'AM Gente notificaciones'));
+}

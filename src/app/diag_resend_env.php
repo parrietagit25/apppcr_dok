@@ -90,7 +90,8 @@ function diag_leer(string $key, string $default = ''): string
 echo "=== Diagnóstico Resend (apppcr) ===\n\n";
 echo 'Fecha: ' . date('Y-m-d H:i:s') . "\n";
 echo "config.php: {$configPath}\n";
-echo 'resend_env(): ' . (function_exists('resend_env') ? 'sí' : 'NO — suba src/config/config.php actualizado') . "\n";
+echo 'resend_env(): ' . (function_exists('resend_env') ? 'sí' : 'NO') . "\n";
+echo 'Helper: ' . (is_readable(__DIR__ . '/helpers/resend_env.php') ? 'sí' : 'NO') . "\n";
 echo "Archivo .env: {$envPath}\n";
 echo 'Existe: ' . (is_readable($envPath) ? 'sí' : 'no') . "\n\n";
 
