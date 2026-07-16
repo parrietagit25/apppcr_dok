@@ -21,8 +21,13 @@ $class_rrhh = new Rrhh($pdo_rrhh);
 
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['password']) && isset($_POST['code'])) {
-    $code = $_POST['code'] ?? '';
+    $code = trim((string) ($_POST['code'] ?? ''));
     $password = $_POST['password'] ?? '';
+
+    // Esta cuenta utiliza su código real sin el prefijo estándar 00.
+    if ($code === '001326') {
+        $code = '1326';
+    }
 
     if (!empty($code) && !empty($password)) {
 

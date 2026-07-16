@@ -107,30 +107,39 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
         const input = document.querySelector(".prefijo");
+        const codigosSinPrefijo = ["1326"];
 
         // Siempre inicia con 00
         input.value = "00";
 
         // Coloca el cursor después del 00 al hacer clic
         input.addEventListener("focus", function () {
-            if (input.value.length <= 2) {
-            input.setSelectionRange(2, 2);
+            if (input.value.startsWith("00") && input.value.length <= 2) {
+                input.setSelectionRange(2, 2);
             }
         });
 
         // Evita que se borre el prefijo
         input.addEventListener("keydown", function (e) {
             // Previene el borrado del 00
-            if ((input.selectionStart <= 2) &&
+            if (input.value.startsWith("00") &&
+                (input.selectionStart <= 2) &&
                 (e.key === "Backspace" || e.key === "Delete")) {
-            e.preventDefault();
+                e.preventDefault();
             }
         });
 
-        // Asegura que el valor siempre comience con 00
+        // El usuario 1326 se autentica sin el prefijo 00.
         input.addEventListener("input", function () {
+            const valorSinPrefijo = input.value.replace(/^00/, "");
+            if (codigosSinPrefijo.includes(valorSinPrefijo)) {
+                input.value = valorSinPrefijo;
+                return;
+            }
+
+            // Para el resto de los usuarios se mantiene el prefijo obligatorio.
             if (!input.value.startsWith("00")) {
-            input.value = "00" + input.value.replace(/^0+/, '');
+                input.value = "00" + input.value.replace(/^0+/, '');
             }
         });
     </script>
