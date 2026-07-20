@@ -76,6 +76,14 @@ function quiniela_arma_fase_completada_en_resumen(string $fase, array $fasesResu
     <div class="alert alert-<?php echo htmlspecialchars($mensajeTipo); ?>"><?php echo htmlspecialchars($mensaje); ?></div>
     <?php } ?>
 
+    <?php if (!empty($quinielaNuevosRegistrosCerrados) || empty($cartaColaborador)) { ?>
+    <div class="alert alert-warning">
+        <strong>Registro cerrado.</strong> Ya no se admiten nuevas quinielas.
+        Solo pueden continuar quienes ya tenían su carta registrada.
+    </div>
+    <a href="<?php echo htmlspecialchars($qBase); ?>" class="btn btn-outline-secondary btn-sm">Volver al menú</a>
+    <?php } else { ?>
+
     <p class="small text-muted mb-2">
         <strong>Fase actual:</strong> <?php echo htmlspecialchars(Quiniela::etiquetaFase($faseActualUsuario)); ?>
         <?php if ($cartaCerrada) { ?>
@@ -321,6 +329,7 @@ function quiniela_arma_fase_completada_en_resumen(string $fase, array $fasesResu
     <div class="alert alert-info">No hay acciones disponibles para esta fase.</div>
     <?php } ?>
 
+    <?php } ?>
     <?php } ?>
 </div>
 

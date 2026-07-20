@@ -153,7 +153,10 @@ if ($es_administrador_quiniela && isset($_GET['v_resultados']) && $_SERVER['REQU
 }
 
 if (isset($_GET['arma_tu_quiniela']) && $_SERVER['REQUEST_METHOD'] === 'POST') {
-    if ($quinielaModel->quinielaEstaCerrada($codigoSesion)) {
+    if (!$quinielaModel->obtenerCartaPorCodigo($codigoSesion)) {
+        $mensaje = 'El registro de nuevas quinielas está cerrado. Solo pueden continuar quienes ya tenían una carta registrada.';
+        $mensajeTipo = 'warning';
+    } elseif ($quinielaModel->quinielaEstaCerrada($codigoSesion)) {
         $mensaje = 'Su quiniela está cerrada; no se puede modificar.';
         $mensajeTipo = 'info';
     } elseif (isset($_POST['guardar_fase_grupos'])) {
@@ -197,11 +200,9 @@ $equiposSelector = $quinielaModel->listarTodosEquiposParaSelector();
 $quinielaIsoPorEquipoId = $quinielaModel->mapaIsoPorEquipoId();
 $quinielaEquipoMetaPorId = $quinielaModel->mapaEquipoMetaPorId();
 
-if (isset($_GET['arma_tu_quiniela'])) {
-    $quinielaModel->crearCartaSiNoExiste($codigoSesion);
-}
-
+// Ya no se crean cartas nuevas: solo se trabaja con las ya registradas.
 $cartaColaborador = $quinielaModel->obtenerCartaPorCodigo($codigoSesion);
+$quinielaNuevosRegistrosCerrados = ($cartaColaborador === null);
 $faseActualUsuario = $cartaColaborador ? (string) $cartaColaborador['fase_actual'] : Quiniela::F_GRUPOS;
 $cartaCerrada = $quinielaModel->quinielaEstaCerrada($codigoSesion);
 $resumenQuinielaUsuario = $cartaColaborador ? $quinielaModel->obtenerResumenQuiniela($codigoSesion) : ['fases' => [], 'cerrada' => false];

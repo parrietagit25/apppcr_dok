@@ -370,11 +370,11 @@ class Quiniela
         if ($this->quinielaEstaCerrada($codigo)) {
             return false;
         }
-        $cartaId = $this->crearCartaSiNoExiste($codigo);
         $carta = $this->obtenerCartaPorCodigo($codigo);
         if (!$carta || (string) $carta['fase_actual'] !== self::F_GRUPOS) {
             return false;
         }
+        $cartaId = (int) $carta['id'];
 
         $grupos = $this->listarGruposConEquipos();
         foreach ($grupos as $g) {

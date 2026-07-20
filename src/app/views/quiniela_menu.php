@@ -23,7 +23,7 @@ $qBase = rtrim(BASE_URL_CONTROLLER, '/') . '/QuinielaController.php';
                 <div class="card-icon h-100 text-center p-4">
                     <i class="bi bi-ui-checks-grid text-success" style="font-size:2rem;"></i>
                     <div class="card-title mt-2">Arma tu quiniela</div>
-                    <small class="text-muted">Selecciona tus clasificados por fase hasta elegir campeón</small>
+                    <small class="text-muted">Solo para quienes ya registraron su carta (nuevos registros cerrados)</small>
                 </div>
             </a>
         </div>
