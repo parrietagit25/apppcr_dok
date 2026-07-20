@@ -654,9 +654,12 @@ class Quiniela
         return $usr === $of;
     }
 
-    /** Pendiente | En juego | Perdió | Completada */
+    /** Pendiente | En juego | Perdió | Completada | Ganador */
     public function estadoColaboradorQuiniela(string $codigo): string
     {
+        if ($this->seleccionFinalEsEspana($codigo)) {
+            return 'Ganador';
+        }
         if (!$this->quinielaEstaCerrada($codigo)) {
             return 'Pendiente';
         }
@@ -676,7 +679,82 @@ class Quiniela
         return 'Completada';
     }
 
-    /** @return list<array{codigo_empleado: string, nombre: string, status: string}> */
+    /** True si el campeón elegido en final es España (iso es o nombre). */
+    public function seleccionFinalEsEspana(string $codigo): bool
+    {
+        $carta = $this->obtenerCartaPorCodigo($codigo);
+        if (!$carta) {
+            return false;
+        }
+        $ids = $this->obtenerIdsSeleccionFase((int) $carta['id'], self::F_FINAL);
+        if (count($ids) !== 1) {
+            return false;
+        }
+        $eq = $this->datosEquipo((int) $ids[0]);
+        if (!$eq) {
+            return false;
+        }
+        $iso = strtolower((string) ($eq['iso'] ?? ''));
+        if ($iso === 'es') {
+            return true;
+        }
+        $nombre = mb_strtolower(trim((string) ($eq['nombre'] ?? '')), 'UTF-8');
+        return $nombre === 'españa' || $nombre === 'espana';
+    }
+
+    /**
+     * Aciertos vs resultado oficial: 1 punto por cada equipo correcto.
+     * Solo cuenta fases con datos oficiales cargados.
+     *
+     * @return array{puntos: int, por_fase: array<string, int>}
+     */
+    public function calcularPuntosAciertos(string $codigo): array
+    {
+        $carta = $this->obtenerCartaPorCodigo($codigo);
+        $porFase = [];
+        $total = 0;
+        if (!$carta) {
+            return ['puntos' => 0, 'por_fase' => $porFase];
+        }
+        $cartaId = (int) $carta['id'];
+
+        foreach (self::ordenFases() as $f) {
+            if (!$this->oficialFaseTieneDatos($f)) {
+                $porFase[$f] = 0;
+                continue;
+            }
+            $pts = 0;
+            if ($f === self::F_GRUPOS) {
+                $mapU = $this->seleccionGruposPorGrupo($cartaId);
+                $st = $this->pdo->prepare(
+                    'SELECT grupo_id, equipo_id FROM quiniela_oficial WHERE fase = ? AND grupo_id IS NOT NULL'
+                );
+                $st->execute([$f]);
+                $ofPorG = [];
+                foreach ($st->fetchAll(PDO::FETCH_ASSOC) as $r) {
+                    $g = (int) $r['grupo_id'];
+                    if (!isset($ofPorG[$g])) {
+                        $ofPorG[$g] = [];
+                    }
+                    $ofPorG[$g][] = (int) $r['equipo_id'];
+                }
+                foreach ($ofPorG as $gid => $oficiales) {
+                    $usr = $mapU[$gid] ?? [];
+                    $pts += count(array_intersect($usr, $oficiales));
+                }
+            } else {
+                $usr = $this->obtenerIdsSeleccionFase($cartaId, $f);
+                $of = $this->obtenerIdsOficialFase($f);
+                $pts = count(array_intersect($usr, $of));
+            }
+            $porFase[$f] = $pts;
+            $total += $pts;
+        }
+
+        return ['puntos' => $total, 'por_fase' => $porFase];
+    }
+
+    /** @return list<array{codigo_empleado: string, nombre: string, status: string, puntos: int}> */
     public function listarResumenColaboradoresQuiniela(PDO $pdoEmpleados): array
     {
         $codes = $this->pdo->query(
@@ -685,12 +763,20 @@ class Quiniela
         $out = [];
         foreach ($codes as $code) {
             $code = (string) $code;
+            $score = $this->calcularPuntosAciertos($code);
             $out[] = [
                 'codigo_empleado' => $code,
                 'nombre' => $this->resolverNombreColaborador($pdoEmpleados, $code),
                 'status' => $this->estadoColaboradorQuiniela($code),
+                'puntos' => (int) $score['puntos'],
             ];
         }
+        usort($out, static function ($a, $b) {
+            if ($a['puntos'] !== $b['puntos']) {
+                return $b['puntos'] <=> $a['puntos'];
+            }
+            return strcmp($a['nombre'], $b['nombre']);
+        });
         return $out;
     }
 
@@ -913,7 +999,17 @@ class Quiniela
 
     public function detalleJsonColaborador(string $codigo): array
     {
-        return array_merge($this->obtenerResumenQuiniela($codigo), ['codigo' => $codigo]);
+        $score = $this->calcularPuntosAciertos($codigo);
+        return array_merge(
+            $this->obtenerResumenQuiniela($codigo),
+            [
+                'codigo' => $codigo,
+                'puntos' => (int) $score['puntos'],
+                'puntos_por_fase' => $score['por_fase'],
+                'status' => $this->estadoColaboradorQuiniela($codigo),
+                'campeon_espana' => $this->seleccionFinalEsEspana($codigo),
+            ]
+        );
     }
 
     /**

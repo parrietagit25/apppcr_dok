@@ -30,26 +30,36 @@ $jsonDetalle = json_encode($colaboradoresJson ?? [], JSON_HEX_TAG | JSON_HEX_AMP
                     <th>Colaborador</th>
                     <th>Código</th>
                     <th>Status</th>
+                    <th class="text-center">Aciertos</th>
                     <th class="text-end">Acciones</th>
                 </tr>
             </thead>
             <tbody>
                 <?php foreach ($colaboradoresLista as $row) {
                     $st = $row['status'] ?? '';
-                    if ($st === 'Perdió') {
+                    if ($st === 'Ganador') {
+                        $badge = 'warning text-dark';
+                    } elseif ($st === 'Perdió') {
                         $badge = 'danger';
                     } elseif ($st === 'En juego') {
                         $badge = 'success';
                     } elseif ($st === 'Completada') {
                         $badge = 'primary';
                     } else {
-                        $badge = 'warning text-dark';
+                        $badge = 'secondary';
                     }
+                    $puntos = (int) ($row['puntos'] ?? 0);
                     ?>
                 <tr>
                     <td><?php echo htmlspecialchars($row['nombre']); ?></td>
                     <td><?php echo htmlspecialchars($row['codigo_empleado']); ?></td>
-                    <td><span class="badge bg-<?php echo $badge; ?>"><?php echo htmlspecialchars($row['status']); ?></span></td>
+                    <td>
+                        <span class="badge bg-<?php echo $badge; ?>">
+                            <?php if ($st === 'Ganador') { ?><i class="bi bi-trophy-fill"></i> <?php } ?>
+                            <?php echo htmlspecialchars($row['status']); ?>
+                        </span>
+                    </td>
+                    <td class="text-center fw-semibold"><?php echo $puntos; ?></td>
                     <td class="text-end">
                         <button type="button" class="btn btn-outline-primary btn-sm js-ver-quiniela" data-codigo="<?php echo htmlspecialchars($row['codigo_empleado']); ?>">
                             Ver quiniela
@@ -93,9 +103,27 @@ document.addEventListener('DOMContentLoaded', function () {
             } else {
                 titulo.textContent = 'Quiniela — ' + (data.nombre ? (data.nombre + ' · ') : '') + codigo;
                 var cerrada = data.cerrada ? ' <span class="badge bg-secondary">Cerrada</span>' : '';
-                var html = '<p class="small">' + cerrada + '</p>';
+                var statusBadge = '';
+                if (data.status === 'Ganador') {
+                    statusBadge = ' <span class="badge bg-warning text-dark"><i class="bi bi-trophy-fill"></i> Ganador</span>';
+                } else if (data.status) {
+                    statusBadge = ' <span class="badge bg-secondary">' + esc(data.status) + '</span>';
+                }
+                var puntos = typeof data.puntos === 'number' ? data.puntos : 0;
+                var html = '<div class="d-flex flex-wrap align-items-center gap-2 mb-3">'
+                    + '<span class="badge bg-primary fs-6">Total aciertos: ' + puntos + '</span>'
+                    + cerrada + statusBadge
+                    + '</div>';
+                if (data.campeon_espana) {
+                    html += '<p class="small text-success mb-2"><i class="bi bi-check-circle"></i> Campeón elegido: España</p>';
+                }
                 data.fases.forEach(function (bloque) {
-                    html += '<h6 class="mt-3">' + esc(bloque.etiqueta || bloque.fase || '') + '</h6>';
+                    var ptsFase = 0;
+                    if (data.puntos_por_fase && bloque.fase && data.puntos_por_fase[bloque.fase] != null) {
+                        ptsFase = data.puntos_por_fase[bloque.fase];
+                    }
+                    html += '<h6 class="mt-3">' + esc(bloque.etiqueta || bloque.fase || '')
+                        + ' <span class="badge bg-light text-dark border">' + ptsFase + ' acierto(s)</span></h6>';
                     if (bloque.grupos && bloque.grupos.length) {
                         bloque.grupos.forEach(function (gr) {
                             html += '<p class="mb-1 small text-muted">' + esc(gr.nombre_grupo || '') + '</p><ul class="small">';
