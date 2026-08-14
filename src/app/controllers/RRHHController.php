@@ -1133,15 +1133,15 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
             <div class='header-logo'>";
         
         if ($logo_src) {
-            $html .= "<img src='$logo_src' width='180' alt='Logo Grupo PCR'>";
+            $html .= "<img src='$logo_src' width='180' alt='Logo Automarket'>";
         } else {
-            $html .= "<div style='width: 180px; height: 60px; border: 1px solid #ccc; display: flex; align-items: center; justify-content: center; font-size: 10pt; color: #666;'>LOGO PCR</div>";
+            $html .= "<div style='width: 180px; height: 60px; border: 1px solid #ccc; display: flex; align-items: center; justify-content: center; font-size: 10pt; color: #666;'>LOGO AUTOMARKET</div>";
         }
         
         $html .= "
             </div>
             <div class='header-info'>
-                <strong>Grupo PCR</strong><br>
+                <strong>Automarket</strong><br>
                 Tocumen Commercial Park<br>
                 Tel: 279-2700<br>
                 www.grupopcr.com.pa
@@ -1174,7 +1174,7 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
             <!-- FIRMA -->
             <div class='firma'>
                 <p><strong>Departamento de Recursos Humanos</strong><br>
-                Grupo PCR</p>
+                Automarket</p>
             </div>
         </div>
         <!-- CÓDIGO QR DE VERIFICACIÓN -->
@@ -1234,12 +1234,12 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
         if ($email_destino && filter_var($email_destino, FILTER_VALIDATE_EMAIL)) {
             $mensaje_correo = "Estimado(a) " . htmlspecialchars($nombre_completo) . ",<br><br>Adjunto encontrará su carta de trabajo solicitada.<br><br>" . 
                              "Esta carta incluye un código QR que permite verificar su autenticidad escaneándolo con cualquier dispositivo móvil.<br><br>" .
-                             htmlspecialchars($comentario) . "<br><br>Saludos,<br>Departamento de RRHH - Grupo PCR";
+                             htmlspecialchars($comentario) . "<br><br>Saludos,<br>Departamento de RRHH - Automarket";
             
             $copias = ["abi.pineda@grupopcr.com.pa", "sofia.macias@grupopcr.com.pa", "yissell.perez@grupopcr.com.pa"];
             //$copias = ["pedroarrieta25@hotmail.com"];
 
-            $class->enviar_correo_con_adjunto($email_destino, $copias, "Carta de Trabajo - Grupo PCR", $mensaje_correo, $ruta_archivo);
+            $class->enviar_correo_con_adjunto($email_destino, $copias, "Carta de Trabajo - Automarket", $mensaje_correo, $ruta_archivo);
             echo "<div class='alert alert-success'>
                     <strong>✓ Carta generada exitosamente</strong><br>
                     - Enviada a: " . htmlspecialchars($email_destino) . "<br>

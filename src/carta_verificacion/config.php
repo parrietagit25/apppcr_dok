@@ -16,7 +16,7 @@ define('ENCRYPTION_METHOD', 'AES-256-CBC');
 
 // Configuración general
 define('DIAS_EXPIRACION_CARTA', 365); // 1 año de vigencia
-define('EMPRESA_NOMBRE', 'Grupo PCR');
+define('EMPRESA_NOMBRE', 'Automarket');
 define('EMPRESA_RUC', ''); // Agregar si es necesario
 
 // API de QR Code (usando servicio externo confiable)

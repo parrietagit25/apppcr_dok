@@ -113,7 +113,7 @@ try {
         ':estado' => $carta['estado'] ?? 'activa',
         ':fecha_emision' => $carta['fecha_emision'],
         ':fecha_expiracion' => $carta['fecha_expiracion'] ?? null,
-        ':empresa' => $carta['empresa'] ?? 'Grupo PCR',
+        ':empresa' => $carta['empresa'] ?? 'Automarket',
         ':ip_generacion' => $carta['ip_generacion'] ?? null
     ]);
     

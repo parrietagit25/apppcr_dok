@@ -101,7 +101,7 @@ function mostrarError($mensaje, $carta = null) {
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Error de Verificación - Grupo PCR</title>
+        <title>Error de Verificación - Automarket</title>
         <style>
             * { margin: 0; padding: 0; box-sizing: border-box; }
             body { font-family: Arial, sans-serif; background: #f5f5f5; padding: 20px; }
@@ -141,7 +141,7 @@ function mostrarVerificacionExitosa($carta, $deducciones, $foto_url = null) {
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Verificación de Carta de Trabajo - Grupo PCR</title>
+        <title>Verificación de Carta de Trabajo - Automarket</title>
         <style>
             * { margin: 0; padding: 0; box-sizing: border-box; }
             body { font-family: Arial, sans-serif; background: #f5f5f5; padding: 20px; }
