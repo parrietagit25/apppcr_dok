@@ -67,6 +67,11 @@ include __DIR__ . '/header.php';
             <?php } ?>
         </div>
 
+        <?php
+        // Quiniela oculta en el menú principal. No borrar: para volver a mostrarla, cambie a true.
+        $mostrar_quiniela_mundial = false;
+        if ($mostrar_quiniela_mundial) {
+        ?>
         <div class="row text-center mb-3">
             <div class="col-12 mb-3">
                 <a href="<?php echo rtrim(BASE_URL_CONTROLLER, '/'); ?>/QuinielaController.php" class="text-decoration-none">
@@ -78,6 +83,7 @@ include __DIR__ . '/header.php';
                 </a>
             </div>
         </div>
+        <?php } ?>
 
         <div class="row text-center mb-3">
             <div class="col-4 mb-3">
