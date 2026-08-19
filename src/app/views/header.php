@@ -33,6 +33,17 @@
             object-fit: cover;
             margin-bottom: 15px;
         }
+        .carnet .logo-carnet {
+            display: block;
+            width: 100%;
+            max-width: 260px;
+            height: auto;
+            max-height: 52px;
+            object-fit: contain;
+            object-position: center;
+            border-radius: 0;
+            margin: 0 auto 16px;
+        }
         .carnet h3 {
             margin: 0;
             font-size: 1.2em;
