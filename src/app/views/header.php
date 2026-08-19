@@ -33,16 +33,21 @@
             object-fit: cover;
             margin-bottom: 15px;
         }
-        .carnet .logo-carnet {
-            display: block;
-            width: 100%;
-            max-width: 260px;
-            height: auto;
-            max-height: 52px;
-            object-fit: contain;
-            object-position: center;
-            border-radius: 0;
+        .carnet .logo-carnet-wrap {
             margin: 0 auto 16px;
+            width: 100%;
+        }
+        .carnet .logo-carnet-wrap img,
+        .carnet img.logo-carnet {
+            display: block !important;
+            width: 100% !important;
+            max-width: 260px !important;
+            height: auto !important;
+            max-height: 56px !important;
+            object-fit: contain !important;
+            object-position: center !important;
+            border-radius: 0 !important;
+            margin: 0 auto !important;
         }
         .carnet h3 {
             margin: 0;
