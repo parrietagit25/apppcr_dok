@@ -235,126 +235,33 @@ include __DIR__ . '/header.php';
                             </span>
                         </td>
                         <td class="text-center">
-                            <button class="btn btn-sm btn-primary" 
-                                    data-bs-toggle="modal" 
-                                    data-bs-target="#modalEditar" 
-                                    data-code="<?= $usuario['codigo_empleado'] ?>">
+                            <button type="button" class="btn btn-sm btn-primary btn-editar-usuario"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#modalEditar"
+                                    data-code="<?= htmlspecialchars($usuario['codigo_empleado'] ?? '', ENT_QUOTES, 'UTF-8') ?>"
+                                    data-nombre="<?= htmlspecialchars($usuario['nombre'] ?? '', ENT_QUOTES, 'UTF-8') ?>"
+                                    data-apellido="<?= htmlspecialchars($usuario['apellido'] ?? '', ENT_QUOTES, 'UTF-8') ?>"
+                                    data-cedula="<?= htmlspecialchars($usuario['cedula'] ?? '', ENT_QUOTES, 'UTF-8') ?>"
+                                    data-fecha="<?= htmlspecialchars($usuario['fecha_nacimiento'] ?? '', ENT_QUOTES, 'UTF-8') ?>"
+                                    data-email="<?= htmlspecialchars($usuario['email'] ?? '', ENT_QUOTES, 'UTF-8') ?>"
+                                    data-telefono1="<?= htmlspecialchars($usuario['telefono1'] ?? '', ENT_QUOTES, 'UTF-8') ?>"
+                                    data-departamento="<?= htmlspecialchars($usuario['nombre_departamento'] ?? '', ENT_QUOTES, 'UTF-8') ?>"
+                                    data-cargo="<?= htmlspecialchars($usuario['nombre_cargo'] ?? '', ENT_QUOTES, 'UTF-8') ?>"
+                                    data-salario="<?= htmlspecialchars((string) ($usuario['salario_pactado'] ?? ''), ENT_QUOTES, 'UTF-8') ?>"
+                                    data-estatus="<?= htmlspecialchars($usuario['estatus_empleado'] ?? 'A', ENT_QUOTES, 'UTF-8') ?>">
                                 Editar User
                             </button>
-                            <!-- Modal -->
-                            <div class="modal fade" id="modalEditar" tabindex="-1" aria-labelledby="modalPasswordLabel" aria-hidden="true">
-                                <div class="modal-dialog">
-                                    <form method="POST" action="<?php echo BASE_URL_CONTROLLER; ?>/MainController.php?mantenimiento_usuarios_no_listados=1">
-                                        <div class="modal-content">
-                                            <div class="modal-header">
-                                                <h5 class="modal-title">Editar User</h5>
-                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-                                            </div>
-                                            <div class="modal-body">
-                                                <input type="hidden" name="codigo_empleado" id="codigoEmpleadoInput" value="<?= htmlspecialchars($usuario['codigo_empleado']) ?>">
-                                                
-                                                <!-- Información Básica -->
-                                                <h6 class="text-primary mb-3">📋 Información Básica</h6>
-                                                <div class="row">
-                                                    <div class="col-md-6">
-                                                        <div class="mb-3">
-                                                            <label for="nombre" class="form-label">Nombre *</label>
-                                                            <input type="text" class="form-control" id="nombre" name="nombre" value="<?= htmlspecialchars($usuario['nombre']) ?>" required>
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-md-6">
-                                                        <div class="mb-3">
-                                                            <label for="apellido" class="form-label">Apellido *</label>
-                                                            <input type="text" class="form-control" id="apellido" name="apellido" value="<?= htmlspecialchars($usuario['apellido']) ?>" required>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="row">
-                                                    <div class="col-md-6">
-                                                        <div class="mb-3">
-                                                            <label for="cedula" class="form-label">Cédula *</label>
-                                                            <input type="text" class="form-control" id="cedula" name="cedula" value="<?= htmlspecialchars($usuario['cedula'] ?? '') ?>" required>
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-md-6">
-                                                        <div class="mb-3">
-                                                            <label for="fecha_nacimiento" class="form-label">Fecha de Nacimiento *</label>
-                                                            <input type="date" class="form-control" id="fecha_nacimiento" name="fecha_nacimiento" value="<?= htmlspecialchars($usuario['fecha_nacimiento']) ?>" required>
-                                                        </div>
-                                                    </div>
-                                                </div>
-
-                                                <!-- Información de Contacto -->
-                                                <h6 class="text-primary mb-3 mt-4">📞 Información de Contacto</h6>
-                                                <div class="row">
-                                                    <div class="col-md-6">
-                                                        <div class="mb-3">
-                                                            <label for="email" class="form-label">Email *</label>
-                                                            <input type="email" class="form-control" id="email" name="email" value="<?= htmlspecialchars($usuario['email'] ?? '') ?>" required>
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-md-6">
-                                                        <div class="mb-3">
-                                                            <label for="telefono1" class="form-label">Teléfono Principal *</label>
-                                                            <input type="tel" class="form-control" id="telefono1" name="telefono1" value="<?= htmlspecialchars($usuario['telefono1'] ?? '') ?>" required>
-                                                        </div>
-                                                    </div>
-                                                </div>
-
-                                                <!-- Información Laboral -->
-                                                <h6 class="text-primary mb-3 mt-4">💼 Información Laboral</h6>
-                                                <div class="row">
-                                                    <div class="col-md-6">
-                                                        <div class="mb-3">
-                                                            <label for="nombre_departamento" class="form-label">Departamento *</label>
-                                                            <input type="text" class="form-control" id="nombre_departamento" name="nombre_departamento" value="<?= htmlspecialchars($usuario['nombre_departamento'] ?? '') ?>" required>
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-md-6">
-                                                        <div class="mb-3">
-                                                            <label for="nombre_cargo" class="form-label">Cargo *</label>
-                                                            <input type="text" class="form-control" id="nombre_cargo" name="nombre_cargo" value="<?= htmlspecialchars($usuario['nombre_cargo'] ?? '') ?>" required>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="row">
-                                                    <div class="col-md-6">
-                                                        <div class="mb-3">
-                                                            <label for="salario_pactado" class="form-label">Salario Pactado *</label>
-                                                            <input type="number" class="form-control" id="salario_pactado" name="salario_pactado" value="<?= htmlspecialchars($usuario['salario_pactado'] ?? '') ?>" step="0.01" required>
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-md-6">
-                                                        <div class="mb-3">
-                                                            <label for="estatus_empleado" class="form-label">Estatus *</label>
-                                                            <select class="form-select" id="estatus_empleado" name="estatus_empleado" required>
-                                                                <option value="A" <?= ($usuario['estatus_empleado'] ?? '') == 'A' ? 'selected' : '' ?>>Activo</option>
-                                                                <option value="V" <?= ($usuario['estatus_empleado'] ?? '') == 'V' ? 'selected' : '' ?>>Vacaciones</option>
-                                                                <option value="I" <?= ($usuario['estatus_empleado'] ?? '') == 'I' ? 'selected' : '' ?>>Inactivo</option>
-                                                            </select>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="modal-footer">
-                                                <button type="submit" class="btn btn-primary" name="editar_usuario">Guardar</button>
-                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                                            </div>
-                                        </div>
-                                    </form>
-                                </div>
-                            </div>
-                            <button class="btn btn-sm btn-warning" 
-                                    data-bs-toggle="modal" 
-                                    data-bs-target="#modalPassword" 
-                                    data-code="<?= $usuario['codigo_empleado'] ?>">
+                            <button class="btn btn-sm btn-warning"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#modalPassword"
+                                    data-code="<?= htmlspecialchars($usuario['codigo_empleado'] ?? '', ENT_QUOTES, 'UTF-8') ?>">
                                 Cambiar Contraseña
                             </button>
                             <button class="btn btn-sm btn-danger"
                                     data-bs-toggle="modal"
                                     data-bs-target="#modalStatus"
-                                    data-code="<?= $usuario['codigo_empleado'] ?>"
-                                    data-status="<?= $usuario['stat'] ?>">
+                                    data-code="<?= htmlspecialchars($usuario['codigo_empleado'] ?? '', ENT_QUOTES, 'UTF-8') ?>"
+                                    data-status="<?= htmlspecialchars((string) ($usuario['stat'] ?? ''), ENT_QUOTES, 'UTF-8') ?>">
                                 Desactivar usuario
                             </button>
                         </td>
@@ -363,10 +270,111 @@ include __DIR__ . '/header.php';
             </tbody>
         </table>
 
+        <!-- Modal Editar Usuario (unico, fuera del loop) -->
+        <div class="modal fade" id="modalEditar" tabindex="-1" aria-labelledby="modalEditarLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <form method="POST" action="<?php echo BASE_URL_CONTROLLER; ?>/MainController.php?mantenimiento_usuarios_no_listados=1">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="modalEditarLabel">Editar User</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                        </div>
+                        <div class="modal-body">
+                            <input type="hidden" name="codigo_empleado" id="editCodigoEmpleado">
+
+                            <h6 class="text-primary mb-3">Información Básica</h6>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="editNombre" class="form-label">Nombre *</label>
+                                        <input type="text" class="form-control" id="editNombre" name="nombre" required>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="editApellido" class="form-label">Apellido *</label>
+                                        <input type="text" class="form-control" id="editApellido" name="apellido" required>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="editCedula" class="form-label">Cédula *</label>
+                                        <input type="text" class="form-control" id="editCedula" name="cedula" required>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="editFechaNacimiento" class="form-label">Fecha de Nacimiento *</label>
+                                        <input type="date" class="form-control" id="editFechaNacimiento" name="fecha_nacimiento" required>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <h6 class="text-primary mb-3 mt-4">Información de Contacto</h6>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="editEmail" class="form-label">Email *</label>
+                                        <input type="email" class="form-control" id="editEmail" name="email" required>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="editTelefono1" class="form-label">Teléfono Principal *</label>
+                                        <input type="tel" class="form-control" id="editTelefono1" name="telefono1" required>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <h6 class="text-primary mb-3 mt-4">Información Laboral</h6>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="editDepartamento" class="form-label">Departamento *</label>
+                                        <input type="text" class="form-control" id="editDepartamento" name="nombre_departamento" required>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="editCargo" class="form-label">Cargo *</label>
+                                        <input type="text" class="form-control" id="editCargo" name="nombre_cargo" required>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="editSalario" class="form-label">Salario Pactado *</label>
+                                        <input type="number" class="form-control" id="editSalario" name="salario_pactado" step="0.01" required>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="editEstatus" class="form-label">Estatus *</label>
+                                        <select class="form-select" id="editEstatus" name="estatus_empleado" required>
+                                            <option value="A">Activo</option>
+                                            <option value="V">Vacaciones</option>
+                                            <option value="I">Inactivo</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="submit" class="btn btn-primary" name="editar_usuario">Guardar</button>
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
         <!-- Modal -->
         <div class="modal fade" id="modalPassword" tabindex="-1" aria-labelledby="modalPasswordLabel" aria-hidden="true">
             <div class="modal-dialog">
-                <form method="POST" action="<?php echo BASE_URL_CONTROLLER; ?>/MainController.php?cambiar_estado_usuario_no_listado=1">
+                <form method="POST" action="<?php echo BASE_URL_CONTROLLER; ?>/MainController.php?mantenimiento_usuarios_no_listados=1">
                     <div class="modal-content">
                         <div class="modal-header">
                             <h5 class="modal-title">Cambiar Contraseña</h5>
@@ -428,38 +436,63 @@ include __DIR__ . '/header.php';
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {
-        var modal = document.getElementById('modalPassword');
-        modal.addEventListener('show.bs.modal', function (event) {
-            var button = event.relatedTarget;
-            var codigo = button.getAttribute('data-code');
-            var inputCodigo = modal.querySelector('#codigoEmpleadoInput');
-            inputCodigo.value = codigo;
-        });
+        var modalPassword = document.getElementById('modalPassword');
+        if (modalPassword) {
+            modalPassword.addEventListener('show.bs.modal', function (event) {
+                var button = event.relatedTarget;
+                if (!button) return;
+                var codigo = button.getAttribute('data-code') || '';
+                var inputCodigo = modalPassword.querySelector('#codigoEmpleadoInput');
+                if (inputCodigo) inputCodigo.value = codigo;
+            });
+        }
 
-        // Inicializar DataTable
-        $('#tablaUsuarios').DataTable({
-            "language": {
-                "url": "//cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json"
-            }
-        });
-    });
+        var modalEstado = document.getElementById('modalStatus');
+        if (modalEstado) {
+            modalEstado.addEventListener('show.bs.modal', function (event) {
+                var button = event.relatedTarget;
+                if (!button) return;
+                var codigo = button.getAttribute('data-code') || '';
+                var estado = button.getAttribute('data-status') || '';
+                var inputCodigo = modalEstado.querySelector('#codigoEstadoInput');
+                var inputEstado = modalEstado.querySelector('#estadoActualInput');
+                if (inputCodigo) inputCodigo.value = codigo;
+                if (inputEstado) inputEstado.value = estado;
+            });
+        }
 
-    var modalEstado = document.getElementById('modalStatus');
-    modalEstado.addEventListener('show.bs.modal', function (event) {
-        var button = event.relatedTarget;
-        var codigo = button.getAttribute('data-code');
-        var estado = button.getAttribute('data-status');
-        modalEstado.querySelector('#codigoEstadoInput').value = codigo;
-        modalEstado.querySelector('#estadoActualInput').value = estado;
-    });
+        var modalEditar = document.getElementById('modalEditar');
+        if (modalEditar) {
+            modalEditar.addEventListener('show.bs.modal', function (event) {
+                var button = event.relatedTarget;
+                if (!button) return;
 
-    var modalEstado = document.getElementById('modalEditar');
-    modalEstado.addEventListener('show.bs.modal', function (event) {
-        var button = event.relatedTarget;
-        var codigo = button.getAttribute('data-code');
-        var fecha_nacimiento = button.getAttribute('data-fecha');
-        modalfecha_nacimiento.querySelector('#codigoEstadoInput').value = codigo;
-        modalEstado.querySelector('#fecha_nacimiento').value = fecha_nacimiento;
+                var setVal = function (id, value) {
+                    var el = modalEditar.querySelector('#' + id);
+                    if (el) el.value = value || '';
+                };
+
+                setVal('editCodigoEmpleado', button.getAttribute('data-code'));
+                setVal('editNombre', button.getAttribute('data-nombre'));
+                setVal('editApellido', button.getAttribute('data-apellido'));
+                setVal('editCedula', button.getAttribute('data-cedula'));
+                setVal('editFechaNacimiento', button.getAttribute('data-fecha'));
+                setVal('editEmail', button.getAttribute('data-email'));
+                setVal('editTelefono1', button.getAttribute('data-telefono1'));
+                setVal('editDepartamento', button.getAttribute('data-departamento'));
+                setVal('editCargo', button.getAttribute('data-cargo'));
+                setVal('editSalario', button.getAttribute('data-salario'));
+                setVal('editEstatus', button.getAttribute('data-estatus') || 'A');
+            });
+        }
+
+        if (window.jQuery && $('#tablaUsuarios').length) {
+            $('#tablaUsuarios').DataTable({
+                language: {
+                    url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json'
+                }
+            });
+        }
     });
 </script>
 <?php include __DIR__ . '/footer.php'; ?>
