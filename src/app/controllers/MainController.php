@@ -120,10 +120,119 @@ if (isset($_GET['mantenimineto'])) {
     exit();
 }
 
+if (!function_exists('foto_carnet_numero_colaborador')) {
+    /**
+     * Nombre de archivo de foto de carnet: número de colaborador (código sin el prefijo 00).
+     * Coincide con imagen_carnet/{numero}.jpeg usado en el carnet.
+     */
+    function foto_carnet_numero_colaborador($codigo_empleado) {
+        $codigo = preg_replace('/\D/', '', (string) $codigo_empleado);
+        if ($codigo === '') {
+            return '';
+        }
+        return strlen($codigo) > 2 ? substr($codigo, 2) : $codigo;
+    }
+}
+
+if (!function_exists('foto_carnet_guardar_jpeg')) {
+    function foto_carnet_guardar_jpeg($tmpPath, $destPath, &$error_message) {
+        $error_message = '';
+        $info = @getimagesize($tmpPath);
+        if (!is_array($info) || empty($info[2])) {
+            $error_message = 'El archivo no es una imagen válida.';
+            return false;
+        }
+
+        $src = null;
+        switch ((int) $info[2]) {
+            case IMAGETYPE_JPEG:
+                $src = function_exists('imagecreatefromjpeg') ? @imagecreatefromjpeg($tmpPath) : false;
+                break;
+            case IMAGETYPE_PNG:
+                $src = function_exists('imagecreatefrompng') ? @imagecreatefrompng($tmpPath) : false;
+                break;
+            case IMAGETYPE_WEBP:
+                $src = function_exists('imagecreatefromwebp') ? @imagecreatefromwebp($tmpPath) : false;
+                break;
+            case IMAGETYPE_GIF:
+                $src = function_exists('imagecreatefromgif') ? @imagecreatefromgif($tmpPath) : false;
+                break;
+            default:
+                $error_message = 'Formato no permitido. Use JPG, PNG, WEBP o GIF.';
+                return false;
+        }
+
+        if (!$src) {
+            $error_message = 'No se pudo leer la imagen. Verifique el archivo e inténtelo de nuevo.';
+            return false;
+        }
+
+        $w = imagesx($src);
+        $h = imagesy($src);
+        $max = 1200;
+        $nw = $w;
+        $nh = $h;
+        if ($w > $max || $h > $max) {
+            $ratio = min($max / $w, $max / $h);
+            $nw = max(1, (int) round($w * $ratio));
+            $nh = max(1, (int) round($h * $ratio));
+        }
+
+        $dst = imagecreatetruecolor($nw, $nh);
+        $white = imagecolorallocate($dst, 255, 255, 255);
+        imagefill($dst, 0, 0, $white);
+        imagecopyresampled($dst, $src, 0, 0, 0, 0, $nw, $nh, $w, $h);
+        imagedestroy($src);
+
+        $ok = imagejpeg($dst, $destPath, 88);
+        imagedestroy($dst);
+        if (!$ok) {
+            $error_message = 'No se pudo guardar la foto en el servidor.';
+            return false;
+        }
+        return true;
+    }
+}
+
 if (isset($_GET['mantenimiento_usuarios'])) {
 
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        if (isset($_POST['actualizar_estatus_empleado'])) {
+        if (isset($_POST['actualizar_foto_colaborador'])) {
+            $code = trim((string) ($_POST['codigo_empleado'] ?? ''));
+            $numero = foto_carnet_numero_colaborador($code);
+            $file = $_FILES['foto_colaborador'] ?? null;
+            $errorUpload = (int) ($file['error'] ?? UPLOAD_ERR_NO_FILE);
+
+            if ($numero === '') {
+                echo "<div class='alert alert-danger'>Código de colaborador inválido.</div>";
+            } elseif ($errorUpload === UPLOAD_ERR_NO_FILE || empty($file['tmp_name'])) {
+                echo "<div class='alert alert-danger'>Seleccione una imagen para registrar o actualizar la foto.</div>";
+            } elseif ($errorUpload === UPLOAD_ERR_INI_SIZE || $errorUpload === UPLOAD_ERR_FORM_SIZE) {
+                echo "<div class='alert alert-danger'>La imagen es demasiado grande. Use un archivo de menor tamaño.</div>";
+            } elseif ($errorUpload !== UPLOAD_ERR_OK || !is_uploaded_file($file['tmp_name'])) {
+                echo "<div class='alert alert-danger'>Error al subir la imagen. Inténtelo de nuevo.</div>";
+            } elseif (($file['size'] ?? 0) > 8 * 1024 * 1024) {
+                echo "<div class='alert alert-danger'>La imagen no puede superar 8 MB.</div>";
+            } else {
+                $imagesDir = realpath(__DIR__ . '/../../public/images');
+                if ($imagesDir === false) {
+                    echo "<div class='alert alert-danger'>No se encontró el directorio de imágenes.</div>";
+                } else {
+                    $destDir = $imagesDir . DIRECTORY_SEPARATOR . 'imagen_carnet';
+                    if (!is_dir($destDir) && !@mkdir($destDir, 0775, true)) {
+                        echo "<div class='alert alert-danger'>No se pudo preparar el directorio de fotos.</div>";
+                    } else {
+                        $destPath = $destDir . DIRECTORY_SEPARATOR . $numero . '.jpeg';
+                        $errorFoto = '';
+                        if (foto_carnet_guardar_jpeg($file['tmp_name'], $destPath, $errorFoto)) {
+                            echo "<div class='alert alert-success'>Foto del colaborador " . htmlspecialchars($numero) . " registrada/actualizada correctamente.</div>";
+                        } else {
+                            echo "<div class='alert alert-danger'>" . htmlspecialchars($errorFoto ?: 'No se pudo guardar la foto.') . "</div>";
+                        }
+                    }
+                }
+            }
+        } elseif (isset($_POST['actualizar_estatus_empleado'])) {
             $code = $_POST['codigo_empleado'] ?? '';
             $estatus = $_POST['estatus_empleado'] ?? '';
             if ($code !== '' && $estatus !== '') {
