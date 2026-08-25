@@ -430,7 +430,7 @@ class Rrhh {
                                         ct.file_add
                                     FROM incapacidad ct
                                     INNER JOIN empleados e
-                                        ON ct.code_user = RIGHT(e.codigo_empleado, CHAR_LENGTH(e.codigo_empleado) - 2)");
+                                        ON CAST(ct.code_user AS UNSIGNED) = CAST(e.codigo_empleado AS UNSIGNED)");
 
 
         $stmt->execute();
@@ -458,9 +458,9 @@ class Rrhh {
                                         ct.file_add
                                     FROM incapacidad ct
                                     INNER JOIN empleados e
-                                        ON ct.code_user = RIGHT(e.codigo_empleado, CHAR_LENGTH(e.codigo_empleado) - 2)
+                                        ON CAST(ct.code_user AS UNSIGNED) = CAST(e.codigo_empleado AS UNSIGNED)
                                     WHERE ct.stat IN (1, 2)
-                                      AND ct.code_user = :code_user");
+                                      AND CAST(ct.code_user AS UNSIGNED) = CAST(:code_user AS UNSIGNED)");
         $stmt->bindParam(':code_user', $code, PDO::PARAM_STR);
         $stmt->execute();
         $array_datos = [];
@@ -485,9 +485,9 @@ class Rrhh {
                                         ct.file_add
                                      FROM incapacidad ct
                                      INNER JOIN empleados e
-                                         ON ct.code_user = RIGHT(e.codigo_empleado, CHAR_LENGTH(e.codigo_empleado) - 2)
+                                         ON CAST(ct.code_user AS UNSIGNED) = CAST(e.codigo_empleado AS UNSIGNED)
                                      WHERE ct.stat IN (1, 2)
-                                       AND ct.code_user = :code_user");
+                                       AND CAST(ct.code_user AS UNSIGNED) = CAST(:code_user AS UNSIGNED)");
         $stmt->bindParam(':code_user', $code_user, PDO::PARAM_STR);
         $stmt->execute();
         $array_datos = [];
