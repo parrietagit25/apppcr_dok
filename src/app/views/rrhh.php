@@ -158,6 +158,20 @@ include __DIR__ . '/header.php';
                 </a>
             </div>
             <?php } ?>
+            <?php if ($tipo_usuario == 6) {
+                $personal_cargo_icono = (isset($userModel) && is_object($userModel))
+                    ? $userModel->get_personal_a_cargo($_SESSION['code'] ?? '')
+                    : [];
+                if (!empty($personal_cargo_icono)) {
+            ?>
+            <div class="col-4 mb-3">
+                <a href="<?php echo BASE_URL_CONTROLLER; ?>/RRHHController.php?incapacidad_mi_personal=1" class="text-decoration-none">
+                    <img src="<?php echo BASE_URL_IMAGE; ?>ico_incapacidades.png" width="45">
+                    <div class="text-muted small">Incapacidades de mi personal</div>
+                </a>
+            </div>
+            <?php }
+            } ?>
             <!--<div class="col-4 mb-3">
                 <a href="https://seguros.doctor-online.co/webm/views/login.php?resource=b60aa9f45cca11ebae930242ac130002" class="text-decoration-none">
                     <img src="<?php echo BASE_URL_IMAGE; ?>dr_minutos.png" width="45">

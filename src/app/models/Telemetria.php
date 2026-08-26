@@ -411,6 +411,7 @@ class Telemetria
             'solicitud_permiso_admin' => 'V-Permisos',
             'carta_trabajo_aprobar' => 'V-Carta Trabajo',
             'incapacidad_vrrhh' => 'V-Incapacidades',
+            'incapacidad_mi_personal' => 'Incapacidades de mi personal',
             'uniforme_vrrhh' => 'V-Uniformes',
             'calamidad_vrrhh' => 'V-Calamidades',
         ];

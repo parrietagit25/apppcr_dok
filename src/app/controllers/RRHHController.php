@@ -1542,6 +1542,25 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
     require_once __DIR__ . '/../views/incapacidad_vrrhh.php';
     exit();
 
+}elseif(isset($_GET['incapacidad_mi_personal'])){
+
+    // Solo supervisores/encargados (type_user = 6) con personal en supervisores_personal_cargo
+    if ((int) $tipo_usuario !== 6) {
+        header('Location: ' . BASE_URL_CONTROLLER . '/RRHHController.php');
+        exit();
+    }
+
+    $personal_cargo = $userModel->get_personal_a_cargo($_SESSION['code'] ?? '');
+    if (empty($personal_cargo)) {
+        echo "<div class='alert alert-warning m-3'>No tienes personal a cargo asignado.</div>";
+        $incapacidad = [];
+    } else {
+        $incapacidad = $class->incapacidad_por_supervisor($_SESSION['code']);
+    }
+
+    require_once __DIR__ . '/../views/incapacidad_mi_personal.php';
+    exit();
+
 }elseif (isset($_GET['solicitud_permiso'])) {
 
     if (isset($_POST['solicitud_permiso'])) {

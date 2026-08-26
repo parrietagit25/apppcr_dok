@@ -441,6 +441,49 @@ class Rrhh {
         return $array_datos;
     }
 
+    /**
+     * Incapacidades del personal a cargo del supervisor (supervisores_personal_cargo).
+     */
+    public function incapacidad_por_supervisor($supervisor_code) {
+        $array_datos = [];
+        try {
+            $sql = "
+                SELECT
+                    ct.id,
+                    e.codigo_empleado,
+                    ct.descripcion,
+                    ct.fecha_log,
+                    ct.fecha_retroactiva,
+                    CASE ct.stat
+                        WHEN 1 THEN 'Enviado'
+                        WHEN 2 THEN 'Revisado'
+                        WHEN 3 THEN 'Anulado'
+                    END AS estado,
+                    CONCAT(e.nombre, ' ', e.apellido) AS nombre,
+                    ct.file_add
+                FROM incapacidad ct
+                INNER JOIN empleados e
+                    ON CAST(ct.code_user AS UNSIGNED) = CAST(e.codigo_empleado AS UNSIGNED)
+                INNER JOIN supervisores_personal_cargo spc
+                    ON CAST(CAST(COALESCE(e.codigo_empleado,'') AS CHAR) AS UNSIGNED)
+                     = CAST(CAST(COALESCE(spc.colaborador_code,'') AS CHAR) AS UNSIGNED)
+                WHERE CAST(CAST(COALESCE(spc.supervisor_code,'') AS CHAR) AS UNSIGNED) = CAST(:supervisor_code AS UNSIGNED)
+                  AND spc.activo = 1
+                ORDER BY ct.fecha_log DESC
+            ";
+            $stmt = $this->pdo->prepare($sql);
+            $supervisor_code = trim((string) $supervisor_code);
+            $stmt->bindParam(':supervisor_code', $supervisor_code, PDO::PARAM_STR);
+            $stmt->execute();
+            while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                $array_datos[] = $row;
+            }
+        } catch (PDOException $e) {
+            error_log('incapacidad_por_supervisor: ' . $e->getMessage());
+        }
+        return $array_datos;
+    }
+
     public function incapacidad() {
 
         $code = isset($_SESSION['code']) ? ltrim((string) $_SESSION['code'], '0') : '';
