@@ -536,8 +536,7 @@ class Rrhh {
 
     public function calamidades() {
 
-        $code = $_SESSION['code'];
-        $code = substr($code, 2);
+        $code = ltrim((string) ($_SESSION['code'] ?? ''), '0');
 
         $stmt = $this->pdo->prepare("SELECT ct.id, ct.stat, ct.descripcion, ct.fecha_log, ct.code_user, 
                                         CASE ct.stat
@@ -546,12 +545,15 @@ class Rrhh {
                                             WHEN 3 THEN 'Aprobado'
                                             WHEN 4 THEN 'Rechazado'
                                         END AS estado, 
-                                        c.nombre,
-                                        ct.file_add FROM calamidades ct inner join col_datos_generales c on ct.code_user = c.codigo  
-                                        WHERE 
-                                        ct.stat IN (1, 2, 3, 4) 
-                                        AND 
-                                        ct.code_user = '".$code."'");
+                                        e.nombre,
+                                        e.apellido,
+                                        ct.file_add
+                                        FROM calamidades ct
+                                        INNER JOIN empleados e
+                                            ON CAST(e.codigo_empleado AS UNSIGNED) = CAST(ct.code_user AS UNSIGNED)
+                                        WHERE ct.stat IN (1, 2, 3, 4)
+                                          AND CAST(ct.code_user AS UNSIGNED) = CAST(:code AS UNSIGNED)");
+        $stmt->bindParam(':code', $code, PDO::PARAM_STR);
 
         $stmt->execute();
         $array_datos = [];
@@ -602,14 +604,17 @@ class Rrhh {
                                             WHEN 3 THEN 'Aprobado'
                                             WHEN 4 THEN 'Rechazado'
                                         END AS estado, 
-                                        c.departamento,
+                                        e.nombre_departamento AS departamento,
                                         ct.monto,
                                         ct.plazo,
                                         ct.forma_pago,
-                                        c.nombre,
-                                        ct.file_add FROM calamidades ct inner join col_datos_generales c on ct.code_user = c.codigo  
-                                        WHERE 
-                                        ct.stat IN (1, 2, 3, 4)");
+                                        CONCAT(IFNULL(e.nombre, ''), ' ', IFNULL(e.apellido, '')) AS nombre,
+                                        ct.file_add
+                                        FROM calamidades ct
+                                        INNER JOIN empleados e
+                                            ON CAST(e.codigo_empleado AS UNSIGNED) = CAST(ct.code_user AS UNSIGNED)
+                                        WHERE ct.stat IN (1, 2, 3, 4)
+                                        ORDER BY ct.fecha_log DESC, ct.id DESC");
 
         $stmt->execute();
         $array_datos = [];
