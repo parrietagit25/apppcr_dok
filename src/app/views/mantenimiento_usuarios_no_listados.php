@@ -242,7 +242,8 @@ include __DIR__ . '/header.php';
                                     data-nombre="<?= htmlspecialchars($usuario['nombre'] ?? '', ENT_QUOTES, 'UTF-8') ?>"
                                     data-apellido="<?= htmlspecialchars($usuario['apellido'] ?? '', ENT_QUOTES, 'UTF-8') ?>"
                                     data-cedula="<?= htmlspecialchars($usuario['cedula'] ?? '', ENT_QUOTES, 'UTF-8') ?>"
-                                    data-fecha="<?= htmlspecialchars($usuario['fecha_nacimiento'] ?? '', ENT_QUOTES, 'UTF-8') ?>"
+                                    data-fecha="<?= htmlspecialchars(!empty($usuario['fecha_nacimiento']) ? substr((string) $usuario['fecha_nacimiento'], 0, 10) : '', ENT_QUOTES, 'UTF-8') ?>"
+                                    data-fecha-ingreso="<?= htmlspecialchars(!empty($usuario['fecha_ingreso']) ? substr((string) $usuario['fecha_ingreso'], 0, 10) : '', ENT_QUOTES, 'UTF-8') ?>"
                                     data-email="<?= htmlspecialchars($usuario['email'] ?? '', ENT_QUOTES, 'UTF-8') ?>"
                                     data-telefono1="<?= htmlspecialchars($usuario['telefono1'] ?? '', ENT_QUOTES, 'UTF-8') ?>"
                                     data-departamento="<?= htmlspecialchars($usuario['nombre_departamento'] ?? '', ENT_QUOTES, 'UTF-8') ?>"
@@ -346,10 +347,18 @@ include __DIR__ . '/header.php';
                             <div class="row">
                                 <div class="col-md-6">
                                     <div class="mb-3">
+                                        <label for="editFechaIngreso" class="form-label">Fecha de Ingreso</label>
+                                        <input type="date" class="form-control" id="editFechaIngreso" name="fecha_ingreso">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
                                         <label for="editSalario" class="form-label">Salario Pactado *</label>
                                         <input type="number" class="form-control" id="editSalario" name="salario_pactado" step="0.01" required>
                                     </div>
                                 </div>
+                            </div>
+                            <div class="row">
                                 <div class="col-md-6">
                                     <div class="mb-3">
                                         <label for="editEstatus" class="form-label">Estatus *</label>
@@ -477,6 +486,7 @@ include __DIR__ . '/header.php';
                 setVal('editApellido', button.getAttribute('data-apellido'));
                 setVal('editCedula', button.getAttribute('data-cedula'));
                 setVal('editFechaNacimiento', button.getAttribute('data-fecha'));
+                setVal('editFechaIngreso', button.getAttribute('data-fecha-ingreso'));
                 setVal('editEmail', button.getAttribute('data-email'));
                 setVal('editTelefono1', button.getAttribute('data-telefono1'));
                 setVal('editDepartamento', button.getAttribute('data-departamento'));

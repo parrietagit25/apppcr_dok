@@ -703,7 +703,10 @@ if (isset($_GET['mantenimiento_usuarios_no_listados'])) {
         $code = $_POST['codigo_empleado'];
         $nombre = $_POST['nombre'];
         $apellido = $_POST['apellido'];
-        $fecha_nacimiento = $_POST['fecha_nacimiento'];
+        $fecha_nacimiento = trim((string) ($_POST['fecha_nacimiento'] ?? ''));
+        if ($fecha_nacimiento === '') {
+            $fecha_nacimiento = null;
+        }
         
         // Nuevos campos
         $cedula = $_POST['cedula'] ?? '';
@@ -714,7 +717,10 @@ if (isset($_GET['mantenimiento_usuarios_no_listados'])) {
         $estado_civil = $_POST['estado_civil'] ?? '';
         $nombre_departamento = $_POST['nombre_departamento'] ?? '';
         $nombre_cargo = $_POST['nombre_cargo'] ?? '';
-        $fecha_ingreso = $_POST['fecha_ingreso'] ?? '';
+        $fecha_ingreso = trim((string) ($_POST['fecha_ingreso'] ?? ''));
+        if ($fecha_ingreso === '') {
+            $fecha_ingreso = null;
+        }
         $salario_pactado = $_POST['salario_pactado'] ?? 0;
         $estatus_empleado = $_POST['estatus_empleado'] ?? 'A';
         $seguro_social = $_POST['seguro_social'] ?? '';

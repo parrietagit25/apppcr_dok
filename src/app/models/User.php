@@ -459,10 +459,15 @@ public function nombre_colaborador() {
     }
 
     public function editar_usuario_completo($code, $nombre, $apellido, $fecha_nacimiento, $cedula, $email, $telefono1, $telefono2, $direccion1, $estado_civil, $nombre_departamento, $nombre_cargo, $fecha_ingreso, $salario_pactado, $estatus_empleado, $seguro_social, $sexo, $nacionalidad) {
+        // MySQL DATE no acepta '' — null / vacío mantiene el valor actual de fecha_ingreso
+        $fecha_nacimiento = (is_string($fecha_nacimiento) && trim($fecha_nacimiento) === '') ? null : $fecha_nacimiento;
+        $fecha_ingreso = (is_string($fecha_ingreso) && trim($fecha_ingreso) === '') ? null : $fecha_ingreso;
+
         $sql = "UPDATE empleados SET 
                 nombre = ?, apellido = ?, fecha_nacimiento = ?, cedula = ?, email = ?,
                 telefono1 = ?, telefono2 = ?, direccion1 = ?, estado_civil = ?, 
-                nombre_departamento = ?, nombre_cargo = ?, fecha_ingreso = ?, 
+                nombre_departamento = ?, nombre_cargo = ?,
+                fecha_ingreso = COALESCE(?, fecha_ingreso),
                 salario_pactado = ?, estatus_empleado = ?, seguro_social = ?, 
                 sexo = ?, nacionalidad = ?
                 WHERE codigo_empleado = ? AND es_externo = 1";
