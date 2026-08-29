@@ -52,7 +52,10 @@ if (array_key_exists($code, $colaboradores)) {
         $codigo_empleado = $list_code['codigo_empleado'];
         $nombre = $list_code['nombre'];
         $apellido = $list_code['apellido'];
-        $departamento = $list_code['nombre_centro_costo'];
+        $departamento = trim((string) ($list_code['nombre_departamento'] ?? ''));
+        if ($departamento === '') {
+            $departamento = $list_code['nombre_centro_costo'] ?? '';
+        }
         $sangre = $list_code['tipo_sangre'];
     }
 }
@@ -72,11 +75,15 @@ if (isset($_GET['verificar_carnet'])) {
             $verificado = $stmt->fetch(PDO::FETCH_ASSOC);
 
             if ($verificado) {
+                $departamentoVerificado = trim((string) ($verificado['nombre_departamento'] ?? ''));
+                if ($departamentoVerificado === '') {
+                    $departamentoVerificado = $verificado['nombre_centro_costo'] ?? '';
+                }
                 $empleadoVerificado = [
                     "codigo_empleado" => $verificado["codigo_empleado"],
                     "nombre" => $verificado["nombre"],
                     "apellido" => $verificado["apellido"],
-                    "departamento" => $verificado["nombre_centro_costo"],
+                    "departamento" => $departamentoVerificado,
                     "sangre" => $verificado["tipo_sangre"]
                 ];
             }
