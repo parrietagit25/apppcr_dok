@@ -243,6 +243,19 @@ if (isset($_GET['mantenimiento_usuarios'])) {
                     echo "<div class='alert alert-danger'>Error al actualizar el estatus.</div>";
                 }
             }
+        } elseif (isset($_POST['actualizar_departamento_empleado'])) {
+            $code = trim((string) ($_POST['codigo_empleado'] ?? ''));
+            $departamento = trim((string) ($_POST['nombre_departamento'] ?? ''));
+            if ($code !== '' && $departamento !== '') {
+                $resultado = $userModel->actualizar_departamento_empleado($code, $departamento);
+                if ($resultado) {
+                    echo "<div class='alert alert-success'>Departamento actualizado correctamente.</div>";
+                } else {
+                    echo "<div class='alert alert-danger'>Error al actualizar el departamento.</div>";
+                }
+            } else {
+                echo "<div class='alert alert-danger'>Debe indicar el departamento.</div>";
+            }
         } elseif (isset($_POST['codigo_empleado']) && isset($_POST['nueva_password'])) {
             $code = $_POST['codigo_empleado'];
             $pass = $_POST['nueva_password'];
@@ -259,6 +272,7 @@ if (isset($_GET['mantenimiento_usuarios'])) {
 
     $usuarios = $userModel->usuarios();
     $estatus_empleados = $userModel->get_estatus_empleados_distinct();
+    $departamentos_lista = $userModel->get_departamentos_distinct();
     require_once __DIR__ . '/../views/mantenimiento_usuarios.php';
     exit();
 }

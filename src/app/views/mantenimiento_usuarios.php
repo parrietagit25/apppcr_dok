@@ -38,6 +38,7 @@ include __DIR__ . '/header.php';
                 <tr>
                     <th>Nombre</th>
                     <th>Apellido</th>
+                    <th>Departamento</th>
                     <th>Fecha Log</th>
                     <th>Código Empleado</th>
                     <th>Acciones</th>
@@ -48,9 +49,20 @@ include __DIR__ . '/header.php';
                     <tr>
                         <td><?= htmlspecialchars($usuario['nombre']) ?></td>
                         <td><?= htmlspecialchars($usuario['apellido']) ?></td>
+                        <td><?= htmlspecialchars($usuario['nombre_departamento'] ?? '') ?></td>
                         <td><?= htmlspecialchars($usuario['fecha_log']) ?></td>
                         <td><?= htmlspecialchars($usuario['codigo_empleado']) ?></td>
                         <td class="text-center text-nowrap">
+                            <button type="button" class="btn btn-sm btn-success btn-accion-usuario me-1"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#modalEditarDepartamento"
+                                    data-code="<?= htmlspecialchars($usuario['codigo_empleado']) ?>"
+                                    data-nombre="<?= htmlspecialchars($usuario['nombre'] . ' ' . $usuario['apellido']) ?>"
+                                    data-departamento="<?= htmlspecialchars($usuario['nombre_departamento'] ?? '', ENT_QUOTES, 'UTF-8') ?>"
+                                    title="Editar departamento"
+                                    aria-label="Editar departamento">
+                                <i class="bi bi-pencil-square"></i>
+                            </button>
                             <button type="button" class="btn btn-sm btn-info btn-accion-usuario me-1"
                                     data-bs-toggle="modal"
                                     data-bs-target="#modalEstatusEmpleado"
@@ -111,6 +123,38 @@ include __DIR__ . '/header.php';
                     </div>
                     <div class="modal-footer">
                         <button type="submit" class="btn btn-primary">Guardar</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+        </div>
+
+        <!-- Modal Editar Departamento -->
+        <div class="modal fade" id="modalEditarDepartamento" tabindex="-1" aria-labelledby="modalEditarDepartamentoLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <form method="POST" action="<?php echo BASE_URL_CONTROLLER; ?>/MainController.php?mantenimiento_usuarios=1">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="modalEditarDepartamentoLabel">Editar departamento</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                    </div>
+                    <div class="modal-body">
+                        <input type="hidden" name="actualizar_departamento_empleado" value="1">
+                        <input type="hidden" name="codigo_empleado" id="departamentoCodigoInput">
+                        <p class="mb-3"><strong>Colaborador:</strong> <span id="departamentoNombreText"></span></p>
+                        <div class="mb-3">
+                            <label for="nombre_departamento_input" class="form-label">Departamento</label>
+                            <input type="text" class="form-control" id="nombre_departamento_input" name="nombre_departamento" list="listaDepartamentos" required>
+                            <datalist id="listaDepartamentos">
+                                <?php foreach (($departamentos_lista ?? []) as $depto): ?>
+                                    <option value="<?= htmlspecialchars($depto) ?>"></option>
+                                <?php endforeach; ?>
+                            </datalist>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-success">Guardar</button>
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
                     </div>
                 </div>
@@ -246,6 +290,20 @@ include __DIR__ . '/header.php';
             var inputCodigo = modal.querySelector('#codigoEmpleadoInput');
             inputCodigo.value = codigo;
         });
+
+        var modalDepartamento = document.getElementById('modalEditarDepartamento');
+        if (modalDepartamento) {
+            modalDepartamento.addEventListener('show.bs.modal', function (event) {
+                var button = event.relatedTarget;
+                if (!button) return;
+                var codigo = button.getAttribute('data-code') || '';
+                var nombre = button.getAttribute('data-nombre') || '';
+                var departamento = button.getAttribute('data-departamento') || '';
+                modalDepartamento.querySelector('#departamentoCodigoInput').value = codigo;
+                modalDepartamento.querySelector('#departamentoNombreText').textContent = nombre;
+                modalDepartamento.querySelector('#nombre_departamento_input').value = departamento;
+            });
+        }
 
         // Modal Estatus empleado
         var modalEstatus = document.getElementById('modalEstatusEmpleado');

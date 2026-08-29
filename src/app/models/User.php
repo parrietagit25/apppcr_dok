@@ -222,6 +222,23 @@ public function nombre_colaborador() {
         return $stmt->execute([$estatus_empleado, $codigo_empleado]);
     }
 
+    /**
+     * Actualizar solo el departamento del empleado
+     */
+    public function actualizar_departamento_empleado($codigo_empleado, $nombre_departamento) {
+        $stmt = $this->pdo->prepare("UPDATE empleados SET nombre_departamento = ? WHERE codigo_empleado = ?");
+        return $stmt->execute([$nombre_departamento, $codigo_empleado]);
+    }
+
+    /**
+     * Departamentos distintos (para sugerencias en edición)
+     */
+    public function get_departamentos_distinct() {
+        $stmt = $this->pdo->prepare("SELECT DISTINCT nombre_departamento FROM empleados WHERE nombre_departamento IS NOT NULL AND TRIM(nombre_departamento) != '' ORDER BY nombre_departamento");
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_COLUMN);
+    }
+
     public function usuarios_encargados() {
         // Un supervisor por codigo: empleado_log puede tener varias filas por usuario
         $stmt = $this->pdo->prepare("
