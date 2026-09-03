@@ -148,8 +148,8 @@ include __DIR__ . '/header.php';
                                                 </div>
                                                 
                                                 <div class='mb-3'>
-                                                    <label class='form-label'><b>Observaciones</b></label>
-                                                    <p>" . (!empty($row['observacion']) ? htmlspecialchars($row['observacion']) : 'Sin observaciones') . "</p>
+                                                    <label class='form-label'><b>Observaciones del colaborador</b></label>
+                                                    <p>" . (!empty($row['observacion']) ? htmlspecialchars($row['observacion']) : '<em class=\"text-muted\">Sin observaciones</em>') . "</p>
                                                 </div>
                                                 
                                                 <hr>
@@ -171,6 +171,11 @@ include __DIR__ . '/header.php';
                                                 </div>
                                                 
                                                 <hr>
+                                                
+                                                <div class='mb-3'>
+                                                    <label class='form-label'><b>Observaciones RRHH</b> <span class='text-muted small'>(opcional — se incluye en el correo al colaborador)</span></label>
+                                                    <textarea class='form-control' name='observacion_rrhh' rows='2' maxlength='500' placeholder='Ej: Entregado en almacén, pendiente talla...'>" . htmlspecialchars($row['observacion_rrhh'] ?? '', ENT_QUOTES, 'UTF-8') . "</textarea>
+                                                </div>
                                                 
                                                 <div class='mb-3'>
                                                     <label class='form-label'><b>Cambiar Estado</b></label>

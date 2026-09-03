@@ -2228,11 +2228,13 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
         $nuevo_estado = (int)($_POST['nuevo_estado'] ?? 0);
         $cantidad_entregada_in = isset($_POST['cantidad_entregada']) && $_POST['cantidad_entregada'] !== ''
             ? (int) $_POST['cantidad_entregada'] : null;
+        $obs_rrhh = trim((string) ($_POST['observacion_rrhh'] ?? ''));
+        $obs_rrhh = $obs_rrhh !== '' ? $obs_rrhh : null;
 
         if ($uniforme_id > 0 && in_array($nuevo_estado, [1, 2, 3], true)) {
             if ($nuevo_estado === 3 && ($cantidad_entregada_in === null || $cantidad_entregada_in < 0)) {
                 echo "<div class='alert alert-danger'>Para marcar como <b>Entregado</b> debe indicar la <b>cantidad entregada</b> (número mayor o igual a 0).</div>";
-            } elseif ($class->update_uniforme($uniforme_id, $nuevo_estado, $nuevo_estado === 3 ? $cantidad_entregada_in : null)) {
+            } elseif ($class->update_uniforme($uniforme_id, $nuevo_estado, $nuevo_estado === 3 ? $cantidad_entregada_in : null, $obs_rrhh)) {
                 $estado_texto = match($nuevo_estado) {
                     1 => 'solicitado',
                     2 => 'en proceso',
@@ -2263,13 +2265,14 @@ if (isset($_GET['mis_datos']) && $_GET['mis_datos'] == 1) {
                             $cantidad_sol = (int) ($uniforme_data['cantidad'] ?? 1);
                             $cantidad_ent = (int) ($uniforme_data['cantidad_entregada'] ?? 0);
                             
+                            $obs_rrhh_texto = !empty($obs_rrhh) ? "<br>• Observaciones: " . htmlspecialchars($obs_rrhh) : '';
                             $mensaje = "Estimado(a) <b>$nombre_completo</b>,<br><br>
                                         Le informamos que su uniforme ha sido <b>ENTREGADO</b>.<br><br>
                                         <b>Detalles del uniforme:</b><br>
                                         • Tipo: $tipo_uniforme<br>
                                         • Talla: $talla<br>
                                         • Cantidad solicitada: $cantidad_sol unidad(es)<br>
-                                        • Cantidad entregada: $cantidad_ent unidad(es)<br><br>
+                                        • Cantidad entregada: $cantidad_ent unidad(es)$obs_rrhh_texto<br><br>
                                         Saludos,<br>
                                         <b>Departamento de RRHH</b><br>
                                         Grupo PCR";

@@ -2292,18 +2292,20 @@ class Rrhh {
      * Si estado = 3 (entregado), $cantidad_entregada es obligatoria (unidades realmente entregadas).
      * No modifica cantidad (solicitada por el colaborador).
      */
-    public function update_uniforme($uniforme_id, $nuevo_estado, $cantidad_entregada = null) {
+    public function update_uniforme($uniforme_id, $nuevo_estado, $cantidad_entregada = null, $observacion_rrhh = null) {
         if ($nuevo_estado === 2) {
-            $sql = "UPDATE uniformes SET stat = :stat, fecha_proceso = NOW(), cantidad_entregada = NULL WHERE id = :uniforme_id";
+            $sql = "UPDATE uniformes SET stat = :stat, fecha_proceso = NOW(), cantidad_entregada = NULL, observacion_rrhh = :obs WHERE id = :uniforme_id";
         } elseif ($nuevo_estado === 3) {
-            $sql = "UPDATE uniformes SET stat = :stat, fecha_entrega = NOW(), cantidad_entregada = :cantidad_entregada WHERE id = :uniforme_id";
+            $sql = "UPDATE uniformes SET stat = :stat, fecha_entrega = NOW(), cantidad_entregada = :cantidad_entregada, observacion_rrhh = :obs WHERE id = :uniforme_id";
         } else {
-            $sql = "UPDATE uniformes SET stat = :stat, cantidad_entregada = NULL WHERE id = :uniforme_id";
+            $sql = "UPDATE uniformes SET stat = :stat, cantidad_entregada = NULL, observacion_rrhh = :obs WHERE id = :uniforme_id";
         }
 
         $stmt = $this->pdo->prepare($sql);
         $stmt->bindValue(':stat', (int) $nuevo_estado, PDO::PARAM_INT);
         $stmt->bindValue(':uniforme_id', (int) $uniforme_id, PDO::PARAM_INT);
+        $obs = ($observacion_rrhh !== null && trim((string) $observacion_rrhh) !== '') ? trim((string) $observacion_rrhh) : null;
+        $stmt->bindValue(':obs', $obs, $obs !== null ? PDO::PARAM_STR : PDO::PARAM_NULL);
         if ($nuevo_estado === 3) {
             $stmt->bindValue(':cantidad_entregada', (int) $cantidad_entregada, PDO::PARAM_INT);
         }
@@ -2352,6 +2354,7 @@ class Rrhh {
                 u.fecha_entrega,
                 u.codigo_empleado,
                 u.observacion,
+                u.observacion_rrhh,
                 e.nombre,
                 e.apellido,
                 e.nombre_departamento,
