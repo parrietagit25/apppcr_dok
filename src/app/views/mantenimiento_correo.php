@@ -48,7 +48,7 @@ include __DIR__ . '/header.php';
                         <code class="small"><?php echo htmlspecialchars($env_archivo_ruta ?? ''); ?></code>
                     <?php } else { ?>
                         <span class="text-danger">No encontrado</span>
-                        — monte <code>./.env:/var/www/html/.env</code> y ejecute <code>docker compose up -d --build</code>
+                        — monte <code>./.env:/var/www/secrets/.env</code> (fuera de la web) y ejecute <code>docker compose up -d --build</code>
                     <?php } ?>
                 </li>
                 <li>

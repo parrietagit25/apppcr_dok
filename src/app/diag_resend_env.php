@@ -14,7 +14,10 @@ if (is_readable($configPath)) {
 }
 require_once __DIR__ . '/helpers/resend_env.php';
 
-$envPath = realpath(__DIR__ . '/../.env') ?: (__DIR__ . '/../.env');
+$envPath = '/var/www/secrets/.env';
+if (!is_readable($envPath)) {
+    $envPath = realpath(__DIR__ . '/../.env') ?: (__DIR__ . '/../.env');
+}
 
 /**
  * @return array<string, string>
@@ -94,12 +97,6 @@ echo 'resend_env(): ' . (function_exists('resend_env') ? 'sí' : 'NO') . "\n";
 echo 'Helper: ' . (is_readable(__DIR__ . '/helpers/resend_env.php') ? 'sí' : 'NO') . "\n";
 echo "Archivo .env: {$envPath}\n";
 echo 'Existe: ' . (is_readable($envPath) ? 'sí' : 'no') . "\n\n";
-
-if (is_readable($envPath)) {
-    echo "--- grep RESEND (cat -A) ---\n";
-    passthru('grep RESEND ' . escapeshellarg($envPath) . ' | cat -A');
-    echo "\n";
-}
 
 $apiKey = diag_leer('RESEND_API_KEY', '');
 $fromEmail = diag_leer('RESEND_FROM_EMAIL', '');

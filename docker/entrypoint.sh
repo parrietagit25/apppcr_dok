@@ -1,9 +1,15 @@
 #!/bin/bash
 set -e
 
-# Carga .env montado en /var/www/html/.env (valores con espacios soportados)
-ENV_FILE="/var/www/html/.env"
-if [ -f "$ENV_FILE" ]; then
+# Carga .env fuera del DocumentRoot. El montaje antiguo en /var/www/html/.env sigue como respaldo.
+ENV_FILE=""
+for candidate in /var/www/secrets/.env /var/www/html/.env; do
+  if [ -f "$candidate" ]; then
+    ENV_FILE="$candidate"
+    break
+  fi
+done
+if [ -n "$ENV_FILE" ]; then
   while IFS= read -r line || [ -n "$line" ]; do
     line="${line%$'\r'}"
     case "$line" in

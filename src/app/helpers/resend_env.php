@@ -44,6 +44,7 @@ if (!function_exists('dotenv_file_paths')) {
     {
         $srcRoot = dirname(__DIR__, 2);
         return [
+            '/var/www/secrets/.env',
             $srcRoot . '/.env',
             dirname($srcRoot) . '/.env',
         ];

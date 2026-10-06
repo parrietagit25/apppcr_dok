@@ -601,7 +601,14 @@ if (isset($_GET['mantenimiento_correo'])) {
     $resend_from_email = resend_env('RESEND_FROM_EMAIL', 'notificaciones@automarket.com.pa');
     $resend_from_name = resend_env('RESEND_FROM_NAME', 'AM Gente notificaciones');
 
-    $env_archivo_ruta = realpath(__DIR__ . '/../../.env') ?: (__DIR__ . '/../../.env');
+    $env_candidatos = ['/var/www/secrets/.env', __DIR__ . '/../../.env'];
+    $env_archivo_ruta = $env_candidatos[0];
+    foreach ($env_candidatos as $candidato) {
+        if (is_readable($candidato)) {
+            $env_archivo_ruta = $candidato;
+            break;
+        }
+    }
     $env_archivo_existe = is_readable($env_archivo_ruta);
     $env_getenv_valor = getenv('RESEND_API_KEY');
     $env_getenv_activo = $env_getenv_valor !== false && trim((string) $env_getenv_valor) !== '';
