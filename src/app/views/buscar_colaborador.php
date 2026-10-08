@@ -10,6 +10,7 @@ if ($conn->connect_error) {
     echo json_encode(["error" => "Error en la conexión a la base de datos: " . $conn->connect_error]);
     exit;
 }
+$conn->query("SET time_zone = '-05:00'");
 
 $response = []; // Variable que contendrá la respuesta final
 

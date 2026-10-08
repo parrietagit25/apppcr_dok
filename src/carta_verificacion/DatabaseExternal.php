@@ -15,6 +15,7 @@ class DatabaseExternal {
             ];
             
             $this->pdo = new PDO($dsn, DB_EXTERNAL_USER, DB_EXTERNAL_PASS, $options);
+            $this->pdo->exec("SET time_zone = '-05:00'");
         } catch (PDOException $e) {
             error_log("Error conectando a BD externa: " . $e->getMessage());
             throw new Exception("Error de conexión a base de datos externa");

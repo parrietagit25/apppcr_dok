@@ -7,6 +7,7 @@ function conexion() {
         $dsn = "mysql:host=" . DB_HOST . ";dbname=" . DB_NAME . ";charset=utf8mb4";
         $pdo = new PDO($dsn, DB_USER, DB_PASS);
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        $pdo->exec("SET time_zone = '-05:00'");
         return $pdo;
     } catch (PDOException $e) {
         die("Error de conexión a la base de datos: " . $e->getMessage());

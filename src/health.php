@@ -91,6 +91,7 @@ try {
         DB_PASS,
         $pdoOptions
     );
+    $pdo->exec("SET time_zone = '-05:00'");
     $pdo->query('SELECT 1');
     $dbStatus = 'ok';
 } catch (Throwable $e) {

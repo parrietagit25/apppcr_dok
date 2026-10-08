@@ -14,6 +14,7 @@ $conn = new mysqli($host, $usuario, $contraseña, $dbname);
 if ($conn->connect_error) {
     die(json_encode(["error" => "Error de conexión a la base de datos: " . $conn->connect_error]));
 }
+$conn->query("SET time_zone = '-05:00'");
 
 // Recibir datos JSON
 $data = json_decode(file_get_contents("php://input"), true);

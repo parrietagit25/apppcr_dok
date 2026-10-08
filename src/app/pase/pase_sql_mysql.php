@@ -138,6 +138,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
     escribir_log("Conexión a MySQL exitosa.", 'INFO');
     $conn->set_charset("utf8mb4");
+    $conn->query("SET time_zone = '-05:00'");
 
     escribir_log("Truncando tabla temporal: {$tabla_temporal}", 'INFO');
     if (!$conn->query("TRUNCATE TABLE `$tabla_temporal`")) {

@@ -22,6 +22,7 @@ try {
     PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
     PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
   ]);
+  $pdo->exec("SET time_zone = '-05:00'");
 } catch (Throwable $e) {
   http_response_code(500);
   echo json_encode(["error"=>"DB connect", "detail"=>$e->getMessage()]);

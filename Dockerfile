@@ -26,6 +26,7 @@ RUN { \
     echo 'post_max_size = 52M'; \
     echo 'memory_limit = 256M'; \
     echo 'max_execution_time = 120'; \
+    echo 'date.timezone = America/Panama'; \
   } > /usr/local/etc/php/conf.d/app-uploads.ini
 
 # Copiar el código fuente

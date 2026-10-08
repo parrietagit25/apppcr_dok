@@ -23,6 +23,7 @@ services:
       MYSQL_DATABASE: apppcr
       MYSQL_USER: appuser
       MYSQL_PASSWORD: apppass
+      TZ: America/Panama
     volumes:
       - ./mysql:/var/lib/mysql
       - ./initdb:/docker-entrypoint-initdb.d  # <- 🔥 Carga SQL inicial automática
