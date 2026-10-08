@@ -1,4 +1,6 @@
 <?php
+date_default_timezone_set('America/Panama');
+
 class Database {
     private static $pdo = null;
 
